@@ -174,7 +174,7 @@ import 'build/src/app/units/states/analytics/analytics.js';
 import 'build/src/app/common/filters/filters.js';
 import 'build/src/app/common/long-press/on-long-press.js';
 import 'build/src/app/common/content-editable/content-editable.js';
-import 'build/src/app/common/alert-list/alert-list.js';
+//import 'build/src/app/common/alert-list/alert-list.js';
 import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
@@ -237,9 +237,9 @@ import 'build/src/app/api/models/unit.js';
 import 'build/src/app/api/api.js';
 import 'build/src/app/api/resource-plus.js';
 import 'build/src/app/errors/errors.js';
-import 'build/src/app/errors/states/unauthorised/unauthorised.js';
-import 'build/src/app/errors/states/not-found/not-found.js';
-import 'build/src/app/errors/states/timeout/timeout.js';
+//import 'build/src/app/errors/states/unauthorised/unauthorised.js';
+//import 'build/src/app/errors/states/not-found/not-found.js';
+//import 'build/src/app/errors/states/timeout/timeout.js';
 import 'build/src/app/errors/states/states.js';
 import 'build/src/common/utilService/utilService.js';
 import 'build/src/common/i18n/localize.js';
@@ -290,6 +290,10 @@ import { TaskAssessmentModalService } from './common/modals/task-assessment-moda
 import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
+import { NotFoundComponent } from './errors/states/not-found/not-found.component';
+import { TimeoutComponent } from './errors/states/timeout/timeout.component';
+import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
+import { AlertListComponent } from './common/alert-list/alert-list.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -396,6 +400,26 @@ DoubtfireAngularJSModule.directive(
   'taskPlagiarismCard',
   downgradeComponent({ component: TaskPlagiarismCardComponent })
 );
+
+DoubtfireAngularJSModule.directive(
+  'notFound',
+  downgradeComponent({ component: NotFoundComponent })
+);
+
+DoubtfireAngularJSModule.directive(
+  'timeout',
+  downgradeComponent({ component: TimeoutComponent })
+);
+
+DoubtfireAngularJSModule.directive(
+  'unauthorised',
+  downgradeComponent({ component: UnauthorisedComponent })
+);
+DoubtfireAngularJSModule.directive(
+  'alertlist',
+  downgradeComponent({ component: AlertListComponent })
+);
+
 
 // Global configuration
 

@@ -1,3 +1,4 @@
+//#region imports
 import { interval } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -165,10 +166,15 @@ import { HeaderComponent } from './common/header/header.component';
 import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdown.component';
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
-
+import { NotFoundComponent } from './errors/states/not-found/not-found.component';
+import { TimeoutComponent } from './errors/states/timeout/timeout.component';
+import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
+import { AlertListComponent } from './common/alert-list/alert-list.component';
+//#endregion
 @NgModule({
   // Components we declare
   declarations: [
+    //#region decs
     AboutDoubtfireModalContent,
     TaskCommentComposerComponent,
     AudioCommentRecorderComponent,
@@ -222,9 +228,16 @@ import { SplashScreenComponent } from './home/splash-screen/splash-screen.compon
     UnitDropdownComponent,
     TaskDropdownComponent,
     SplashScreenComponent,
+    //#endregion
+
+    NotFoundComponent,
+    TimeoutComponent,
+    UnauthorisedComponent,
+    AlertListComponent
   ],
   // Module Imports
   imports: [
+    //#region imports
     BrowserModule,
     BrowserAnimationsModule,
     ContenteditableModule,
@@ -272,12 +285,14 @@ import { SplashScreenComponent } from './home/splash-screen/splash-screen.compon
     ReactiveFormsModule,
     PickerModule,
     EmojiModule,
+    //#endregion
     PopoverModule.forRoot(),
     UIRouterUpgradeModule.forRoot({ states: doubtfireStates }),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: () => interval(6000).pipe(take(1)),
     }),
+
   ],
   // Services we provide
   providers: [
