@@ -9,6 +9,7 @@ type userModel = {
 };
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'notific-setting',
   templateUrl: './notification.component.html',
   providers: [BsModalService],
@@ -19,10 +20,10 @@ export class notificationComponent implements OnInit {
   public radioModel: string;
   public classList: Array<string>;
   config = {
-    animated: true, 
-    keyboard: true, 
-    backdrop: true, 
-    ignoreBackdropClick: false,
+    animated: true, // 为true时，弹窗出现和取消时有动画效果
+    keyboard: true, // 为true时，点击键盘Esc键可以取消弹窗
+    backdrop: true, // 为 true时，弹窗出现时背景变灰
+    ignoreBackdropClick: true, // 为true时，点击背景弹窗不会消失
   };
   constructor(private modalService: BsModalService) {
     this.user = {
@@ -63,12 +64,15 @@ export class notificationComponent implements OnInit {
     let arr = ['btn', 'btn-default', this.user['receive_portfolio_notifications'] ? '' : 'active'];
     return arr.join(' ');
   }
+  // getClassList(val: string) {
 
+  // }
   ngOnInit(): void {}
+  //打开 模态框，size:默认
   openModal(template: TemplateRef<any>) {
     this.curModal = this.modalService.show(template, this.config);
   }
-  
+  // 打开模态框，size:大
   openModalWithClass(template: TemplateRef<any>) {
     this.curModal = this.modalService.show(template, Object.assign({}, this.config, { class: 'gray modal-lg' }));
   }
