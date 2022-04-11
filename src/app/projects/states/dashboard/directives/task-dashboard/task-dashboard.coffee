@@ -13,10 +13,14 @@ angular.module('doubtfire.projects.states.dashboard.directives.task-dashboard', 
     showSubmission: '@?'
   controller: ($scope, $stateParams, Task, TaskFeedback, listenerService, projectService, taskService, DoubtfireConstants, TaskAssessmentModal, fileDownloaderService) ->
     $scope.overseer_enabled = DoubtfireConstants.IsOverseerEnabled
+
+    $scope.overseerEnabled = () ->
+      DoubtfireConstants.IsOverseerEnabled.value && $scope.task?.overseerEnabled()
+
     # Is the current user a tutor?
     $scope.tutor = $stateParams.tutor
     # the ways in which the dashboard can be viewed
-    $scope.dashboardViews = ["details", "submission", "task", "submission-history"]
+    $scope.dashboardViews = ["details", "submission", "task"]
 
     # set the current dashboard view to details by default
     updateCurrentView = ->
@@ -67,11 +71,11 @@ angular.module('doubtfire.projects.states.dashboard.directives.task-dashboard', 
       $scope.triggerTransition = (status) ->
         taskService.updateTaskStatus $scope.task.project().unit(), $scope.task.project(), $scope.task, status
 
-      $scope.downloadSubmission = () ->
-        fileDownloaderService.downloadFile($scope.urls.taskSubmissionPdfAttachmentUrl)
+    $scope.downloadSubmission = () ->
+      fileDownloaderService.downloadFile($scope.urls.taskSubmissionPdfAttachmentUrl)
 
-      $scope.downloadSubmittedFiles = () ->
-        fileDownloaderService.downloadFile($scope.urls.taskFilesUrl)
+    $scope.downloadSubmittedFiles = () ->
+      fileDownloaderService.downloadFile($scope.urls.taskFilesUrl)
 
 
 )

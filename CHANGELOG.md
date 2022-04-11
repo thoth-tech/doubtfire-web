@@ -2,6 +2,75 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.0.11](https://github.com/macite/doubtfire-deploy/compare/v6.0.10...v6.0.11) (2022-03-22)
+
+
+### Bug Fixes
+
+* fix the data for group and stream not align ([575a819](https://github.com/macite/doubtfire-deploy/commit/575a819a9f4a348ed78578ea5910ac96ac739ec7))
+* improve overseer integration ([182370d](https://github.com/macite/doubtfire-deploy/commit/182370d6ea40150b4ce8224ee5ca656a2746e440))
+
+### [6.0.10](https://github.com/macite/doubtfire-deploy/compare/v6.0.9...v6.0.10) (2022-03-17)
+
+### [6.0.9](https://github.com/macite/doubtfire-deploy/compare/v6.0.8...v6.0.9) (2022-03-03)
+
+
+### Bug Fixes
+
+* can download file submissions from magnifying glass ([b2c0ec7](https://github.com/macite/doubtfire-deploy/commit/b2c0ec74c8d507236f24eee7a448a642930df098))
+
+### [6.0.8](https://github.com/macite/doubtfire-deploy/compare/v6.0.7...v6.0.8) (2022-03-03)
+
+
+### Bug Fixes
+
+* avoid mediaRecorder for Safari ([7f6bff3](https://github.com/macite/doubtfire-deploy/commit/7f6bff3073277edecbdb05d5de58f559511e89f8))
+* provide ui to edit tutorial streams ([582148e](https://github.com/macite/doubtfire-deploy/commit/582148e3ce9f344292f1a102cd1c5c4e2a66192b))
+* tutorial time can be any string ([bd76698](https://github.com/macite/doubtfire-deploy/commit/bd7669833e1335eff0af1da30d9ca36946a7dd58))
+
+### [6.0.7](https://github.com/macite/doubtfire-deploy/compare/v6.0.6...v6.0.7) (2022-02-28)
+
+
+### Bug Fixes
+
+* download submission needs header in task submission card ([7c207d3](https://github.com/macite/doubtfire-deploy/commit/7c207d3eef0d7070de3348ef7603a28173b9d651))
+
+### [6.0.6](https://github.com/macite/doubtfire-deploy/compare/v6.0.5...v6.0.6) (2022-02-28)
+
+
+### Bug Fixes
+
+* ensure submission history only shows for overseer tasks ([b2fc395](https://github.com/macite/doubtfire-deploy/commit/b2fc395193dc79b67f4243e43534250eb0b94626))
+
+### [6.0.5](https://github.com/macite/doubtfire-deploy/compare/v6.0.4...v6.0.5) (2022-02-28)
+
+### [6.0.4](https://github.com/macite/doubtfire-deploy/compare/v6.0.3...v6.0.4) (2022-02-28)
+
+
+### Bug Fixes
+
+* correct date representations ([655c512](https://github.com/macite/doubtfire-deploy/commit/655c5125115cc17bff43122ef0fd1f0413357b4a))
+* correct link to task inbox ([92fe194](https://github.com/macite/doubtfire-deploy/commit/92fe1945221c893ce07d90a6c27bc0a0c2e34ae0))
+* correct PDF viewer updating when url changes ([dc4b372](https://github.com/macite/doubtfire-deploy/commit/dc4b3729e8a5c883edbca1c9752fda2413d53ebd))
+* ensure audio blob is freed in player ([240ef9a](https://github.com/macite/doubtfire-deploy/commit/240ef9a67b9f8cac21484571687928105a1ecf8f))
+* ensure task definition CSV and zip can be downloaded ([b8ba310](https://github.com/macite/doubtfire-deploy/commit/b8ba310f22a7265092d0b5c7fb7adef0c075750a))
+
+### [6.0.3](https://github.com/macite/doubtfire-deploy/compare/v6.0.2...v6.0.3) (2022-02-27)
+
+
+### Bug Fixes
+
+* ensure CORs return blob, data, and ws ([60cfd30](https://github.com/macite/doubtfire-deploy/commit/60cfd30069467f09adbcaf4dd98c9d92e4f042c3))
+
+### [6.0.2](https://github.com/macite/doubtfire-deploy/compare/v6.0.1...v6.0.2) (2022-02-24)
+
+### [6.0.1](https://github.com/macite/doubtfire-deploy/compare/v6.0.0...v6.0.1) (2022-02-22)
+
+
+### Bug Fixes
+
+* ensure tutorial enrol button shows correctly ([564af34](https://github.com/macite/doubtfire-deploy/commit/564af34767ff263f65319ee198d3558ce2d57a08))
+
 ## [6.0.0](https://github.com/macite/doubtfire-deploy/compare/v5.0.5...v6.0.0) (2022-02-02)
 
 
