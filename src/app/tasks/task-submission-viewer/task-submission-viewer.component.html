@@ -6,12 +6,12 @@
     </div><!--/no-pdf-->
     <div ng-show="task.processing_pdf && ! loadingDetails(task)">
         <i class="fa fa-clock-o fa-2x"></i>
-        <p>
+          <p>
           Submission is still being processed
+          </p>
           <p class="small text-muted">
             Please check again shortly
           </p>
-        </p>
     </div><!--/pdf-in-process-->
     <div ng-show="loadingDetails(task)">
         <i class="fa fa-spinner fa-pulse fa-2x"></i>
