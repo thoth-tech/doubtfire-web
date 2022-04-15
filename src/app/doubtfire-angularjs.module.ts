@@ -290,6 +290,7 @@ import { TaskAssessmentModalService } from './common/modals/task-assessment-moda
 import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
+import { TaskSubmissionViewerComponent } from './tasks/task-submission-viewer/task-submission-viewer.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -379,8 +380,10 @@ DoubtfireAngularJSModule.directive('taskAssessor',
   downgradeComponent({ component: TaskAssessorComponent }));
 DoubtfireAngularJSModule.directive('taskAssessmentComment',
   downgradeComponent({ component: TaskAssessmentCommentComponent }));
-DoubtfireAngularJSModule.directive('taskSubmissionHistory',
+  DoubtfireAngularJSModule.directive('taskSubmissionHistory',
   downgradeComponent({ component: TaskSubmissionHistoryComponent }));
+  DoubtfireAngularJSModule.directive('taskSubmissionViewer',
+  downgradeComponent({ component: TaskSubmissionViewerComponent }));
 
 // Global configuration
 DoubtfireAngularJSModule.directive(
