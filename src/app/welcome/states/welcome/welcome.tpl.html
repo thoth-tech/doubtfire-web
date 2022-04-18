@@ -118,8 +118,7 @@
                   btn-radio="{{$index}}"
                 >
                   <grade-icon
-                    grade="grade"
-                    class="text-{{project.target_grade == grades.indexOf(grade) ? 'primary' : 'muted'}}"
+                    [grade]="grade"
                   ></grade-icon>
                 </label>
               </div>
