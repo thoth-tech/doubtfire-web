@@ -1,8 +1,9 @@
 import { Component, Input, Inject} from '@angular/core';
- //import { listenerService } from 'src/app/ajs-upgraded-providers';
+import d3 from 'd3';
+import { listenerService, visualisationProvider} from 'src/app/ajs-upgraded-providers';
 
 @Component({
-    selector: 'progress-burndown-chart',
+    selector: 'sc',
     templateUrl: 'visualisations/visualisation.html',
     styleUrls: ['progress-burndown-chart.component.scss'],
 })
@@ -10,17 +11,17 @@ export class ProgressBurndownChartComponent {
     @Input() project: any;
     @Input() unit: any;  
    
-    constructor(@Inject(Visualisation) private visualisationFactory: any) { } 
+    constructor(@Inject(visualisationProvider) private visualisationProvider: any) { } 
 
-    xAxisTickFormatDateFormat(d) {
+    xAxisTickFormatDateFormat(d: number): String{
         return d3.time.format('%b %d')(new Date(d * 1000))
        }      
    
-    yAxisTickFormatPercentFormat(d){
+    yAxisTickFormatPercentFormat(d: number): String{
         return d3.format(',%')(d)
     }
 
-    colorFunction (d, i){
+    colorFunction (d: any, i: number): String{
         if (i == 0)
             return '#AAAAAA'; // projeted
         else if (i == 1)
@@ -34,32 +35,33 @@ export class ProgressBurndownChartComponent {
     /*
     No need to clip x axis
     */   
-    xAxisClipNegBurndown (d){
+    xAxisClipNegBurndown (d:number[]): number{
         return d[0];
     }
    
     /*
     Clips y to 0 if y < 0
     */
-    yAxisClipNegBurndown (d){
+    yAxisClipNegBurndown (d:number[]): number{
         if (d[1] < 0.0) return 0; else return d[1]
     } 
     /*
     Converts a moment date to a Unix Time Stamp in seconds
     */
-    toUnixTimestamp (momentDate){
+    toUnixTimestamp (momentDate:number): number{
         return +momentDate / 1000
     }
 
     ngDoCheck() {
-
         if (this.project.burndown_chart_data == null) {
             return;
         }
-        let newValue = this.project.burndown_chart_data;
-        let data: any = [];                        
-        var now: any; 
-        var Key: any;
+        let newValue:any = this.project.burndown_chart_data;
+        var data:any = [];  
+        var options:any = {};    
+        var config:any = {};                  
+        var now: number; 
+        var Key: String;
         now = +new Date().getTime() / 1000
         let timeSeries = {
             key: "NOW",
@@ -67,20 +69,15 @@ export class ProgressBurndownChartComponent {
             color: '#CACACA',
             classed: 'dashed'
         };      
-
+        
         if (!_.find(newValue, {
             key: 'NOW'
             })) {
             newValue.push(timeSeries);
             }
             data.length = 0;
-            _.extend(data, newValue);
-        
-        //   if ((newValue.hasOwnProperty('NOW')))
-        //       Key = 'NOW';
-        //   else
-        //       newValue.push(timeSeries); 
-
+            _.extend(data, newValue);        
+       
         /*
         Graph unit dates as moment.js dates
         */
@@ -99,58 +96,56 @@ export class ProgressBurndownChartComponent {
   
         //Visualisation = (type, visualisationName, opts, conf, titleOpts, subtitleOpts) ->
         // <nvd3 options="options" data="data" id="chart" api="api" config="config"></nvd3>
-        return ref = this.visualisationFactory('lineChart', 'Student Progress Burndown Chart', {
-            useInteractiveGuideline: true,
-            interactiveLayer: {
-              tooltip: {
-                contentGenerator: function(data) {
-                  var d, date, html, series;
-                  date = data.value;
-                  series = data.series;
-                  html = "<table class='col-sm-6'><thead><tr><td colspan='3'><strong class='x-value'>" + date + "</strong></td></tr></thead><tbody>";
-                  html += ((function() {
-                    var j, len, results;
-                    results = [];
-                    for (j = 0, len = series.length; j < len; j++) {
-                      d = series[j];
-                      if (d.key !== 'NOW') {
-                        results.push("<tr><td class='legend-color-guide'><div style='background-color: " + d.color + ";'></div></td><td class='key'>" + d.key + "</td><td class='value'>" + (d3.format(',%')(d.value)) + "</td></tr><tr>");
-                      }
+        options = {
+          useInteractiveGuideline: true,
+          interactiveLayer: {
+            tooltip: {
+              contentGenerator: function(data) {
+                var d, date, html, series;
+                date = data.value;
+                series = data.series;
+                html = "<table class='col-sm-6'><thead><tr><td colspan='3'><strong class='x-value'>" + date + "</strong></td></tr></thead><tbody>";
+                html += ((function() {
+                  var j, len, results;
+                  results = [];
+                  for (j = 0, len = series.length; j < len; j++) {
+                    d = series[j];
+                    if (d.key !== 'NOW') {
+                      results.push("<tr><td class='legend-color-guide'><div style='background-color: " + d.color + ";'></div></td><td class='key'>" + d.key + "</td><td class='value'>" + (d3.format(',%')(d.value)) + "</td></tr><tr>");
                     }
-                    return results;
-                  })()).join('');
-                  html += "</tbody></table>";
-                  return html;
-                }
+                  }
+                  return results;
+                })()).join('');
+                html += "</tbody></table>";
+                return html;
               }
-            },
-            height: 440,
-            margin: {
-              left: 75,
-              right: 50
-            },
-            xAxis: {
-              axisLabel: "Time",
-              tickFormat: this.xAxisTickFormatDateFormat,
-              ticks: 8
-            },
-            yAxis: {
-              axisLabel: "Tasks Remaining",
-              tickFormat: this.yAxisTickFormatPercentFormat
-            },
-            color: this.colorFunction,
-            legendColor: this.colorFunction,
-            x: this.xAxisClipNegBurndown,
-            y: this.yAxisClipNegBurndown,
-            yDomain: [0, 1],
-            xDomain: xDomain
-          }, {}), $scope.options = ref[0], $scope.config = ref[1], ref;
-        }]
-      };
-    });
+            }
+          },
+          height: 440,
+          margin: {
+            left: 75,
+            right: 50
+          },
+          xAxis: {
+            axisLabel: "Time",
+            tickFormat: this.xAxisTickFormatDateFormat,
+            ticks: 8
+          },
+          yAxis: {
+            axisLabel: "Tasks Remaining",
+            tickFormat: this.yAxisTickFormatPercentFormat
+          },
+          color: this.colorFunction,
+          legendColor: this.colorFunction,
+          x: this.xAxisClipNegBurndown,
+          y: this.yAxisClipNegBurndown,
+          yDomain: [0, 1],
+          xDomain: xDomain
+        }
+        config = {}
+        visualisationProvider('lineChart', 'Student Progress Burndown Chart', options, config);   
     
+    //conf, titleOpts, subtitleOpts
 
-function Visualisation(Visualisation: any) {
-    throw new Error('Function not implemented.');
-}
+
      
