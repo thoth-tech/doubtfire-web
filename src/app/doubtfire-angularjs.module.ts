@@ -33,8 +33,8 @@ import 'build/templates-app.js';
 import 'build/assets/wav-worker.js';
 import 'build/src/app/visualisations/summary-task-status-scatter.js';
 import 'build/src/app/visualisations/student-task-status-pie-chart.js';
-import 'build/src/app/visualisations/progress-burndown-chart.js';
 import 'build/src/app/visualisations/target-grade-pie-chart.js';
+import 'build/src/app/visualisations/progress-burndown-chart.js';
 import 'build/src/app/visualisations/task-status-pie-chart.js';
 import 'build/src/app/visualisations/task-completion-box-plot.js';
 import 'build/src/app/visualisations/visualisations.js';
@@ -48,7 +48,6 @@ import 'build/src/app/welcome/states/states.js';
 import 'build/src/app/tasks/task-submission-viewer/task-submission-viewer.js';
 import 'build/src/app/tasks/task-status-selector/task-status-selector.js';
 import 'build/src/app/tasks/task-sheet-viewer/task-sheet-viewer.js';
-import 'build/src/app/tasks/modals/upload-submission-modal/upload-submission-modal.js';
 import 'build/src/app/tasks/modals/grade-task-modal/grade-task-modal.js';
 import 'build/src/app/tasks/modals/modals.js';
 import 'build/src/app/tasks/modals/plagiarism-report-modal/plagiarism-report-modal.js';
@@ -290,6 +289,7 @@ import { TaskAssessmentModalService } from './common/modals/task-assessment-moda
 import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
+import { UploadSubmissionModalComponent } from './tasks/modals/upload-submission-modal/upload-submission-modal.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -374,14 +374,16 @@ DoubtfireAngularJSModule.directive(
   'taskDescriptionCard',
   downgradeComponent({ component: TaskDescriptionCardComponent })
 );
-
 DoubtfireAngularJSModule.directive('taskAssessor',
   downgradeComponent({ component: TaskAssessorComponent }));
 DoubtfireAngularJSModule.directive('taskAssessmentComment',
   downgradeComponent({ component: TaskAssessmentCommentComponent }));
 DoubtfireAngularJSModule.directive('taskSubmissionHistory',
   downgradeComponent({ component: TaskSubmissionHistoryComponent }));
-
+DoubtfireAngularJSModule.directive('uploadSubmissionModalComponent',
+   downgradeComponent({ component: UploadSubmissionModalComponent })
+  );
+  
 // Global configuration
 DoubtfireAngularJSModule.directive(
   'taskCommentsViewer',
