@@ -15,44 +15,17 @@ export class TaskSubmissionViewerComponent {
   @Input() taskFilesURL: any;
   @Input() TaskFeedback: { getTaskUrl: (arg0: any) => any; getTaskFilesUrl: (arg0: any) => any; }
   
-  newTask: { getSubmissionDetails: () => void; }
+  newTask: { getSubmissionDetails: () => void; } //newTask property to store submission details
   
   constructor() {
-    this.notSubmitted = (task: { has_pdf: any; processing_pdf: any; }) => !task.has_pdf && (!task.processing_pdf);
+    this.notSubmitted = (task: { has_pdf: any; processing_pdf: any; }) => !task.has_pdf && (!task.processing_pdf); //notSubmitted property detects if task has pdf or is processing pdf.
 
-    this.loadingDetails = (task: { needsSubmissionDetails: () => any; }) => task.needsSubmissionDetails();
+    this.loadingDetails = (task: { needsSubmissionDetails: () => any; }) => task.needsSubmissionDetails(); //loadingDetails property calls for submission details if task has none.
 
       
-    if (this.newTask == null) { return; }
+    if (this.newTask == null) { return; } //if newTask is called then fill, else return.
       this.newTask.getSubmissionDetails();
       this.taskUrl = this.TaskFeedback.getTaskUrl(this.newTask);
       return this.taskFilesURL = this.TaskFeedback.getTaskFilesUrl(this.newTask);
     }
 }
-
-/*
-angular.module('doubtfire.tasks.task-submission-viewer', [])
-
-#
-# Viewer for an uploaded task submission
-#
-.directive('taskSubmissionViewer', ->
-  restrict: 'E'
-  templateUrl: 'tasks/task-submission-viewer/task-submission-viewer.tpl.html'
-  scope:
-    project: "=project"
-    task: "=task"
-  controller: ($scope, TaskFeedback) ->
-    $scope.notSubmitted = (task) ->
-      not task.has_pdf and (not task.processing_pdf)
-
-    $scope.loadingDetails = (task) ->
-      task.needsSubmissionDetails()
-
-    $scope.$watch 'task', (newTask) ->
-      return unless newTask?
-      newTask.getSubmissionDetails()
-      $scope.taskUrl = TaskFeedback.getTaskUrl newTask
-      $scope.taskFilesURL = TaskFeedback.getTaskFilesUrl newTask
-)
-*/
