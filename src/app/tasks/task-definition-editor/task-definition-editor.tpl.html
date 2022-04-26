@@ -354,7 +354,7 @@
                 </div>
                 <div ng-if="task && task.id">
                   <div class="col-sm-6">
-                    <file-uploader files="taskSheet" url="taskSheetUploadUrl()" on-success="onTaskSheetSuccess">
+                    <file-uploader [files]="taskSheet" [url]="taskSheetUploadUrl()" [on-success]="onTaskSheetSuccess">
                     </file-uploader>
                     <button
                       ng-click="downloadTaskPDFUrl()"
@@ -373,9 +373,9 @@
                   </div>
                   <div class="col-sm-6">
                     <file-uploader
-                      files="taskResources"
-                      url="taskResourcesUploadUrl()"
-                      on-success="onTaskResourcesSuccess"
+                      [files]="taskResources"
+                      [url]="taskResourcesUploadUrl()"
+                      [on-success]="onTaskResourcesSuccess"
                     >
                     </file-uploader>
                     <button
@@ -449,9 +449,9 @@
                 <task-assessor [task-definition]="task" [unit]="unit" ng-if="task">
                   <div ng-if="task && task.id">
                     <file-uploader
-                      files="taskAssessmentResources"
-                      url="taskAssessmentResourcesUploadUrl()"
-                      on-success="onTaskAssessmentResourcesSuccess">
+                      [files]="taskAssessmentResources"
+                      [url]="taskAssessmentResourcesUploadUrl()"
+                      [on-success]="onTaskAssessmentResourcesSuccess">
                     </file-uploader>
                     <a ng-click="downloadTaskAssessmentResources()" ng-show="task.has_task_assessment_resources" class="btn btn-info col-sm-12">
                       <i class="fa fa-download"></i> Download Assessment Resources
@@ -461,9 +461,9 @@
                     </a>
                     <!-- <div class="col-sm-6">
                         <file-uploader
-                          files="taskAssessmentTests"
-                          url="taskAssessmentTestsUploadUrl()"
-                          on-success="onTaskAssessmentTestsSuccess">
+                          [files]="taskAssessmentTests"
+                          [url]="taskAssessmentTestsUploadUrl()"
+                          [on-success]="onTaskAssessmentTestsSuccess">
                         </file-uploader>
                         <a href="{{taskAssessmentTestsUrl()}}" ng-show="task.has_task_assessment_tests" target="_blank" class="btn btn-info col-sm-12">
                           <i class="fa fa-download"></i> Download Assessment Tests

@@ -120,9 +120,9 @@
               </div>
               <div class="panel-body">
                   <file-uploader
-                    files="batchFiles"
-                    url="batchTaskUrl()"
-                    on-success="onBatchTaskSuccess"></file-uploader>
+                    [files]="batchFiles"
+                    [url]="batchTaskUrl()"
+                    [on-success]="onBatchTaskSuccess"></file-uploader>
               </div><!--batch-withdraw-->
               <div class="panel-heading">
                   <h4 class="panel-title">Download Tasks</h4>
@@ -144,9 +144,10 @@
               </div>
               <div class="panel-body">
                 <file-uploader
-                  files="taskFiles"
-                  url="taskUploadUrl"
-                  on-success="onTaskPDFSuccess"></file-uploader>
+                  [files]="taskFiles"
+                  [url]="taskUploadUrl"
+                  [on-success]="onTaskPDFSuccess">
+                </file-uploader>
                   <table ng-show="filesUploaded" class="table table-condensed table-hover">
                     <thead>
                       <tr>

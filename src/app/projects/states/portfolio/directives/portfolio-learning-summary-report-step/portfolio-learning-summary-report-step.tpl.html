@@ -56,10 +56,11 @@
       </div>
       <div class="card-body" ng-show="!projectHasLearningSummaryReport() || (projectHasLearningSummaryReport() && (forceLSRSubmit || acceptUploadNewLearningSummary))">
         <file-uploader
-          files="portfolioSubmission.learningSummaryReportFileUploadData.type"
-          payload="portfolioSubmission.learningSummaryReportFileUploadData.payload"
-          url="portfolioSubmission.portfolioUrl"
-          on-success="addNewFile"></file-uploader>
+          [files]="portfolioSubmission.learningSummaryReportFileUploadData.type"
+          [payload]="portfolioSubmission.learningSummaryReportFileUploadData.payload"
+          [url]="portfolioSubmission.portfolioUrl"
+          [on-success]="addNewFile">
+        </file-uploader>
       </div>
     </div>
   </div>

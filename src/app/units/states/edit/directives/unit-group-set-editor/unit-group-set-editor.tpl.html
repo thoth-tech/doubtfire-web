@@ -160,12 +160,12 @@
           </button>
           <hr />
           <file-uploader
-            files="groupCSV"
-            url="groupCSVUploadUrl()"
-            is-uploading="isGroupCSVUploading"
-            on-success="onGroupCSVSuccess"
-            on-complete="onGroupCSVComplete"
-            as-button="true">
+            [files]="groupCSV"
+            [url]="groupCSVUploadUrl()"
+            [is-uploading]="isGroupCSVUploading"
+            [on-success]="onGroupCSVSuccess"
+            [on-complete]="onGroupCSVComplete"
+            [as-button]="true">
           </file-uploader>
         </div>
       </div><!--/import-group-->
@@ -193,12 +193,12 @@
           </button>
           <hr />
           <file-uploader
-            files="groupCSV"
-            url="groupStudentCSVUploadUrl()"
-            is-uploading="isGroupCSVUploading"
-            on-success="onGroupCSVSuccess"
-            on-complete="onGroupCSVComplete"
-            as-button="true">
+            [files]="groupCSV"
+            [url]="groupStudentCSVUploadUrl()"
+            [is-uploading]="isGroupCSVUploading"
+            [on-success]="onGroupCSVSuccess"
+            [on-complete]="onGroupCSVComplete"
+            [as-button]="true">
           </file-uploader>
         </div><!--/download-panel-->
       </div>

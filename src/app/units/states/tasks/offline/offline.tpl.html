@@ -33,12 +33,12 @@
       </div>
       <div class="panel-footer">
         <file-uploader
-          url="uploadSubmissionUrl"
-          files="zipMarkingFiles"
-          is-uploading="isUploading"
-          is-ready="isReady.zip"
-          as-button="true"
-          on-success="onMarkingUploadSuccess"
+          [url]="uploadSubmissionUrl"
+          [files]="zipMarkingFiles"
+          [is-uploading]="isUploading"
+          [is-ready]="isReady.zip"
+          [as-button]="true"
+          [on-success]="onMarkingUploadSuccess"
         >
         </file-uploader>
       </div>
@@ -60,12 +60,12 @@
       </div>
       <div class="panel-footer">
         <file-uploader
-          url="uploadSubmissionUrl"
-          files="csvMarkingFiles"
-          is-uploading="isUploading"
-          is-ready="isReady.csv"
-          as-button="true"
-          on-success="onMarkingUploadSuccess"
+          [url]="uploadSubmissionUrl"
+          [files]="csvMarkingFiles"
+          [is-uploading]="isUploading"
+          [is-ready]="isReady.csv"
+          [as-button]="true"
+          [on-success]="onMarkingUploadSuccess"
         >
         </file-uploader>
       </div>
