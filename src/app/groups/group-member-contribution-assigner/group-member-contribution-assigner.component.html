@@ -2,13 +2,13 @@
   <table class="table table-condensed table-hover">
     <thead>
       <tr>
-        <th><a ng-click="memberSortOrder='student_name'; reverse=!reverse">Team Member</a></th>
-        <th><a ng-click="memberSortOrder='target_grade'; reverse=!reverse">Target Grade</a></th>
-        <th class="col-sm-4"><a ng-click="memberSortOrder='rating'; reverse=!reverse">Contribution</a></th>
+        <th><a (click)="memberSortOrder='student_name'; reverse=!reverse">Team Member</a></th>
+        <th><a (click)="memberSortOrder='target_grade'; reverse=!reverse">Target Grade</a></th>
+        <th class="col-sm-4"><a (click)="memberSortOrder='rating'; reverse=!reverse">Contribution</a></th>
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="member in team.members | orderBy:memberSortOrder:reverse">
+      <tr *ngFor="member in team.members | orderBy:memberSortOrder:reverse">
         <td>{{member.student_name}}</td>
         <td class="text-left">
           <grade-icon grade="member.target_grade"></grade-icon>
@@ -16,8 +16,8 @@
         <td>
           <rating
             class="group-member-contribution-rating"
-            ng-click="checkClearRating(member)"
-            ng-model="member.rating"
+            (click)="checkClearRating(member)"
+            [(ngModel)]="member.rating"
             on-hover="hoveringOver(member, value)"
             on-leave="hoveringOver(member, null)"
             max="numStars"
@@ -26,11 +26,11 @@
           </rating>
           <span
             class="label {{percentClass(member.percent)}}"
-            ng-show="member.overStar">
-            <span ng-show="member.percent > 0">
+            [hidden]="!member.overStar">
+            <span [hidden]="!member.percent > 0">
               {{member.percent}} % effort
             </span>
-            <span ng-hide="member.percent > 0">
+            <span [hidden]="member.percent > 0">
               No effort
             </span>
           </span>
