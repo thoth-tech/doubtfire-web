@@ -33,8 +33,8 @@ import 'build/templates-app.js';
 import 'build/assets/wav-worker.js';
 import 'build/src/app/visualisations/summary-task-status-scatter.js';
 import 'build/src/app/visualisations/student-task-status-pie-chart.js';
-import 'build/src/app/visualisations/target-grade-pie-chart.js';
 import 'build/src/app/visualisations/progress-burndown-chart.js';
+import 'build/src/app/visualisations/target-grade-pie-chart.js';
 import 'build/src/app/visualisations/task-status-pie-chart.js';
 import 'build/src/app/visualisations/task-completion-box-plot.js';
 import 'build/src/app/visualisations/visualisations.js';
@@ -123,7 +123,6 @@ import 'build/src/app/admin/admin.js';
 import 'build/src/app/groups/group-selector/group-selector.js';
 import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
-import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
 import 'build/src/app/groups/group-set-selector/group-set-selector.js';
 import 'build/src/app/groups/tutor-group-manager/tutor-group-manager.js';
@@ -280,6 +279,9 @@ import { PdfViewerPanelComponent } from './common/pdf-viewer-panel/pdf-viewer-pa
 import { StaffTaskListComponent } from './units/states/tasks/inbox/directives/staff-task-list/staff-task-list.component';
 import { StatusIconComponent } from './common/status-icon/status-icon.component';
 import { TaskPlagiarismCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-plagiarism-card/task-plagiarism-card.component';
+import { UploadSubmissionModalComponent } from './tasks/modals/upload-submission-modal/upload-submission-modal.component';
+import { GroupMemberContributionAssignerComponent } from './groups/group-member-contribution-assigner/group-member-contribution-assigner.component';
+import { UploadSubmissionModalService } from './tasks/modals/upload-submission-modal/upload-submission-modal.services';
 import { TaskCommentService } from './api/models/doubtfire-model';
 import { FileDownloaderService } from './common/file-downloader/file-downloader';
 import { CheckForUpdateService } from './sessions/service-worker-updater/check-for-update.service';
@@ -289,7 +291,6 @@ import { TaskAssessmentModalService } from './common/modals/task-assessment-moda
 import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
-import { UploadSubmissionModalComponent } from './tasks/modals/upload-submission-modal/upload-submission-modal.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -374,16 +375,30 @@ DoubtfireAngularJSModule.directive(
   'taskDescriptionCard',
   downgradeComponent({ component: TaskDescriptionCardComponent })
 );
+DoubtfireAngularJSModule.directive(
+  'uploadSubmissionModal',
+  downgradeComponent({ component: UploadSubmissionModalComponent })
+);
+DoubtfireAngularJSModule.directive(
+  'GroupMemberContributionAssigner',
+  downgradeComponent({ component: GroupMemberContributionAssignerComponent })
+);
+
+
+DoubtfireAngularJSModule.directive(
+  'uploadSubmissionModalService',
+  downgradeComponent({ component: UploadSubmissionModalService })
+);
+
+
+
 DoubtfireAngularJSModule.directive('taskAssessor',
   downgradeComponent({ component: TaskAssessorComponent }));
 DoubtfireAngularJSModule.directive('taskAssessmentComment',
   downgradeComponent({ component: TaskAssessmentCommentComponent }));
 DoubtfireAngularJSModule.directive('taskSubmissionHistory',
   downgradeComponent({ component: TaskSubmissionHistoryComponent }));
-DoubtfireAngularJSModule.directive('uploadSubmissionModalComponent',
-   downgradeComponent({ component: UploadSubmissionModalComponent })
-  );
-  
+
 // Global configuration
 DoubtfireAngularJSModule.directive(
   'taskCommentsViewer',

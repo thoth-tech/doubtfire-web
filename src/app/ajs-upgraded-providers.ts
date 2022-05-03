@@ -14,6 +14,7 @@ export const unitService = new InjectionToken('unitService');
 export const dateService = new InjectionToken('dateService');
 export const projectService = new InjectionToken('projectService');
 export const alertService = new InjectionToken('AlertService');
+export const uploadSubmissionModalService = new InjectionToken('UploadSubmissionModalService');
 export const audioRecorder = new InjectionToken('audioRecorder');
 export const audioRecorderService = new InjectionToken('recorderService');
 export const csvUploadModalService = new InjectionToken('CsvUploadModalAngular');
@@ -30,14 +31,20 @@ export const calendarModal = new InjectionToken('CalendarModal');
 export const aboutDoubtfireModal = new InjectionToken('AboutDoubtfireModal');
 export const groupService = new InjectionToken('groupService');
 export const plagiarismReportModal = new InjectionToken('PlagiarismReportModal');
+export const outcomeService = new InjectionToken('OutcomeService');
+export const fileDownloaderService = new InjectionToken('FileDownloaderService');
+export const PrivacyPolicy = new InjectionToken('PrivacyPolicy');
+export const TaskSubmission = new InjectionToken('TaskSubmission');
+ 
 
+//export const Visualisation = new InjectionToken('Visualisation');
 // Define a provider for the above injection token...
 // It will get the service from AngularJS via the factory
 export const unitProvider = {
   provide: Unit, // When you need 'Unit' you
   useFactory: (i: any) => i.get('Unit'), // get the AngularJS module
   deps: ['$injector'], // using the upgrade injector.
-};
+}; 
 
 export const taskDefinitionProvider = {
   provide: taskDefinition,
@@ -158,6 +165,12 @@ export const alertServiceProvider = {
   useFactory: (i: any) => i.get('alertService'),
   deps: ['$injector'],
 };
+export const uploadSubmissionModalServiceProvider = {
+  provide: uploadSubmissionModalService,
+  useFactory: (i: any) => i.get('UploadSubmissionModalService'),
+  deps: ['$injector'],
+};
+
 
 export const AudioRecorderProvider = {
   provide: audioRecorder,
@@ -200,3 +213,38 @@ export const UnitStudentEnrolmentModalProvider = {
   useFactory: (i: any) => i.get('UnitStudentEnrolmentModal'),
   deps: ['$injector'],
 };
+
+export const outcomeServiceProvider = {
+  provide: outcomeService, // When you need 'Unit' you
+  useFactory: (i: any) => i.get('OutcomeService'), // get the AngularJS module
+  deps: ['$injector'], // using the upgrade injector.
+};
+
+export const PrivacyPolicyProvider = {
+  provide: PrivacyPolicy, // When you need 'Unit' you
+  useFactory: (i: any) => i.get('PrivacyPolicy'), // get the AngularJS module
+  deps: ['$injector'], // using the upgrade injector.
+};
+
+export const TaskSubmissionProvider = {
+  provide: TaskSubmission, // When you need 'Unit' you
+  useFactory: (i: any) => i.get('TaskSubmission'), // get the AngularJS module
+  deps: ['$injector'], // using the upgrade injector.
+};
+
+
+export const FileDownloaderServiceProvider = {
+  provide: fileDownloaderService, // When you need 'Unit' you
+  useFactory: (i: any) => i.get('FileDownloaderService'), // get the AngularJS module
+  deps: ['$injector'], // using the upgrade injector.
+};
+
+ 
+
+ 
+ 
+
+
+ 
+
+

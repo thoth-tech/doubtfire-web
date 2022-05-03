@@ -58,6 +58,7 @@ import {
   taskProvider,
   projectServiceProvider,
   alertServiceProvider,
+  uploadSubmissionModalServiceProvider,
   CsvUploadModalProvider,
   UnitStudentEnrolmentModalProvider,
   CsvResultModalProvider,
@@ -139,6 +140,11 @@ import { StatusIconComponent } from './common/status-icon/status-icon.component'
 import { TaskPlagiarismCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-plagiarism-card/task-plagiarism-card.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CheckForUpdateService } from './sessions/service-worker-updater/check-for-update.service';
+import { UploadSubmissionModalComponent } from './tasks/modals/upload-submission-modal/upload-submission-modal.component';
+import { GroupMemberContributionAssignerComponent } from './groups/group-member-contribution-assigner/group-member-contribution-assigner.component';
+
+
+
 import {
   ActivityTypeService,
   CampusService,
@@ -165,7 +171,6 @@ import { HeaderComponent } from './common/header/header.component';
 import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdown.component';
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
-import { UploadSubmissionModalComponent } from './tasks/modals/upload-submission-modal/upload-submission-modal.component';
 
 
 @NgModule({
@@ -225,6 +230,7 @@ import { UploadSubmissionModalComponent } from './tasks/modals/upload-submission
     TaskDropdownComponent,
     SplashScreenComponent,
     UploadSubmissionModalComponent,
+    GroupMemberContributionAssignerComponent,
   ],
   // Module Imports
   imports: [
@@ -315,6 +321,7 @@ import { UploadSubmissionModalComponent } from './tasks/modals/upload-submission
     taskProvider,
     projectServiceProvider,
     alertServiceProvider,
+    uploadSubmissionModalServiceProvider,
     CsvUploadModalProvider,
     CsvResultModalProvider,
     UnitStudentEnrolmentModalProvider,
