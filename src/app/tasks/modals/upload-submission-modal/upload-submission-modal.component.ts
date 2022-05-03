@@ -1,54 +1,22 @@
-import { Component, Input, Inject} from '@angular/core';
-import { rootScope, taskService, Task, groupService, projectService, alertService, outcomeService} from 'src/app/ajs-upgraded-providers';
+import { Component, Input, Inject, OnInit} from '@angular/core';
+import { rootScope, taskService, Task, groupService, projectService, currentUser, PrivacyPolicy, uploadSubmissionModalService} from 'src/app/ajs-upgraded-providers';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import * as _ from 'lodash';
 
    
 @Component({
+ 
    selector: 'upload-submission-modal',
-   templateUrl: 'tasks/modals/upload-submission-modal/upload-submission-modal.component.html',
-   styleUrls: ['upload-submission-modal.component.scss'],
+   templateUrl: './upload-submission-modal.component.html',
+   styleUrls: ['./upload-submission-modal.component.scss'],
 }) 
 
-export class UploadSubmissionModal { 
+export class UploadSubmissionModalComponent implements OnInit { 
 
-   UploadSubmissionFactory: any; 
-   constructor(@Inject($modal) private $modal: any, @Inject(alertService) private alertService: any) {   
-    // Open a grade task modal with the provided task  
-    this.UploadSubmissionFactory = {};
-    this.UploadSubmissionFactory.show = function(task: any, reuploadEvidence: any, isTestSubmission = false) { 
-      // Refuse to open modal if group task and not in a group  
-      if (!isTestSubmission && task.isGroupTask() && !task.studentInAGroup()){
-      alertService.add('danger', "This is a group assignment. Join a #{task.definition.group_set.name} group set to submit this task.", 8000)
-      return null
-      }
-      if (isTestSubmission) {
-          task.canReuploadEvidence = false;
-          // task.definition = {id: task.id, abbreviation: task.abbreviation, upload_requirements: task.upload_requirements}
-          // task.project = -> project
-          task.isTestSubmission = isTestSubmission
-      }
-      return $modal.open({
-        templateUrl: 'tasks/modals/upload-submission-modal.component.html',
-        controller: UploadSubmissionModalCtrl,
-        size: 'lg',
-        keyboard: false,
-        backdrop: 'static',
-        resolve: {
-          task: function() {
-            return task;
-          },
-          reuploadEvidence: function() {
-            return reuploadEvidence;
-          }
-        }
-      }); 
-    };
-    return this.UploadSubmissionFactory; 
-};
-}
-class UploadSubmissionModalCtrl {
 
   @Input() task: any;  
   @Input() reuploadEvidence: any;  
+  @Input() showPlagiarism: any;  
 
   submissionType: any;
   initialAlignments: any;
@@ -57,6 +25,7 @@ class UploadSubmissionModalCtrl {
   staffAlignments: any;
   states: any;
   submissionTypes: any;
+  privacyPolicy
 
   uploader: any;
   isHidden: any; 
@@ -71,19 +40,26 @@ class UploadSubmissionModalCtrl {
 
     //$scope, $rootScope, $timeout,   
 
-  constructor(@Inject(alertService) private alertService: any, 
-  @Inject(Task) private taskFactory: any, 
-  @Inject(taskService) private taskService: any, 
-  @Inject(groupService) private groupService: any,
-  @Inject(projectService) private projectService: any,
-  @Inject(alertService) private alertService: any,
-  @Inject(outcomeService) private outcomeService: any,
-  @Inject($modalInstance) private $modalInstance: any,
-  @Inject(rootScope) private rootScope: any,) { 
- 
+  constructor(
+      @Inject(MAT_DIALOG_DATA) public data: any,
+      public dialogRef: MatDialogRef<UploadSubmissionModalComponent>,
+      @Inject(currentUser) public CurrentUser: any,
+      @Inject(PrivacyPolicy) private PrivacyPolicy: any, 
+      @Inject(Task) private taskFactory: any, 
+      @Inject(taskService) private taskService: any, 
+      @Inject(groupService) private groupService: any,
+      @Inject(projectService) private projectService: any,
+      @Inject(rootScope) private rootScope: any,
+      @Inject(uploadSubmissionModalService) private uploadSubmissionModalService: any,
+      
+      ) {}
+   
+  ngOnInit(): void { 
+
+    this.privacyPolicy = PrivacyPolicy; 
 // Set up submission types
-  this.submissionTypes = _.chain(taskService.submittableStatuses).map(function(status) {
-    return [status, taskService.statusLabels[status]];
+  this.submissionTypes = _.chain(this.taskService.submittableStatuses).map(function(status) {
+    return [status, this.taskService.statusLabels[status]];
   }).fromPairs().value(); 
 
   // [[0,"hey"], [1, "he1"]] -> {0: "hey", 1: "he1"} -> ["hey", "he1"]
@@ -106,7 +82,7 @@ class UploadSubmissionModalCtrl {
 
   //Upload files
   this.uploader = {
-    url: this.task.isTestSubmission ? taskFactory.generateTestSubmissionUrl(this.task.unit_id, this.task) : taskFactory.generateSubmissionUrl(this.task.project(), this.task),
+    url: this.task.isTestSubmission ? this.taskFactory.generateTestSubmissionUrl(this.task.unit_id, this.task) : this.taskFactory.generateSubmissionUrl(this.task.project(), this.task),
     files: _.chain(this.task.definition.upload_requirements).map(function(file) {
       return [
         file.key, {
@@ -130,27 +106,27 @@ class UploadSubmissionModalCtrl {
         return this.uploader.payload.trigger = 'need_help';
       }
     },
-    onSuccess: function(response) {
+    onSuccess: function(response: { project_id: any; }) {
       this.uploader.response = response;
       if (this.task.isTestSubmission) {
         return this.task.project_id = response.project_id;
       }
     },
-    onFailureCancel: $modalInstance.dismiss,
+    onFailureCancel: this.dialogRef.close,
     onComplete: function() {
-      $modalInstance.close(this.task);
+      this.dialogRef.close(this.task);
       if (!this.task.isTestSubmission) {
         if (this.comment.trim().length > 0) {
           this.task.addComment(this.comment);
         }
       }
-      rootScope.$broadcast('TaskSubmissionUploadComplete', this.task); 
+      this.rootScope.$broadcast('TaskSubmissionUploadComplete', this.task); 
       
      setTimeout(() => {                           
         var response: { status: any; };
         if (!this.task.isTestSubmission) {
           response = this.uploader.response;
-          return taskService.processTaskStatusChange(this.task.unit(), this.task.project(), this.task, response.status, response);
+          return this.taskService.processTaskStatusChange(this.task.unit(), this.task.project(), this.task, response.status, response);
         }
       }, 1500);
     }
@@ -204,15 +180,7 @@ class UploadSubmissionModalCtrl {
   };
   this.states.initialise()
 
-  //If the submission type changes, then modify status (if applicable) and
-  //reinitialise states
-  function onSelectNewSubmissionType (newType: string) {
-    if (newType !== 'reupload_evidence') {
-      this.task.status = newType;
-    }
-    this.submissionType = newType;
-    return this.states.initialise();
-  }
+  
 
   //Whether to apply ng-hide to state
   this.isHidden = this.states.isHidden
@@ -269,19 +237,7 @@ class UploadSubmissionModalCtrl {
     submit: function() {
       return this.states.activeIdx() === this.states.shown.indexOf('uploading') - 1;
     }
-  };
-
-  //Click upload on UI
-  function uploadButtonClicked (){
-    //Move files to the end to simulate as though state move
-    this.states.shown = _.without(this.states.shown, 'files');
-    this.states.shown.push('files');
-    setTimeout(() => {                           
-      var response: { status: any; };
-      this.states.setActive('files');
-      return this.uploader.start(); 
-    }, 251);  
-  };
+  }; 
 
   //Team for group state (populated by assignment rater)
   this.team = { members: [] }
@@ -289,7 +245,7 @@ class UploadSubmissionModalCtrl {
   //Maps team data to payload data
   function mapTeamToPayload () {
     var total: number;
-    total = groupService.groupContributionSum(this.team.members);
+    total = this.groupService.groupContributionSum(this.team.members);
     return _.map(this.team.members, function(member) {
       return {
         project_id: member.project_id,
@@ -331,26 +287,47 @@ class UploadSubmissionModalCtrl {
       if (staffAlignment.rating == null) {
         staffAlignment.rating = 0;
       }
-      staffAlignment.label = outcomeService.alignmentLabels[staffAlignment.rating];
+      staffAlignment.label = this.outcomeService.alignmentLabels[staffAlignment.rating];
       ilo.staffAlignment = staffAlignment;
       return ilo;
     });
 
-    // $scope.alignments = _.chain(task.unit().ilos)
-    // .map((ilo) ->
+    // this.alignments = _.chain(this.task.unit().ilos).map((ilo) ->
     //   value = initialAlignments.filter((a) -> a.learning_outcome_id == ilo.id)?[0]?.rating
     //   value ?= 0
     //   [ilo.id, {rating: value }]
-    // )
-    // .fromPairs()
-    // .value()
+    // ).fromPairs().value()
     
   } else {
     this.ilos = [];
     this.alignments = [];
     this.alignmentsRationale = "";
   }
-}}
-
-
+}
+//If the submission type changes, then modify status (if applicable) and
+  //reinitialise states
+  onSelectNewSubmissionType (newType: string) {
+    if (newType !== 'reupload_evidence') {
+      this.task.status = newType;
+    }
+    this.submissionType = newType;
+    return this.states.initialise();
+  }
+  
+  //Click upload on UI
+  uploadButtonClicked (){
+    //Move files to the end to simulate as though state move
+    this.states.shown = _.without(this.states.shown, 'files');
+    this.states.shown.push('files');
+    setTimeout(() => {                           
+      var response: { status: any; };
+      this.states.setActive('files');
+      return this.uploader.start(); 
+    }, 251);  
+  }
+  // close dialog 
+  dismiss (){
+    this.dialogRef.close;
+  }
+}
 
