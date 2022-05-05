@@ -18,7 +18,7 @@
         ng-model="upload.model"
         ng-model-rejected="upload.rejects"
         ngf-change="modelChanged($files, upload)"
-        ngf-accept="{{upload.accept}}"
+        ngf-accept="upload.accept"
         ngf-drag-over-class="{accept:'file-over', reject:'file-over', delay:100}"
         ngf-drop-available="dropSupported">
         <p class="fa {{upload.display.icon}} fa-3x"></p>
