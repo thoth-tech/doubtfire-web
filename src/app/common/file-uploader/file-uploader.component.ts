@@ -132,7 +132,7 @@ export class FileUploaderComponent {
     //
     // Whether or not clearEnqueuedFiles is enabled
     //
-    this.clearEnqueuedUpload = function(upload: { model: any; }) {
+    function clearEnqueuedUpload(upload:{model: any;}){
       upload.model = null;
       return refreshShownUploadZones();
     }
@@ -171,7 +171,7 @@ export class FileUploaderComponent {
     // When a file is dropped, if there has been rejected files
     // warn the user that that file is not okay
     //
-    const checkForError = function(upload: { rejects: { length: any; }; display: { error: boolean; }; }) {
+    function checkForError(upload: { rejects: { length: any; }; display: { error: boolean; }; }){
       if ((upload.rejects != null ? upload.rejects.length : undefined) > 0) {
         upload.display.error = true;
         upload.rejects = null;
@@ -179,10 +179,13 @@ export class FileUploaderComponent {
         return true;
       }
       return false;
-    };
+    }
 
+    //
     // Called when the model has changed
-    this.modelChanged = function(newFiles: { length: number; }, upload: { rejects: { length: number; }, display: {error:boolean} }) {
+    // Called in html component
+    //
+    function modelChanged(newFiles: { length: number; }, upload: { rejects: { length: number; }, display: {error:boolean} }){
       if (!(newFiles.length > 0) && !(upload.rejects.length > 0)) { return; }
       const gotError = checkForError(upload);
       if (!gotError) {
@@ -192,13 +195,13 @@ export class FileUploaderComponent {
           return refreshShownUploadZones();
         }
       }
-    };
+    }
 
     //
     // Will refresh which shown drop zones are shown
     // Only changes if showing one drop zone
     //
-    var refreshShownUploadZones = function() {
+    function refreshShownUploadZones(){
       if (this.singleDropZone) {
         // Find the first-most empty model in each zone
         const firstEmptyZone = _.find(this.uploadZones, (zone: { model: { length: number; }; }) => (zone.model == null) || (zone.model.length === 0));
@@ -216,7 +219,11 @@ export class FileUploaderComponent {
     //
     this.dropSupported = true;
 
-    const createUploadZones = function(files: any) {
+
+    //
+    // Data required for each upload zone
+    // 
+    function createUploadZones(files: any){
       const zones = _.map(files, function(uploadData: { name?: any; type?: any; }, uploadName: any) {
         const {
           type
@@ -255,8 +262,7 @@ export class FileUploaderComponent {
     createUploadZones(this.files);
 
     //
-    // Watch for changes in the files, and recreate the zones when
-    // they do change
+    // Watch for changes in the files, and recreate the zones when they do change
     //
     this.watch('files', (files: any, oldFiles: any) => createUploadZones(files));
 
@@ -268,23 +274,24 @@ export class FileUploaderComponent {
     //
     // Resets the uploader and call it
     //
-    this.resetUploader = function() {
+    function resetUploader(){
       // No upload info and we're not uploading
       this.uploadingInfo = null;
       this.isUploading = false;
       this.showUploader = !this.asButton;
       return Array.from(this.uploadZones).map((upload: any) =>
-        this.clearEnqueuedUpload(upload));
+        clearEnqueuedUpload(upload));
     };
-    this.resetUploader();
-    
+    resetUploader();
+
     //
     // Override on click failure cancel if not set to just reset uploader
     //
-    if (this.onClickFailureCancel == null) { this.onClickFailureCancel = this.resetUploader; }
+    if (this.onClickFailureCancel == null) { this.onClickFailureCancel = resetUploader; }
   
     //
     // Initiates the upload
+    // Grady - Needs to be replaced with httpclient
     //
     this.initiateUpload = function() {
       if (!this.readyToUpload()) { return; }
@@ -292,7 +299,7 @@ export class FileUploaderComponent {
         this.onBeforeUpload();
       }
 
-      const xhr   = new XMLHttpRequest();
+      const xhr   = new XMLHttpRequest(); 
       const form  = new FormData();
       // Append data
       const files = (Array.from(this.uploadZones).map((zone: { name: any; model: {}; }) => ({ name: zone.name, data: zone.model[0] })));
