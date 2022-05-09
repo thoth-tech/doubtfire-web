@@ -1,61 +1,61 @@
-<div class="file-uploader" ng-class="{ 'is-uploading': isUploading }">
-  <div ng-hide="showUploader">
-    <button class="btn btn-success form-control" ng-click="showUploader = true">
+<div class="file-uploader" ngClass="{ 'is-uploading': isUploading }">
+  <div hidden="showUploader">
+    <button class="btn btn-success form-control" (click)="showUploader = true">
       <i class="fa fa-upload"></i> Begin Upload
     </button>
   </div><!--begin-upload-button-->
-  <div collapse="!showUploader" ng-if="uploadingInfo == null" class="file-drop-area">
-    <div ng-repeat="upload in shownUploadZones">
-      <h5 class="text-muted" ng-show="!singleDropZone && showName">
+  <div collapse="!showUploader" *ngIf="uploadingInfo == null" class="file-drop-area">
+    <div *ngFor="upload in shownUploadZones">
+      <h5 class="text-muted" [hidden]="!singleDropZone && !showName">
         {{uploadZones.length == 1 ? '' : $index + 1 + ' -'}} {{upload.display.name}}
       </h5>
-      <h5 class="text-muted" ng-show="singleDropZone && showName">
+      <h5 class="text-muted" [hidded]="!singleDropZone && !showName">
         Select {{upload.display.name}}
       </h5>
-      <div ngf-select ngf-drop
-        ng-show="upload.model == null || upload.model.length == 0"
+      <div ngfSelect ngfDrop
+        [hidden]="!upload.model == null || !upload.model.length == 0"
         class="drop well {{upload.display.error ? 'file-rejected' : ''}}"
-        ng-model="upload.model"
-        ng-model-rejected="upload.rejects"
-        ngf-change="modelChanged($files, upload)"
-        ngf-accept="upload.accept"
-        ngf-drag-over-class="{accept:'file-over', reject:'file-over', delay:100}"
-        ngf-drop-available="dropSupported">
+        ngModel="upload.model"
+        ngModelRejected="upload.rejects"
+        ngfChange="modelChanged(files, upload)"
+        ngfAccept="upload.accept"
+        ngfDragOverClass="{accept:'file-over', reject:'file-over', delay:100}"
+        ngfDropAvailable="dropSupported">
         <p class="fa {{upload.display.icon}} fa-3x"></p>
-        <p ng-show="upload.display.error">
+        <p [hidden]="!upload.display.error">
           Invalid file provided
           <small> Accepted files: <code>{{upload.accept.split(',').join(', ')}}</code> </small>
         </p>
-        <p ng-show="dropSupported" ng-hide="upload.display.error">
+        <p [hidden]="!dropSupported" hidden="upload.display.error">
           Drop {{upload.display.type}} file here
           <small> or click to select one </small>
         </p>
-        <p ng-hide="dropSupported || upload.display.error">
+        <p hidden="dropSupported || upload.display.error">
           Click to select {{upload.display.type}} file
         </p>
       </div><!--/drop-zone-->
-      <div ng-show="!singleDropZone && upload.model.length > 0" class="selected-files">
+      <div [hidden]="!singleDropZone && !upload.model.length > 0" class="selected-files">
         <span class="selected-file">
           <i class="file-type fa {{upload.display.icon}}"></i>
           {{upload.model[0].name}}
         </span>
-        <a class="clear-upload text-muted" ng-click="clearEnqueuedUpload(upload)">
+        <a class="clear-upload text-muted" ngClick="clearEnqueuedUpload(upload)">
           <i class="fa fa-times"></i>
         </a>
       </div><!--/selected-file-->
     </div><!--/drop-zones-->
-    <div ng-show="singleDropZone">
+    <div [hidden]="!singleDropZone">
       <h5 class="text-muted">Upload Summary</h5>
       <div class="selected-files list-group">
-        <div class="selected-file list-group-item clearfix" ng-class="{highlight: upload.model.length > 0}" ng-repeat="upload in uploadZones">
+        <div class="selected-file list-group-item clearfix" ngClass="{highlight: upload.model.length > 0}" ngRepeat="upload in uploadZones">
           <div class="pull-left">
             <i class="file-type fa {{upload.display.icon}}"></i>
             <strong>{{upload.display.name}}</strong>
           </div>
           <div class="pull-right text-right">
-            <em ng-show="upload.model.length > 0">{{upload.model[0].name}}</em>
-            <em ng-hide="upload.model.length > 0" class="text-muted">File Pending</em>
-            <a class="clear-upload text-muted" ng-click="clearEnqueuedUpload(upload)" ng-show="upload.model.length > 0">
+            <em [hidden]="!upload.model.length > 0">{{upload.model[0].name}}</em>
+            <em hidden="upload.model.length > 0" class="text-muted">File Pending</em>
+            <a class="clear-upload text-muted" ngClick="clearEnqueuedUpload(upload)" [hidden]="!upload.model.length > 0">
               <i class="fa fa-times"></i>
             </a>
           </div>
@@ -63,40 +63,40 @@
       </div>
     </div><!--/upload-summary-->
   </div><!--/file-drop-area-->
-  <div ng-show="showUploader && !isUploading" class="upload-commit-actions">
+  <div [hidden]="!showUploader && !isUploading" class="upload-commit-actions">
     <button
-      ng-show="showUploadButton && readyToUpload() && uploadingInfo == null"
-      ng-click="initiateUpload()"
+      [hidden]="!showUploadButton && !readyToUpload() && !uploadingInfo == null"
+      ngClick="initiateUpload()"
       class="btn btn-primary btn-upload">
       <i class="fa fa-upload"></i> Start Upload
     </button><!--/upload-button-->
-    <button ng-show="asButton" ng-click="resetUploader()" class="btn btn-danger btn-cancel">
+    <button [hidden]="!asButton" ngClick="resetUploader()" class="btn btn-danger btn-cancel">
       <i class="fa fa-times"></i> Cancel Upload
     </button><!--/cancel-button-->
   </div>
-  <div ng-show="showUploader && readyToUpload()" class="upload-area text-center clearfix">
-    <div ng-hide="uploadingInfo == null || uploadingInfo.complete" class="progress-area">
+  <div [hidden]="!showUploader && !readyToUpload()" class="upload-area text-center clearfix">
+    <div hidden="uploadingInfo == null || uploadingInfo.complete" class="progress-area">
       <div class="icons">
-        <i ng-repeat="upload in uploadZones" class="fa {{upload.display.icon}}"></i>
+        <i ngRepeat="upload in uploadZones" class="fa {{upload.display.icon}}"></i>
         <i class="fa fa-arrow-right"></i>
         <i class="logo"></i>
       </div>
       <!-- POSSIBLY REMOVE PROGRESSBAR ELEMENT AS IS CURRENTLY NOT IN USE <progressbar class="progress-striped active" value="uploadingInfo.progress"></progressbar> -->
     </div><!--/progress-area-->
-    <div ng-if="uploadingInfo.complete" class="result-area">
+    <div *ngIf="uploadingInfo.complete" class="result-area">
       <p class="result-text">
         <i class="fa {{uploadingInfo.success === true ? 'fa-check-circle text-success' : 'fa-times-circle text-danger'}} fa-2x"></i>
         <strong>File Upload {{uploadingInfo.success === true ? 'Successful' : 'Failed'}}</strong>
       </p>
-      <div class="error-message-area" ng-hide="uploadingInfo.success === true">
+      <div class="error-message-area" hidden="uploadingInfo.success === true">
         <hr>
         <p>
           <strong>Error Message: </strong>
           {{uploadingInfo.error}}
         </p>
         <p class="retry-options">
-          <a ng-click="initiateUpload()">Retry Upload</a>
-          <a ng-click="onClickFailureCancel()">Cancel</a>
+          <a ngClick="initiateUpload()">Retry Upload</a>
+          <a ngClick="onClickFailureCancel()">Cancel</a>
         </p><!--/error-message-area-->
       </div>
     </div><!--/result-area-->
