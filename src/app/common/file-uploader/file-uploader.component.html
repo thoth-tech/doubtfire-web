@@ -15,7 +15,7 @@
       <div ngfSelect ngfDrop
         [hidden]="!upload.model == null || !upload.model.length == 0"
         class="drop well {{upload.display.error ? 'file-rejected' : ''}}"
-        ngModel="upload.model"
+        [(ngModel)]="upload.model"
         ngModelRejected="upload.rejects"
         ngfChange="modelChanged(files, upload)"
         ngfAccept="upload.accept"

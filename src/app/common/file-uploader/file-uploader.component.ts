@@ -1,4 +1,5 @@
 import { Component, Input, } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import * as _ from 'lodash';
 
 @Component({
