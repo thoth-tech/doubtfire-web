@@ -1,6 +1,9 @@
 import { Component, Input, } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import * as _ from 'lodash';
+import API_URL from 'src/app/config/constants/apiURL';
 
 @Component({
   selector: 'file-uploader',
@@ -90,7 +93,7 @@ export class FileUploaderComponent {
     resetAfterUpload: '=?'  
     }
 
-  constructor() { 
+  constructor(public http: HttpClient) { 
     //
     // Accepted upload types with associated data
     //
@@ -289,7 +292,53 @@ export class FileUploaderComponent {
     // Override on click failure cancel if not set to just reset uploader
     //
     if (this.onClickFailureCancel == null) { this.onClickFailureCancel = resetUploader; }
-  
+    
+    //
+    // Initiates the upload using HttpClient
+    //
+    function initiateUpload(){
+      this.uploadFile(file) {  
+        const form = new FormData();
+        form.append('file', file.data);  
+        file.inProgress = true;  
+        this.uploadService.upload(form).pipe(  
+          map(event => {  
+            switch (event.type) {  
+              case HttpEventType.UploadProgress:  
+                file.progress = Math.round(event.loaded * 100 / event.total);  
+                break;  
+              case HttpEventType.Response:  
+                return event;  
+            }  
+          }),  
+          catchError((error: HttpErrorResponse) => {  
+            file.inProgress = false;  
+            return of(`${file.data.name} upload failed.`);  
+          })).subscribe((event: any) => {  
+            if (typeof (event) === 'object') {  
+              console.log(event.body);  
+            }  
+          });
+          this.fileUpload.nativeElement.value = '';  
+          this.files.forEach(file => {  
+            this.uploadFile(file);  
+          });
+
+      const fileUpload = this.fileUpload.nativeElement;fileUpload.onchange = () => {  
+        for (let index = 0; index < fileUpload.files.length; index++)  
+        {  
+         const file = fileUpload.files[index];  
+         this.files.push({ data: file, inProgress: false, progress: 0});  
+        }  
+          this.uploadFiles();  
+        };  
+        fileUpload.click();  
+        
+        this.upload(form) {
+          return this.httpClient.post<any>(this.API_URL, form)
+        };
+    }}
+
     //
     // Initiates the upload
     // Grady - Needs to be replaced with httpclient
@@ -386,7 +435,6 @@ export class FileUploaderComponent {
 
       return xhr.send(form);
     };
-  
   }
 
 
