@@ -1,23 +1,19 @@
 <div class="modal-dialog">
   <div class="modal-content">
-    <form #f="ngForm" [formGroup]="notificationSettings" (ngSubmit)="saveNotifications(f)" novalidate>
+    <form [formGroup]="notificationSettings" (ngSubmit)="saveNotifications()" novalidate>
       <div class="modal-header">
-          <h3>Notification Settings</h3>
+        <h3>Notification Settings</h3>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label class="col-sm-6 control-label">Task Notifications</label>
           <div class="btn-group" ngDefaultControl formControlName="taskSetting">
-            <label
-              [ngClass]="{'btn btn-default': true, 'active': this.notificationSettings.value.taskSetting}"
-              (click)="changeItem('taskSetting', true)"
-            >
+            <label [ngClass]="{'btn btn-default': true, 'active': this.notificationSettings.value.taskSetting}"
+              (click)="changeItem('taskSetting', true)">
               <i class="glyphicon glyphicon-ok"></i>
             </label>
-            <label
-              [ngClass]="{'btn btn-default': true, 'active': !this.notificationSettings.value.taskSetting}"
-              (click)="changeItem('taskSetting', false)"
-            >
+            <label [ngClass]="{'btn btn-default': true, 'active': !this.notificationSettings.value.taskSetting}"
+              (click)="changeItem('taskSetting', false)">
               <i class="glyphicon glyphicon-remove"></i>
             </label>
           </div>
@@ -25,16 +21,12 @@
         <div class="form-group">
           <label class="col-sm-6 control-label">Feedback Notifications</label>
           <div class="btn-group" ngDefaultControl formControlName="feedbackSetting">
-            <label
-              [ngClass]="{'btn btn-default': true, 'active': this.notificationSettings.value.feedbackSetting}"
-              (click)="changeItem('feedbackSetting', true)"
-            >
+            <label [ngClass]="{'btn btn-default': true, 'active': this.notificationSettings.value.feedbackSetting}"
+              (click)="changeItem('feedbackSetting', true)">
               <i class="glyphicon glyphicon-ok"></i>
             </label>
-            <label
-              [ngClass]="{'btn btn-default': true, 'active': !this.notificationSettings.value.feedbackSetting}"
-              (click)="changeItem('feedbackSetting', false)"
-            >
+            <label [ngClass]="{'btn btn-default': true, 'active': !this.notificationSettings.value.feedbackSetting}"
+              (click)="changeItem('feedbackSetting', false)">
               <i class="glyphicon glyphicon-remove"></i>
             </label>
           </div>
@@ -42,16 +34,12 @@
         <div class="form-group">
           <label class="col-sm-6 control-label">Portfolio Notifications</label>
           <div class="btn-group" ngDefaultControl formControlName="portfolioSetting">
-            <label
-              [ngClass]="{'btn btn-default': true, 'active': this.notificationSettings.value.portfolioSetting}"
-              (click)="changeItem('portfolioSetting', true)"
-            >
+            <label [ngClass]="{'btn btn-default': true, 'active': this.notificationSettings.value.portfolioSetting}"
+              (click)="changeItem('portfolioSetting', true)">
               <i class="glyphicon glyphicon-ok"></i>
             </label>
-            <label
-              [ngClass]="{'btn btn-default': true, 'active': !this.notificationSettings.value.portfolioSetting}"
-              (click)="changeItem('portfolioSetting', false)"
-            >
+            <label [ngClass]="{'btn btn-default': true, 'active': !this.notificationSettings.value.portfolioSetting}"
+              (click)="changeItem('portfolioSetting', false)">
               <i class="glyphicon glyphicon-remove"></i>
             </label>
           </div>

@@ -6,24 +6,23 @@ import {
   User
 } from 'src/app/ajs-upgraded-providers';
 import { MatDialogRef } from '@angular/material/dialog';
-import { NgForm, FormBuilder, FormControl, FormGroup } from '@angular/forms'
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms'
 
 @Component({
-  selector: 'df-notific-setting',
+  selector: 'df-notification',
   templateUrl: './notification.component.html',
   styleUrls: ['./user-notification-settings-modal.scss'],
 })
-export class notificationComponent implements OnInit {
+export class NotificationComponent implements OnInit {
   notificationSettings: FormGroup;
-  classList: Array<string>;
   config = {
-    animated: true, 
-    keyboard: true, 
+    animated: true,
+    keyboard: true,
     backdrop: true,
-    ignoreBackdropClick: false, 
+    ignoreBackdropClick: false,
   };
   constructor(
-    public dialogRef: MatDialogRef<notificationComponent>,
+    public dialogRef: MatDialogRef<NotificationComponent>,
     formBuilder: FormBuilder,
     @Inject(currentUser) public CurrentUser,
     @Inject(alertService) private alertService,
@@ -42,7 +41,7 @@ export class notificationComponent implements OnInit {
       taskSetting: this.CurrentUser.profile.receive_task_notifications,
       feedbackSetting: this.CurrentUser.profile.receive_feedback_notifications,
       portfolioSetting: this.CurrentUser.profile.receive_portfolio_notifications
-    }); 
+    });
 
   }
 
@@ -52,12 +51,12 @@ export class notificationComponent implements OnInit {
   }
 
   // Actions when 'save'
-  saveNotifications(f: NgForm) {
-    this.CurrentUser.profile.receive_feedback_notifications = f.value.feedbackSetting;
-    this.CurrentUser.profile.receive_portfolio_notifications = f.value.portfolioSetting;
-    this.CurrentUser.profile.receive_task_notifications = f.value.taskSetting;
+  saveNotifications() {
+    this.CurrentUser.profile.receive_feedback_notifications = this.notificationSettings.value.feedbackSetting;
+    this.CurrentUser.profile.receive_portfolio_notifications = this.notificationSettings.value.portfolioSetting;
+    this.CurrentUser.profile.receive_task_notifications = this.notificationSettings.value.taskSetting;
     if (this.CurrentUser) {
-      this.user.update({id: this.CurrentUser.id, user: this.CurrentUser.profile, Auth_token: this.CurrentUser.authenticationToken})
+      this.user.update({ id: this.CurrentUser.id, user: this.CurrentUser.profile, Auth_token: this.CurrentUser.authenticationToken })
       this.auth.saveCurrentUser();
       this.alertService.add('success', 'Notification settings saved', 6000);
     } else {
