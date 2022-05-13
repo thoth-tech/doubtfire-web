@@ -166,6 +166,8 @@ import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdo
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
 import { NotificationComponent } from './admin/modals/user-notification-settings-modal/notification.component';
+import { GradeIconComponent } from './common/grade-icon/grade-icon.component';
+
 @NgModule({
   // Components we declare
   declarations: [
@@ -223,6 +225,7 @@ import { NotificationComponent } from './admin/modals/user-notification-settings
     UnitDropdownComponent,
     TaskDropdownComponent,
     SplashScreenComponent,
+    GradeIconComponent,
   ],
   // Module Imports
   imports: [
