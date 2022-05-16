@@ -296,48 +296,33 @@ export class FileUploaderComponent {
     //
     // Initiates the upload using HttpClient
     //
-    function initiateUpload(){
-      this.uploadFile(file) {  
+    
+    function initiateUpload(event: { target: { files: File[]; }; }){
+      if (!this.readyToUpload()) { return; }
+      const file:File = event.target.files[0]
+      if(file){
+        this.filename = file.name;
         const form = new FormData();
-        form.append('file', file.data);  
-        file.inProgress = true;  
-        this.uploadService.upload(form).pipe(  
-          map(event => {  
-            switch (event.type) {  
-              case HttpEventType.UploadProgress:  
-                file.progress = Math.round(event.loaded * 100 / event.total);  
-                break;  
-              case HttpEventType.Response:  
-                return event;  
-            }  
-          }),  
-          catchError((error: HttpErrorResponse) => {  
-            file.inProgress = false;  
-            return of(`${file.data.name} upload failed.`);  
-          })).subscribe((event: any) => {  
-            if (typeof (event) === 'object') {  
-              console.log(event.body);  
-            }  
-          });
-          this.fileUpload.nativeElement.value = '';  
-          this.files.forEach(file => {  
-            this.uploadFile(file);  
-          });
-
-      const fileUpload = this.fileUpload.nativeElement;fileUpload.onchange = () => {  
-        for (let index = 0; index < fileUpload.files.length; index++)  
-        {  
-         const file = fileUpload.files[index];  
-         this.files.push({ data: file, inProgress: false, progress: 0});  
-        }  
-          this.uploadFiles();  
-        };  
-        fileUpload.click();  
-        
-        this.upload(form) {
-          return this.httpClient.post<any>(this.API_URL, form)
-        };
-    }}
+         // Append data
+      const files = (Array.from(this.uploadZones).map((zone: { name: any; model: {}; }) => ({ name: zone.name, data: zone.model[0] })));
+      for (let file of Array.from(files)) { form.append(file.name, file.data); }
+      // Append payload
+      const payload = ((() => {
+        const result = [];
+        for (let k in this.payload) {
+          const v = this.payload[k];
+          result.push({ key: k, value: v });
+        }
+        return result;
+      })());
+      for (let payloadItem of Array.from(payload)) {
+        if (_.isObject(payloadItem.value)) { payloadItem.value = JSON.stringify(payloadItem.value); }
+        form.append(payloadItem.key, payloadItem.value);
+      } 
+      const upload = this.httpClient.post(this.API_URL, form);
+      upload.subscribe
+      }
+    }
 
     //
     // Initiates the upload

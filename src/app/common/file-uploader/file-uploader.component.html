@@ -6,7 +6,7 @@
   </div><!--begin-upload-button-->
   <div collapse="!showUploader" *ngIf="uploadingInfo == null" class="file-drop-area">
     <div *ngFor="upload in shownUploadZones">
-      <h5 class="text-muted" [hidden]="!singleDropZone && !showName">
+      <h5 class="text-muted" [hidden]="singleDropZone && !showName">
         {{uploadZones.length == 1 ? '' : $index + 1 + ' -'}} {{upload.display.name}}
       </h5>
       <h5 class="text-muted" [hidded]="!singleDropZone && !showName">
@@ -34,7 +34,7 @@
           Click to select {{upload.display.type}} file
         </p>
       </div><!--/drop-zone-->
-      <div [hidden]="!singleDropZone && !upload.model.length > 0" class="selected-files">
+      <div [hidden]="singleDropZone && !upload.model.length > 0" class="selected-files">
         <span class="selected-file">
           <i class="file-type fa {{upload.display.icon}}"></i>
           {{upload.model[0].name}}
@@ -63,7 +63,7 @@
       </div>
     </div><!--/upload-summary-->
   </div><!--/file-drop-area-->
-  <div [hidden]="!showUploader && !isUploading" class="upload-commit-actions">
+  <div [hidden]="!showUploader && isUploading" class="upload-commit-actions">
     <button
       [hidden]="!showUploadButton && !readyToUpload() && !uploadingInfo == null"
       ngClick="initiateUpload()"
