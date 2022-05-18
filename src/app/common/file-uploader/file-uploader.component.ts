@@ -1,11 +1,8 @@
 //IMPORTANT - READ ALL COMMENTS BEFORE BEINGING MIGRATION
 
 import { Component, Inject, Input, } from '@angular/core';
-import { HttpClient, HttpEvent, HttpErrorResponse, HttpEventType } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as _ from 'lodash';
-import API_URL from 'src/app/config/constants/apiURL';
 import { currentUser } from 'src/app/ajs-upgraded-providers';
 
 @Component({
@@ -299,7 +296,7 @@ export class FileUploaderComponent {
     // Initiates the upload using HttpClient
     // Grady - This is the new uploading function
     //
-    
+
     function initiateUpload(event: { target: { files: File[]; }; }){
       if (!this.readyToUpload()) { return; }
       const file:File = event.target.files[0]
@@ -322,110 +319,10 @@ export class FileUploaderComponent {
         if (_.isObject(payloadItem.value)) { payloadItem.value = JSON.stringify(payloadItem.value); }
         form.append(payloadItem.key, payloadItem.value);
       } 
-      const upload = this.httpClient.post(this.API_URL, form);
+      const upload = this.httpClient.post(this.API_URL, form, {headers: new HttpHeaders().set('Auth-Token', this.currentUser.authenticationToken)}, 
+      {headers: new HttpHeaders().set('Username', this.currentUser.profile.username)});
       upload.subscribe
       }
     }
-
-    //
-    // Initiates the upload
-    // Grady - Needs to be replaced with httpclient which has been begun above!
-    // Grady - Remove Once HttpClient funcion is relatively finished.
-    //
-    this.initiateUpload = function() {
-      if (!this.readyToUpload()) { return; }
-      if (typeof this.onBeforeUpload === 'function') {
-        this.onBeforeUpload();
-      }
-
-      const xhr   = new XMLHttpRequest(); 
-      const form  = new FormData();
-      // Append data
-      const files = (Array.from(this.uploadZones).map((zone: { name: any; model: {}; }) => ({ name: zone.name, data: zone.model[0] })));
-      for (let file of Array.from(files)) { form.append(file.name, file.data); }
-      // Append payload
-      const payload = ((() => {
-        const result = [];
-        for (let k in this.payload) {
-          const v = this.payload[k];
-          result.push({ key: k, value: v });
-        }
-        return result;
-      })());
-      for (let payloadItem of Array.from(payload)) {
-        if (_.isObject(payloadItem.value)) { payloadItem.value = JSON.stringify(payloadItem.value); }
-        form.append(payloadItem.key, payloadItem.value);
-      }
-      // Set the percent
-      this.uploadingInfo = {
-        progress: 5,
-        success: null,
-        error: null,
-        complete: false
-      };
-      this.isUploading = true;
-      // Callbacks
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          return setTimeout((function() {
-            // Upload is now complete
-            this.uploadingInfo.complete = true;
-            let response = null;
-            try {
-              response = JSON.parse(xhr.responseText);
-            } catch (e) {
-              if (xhr.status === 0) {
-                response = { error: 'Could not connect to the Doubtfire server' };
-              } else {
-                response = xhr.responseText;
-              }
-            }
-            // Success (20x success range)
-            if ((xhr.status >= 200) && (xhr.status < 300)) {
-              if (typeof this.onSuccess === 'function') {
-                this.onSuccess(response);
-              }
-              this.uploadingInfo.success = true;
-              setTimeout((function() {
-                if (typeof this.onComplete === 'function') {
-                  this.onComplete();
-                }
-                if (this.resetAfterUpload) {
-                  return this.resetUploader();
-                }
-              }), 2500);
-            // Fail
-            } else {
-              if (typeof this.onFailure === 'function') {
-                this.onFailure(response);
-              }
-              this.uploadingInfo.success = false;
-              this.uploadingInfo.error   = response.error || "Unknown error";
-            }
-            return this.apply();
-          }), 2000);
-        }
-      };
-
-      xhr.upload.onprogress = function(event) {
-        this.uploadingInfo.progress = parseInt((100.0 * event.position) / event.totalSize);
-        return this.apply();
-      };
-
-      // Default the method to POST if it was not defined
-      if (this.method == null) { this.method = 'POST'; }
-
-      // Send it
-      xhr.open(this.method, this.url, true);
-
-      // Add auth details
-      // Grady - currentUser Authenticaiton token and Username will need to be injected into HttpClient for Uploading.
-      xhr.setRequestHeader('Auth-Token', this.currentUser.authenticationToken);
-      xhr.setRequestHeader('Username', this.currentUser.profile.username);
-
-      return xhr.send(form);
-    };
   }
-
-
 }
