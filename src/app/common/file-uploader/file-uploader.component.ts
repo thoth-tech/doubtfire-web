@@ -1,9 +1,12 @@
-import { Component, Input, } from '@angular/core';
+//IMPORTANT - READ ALL COMMENTS BEFORE BEINGING MIGRATION
+
+import { Component, Inject, Input, } from '@angular/core';
 import { HttpClient, HttpEvent, HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import * as _ from 'lodash';
 import API_URL from 'src/app/config/constants/apiURL';
+import { currentUser } from 'src/app/ajs-upgraded-providers';
 
 @Component({
   selector: 'file-uploader',
@@ -41,7 +44,6 @@ export class FileUploaderComponent {
     method: string; 
     url: any;
     setTimeout: (arg0: { (): boolean; (): any; (): any; }, arg1: number) => void
-    currentUser: { authenticationToken: any; profile: { username: any; }}; //Grady - possibly need to inject currentuser
     initiateUpload: () => any;
 
     bindings: {
@@ -93,7 +95,7 @@ export class FileUploaderComponent {
     resetAfterUpload: '=?'  
     }
 
-  constructor(public http: HttpClient) { 
+  constructor(public http: HttpClient, @Inject(currentUser) private CurrentUser: any) { 
     //
     // Accepted upload types with associated data
     //
@@ -295,6 +297,7 @@ export class FileUploaderComponent {
     
     //
     // Initiates the upload using HttpClient
+    // Grady - This is the new uploading function
     //
     
     function initiateUpload(event: { target: { files: File[]; }; }){
@@ -326,7 +329,8 @@ export class FileUploaderComponent {
 
     //
     // Initiates the upload
-    // Grady - Needs to be replaced with httpclient
+    // Grady - Needs to be replaced with httpclient which has been begun above!
+    // Grady - Remove Once HttpClient funcion is relatively finished.
     //
     this.initiateUpload = function() {
       if (!this.readyToUpload()) { return; }
@@ -415,7 +419,8 @@ export class FileUploaderComponent {
       xhr.open(this.method, this.url, true);
 
       // Add auth details
-      xhr.setRequestHeader('Auth-Token', this.currentUser.authenticationToken); //Grady - added this. to current users but still might need to do injection?
+      // Grady - currentUser Authenticaiton token and Username will need to be injected into HttpClient for Uploading.
+      xhr.setRequestHeader('Auth-Token', this.currentUser.authenticationToken);
       xhr.setRequestHeader('Username', this.currentUser.profile.username);
 
       return xhr.send(form);
