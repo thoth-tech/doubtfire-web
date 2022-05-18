@@ -3,6 +3,11 @@
   // Add some margin like a <p>
   margin: 2.5em 0;
 
+  // Colors to make it easy to understand
+  $hover-color:   $brand-primary;
+  $accept-color:  $brand-success;
+  $reject-color:  $brand-danger;
+
   // Extra additional icons
   $ban-icon:      $fa-var-ban;
   $download-icon: $fa-var-download;
@@ -28,8 +33,8 @@
     }
     &:hover {
       cursor: pointer;
-      border-color: #337ab7;
-      color: #337ab7;
+      border-color: $hover-color;
+      color: $hover-color;
       p small {
         text-decoration: underline;
       }
@@ -39,8 +44,8 @@
   // Wells which have file over
   .well.drop.file-over {
     cursor: copy;
-    border-color: #5cb85c;
-    color: #5cb85c;
+    border-color: $accept-color;
+    color: $accept-color;
     // Switch the icon over
     p.fa::before {
       content: $download-icon;
@@ -48,8 +53,8 @@
   }
   // Rejected file over
   .well.drop.file-rejected {
-    border-color: #d9534f;
-    color: #d9534f;
+    border-color: $reject-color;
+    color: $reject-color;
     // Switch the icon over
     p.fa::before {
       content: $ban-icon;
@@ -83,7 +88,7 @@
     margin-left: 1ex;
     &:hover i {
       font-size: 1.15em;
-      color: #d9534f;
+      color: $reject-color;
     }
     display: inline-block;
   }
