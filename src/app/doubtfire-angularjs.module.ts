@@ -263,6 +263,7 @@ import { CommentBubbleActionComponent } from './tasks/task-comments-viewer/comme
 import { UnitTutorialsListComponent } from './units/states/edit/directives/unit-tutorials-list/unit-tutorials-list.component';
 import { UnitTutorialsManagerComponent } from './units/states/edit/directives/unit-tutorials-manager/unit-tutorials-manager.component';
 import { TutorialService } from './api/models/tutorial/tutorial.service';
+import { VisulizationService } from './visualisations/visulization.service';
 import { TutorialStreamService } from './api/models/tutorial-stream/tutorial-stream.service';
 import { UnitStudentsEditorComponent } from './units/states/edit/directives/unit-students-editor/unit-students-editor.component';
 import { CampusService } from './api/models/campus/campus.service';
@@ -314,6 +315,7 @@ DoubtfireAngularJSModule.factory('ExtensionModal', downgradeInjectable(Extension
 DoubtfireAngularJSModule.factory('CalendarModal', downgradeInjectable(CalendarModalService));
 DoubtfireAngularJSModule.factory('TaskCommentService', downgradeInjectable(TaskCommentService));
 DoubtfireAngularJSModule.factory('tutorialService', downgradeInjectable(TutorialService));
+DoubtfireAngularJSModule.factory('VisulizationService', downgradeInjectable(VisulizationService)); 
 DoubtfireAngularJSModule.factory('streamService', downgradeInjectable(TutorialStreamService));
 DoubtfireAngularJSModule.factory('campusService', downgradeInjectable(CampusService));
 DoubtfireAngularJSModule.factory('webcalService', downgradeInjectable(WebcalService));
@@ -378,7 +380,6 @@ DoubtfireAngularJSModule.directive(
   'progressBurndownChart',
   downgradeComponent({ component: ProgressBurndownChartComponent })
 );
-
 
 DoubtfireAngularJSModule.directive('taskAssessor',
   downgradeComponent({ component: TaskAssessorComponent }));

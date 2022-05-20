@@ -29,8 +29,8 @@ export const userNotificationSettingsModal = new InjectionToken('UserNotificatio
 export const calendarModal = new InjectionToken('CalendarModal');
 export const aboutDoubtfireModal = new InjectionToken('AboutDoubtfireModal');
 export const groupService = new InjectionToken('groupService');
+export const visualisationService = new InjectionToken('VisulizationService');
 export const plagiarismReportModal = new InjectionToken('PlagiarismReportModal');
-export const Visualisation = new InjectionToken('Visualisation');
 // Define a provider for the above injection token...
 // It will get the service from AngularJS via the factory
 export const unitProvider = {
@@ -201,8 +201,4 @@ export const UnitStudentEnrolmentModalProvider = {
   deps: ['$injector'],
 };
 
-export const visualisationProvider = {
-  provide: Visualisation, // When you need 'Unit' you
-  useFactory: (i: any) => i.get('Visualisation'), // get the AngularJS module
-  deps: ['$injector'], // using the upgrade injector.
-};
+

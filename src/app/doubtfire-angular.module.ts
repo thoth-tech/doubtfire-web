@@ -1,7 +1,8 @@
 import { interval } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-import { NgModule, Injector, DoBootstrap } from '@angular/core';
+import { NgModule, Injector, DoBootstrap} from '@angular/core';
+import { NvD3Module } from "ng2-nvd3";
 import { BrowserModule, DomSanitizer, Title } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 import { setAppInjector } from './app-injector';
@@ -75,7 +76,7 @@ import {
   rootScopeProvider,
   aboutDoubtfireModalProvider,
   calendarModalProvider,
-  userNotificationSettingsModalProvider,
+  userNotificationSettingsModalProvider,  
 } from './ajs-upgraded-providers';
 import {
   TaskCommentComposerComponent,
@@ -139,6 +140,9 @@ import { StatusIconComponent } from './common/status-icon/status-icon.component'
 import { TaskPlagiarismCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-plagiarism-card/task-plagiarism-card.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CheckForUpdateService } from './sessions/service-worker-updater/check-for-update.service';
+import { VisulizationService } from './visualisations/visulization.service';
+
+ 
 import {
   ActivityTypeService,
   CampusService,
@@ -165,12 +169,11 @@ import { HeaderComponent } from './common/header/header.component';
 import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdown.component';
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
-import { ProgressBurndownChartComponent } from './visualisations/progress-burndown-chart.component';
+import { ProgressBurndownChartComponent } from './visualisations/progress-burndown-chart.component';  
 
-
-@NgModule({
+@NgModule({  
   // Components we declare
-  declarations: [
+  declarations: [   
     AboutDoubtfireModalContent,
     TaskCommentComposerComponent,
     AudioCommentRecorderComponent,
@@ -226,8 +229,10 @@ import { ProgressBurndownChartComponent } from './visualisations/progress-burndo
     SplashScreenComponent,
     ProgressBurndownChartComponent,
   ],
-  // Module Imports
-  imports: [
+  // Module Imports 
+
+  imports: [   
+    NvD3Module,
     BrowserModule,
     BrowserAnimationsModule,
     ContenteditableModule,
@@ -295,6 +300,7 @@ import { ProgressBurndownChartComponent } from './visualisations/progress-burndo
     EmojiService,
     FileDownloaderService,
     CheckForUpdateService,
+    VisulizationService,
     userProvider,
     groupServiceProvider,
     unitProvider,
