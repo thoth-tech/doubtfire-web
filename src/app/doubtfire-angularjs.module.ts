@@ -124,7 +124,7 @@ import 'build/src/app/admin/admin.js';
 import 'build/src/app/groups/group-selector/group-selector.js';
 import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
-import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
+// import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
 import 'build/src/app/groups/group-set-selector/group-set-selector.js';
 import 'build/src/app/groups/tutor-group-manager/tutor-group-manager.js';
@@ -265,6 +265,7 @@ import { UnitTutorialsListComponent } from './units/states/edit/directives/unit-
 import { UnitTutorialsManagerComponent } from './units/states/edit/directives/unit-tutorials-manager/unit-tutorials-manager.component';
 import { TutorialService } from './api/models/tutorial/tutorial.service';
 import { TutorialStreamService } from './api/models/tutorial-stream/tutorial-stream.service';
+import { GroupMemberService} from './api/models/group-member/group-member.service';
 import { UnitStudentsEditorComponent } from './units/states/edit/directives/unit-students-editor/unit-students-editor.component';
 import { CampusService } from './api/models/campus/campus.service';
 import { WebcalService } from './api/models/webcal/webcal.service';
@@ -290,6 +291,7 @@ import { TaskAssessmentModalService } from './common/modals/task-assessment-moda
 import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
+import { GroupMemberContributionAssignerComponent } from './groups/group-member-contribution-assigner/group-member-contribution-assigner.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -314,6 +316,7 @@ DoubtfireAngularJSModule.factory('ExtensionModal', downgradeInjectable(Extension
 DoubtfireAngularJSModule.factory('CalendarModal', downgradeInjectable(CalendarModalService));
 DoubtfireAngularJSModule.factory('TaskCommentService', downgradeInjectable(TaskCommentService));
 DoubtfireAngularJSModule.factory('tutorialService', downgradeInjectable(TutorialService));
+DoubtfireAngularJSModule.factory('groupMemberService', downgradeInjectable(GroupMemberService));
 DoubtfireAngularJSModule.factory('streamService', downgradeInjectable(TutorialStreamService));
 DoubtfireAngularJSModule.factory('campusService', downgradeInjectable(CampusService));
 DoubtfireAngularJSModule.factory('webcalService', downgradeInjectable(WebcalService));
@@ -396,7 +399,10 @@ DoubtfireAngularJSModule.directive(
   'taskPlagiarismCard',
   downgradeComponent({ component: TaskPlagiarismCardComponent })
 );
-
+DoubtfireAngularJSModule.directive(
+  'groupMemberContributionAssigner',
+  downgradeComponent({ component: GroupMemberContributionAssignerComponent })
+);
 // Global configuration
 
 // If the user enters a URL that doesn't match any known URL (state), send them to `/home`

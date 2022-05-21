@@ -1,0 +1,40 @@
+<div class="group-member-contribution-assigner">
+  <table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th><a (click)="memberSortOrder='student_name'; reverse=!reverse">Team Member</a></th>
+        <th><a (click)="memberSortOrder='target_grade'; reverse=!reverse">Target Grade</a></th>
+        <th class="col-sm-4"><a (click)="memberSortOrder='rating'; reverse=!reverse">Contribution</a></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- orderBy:memberSortOrder:reverse -->
+      <tr *ngFor="let member of team.members"> 
+        <td>{{member.student_name}}</td>
+        <td class="text-left">
+          <grade-icon grade="member.target_grade"></grade-icon>
+        </td>
+        <td> 
+          <mat-star-rating [rating]="member.rating" 
+          class="group-member-contribution-rating"
+          (click)="checkClearRating(member)"  (mouseover)="hoveringOver(member, member.rating)"
+          [starCount]="starCount"  [max]="numStars"  (mouseleave)="hoveringOver(member, null)" 
+          (ratingSelected)="onRatingChanged($event)" (ratingUpdated)="onRatingChanged($event)"
+          [state-on]="'fa fa-child rating-outline'"  [state-off]="'fa fa-child rating-disabled'">
+          </mat-star-rating> 
+
+          <span             
+            class="label {{percentClass(member.percent)}}"
+            [hidden]="!member.overStar"> 
+            <span [hidden]="!member.percent > 0">
+              {{member.percent}} % effort
+            </span>
+            <span [hidden]="member.percent > 0">
+              No effort
+            </span>
+          </span> 
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

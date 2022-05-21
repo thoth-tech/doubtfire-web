@@ -31,8 +31,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatGridListModule } from '@angular/material/grid-list';
-
+import { MatGridListModule } from '@angular/material/grid-list'; 
 import { UIRouterUpgradeModule } from '@uirouter/angular-hybrid';
 
 import { PopoverModule } from 'ngx-bootstrap/popover';
@@ -149,6 +148,7 @@ import {
   TutorialStreamService,
   UserService,
   WebcalService,
+  GroupMemberService,
 } from './api/models/doubtfire-model';
 import { FileDownloaderService } from './common/file-downloader/file-downloader';
 import { PdfImageCommentComponent } from './tasks/task-comments-viewer/pdf-image-comment/pdf-image-comment.component';
@@ -165,7 +165,9 @@ import { HeaderComponent } from './common/header/header.component';
 import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdown.component';
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
-
+import { GroupMemberContributionAssignerComponent } from './groups/group-member-contribution-assigner/group-member-contribution-assigner.component'
+import { StarRatingComponent } from './common/star-rating/star-rating.component'
+ 
 @NgModule({
   // Components we declare
   declarations: [
@@ -221,7 +223,9 @@ import { SplashScreenComponent } from './home/splash-screen/splash-screen.compon
     HeaderComponent,
     UnitDropdownComponent,
     TaskDropdownComponent,
-    SplashScreenComponent,
+    SplashScreenComponent,    
+    GroupMemberContributionAssignerComponent,
+    StarRatingComponent
   ],
   // Module Imports
   imports: [
@@ -292,6 +296,7 @@ import { SplashScreenComponent } from './home/splash-screen/splash-screen.compon
     EmojiService,
     FileDownloaderService,
     CheckForUpdateService,
+    GroupMemberService,
     userProvider,
     groupServiceProvider,
     unitProvider,

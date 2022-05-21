@@ -7,4 +7,5 @@ angular.module("doubtfire.common", [
   'doubtfire.common.grade-icon'
   'doubtfire.common.content-editable'
   'doubtfire.common.alert-list'
+  'doubtfire.common.star-rating'
 ])
