@@ -180,7 +180,7 @@ import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
 import 'build/src/app/common/modals/progress-modal/progress-modal.js';
 import 'build/src/app/common/modals/modals.js';
-import 'build/src/app/common/grade-icon/grade-icon.js';
+// import 'build/src/app/common/grade-icon/grade-icon.js';
 import 'build/src/app/common/file-uploader/file-uploader.js';
 import 'build/src/app/common/common.js';
 import 'build/src/app/common/header/header.js';
@@ -292,6 +292,7 @@ import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
 import { GroupMemberContributionAssignerComponent } from './groups/group-member-contribution-assigner/group-member-contribution-assigner.component';
+import { GradeIconComponent} from "./common/grade-icon/grade-icon.component"
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -399,6 +400,12 @@ DoubtfireAngularJSModule.directive(
   'taskPlagiarismCard',
   downgradeComponent({ component: TaskPlagiarismCardComponent })
 );
+
+DoubtfireAngularJSModule.directive(
+  'gradeIconComponent',
+  downgradeComponent({ component: GradeIconComponent })
+); 
+
 DoubtfireAngularJSModule.directive(
   'groupMemberContributionAssigner',
   downgradeComponent({ component: GroupMemberContributionAssignerComponent })

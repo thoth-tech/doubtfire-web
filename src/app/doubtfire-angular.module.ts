@@ -166,6 +166,7 @@ import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdo
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
 import { GroupMemberContributionAssignerComponent } from './groups/group-member-contribution-assigner/group-member-contribution-assigner.component'
+import { GradeIconComponent} from "./common/grade-icon/grade-icon.component"
 import { StarRatingComponent } from './common/star-rating/star-rating.component'
  
 @NgModule({
@@ -225,6 +226,7 @@ import { StarRatingComponent } from './common/star-rating/star-rating.component'
     TaskDropdownComponent,
     SplashScreenComponent,    
     GroupMemberContributionAssignerComponent,
+    GradeIconComponent,
     StarRatingComponent
   ],
   // Module Imports

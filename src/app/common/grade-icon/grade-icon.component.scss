@@ -1,39 +1,24 @@
-.grade-icon.text-muted {
-  background-color: $text-muted;
-}
-.grade-icon.text-primary {
-  background-color: $brand-primary;
-}
-.grade-icon.text-success {
-  background-color: $brand-success;
-}
-.grade-icon.text-danger {
-  background-color: $brand-danger;
-}
-.grade-icon.text-info {
-  background-color: $brand-info;
-}
-.grade-icon.text-warning {
-  background-color: $brand-warning;
-}
-a .grade-icon:hover {
-  background-color: $link-hover-color;
-}
-.grade-icon {
+ .grade-icon {
   color: #fff;
   font-size: 1em;
-  background-color: $text-color;
+  //background-color: $text-color;
   border-radius: 100%;
   width: 2.25em;
   height: 2.25em;
   font-weight: 100;
   font-size: 1em;
-  @include no-select;
+  //@include no-select;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+$grade-color-p:  darken(#FF0000, 10%);
+$grade-color-c:  darken(#FF8000, 5%);
+$grade-color-d:  darken(#0080FF, 10%);
+$grade-color-hd: darken(#80FF00, 15%);
+
 .grade-icon.colorful {
   &.grade-0 { background-color: $grade-color-p;  }
   &.grade-1 { background-color: $grade-color-c;  }
