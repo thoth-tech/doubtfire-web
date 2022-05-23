@@ -1,9 +1,13 @@
-//IMPORTANT - READ ALL COMMENTS BEFORE BEINGING MIGRATION
+//IMPORTANT: READ ALL COMMENTS BEFORE BEINGING MIGRATION
 
 import { Component, Inject, Input, } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as _ from 'lodash';
 import { currentUser } from 'src/app/ajs-upgraded-providers';
+import API_URL from 'src/app/config/constants/apiURL';
+
+//FIX: remove https://github.com/danialfarid/ng-file-upload from code as HttpClient can perform upload instead
+
 
 @Component({
   selector: 'file-uploader',
@@ -41,8 +45,10 @@ export class FileUploaderComponent {
     method: string; 
     url: any;
     setTimeout: (arg0: { (): boolean; (): any; (): any; }, arg1: number) => void
-    initiateUpload: () => any;
+    filename: string;
+    httpClient: any;
 
+    //TODO: Remove bindings
     bindings: {
     // Files map a key (file name to be uploaded) to a value (containing a
     // a display name, and the type of file that is to be accepted, where
@@ -92,9 +98,13 @@ export class FileUploaderComponent {
     resetAfterUpload: '=?'  
     }
 
+
+
   constructor(public http: HttpClient, @Inject(currentUser) private CurrentUser: any) { 
     //
     // Accepted upload types with associated data
+    //
+    // TODO: Move Accepted Types into a OnInit() method, public variable -> outside contructor?
     //
     const ACCEPTED_TYPES = {
       document: {
@@ -134,6 +144,7 @@ export class FileUploaderComponent {
   
     //
     // Whether or not clearEnqueuedFiles is enabled
+    // FIX: upload.model is never past out of the function
     //
     function clearEnqueuedUpload(upload:{model: any;}){
       upload.model = null;
@@ -225,6 +236,7 @@ export class FileUploaderComponent {
 
     //
     // Data required for each upload zone
+    //TODO: Change _.map to an array
     // 
     function createUploadZones(files: any){
       const zones = _.map(files, function(uploadData: { name?: any; type?: any; }, uploadName: any) {
@@ -296,33 +308,38 @@ export class FileUploaderComponent {
     // Initiates the upload using HttpClient
     // Grady - This is the new uploading function
     //
-
-    function initiateUpload(event: { target: { files: File[]; }; }){
-      if (!this.readyToUpload()) { return; }
-      const file:File = event.target.files[0]
-      if(file){
-        this.filename = file.name;
-        const form = new FormData();
-         // Append data
-      const files = (Array.from(this.uploadZones).map((zone: { name: any; model: {}; }) => ({ name: zone.name, data: zone.model[0] })));
-      for (let file of Array.from(files)) { form.append(file.name, file.data); }
-      // Append payload
-      const payload = ((() => {
-        const result = [];
-        for (let k in this.payload) {
-          const v = this.payload[k];
-          result.push({ key: k, value: v });
-        }
-        return result;
-      })());
-      for (let payloadItem of Array.from(payload)) {
-        if (_.isObject(payloadItem.value)) { payloadItem.value = JSON.stringify(payloadItem.value); }
-        form.append(payloadItem.key, payloadItem.value);
-      } 
-      const upload = this.httpClient.post(this.API_URL, form, {headers: new HttpHeaders().set('Auth-Token', this.currentUser.authenticationToken)}, 
-      {headers: new HttpHeaders().set('Username', this.currentUser.profile.username)});
-      upload.subscribe
+    // Add success and failure errors
+    //
+  }
+  
+  //TODO: Put into ngInit?
+  public initiateUpload(){
+    if (!this.readyToUpload()) { return; }
+    const file:File = event.target.files[0]
+    if(file){
+      this.filename = file.name;
+      const form = new FormData();
+       // Append data
+    const files = (Array.from(this.uploadZones).map((zone: { name: any; model: {}; }) => ({ name: zone.name, data: zone.model[0] })));
+    for (let file of Array.from(files)) { form.append(file.name, file.data); }
+    // Append payload
+    const payload = ((() => {
+      const result = [];
+      for (let k in this.payload) {
+        const v = this.payload[k];
+        result.push({ key: k, value: v });
       }
+      return result;
+    })());
+    for (let payloadItem of Array.from(payload)) {
+      if (_.isObject(payloadItem.value)) { payloadItem.value = JSON.stringify(payloadItem.value); }
+      form.append(payloadItem.key, payloadItem.value);
+    } 
+    const upload = this.httpClient.post(this.API_URL, form, {headers: new HttpHeaders().set('Auth-Token', this.CurrentUser.authenticationToken)}, 
+    {headers: new HttpHeaders().set('Username', this.CurrentUser.profile.username)});
+    upload.subscribe({
+      //TODO: Insert Error Handling - https://rxjs.dev/deprecations/subscribe-arguments
+    })
     }
   }
 }

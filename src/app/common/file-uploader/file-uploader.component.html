@@ -12,15 +12,16 @@
       <h5 class="text-muted" [hidded]="!singleDropZone && !showName">
         Select {{upload.display.name}}
       </h5>
+      <!--FIX: remove https://github.com/danialfarid/ng-file-upload from code as HttpClient can perform upload instead-->
       <div ngfSelect ngfDrop
         [hidden]="!upload.model == null || !upload.model.length == 0"
         class="drop well {{upload.display.error ? 'file-rejected' : ''}}"
         [(ngModel)]="upload.model"
         ngModelRejected="upload.rejects"
-        ngfChange="modelChanged(files, upload)"
-        ngfAccept="upload.accept"
-        ngfDragOverClass="{accept:'file-over', reject:'file-over', delay:100}"
-        ngfDropAvailable="dropSupported">
+        ngf-change="modelChanged(files, upload)"
+        ngf-accept="upload.accept"
+        ngf-drag-over-class="{accept:'file-over', reject:'file-over', delay:100}"
+        ngf-drop-available="dropSupported">
         <p class="fa {{upload.display.icon}} fa-3x"></p>
         <p [hidden]="!upload.display.error">
           Invalid file provided
@@ -39,7 +40,7 @@
           <i class="file-type fa {{upload.display.icon}}"></i>
           {{upload.model[0].name}}
         </span>
-        <a class="clear-upload text-muted" ngClick="clearEnqueuedUpload(upload)">
+        <a class="clear-upload text-muted" (click)="clearEnqueuedUpload(upload)">
           <i class="fa fa-times"></i>
         </a>
       </div><!--/selected-file-->
@@ -55,7 +56,7 @@
           <div class="pull-right text-right">
             <em [hidden]="!upload.model.length > 0">{{upload.model[0].name}}</em>
             <em hidden="upload.model.length > 0" class="text-muted">File Pending</em>
-            <a class="clear-upload text-muted" ngClick="clearEnqueuedUpload(upload)" [hidden]="!upload.model.length > 0">
+            <a class="clear-upload text-muted" (click)="clearEnqueuedUpload(upload)" [hidden]="!upload.model.length > 0">
               <i class="fa fa-times"></i>
             </a>
           </div>
@@ -66,11 +67,11 @@
   <div [hidden]="!showUploader && isUploading" class="upload-commit-actions">
     <button
       [hidden]="!showUploadButton && !readyToUpload() && !uploadingInfo == null"
-      ngClick="initiateUpload(event)"
+      (click)="initiateUpload()"
       class="btn btn-primary btn-upload">
       <i class="fa fa-upload"></i> Start Upload
     </button><!--/upload-button-->
-    <button [hidden]="!asButton" ngClick="resetUploader()" class="btn btn-danger btn-cancel">
+    <button [hidden]="!asButton" (click)="resetUploader()" class="btn btn-danger btn-cancel">
       <i class="fa fa-times"></i> Cancel Upload
     </button><!--/cancel-button-->
   </div>
@@ -95,8 +96,8 @@
           {{uploadingInfo.error}}
         </p>
         <p class="retry-options">
-          <a ngClick="initiateUpload(event)">Retry Upload</a>
-          <a ngClick="onClickFailureCancel()">Cancel</a>
+          <a (click)="initiateUpload()">Retry Upload</a>
+          <a (click)="onClickFailureCancel()">Cancel</a>
         </p><!--/error-message-area-->
       </div>
     </div><!--/result-area-->
