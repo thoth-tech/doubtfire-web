@@ -42,7 +42,6 @@ export class NotificationComponent implements OnInit {
       feedbackSetting: this.CurrentUser.profile.receive_feedback_notifications,
       portfolioSetting: this.CurrentUser.profile.receive_portfolio_notifications
     });
-
   }
 
   // Define the method of changing the radio button style, to simulate styles of previous Angular/Bootstrap version

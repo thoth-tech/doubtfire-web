@@ -3,12 +3,72 @@
     border-radius: 6px;
     padding: 0px;
   }
+
+  .mat-button {
+    border: 1px solid;
+    min-width: 40px;
+    padding: 0 0 6px;
+    text-align: center;
+    height: 34px;
+  }
 }
 
-.modal-dialog {
-  margin: 0px;
+.notification-modal {
+  width: 600px;
+  height: 330px;
+  overflow-x: hidden;
+  padding: 0;
 }
 
-.modal-body {
-  text-align: center;
+.notification-header {
+  height: 87px;
+  margin: 0;
+  padding: 15px;
+}
+
+.notification-content {
+  height: 177px;
+  margin: 0;
+  padding: 15px;
+
+  .notification-label {
+    width: 50%;
+    padding: 7px 15px 0px;
+    text-align: right;
+  }
+
+  .notification-form-group {
+    margin-bottom: 15px;
+
+    .notification-btn-group {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+
+      .notification-btn-left {
+        border-color: #adadad;
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+        border-right: 0;
+      }
+
+      .notification-btn-right {
+        border-color: #adadad;
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+      }
+
+      .notification-btn-active {
+        background-color: #e6e6e6;
+        box-shadow: inset 0 3px 5px rgb(0 0 0 / 13%);
+      }
+    }
+  }
+}
+
+.notification-footer {
+  height: 65px;
+  margin: 0;
+  padding: 15px;
+  text-align: right;
 }
