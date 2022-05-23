@@ -12,16 +12,9 @@
       <h5 class="text-muted" [hidded]="!singleDropZone && !showName">
         Select {{upload.display.name}}
       </h5>
-      <!--FIX: remove https://github.com/danialfarid/ng-file-upload from code as HttpClient can perform upload instead-->
-      <div ngfSelect ngfDrop
-        [hidden]="!upload.model == null || !upload.model.length == 0"
+      <div [hidden]="!upload.model == null || !upload.model.length == 0"
         class="drop well {{upload.display.error ? 'file-rejected' : ''}}"
-        [(ngModel)]="upload.model"
-        ngModelRejected="upload.rejects"
-        ngf-change="modelChanged(files, upload)"
-        ngf-accept="upload.accept"
-        ngf-drag-over-class="{accept:'file-over', reject:'file-over', delay:100}"
-        ngf-drop-available="dropSupported">
+        [(ngModel)]="upload.model">
         <p class="fa {{upload.display.icon}} fa-3x"></p>
         <p [hidden]="!upload.display.error">
           Invalid file provided
@@ -67,7 +60,7 @@
   <div [hidden]="!showUploader && isUploading" class="upload-commit-actions">
     <button
       [hidden]="!showUploadButton && !readyToUpload() && !uploadingInfo == null"
-      (click)="initiateUpload()"
+      (click)="initiateUpload(upload)"
       class="btn btn-primary btn-upload">
       <i class="fa fa-upload"></i> Start Upload
     </button><!--/upload-button-->
