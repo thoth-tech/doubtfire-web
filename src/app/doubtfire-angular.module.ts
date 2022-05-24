@@ -223,6 +223,7 @@ import { FileUploaderComponent } from './common/file-uploader/file-uploader.comp
     UnitDropdownComponent,
     TaskDropdownComponent,
     SplashScreenComponent,
+    FileUploaderComponent
   ],
   // Module Imports
   imports: [
