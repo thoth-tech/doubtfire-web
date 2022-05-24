@@ -304,7 +304,7 @@ export class StaffTaskListComponent implements OnInit, OnChanges {
     if (!funcName) {
       return;
     }
-    taskEl[funcName]({ behavior: 'smooth', block: 'top' });
+    taskEl[funcName]({ behavior: 'smooth', block: 'start' });
   }
 
   isSelectedTask(task) {

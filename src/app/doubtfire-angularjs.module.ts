@@ -47,7 +47,6 @@ import 'build/src/app/welcome/states/welcome/welcome.js';
 import 'build/src/app/welcome/states/states.js';
 import 'build/src/app/tasks/task-submission-viewer/task-submission-viewer.js';
 import 'build/src/app/tasks/task-status-selector/task-status-selector.js';
-import 'build/src/app/tasks/task-sheet-viewer/task-sheet-viewer.js';
 import 'build/src/app/tasks/modals/upload-submission-modal/upload-submission-modal.js';
 import 'build/src/app/tasks/modals/grade-task-modal/grade-task-modal.js';
 import 'build/src/app/tasks/modals/modals.js';
@@ -181,6 +180,7 @@ import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
 import 'build/src/app/common/modals/progress-modal/progress-modal.js';
 import 'build/src/app/common/modals/modals.js';
 import 'build/src/app/common/grade-icon/grade-icon.js';
+import 'build/src/app/common/file-uploader/file-uploader.js';
 import 'build/src/app/common/common.js';
 import 'build/src/app/common/header/header.js';
 import 'build/src/app/common/services/task-service.js';
@@ -290,6 +290,7 @@ import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
 import { FileUploaderComponent } from './common/file-uploader/file-uploader.component';
+import { GradeIconComponent } from './common/grade-icon/grade-icon.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -381,6 +382,11 @@ DoubtfireAngularJSModule.directive('taskAssessmentComment',
   downgradeComponent({ component: TaskAssessmentCommentComponent }));
 DoubtfireAngularJSModule.directive('taskSubmissionHistory',
   downgradeComponent({ component: TaskSubmissionHistoryComponent }));
+
+  DoubtfireAngularJSModule.directive(
+    'gradeIcon',
+    downgradeComponent({ component: GradeIconComponent })
+  );
 
 // Global configuration
 DoubtfireAngularJSModule.directive(

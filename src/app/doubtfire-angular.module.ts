@@ -166,6 +166,7 @@ import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdo
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
 import { FileUploaderComponent } from './common/file-uploader/file-uploader.component';
+import { GradeIconComponent } from './common/grade-icon/grade-icon.component';
 
 @NgModule({
   // Components we declare
@@ -223,7 +224,8 @@ import { FileUploaderComponent } from './common/file-uploader/file-uploader.comp
     UnitDropdownComponent,
     TaskDropdownComponent,
     SplashScreenComponent,
-    FileUploaderComponent
+    FileUploaderComponent,
+    GradeIconComponent,
   ],
   // Module Imports
   imports: [
