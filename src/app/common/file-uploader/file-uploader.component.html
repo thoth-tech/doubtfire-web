@@ -4,15 +4,15 @@
       <i class="fa fa-upload"></i> Begin Upload
     </button>
   </div><!--begin-upload-button-->
-  <div collapse="!showUploader" *ngIf="uploadingInfo == null" class="file-drop-area">
+  <div collapse="!showUploader" *ngIf="uploadingInfo === null" class="file-drop-area">
     <div *ngFor="upload in shownUploadZones">
       <h5 class="text-muted" [hidden]="singleDropZone && !showName">
-        {{uploadZones.length == 1 ? '' : $index + 1 + ' -'}} {{upload.display.name}}
+        {{uploadZones.length === 1 ? '' : $index + 1 + ' -'}} {{upload.display.name}}
       </h5>
       <h5 class="text-muted" [hidded]="!singleDropZone && !showName">
         Select {{upload.display.name}}
       </h5>
-      <div [hidden]="!upload.model == null || !upload.model.length == 0"
+      <div [hidden]="!upload.model === null || !upload.model.length === 0"
         class="drop well {{upload.display.error ? 'file-rejected' : ''}}"
         [(ngModel)]="upload.model">
         <p class="fa {{upload.display.icon}} fa-3x"></p>
@@ -59,7 +59,7 @@
   </div><!--/file-drop-area-->
   <div [hidden]="!showUploader && isUploading" class="upload-commit-actions">
     <button
-      [hidden]="!showUploadButton && !readyToUpload() && !uploadingInfo == null"
+      [hidden]="!showUploadButton && !readyToUpload() && !uploadingInfo === null"
       (click)="initiateUpload(upload)"
       class="btn btn-primary btn-upload">
       <i class="fa fa-upload"></i> Start Upload
@@ -69,7 +69,7 @@
     </button><!--/cancel-button-->
   </div>
   <div [hidden]="!showUploader && !readyToUpload()" class="upload-area text-center clearfix">
-    <div hidden="uploadingInfo == null || uploadingInfo.complete" class="progress-area">
+    <div hidden="uploadingInfo === null || uploadingInfo.complete" class="progress-area">
       <div class="icons">
         <i ngRepeat="upload in uploadZones" class="fa {{upload.display.icon}}"></i>
         <i class="fa fa-arrow-right"></i>
@@ -82,7 +82,7 @@
         <i class="fa {{uploadingInfo.success === true ? 'fa-check-circle text-success' : 'fa-times-circle text-danger'}} fa-2x"></i>
         <strong>File Upload {{uploadingInfo.success === true ? 'Successful' : 'Failed'}}</strong>
       </p>
-      <div class="error-message-area" hidden="uploadingInfo.success === true">
+      <div class="error-message-area" hidden="uploadingInfo.success ==== true">
         <hr>
         <p>
           <strong>Error Message: </strong>
