@@ -36,7 +36,6 @@ export class GroupMemberContributionAssignerComponent implements OnInit {
       
       this.rating = rating; 
   } 
-  //ratingSelected
   ngOnInit(): void { 
 
     this.selectedGroupSet = this.task.definition.group_set
@@ -50,38 +49,16 @@ export class GroupMemberContributionAssignerComponent implements OnInit {
       info: 50,
       success: 100
     } 
-    this.gradeFor = this.gradeService.gradeFor
-
-
-    // TODO: (@alexcu) Supply group members
-    if (this.selectedGroup && this.selectedGroupSet) {
-
-     // '"/units/:unit_id/group_sets/:group_set_id/groups/:group_id/members/:id"';
-
-      // console.log(this.project.unit_id)
-      // console.log(this.selectedGroupSet.id)
-      // console.log(this.selectedGroup.id)
-      let groupMembers: any = [] 
-      this.groupMemberService.query(
+    this.gradeFor = this.gradeService.gradeFor 
+    if (this.selectedGroup && this.selectedGroupSet) {    
+       this.groupMemberService.query(
         {'unit_id': this.project.unit_id, group_set_id: this.selectedGroupSet.id, group_id: this.selectedGroup.id}).subscribe((members) => {
          
-        this.members = members
-        //console.log(this.members) 
-        this.team.members = _.map(members, (member: GroupMember) => {  
-          // console.log(member)
-          // console.log(member.project_id)
-          //console.log(member.project_id)
-          //groupMember.project_id = member[0].project_id
-          // groupMember['student_id'] = member[0].student_id
-          // groupMember = {student_id: member[0].student_id, project_id: member[0].project_id, }
-          //groupMember.project_id = member[0].project_id
-          // // : 'student_1', project_id: 2, student_name: 'Layla Kihn', target_grade: 0}
-          // // //groupMember = member
-          //member[0].project_id = member.project_id + 10
+        this.members = members 
+        this.team.members = _.map(members, (member: GroupMember) => {           
           member.confRating = this.initialStars
           member.rating = member.confRating 
-          member.percent = this.memberPercentage(member, member.rating)
-          // groupMembers.push(groupMember) 
+          member.percent = this.memberPercentage(member, member.rating) 
           return member            
         }); 
         // Need the '+' to convert to number
@@ -101,23 +78,21 @@ export class GroupMemberContributionAssignerComponent implements OnInit {
       member.rating = 0 
       member.percent = "0"
     }
-    else if (member.confRating == 1 && member.overStar == 1 && member.rating == 0)
-      member.rating = 1
-
     member.confRating = member.rating
-    console.log(member)
-    return member;
+     return member;
   } 
 
+  // get memebr percentage 
   memberPercentage(member: GroupMember, rating: number): string {
     return (100 * (rating / this.groupService.groupContributionSum(this.members, member, rating))).toFixed()
   }
-
+  // when hover over 
   hoveringOver(member: GroupMember, value: number) {  
     member.overStar = value
     member.percent = this.memberPercentage(member, value)
   }
-
+  
+  // get label
   percentClass(pct: number) {
     if (pct >= this.percentages.success) return 'label-success'
     if (pct >= this.percentages.info) return 'label-info'
