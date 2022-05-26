@@ -10,7 +10,7 @@ export class VisulizationService {
     dirtyConf: any;
 
   constructor() {}
-  show (type: any, visualisationName: any, opts: any, conf: any, titleOpts: any, subtitleOpts: any)
+  show (type: any, visualisationName: any, conf: any, titleOpts: any, subtitleOpts: any)
   {
     let DEFAULT_OPTS =
     {
@@ -50,8 +50,8 @@ export class VisulizationService {
       debounce: 10 // default: 10
     }
 
-    this.dirtyOpts = _.extend (DEFAULT_OPTS, opts)
-     this.dirtyOpts.type = type 
+    this.dirtyOpts = _.extend (DEFAULT_OPTS)
+    this.dirtyOpts.type = type 
     this.dirtyConf = _.extend (DEFAULT_CONF, conf)
 
     //Google tracking

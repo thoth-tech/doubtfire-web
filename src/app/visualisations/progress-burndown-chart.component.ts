@@ -4,7 +4,6 @@ declare let d3: any;
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { projectService} from '../ajs-upgraded-providers';
 import { VisulizationService} from 'src/app/visualisations/visulization.service';
 
 @Component({
@@ -112,18 +111,10 @@ export class ProgressBurndownChartComponent implements OnInit {
         xDomain: this.xDomain 
       } 
     } 
-    const chart_setup = this.visualisationService.show ('lineChart', 'Student Progress Burndown Chart', this.options, [], [], [])    
+    const chart_setup = this.visualisationService.show ('lineChart', 'Student Progress Burndown Chart', this.options, [], [], [])       
+    this.options = _.extend (this.options, chart_setup[0].chart)        
   }
-  } 
-    
-  // // ngDoCheck() {
-  // //     if (this.project.burndown_chart_data == null) {
-  // //         return;
-  // //     }
-
-  // //     this.config = {}
-  // //     this.visualisationProvider('lineChart', 'Student Progress Burndown Chart', this.options, this.config)
-  // //   }
+  }    
  
   function xAxisTickFormatDateFormat(d: number): String {
     return d3.time.format('%b %d')(new Date(d * 1000))
