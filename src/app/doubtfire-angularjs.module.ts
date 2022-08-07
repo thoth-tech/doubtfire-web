@@ -125,6 +125,8 @@ import 'build/src/app/sessions/auth/http-auth-injector.js';
 import 'build/src/app/sessions/sessions.js';
 import 'build/src/app/errors/errors.js';
 import 'build/src/app/errors/states/unauthorised/unauthorised.js';
+
+import 'build/src/app/errors/states/not-found/not-found.js';
 import 'build/src/app/errors/states/timeout/timeout.js';
 import 'build/src/app/errors/states/states.js';
 import 'build/src/common/utilService/utilService.js';
@@ -134,6 +136,7 @@ import 'build/src/i18n/resources-locale_en-US.js';
 import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
+
 
 import {AboutDoubtfireModal} from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {TaskCommentComposerComponent} from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
@@ -233,6 +236,7 @@ import {PortfolioGradeSelectStepComponent} from './projects/states/portfolio/dir
 import {PortfolioIncludedTasksComponent} from './projects/states/portfolio/directives/portfolio-review-step/portfolio-included-tasks/portfolio-included-tasks.component';
 import {TaskSimilarityViewComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-similarity-view/task-similarity-view.component';
 import {UploadGradesComponent} from './units/states/portfolios/upload-grades/upload-grades.component';
+import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
 
 export const DoubtfireAngularJSModule = angular
   .module('doubtfire', [
@@ -532,6 +536,8 @@ DoubtfireAngularJSModule.directive(
   'fPortfolioGradeSelectStep',
   downgradeComponent({component: PortfolioGradeSelectStepComponent}),
 );
+
+DoubtfireAngularJSModule.directive('unauthorised', downgradeComponent({ component: UnauthorisedComponent }));
 
 // Global configuration
 
