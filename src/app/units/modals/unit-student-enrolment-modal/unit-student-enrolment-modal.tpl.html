@@ -7,7 +7,7 @@
       <div class="form-group" required>
         <label class="col-sm-3 control-label">Student</label>
         <div class="col-sm-7">
-          <input type="input" class="form-control" placeholder="Student ID" ng-model="studentId">
+          <input type="input" class="form-control" placeholder="Student ID" ng-model="student_id" />
         </div>
       </div>
       <div class="form-group">
@@ -21,6 +21,6 @@
     </form>
   </div>
   <div class="modal-footer text-right">
-    <input type="button" ng-click="enrolStudent(studentId, data.campusId)" class="btn btn-primary" value="Save" />
+    <input type="button" ng-click="enrolStudent(student_id, data.campusId)" class="btn btn-primary" value="Save" />
   </div>
 </div>

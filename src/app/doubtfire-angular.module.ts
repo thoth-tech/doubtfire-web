@@ -78,6 +78,8 @@ import {
   gradeTaskModalProvider,
   uploadSubmissionModalProvider,
   ConfirmationModalProvider,
+  userNotificationSettingsModalProvider,
+  campusServiceProvider,
 } from './ajs-upgraded-providers';
 import {ProjectTasksListComponent} from './tasks/project-tasks-list/project-tasks-list.component';
 import {
@@ -184,7 +186,6 @@ import {OverseerImageListComponent} from './admin/institution-settings/overseer-
 
 import {TaskAssessmentCommentComponent} from './tasks/task-comments-viewer/task-assessment-comment/task-assessment-comment.component';
 import {TaskAssessmentModalComponent} from './common/modals/task-assessment-modal/task-assessment-modal.component';
-
 import {TaskSubmissionHistoryComponent} from './tasks/task-submission-history/task-submission-history.component';
 import {HomeComponent} from './home/states/home/home.component';
 import {IsActiveUnitRole} from './common/pipes/is-active-unit-role.pipe';
@@ -321,6 +322,7 @@ import {UnitRootStateComponent} from './units/unit-root-state.component';
 import {TaskViewerStateComponent} from './units/task-viewer/task-viewer-state.component';
 import {ProjectRootStateComponent} from './projects/states/project-root-state.component';
 import {ProjectProgressDashboardComponent} from './projects/project-progress-dashboard/project-progress-dashboard.component';
+import {UnitStudentEnrolmentModalComponent} from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
 
 @NgModule({
   // Components we declare
@@ -565,7 +567,8 @@ import {ProjectProgressDashboardComponent} from './projects/project-progress-das
     TaskPrerequisiteService,
     MarkingSessionService,
     UnauthorisedComponent,
-    provideHttpClient(withInterceptorsFromDi())
+    provideHttpClient(withInterceptorsFromDi()),
+    UnitStudentEnrolmentModalComponent,
   ],
   imports: [
     FlexLayoutModule,

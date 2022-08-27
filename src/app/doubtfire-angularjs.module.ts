@@ -84,7 +84,9 @@ import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
-import 'build/src/app/units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.js';
+import 'build/src/app/groups/group-set-selector/group-set-selector.js';
+import 'build/src/app/groups/tutor-group-manager/tutor-group-manager.js';
+import 'build/src/app/groups/student-group-manager/student-group-manager.js';
 import 'build/src/app/units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.js';
 import 'build/src/app/units/modals/modals.js';
 import 'build/src/app/units/units.js';
@@ -135,6 +137,8 @@ import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
 
+import {TaskAssessorComponent} from './tasks/task-definition-editor/task-assessor/task-assessor.component';
+import {UnitStudentEnrolmentModalService} from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 
 import {AboutDoubtfireModal} from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {ProjectTasksListComponent} from './tasks/project-tasks-list/project-tasks-list.component';
@@ -346,6 +350,7 @@ DoubtfireAngularJSModule.factory(
 );
 
 DoubtfireAngularJSModule.factory('GradeTaskModal', downgradeInjectable(GradeTaskModalService));
+DoubtfireAngularJSModule.factory('UnitStudentEnrolmentModal', downgradeInjectable(UnitStudentEnrolmentModalService));
 
 // directive -> component
 DoubtfireAngularJSModule.directive(
@@ -356,6 +361,7 @@ DoubtfireAngularJSModule.directive(
   'gradeIcon',
   downgradeComponent({component: GradeIconComponent}),
 );
+DoubtfireAngularJSModule.directive('appHeader', downgradeComponent({component: HeaderComponent}));
 DoubtfireAngularJSModule.directive(
   'taskCommentComposer',
   downgradeComponent({component: TaskCommentComposerComponent}),
@@ -481,7 +487,6 @@ DoubtfireAngularJSModule.directive(
   'taskDescriptionCard',
   downgradeComponent({component: TaskDescriptionCardComponent}),
 );
-
 DoubtfireAngularJSModule.directive(
   'taskAssessmentComment',
   downgradeComponent({component: TaskAssessmentCommentComponent}),
@@ -491,6 +496,7 @@ DoubtfireAngularJSModule.directive(
   downgradeComponent({component: TaskSubmissionHistoryComponent}),
 );
 DoubtfireAngularJSModule.directive('fUnits', downgradeComponent({component: FUnitsComponent}));
+DoubtfireAngularJSModule.directive('taskAssessor', downgradeComponent({component: TaskAssessorComponent}));
 
 // Global configuration
 DoubtfireAngularJSModule.directive(
