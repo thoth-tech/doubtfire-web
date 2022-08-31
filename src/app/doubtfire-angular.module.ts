@@ -80,6 +80,7 @@ import {
   ConfirmationModalProvider,
   userNotificationSettingsModalProvider,
   campusServiceProvider,
+  projectProvider,
 } from './ajs-upgraded-providers';
 import {ProjectTasksListComponent} from './tasks/project-tasks-list/project-tasks-list.component';
 import {
