@@ -324,6 +324,26 @@ import {TaskViewerStateComponent} from './units/task-viewer/task-viewer-state.co
 import {ProjectRootStateComponent} from './projects/states/project-root-state.component';
 import {ProjectProgressDashboardComponent} from './projects/project-progress-dashboard/project-progress-dashboard.component';
 import {UnitStudentEnrolmentModalComponent} from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
+import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
+import { HomeComponent } from './home/states/home/home.component';
+import { IsActiveUnitRole } from './common/pipes/is-active-unit-role.pipe';
+import { HeaderComponent } from './common/header/header.component';
+import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdown.component';
+import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
+import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
+import { HttpErrorInterceptor } from './common/services/http-error.interceptor';
+import { TaskDefinitionService } from './api/services/task-definition.service';
+import { TaskOutcomeAlignmentService } from './api/services/task-outcome-alignment.service';
+import { GroupService } from './api/services/group.service';
+import { ObjectSelectComponent } from './common/obect-select/object-select.component';
+import { WelcomeComponent } from './welcome/welcome.component';
+import { HeroSidebarComponent } from './common/hero-sidebar/hero-sidebar.component';
+import { SignInComponent } from './sessions/states/sign-in/sign-in.component';
+import { EditProfileFormComponent } from './common/edit-profile-form/edit-profile-form.component';
+import { TransitionHooksService } from './sessions/transition-hooks.service';
+import { EditProfileComponent } from './account/edit-profile/edit-profile.component';
+import { UserBadgeComponent } from './common/user-badge/user-badge.component';
+import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
 
 @NgModule({
   // Components we declare

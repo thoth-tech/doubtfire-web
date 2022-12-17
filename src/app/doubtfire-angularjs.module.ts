@@ -48,7 +48,7 @@ import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment.js';
 import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/task-ilo-alignment-modal.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-editor/task-ilo-alignment-editor.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-viewer/task-ilo-alignment-viewer.js';
-import 'build/src/app/config/privacy-policy/privacy-policy.js';
+import 'build/src/app/tasks/task-definition-editor/task-definition-editor.js';
 import 'build/src/app/config/runtime/runtime.js';
 import 'build/src/app/config/config.js';
 import 'build/src/app/config/root-controller/root-controller.js';
@@ -214,6 +214,8 @@ import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-ne
 import {FUsersComponent} from './admin/states/users/users.component';
 import {ProgressBurndownChartComponent} from './visualisations/progress-burndown-chart/progressburndownchart.component';
 import {TaskVisualisationComponent} from './visualisations/task-visualisation/taskvisualisation.component';
+import { TaskAssessorComponent } from './tasks/task-definition-editor/task-assessor/task-assessor.component';
+import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
 
 import {FUnitTaskListComponent} from './units/task-viewer/directives/unit-task-list/unit-task-list.component';
 import {FTaskDetailsViewComponent} from './units/task-viewer/directives/task-details-view/task-details-view.component';
@@ -351,6 +353,7 @@ DoubtfireAngularJSModule.factory(
 
 DoubtfireAngularJSModule.factory('GradeTaskModal', downgradeInjectable(GradeTaskModalService));
 DoubtfireAngularJSModule.factory('UnitStudentEnrolmentModal', downgradeInjectable(UnitStudentEnrolmentModalService));
+DoubtfireAngularJSModule.factory('PrivacyPolicy', downgradeInjectable(PrivacyPolicy));
 
 // directive -> component
 DoubtfireAngularJSModule.directive(
