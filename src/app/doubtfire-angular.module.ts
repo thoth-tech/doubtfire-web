@@ -95,6 +95,7 @@ import { doubtfireStates } from './doubtfire.states';
 import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy-table';
 import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs';
 import { MatSortModule } from '@angular/material/sort';
+import { LocalStorageService } from './config/local-storage/local-storage.component';
 import { ActivityTypeListComponent } from './admin/institution-settings/activity-type-list/activity-type-list.component';
 import { UnitStudentsEditorComponent } from './units/states/edit/directives/unit-students-editor/unit-students-editor.component';
 import { InstitutionSettingsComponent } from './admin/institution-settings/institution-settings.component';
@@ -185,6 +186,7 @@ import { TaskDashboardComponent } from './projects/states/dashboard/directives/t
 import { InboxComponent } from './units/states/tasks/inbox/inbox.component';
 import { ProjectProgressBarComponent } from './common/project-progress-bar/project-progress-bar.component';
 
+
 @NgModule({
   // Components we declare
   declarations: [
@@ -192,6 +194,7 @@ import { ProjectProgressBarComponent } from './common/project-progress-bar/proje
     TaskCommentComposerComponent,
     AudioCommentRecorderComponent,
     MicrophoneTesterComponent,
+    LocalStorageService,
     DiscussionPromptComposerComponent,
     IntelligentDiscussionPlayerComponent,
     IntelligentDiscussionDialog,
