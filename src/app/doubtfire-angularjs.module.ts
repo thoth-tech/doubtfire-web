@@ -11,7 +11,6 @@ import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static
 // Here are the old angular node modules, previously loaded via grunt
 //#region
 import 'node_modules/angular-cookies/angular-cookies.js';
-import 'node_modules/angular-local-storage/dist/angular-local-storage.js';
 import 'node_modules/angular-resource/angular-resource.js';
 import 'node_modules/angular-ui-bootstrap/ui-bootstrap-tpls.js';
 import 'node_modules/angular-nvd3/dist/angular-nvd3.js';
@@ -64,7 +63,7 @@ import 'build/src/app/config/privacy-policy/privacy-policy.js';
 import 'build/src/app/config/runtime/runtime.js';
 import 'build/src/app/config/config.js';
 import 'build/src/app/config/root-controller/root-controller.js';
-import 'build/src/app/config/local-storage/local-storage.js';
+
 import 'build/src/app/config/routing/routing.js';
 import 'build/src/app/config/vendor-dependencies/vendor-dependencies.js';
 import 'build/src/app/config/analytics/analytics.js';
@@ -266,6 +265,7 @@ import { FooterComponent } from './common/footer/footer.component';
 import { TaskAssessmentCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-assessment-card/task-assessment-card.component';
 import { TaskSubmissionCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-submission-card/task-submission-card.component';
 import { InboxComponent } from './units/states/tasks/inbox/inbox.component';
+import { LocalStorageService } from './config/local-storage/local-storage.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -384,6 +384,11 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'taskSubmissionHistory',
   downgradeComponent({ component: TaskSubmissionHistoryComponent })
+);
+
+DoubtfireAngularJSModule.directive(
+  'LocalStorageService',
+  downgradeComponent({ component: LocalStorageService })
 );
 
 // Global configuration

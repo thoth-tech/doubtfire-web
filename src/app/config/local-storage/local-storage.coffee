@@ -1,4 +1,4 @@
-angular.module('doubtfire.config.local-storage', [])
+angular.module('', [])
 #
 # Local Storage Configuration
 #
