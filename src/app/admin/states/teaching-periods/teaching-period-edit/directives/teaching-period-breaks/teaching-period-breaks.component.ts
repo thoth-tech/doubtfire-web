@@ -6,4 +6,6 @@ import { Component, Input, Inject } from '@angular/core';
 })
 export class TeachingPeriodBreaksComponent {
   constructor() {}
+
+  @Input() teachingperiod: any;
 }

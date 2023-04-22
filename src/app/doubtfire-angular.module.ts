@@ -175,6 +175,7 @@ import { EditProfileFormComponent } from './common/edit-profile-form/edit-profil
 import { TransitionHooksService } from './sessions/transition-hooks.service';
 import { EditProfileComponent } from './account/edit-profile/edit-profile.component';
 import { UserBadgeComponent } from './common/user-badge/user-badge.component';
+import { TeachingPeriodBreaksComponent } from './admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-breaks/teaching-period-breaks.component';
 
 @NgModule({
   // Components we declare
@@ -239,6 +240,7 @@ import { UserBadgeComponent } from './common/user-badge/user-badge.component';
     EditProfileFormComponent,
     EditProfileComponent,
     UserBadgeComponent,
+    TeachingPeriodBreaksComponent,
   ],
   // Module Imports
   imports: [

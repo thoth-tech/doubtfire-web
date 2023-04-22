@@ -109,7 +109,6 @@ import 'build/src/app/admin/states/states.js';
 import 'build/src/app/admin/states/units/units.js';
 import 'build/src/app/admin/states/users/users.js';
 import 'build/src/app/admin/states/teaching-periods/teaching-period-list/teaching-period-list.js';
-import 'build/src/app/admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-breaks/teaching-period-breaks.js';
 import 'build/src/app/admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-details-editor/teaching-period-details-editor.js';
 import 'build/src/app/admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-units/teaching-period-units.js';
 import 'build/src/app/admin/states/teaching-periods/teaching-period-edit/directives/directives.js';
@@ -265,6 +264,7 @@ import { TaskDefinitionService } from './api/services/task-definition.service';
 import { EditProfileDialogService } from './common/modals/edit-profile-dialog/edit-profile-dialog.service';
 import { GroupService } from './api/services/group.service';
 import { UserBadgeComponent } from './common/user-badge/user-badge.component';
+import { TeachingPeriodBreaksComponent } from './admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-breaks/teaching-period-breaks.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -370,6 +370,10 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'taskSubmissionHistory',
   downgradeComponent({ component: TaskSubmissionHistoryComponent })
+);
+DoubtfireAngularJSModule.directive(
+  'teachingPeriodBreaks',
+  downgradeComponent({ component: TeachingPeriodBreaksComponent })
 );
 
 // Global configuration
