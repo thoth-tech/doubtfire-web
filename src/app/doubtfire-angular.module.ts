@@ -32,6 +32,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import { UIRouterUpgradeModule } from '@uirouter/angular-hybrid';
 
@@ -76,6 +78,7 @@ import {
   aboutDoubtfireModalProvider,
   calendarModalProvider,
   userNotificationSettingsModalProvider,
+  createNewUnitModalProvider,
 } from './ajs-upgraded-providers';
 import {
   TaskCommentComposerComponent,
@@ -164,6 +167,10 @@ import { HeaderComponent } from './common/header/header.component';
 import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdown.component';
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
+import {
+  CreateNewUnitModalComponent,
+  CreateNewUnitModalContentComponent,
+} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 
 @NgModule({
   // Components we declare
@@ -221,6 +228,8 @@ import { SplashScreenComponent } from './home/splash-screen/splash-screen.compon
     UnitDropdownComponent,
     TaskDropdownComponent,
     SplashScreenComponent,
+    CreateNewUnitModalComponent,
+    CreateNewUnitModalContentComponent,
   ],
   // Module Imports
   imports: [
@@ -267,6 +276,8 @@ import { SplashScreenComponent } from './home/splash-screen/splash-screen.compon
     MatTabsModule,
     MatChipsModule,
     MatSnackBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     ReactiveFormsModule,
     PickerModule,
     EmojiModule,
@@ -300,6 +311,7 @@ import { SplashScreenComponent } from './home/splash-screen/splash-screen.compon
     userNotificationSettingsModalProvider,
     calendarModalProvider,
     aboutDoubtfireModalProvider,
+    createNewUnitModalProvider,
     authProvider,
     currentUserProvider,
     taskServiceProvider,
@@ -332,6 +344,7 @@ import { SplashScreenComponent } from './home/splash-screen/splash-screen.compon
     TasksInTutorialsPipe,
     TasksForInboxSearchPipe,
     IsActiveUnitRole,
+    CreateNewUnitModalComponent,
   ],
 })
 // There is no longer any requirement for an EntryComponents section
