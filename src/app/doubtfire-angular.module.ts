@@ -66,6 +66,7 @@ import {
   gradeTaskModalProvider,
   uploadSubmissionModalProvider,
   ConfirmationModalProvider,
+  CreateBreakModalProvider,
 } from './ajs-upgraded-providers';
 import {
   TaskCommentComposerComponent,
@@ -360,6 +361,7 @@ import { TeachingPeriodBreaksComponent } from './admin/states/teaching-periods/t
     TasksInTutorialsPipe,
     TasksForInboxSearchPipe,
     IsActiveUnitRole,
+    CreateBreakModalProvider,
   ],
 })
 // There is no longer any requirement for an EntryComponents section
