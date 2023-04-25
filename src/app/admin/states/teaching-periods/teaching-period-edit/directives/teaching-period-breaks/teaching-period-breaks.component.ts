@@ -1,21 +1,22 @@
-import { Component, Input, Inject, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, Input, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { createBreakModal } from '../../../../../../ajs-upgraded-providers';
 import { TeachingPeriod, TeachingPeriodBreak } from 'src/app/api/models/doubtfire-model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'teaching-period-breaks',
   templateUrl: 'teaching-period-breaks.component.html',
   styleUrls: ['teaching-period-breaks.component.scss'],
 })
-export class TeachingPeriodBreaksComponent implements OnInit {
+export class TeachingPeriodBreaksComponent implements OnInit, OnDestroy {
   @ViewChild(MatTable, { static: false }) table: MatTable<TeachingPeriodBreak>;
   @ViewChild(MatSort, { static: false }) sort: MatSort;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
 
   @Input() teachingperiod: TeachingPeriod;
+
+  private subscriptions: Subscription[] = [];
 
   columns: string[] = ['startDate', 'duration'];
   dataSource: MatTableDataSource<TeachingPeriodBreak>;
@@ -24,8 +25,17 @@ export class TeachingPeriodBreaksComponent implements OnInit {
 
   ngOnInit() {
     this.dataSource = new MatTableDataSource(this.teachingperiod.breaksCache.currentValuesClone());
-    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+
+    this.subscriptions.push(
+      this.teachingperiod.breaksCache.values.subscribe((breaks) => {
+        this.dataSource.data = breaks;
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
   private sortCompare(aValue: number | string, bValue: number | string, isAsc: boolean) {
