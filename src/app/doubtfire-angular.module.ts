@@ -167,10 +167,8 @@ import { HeaderComponent } from './common/header/header.component';
 import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdown.component';
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
-import {
-  CreateNewUnitModalComponent,
-  CreateNewUnitModalContentComponent,
-} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
+import { CreateNewUnitModalContentComponent } from './admin/modals/create-new-unit-modal/create-new-unit-modal-content.component';
+import { CreateNewUnitModalComponent } from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 
 @NgModule({
   // Components we declare
