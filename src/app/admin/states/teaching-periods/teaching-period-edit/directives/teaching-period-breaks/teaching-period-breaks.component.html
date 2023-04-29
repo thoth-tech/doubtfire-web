@@ -5,7 +5,7 @@
       <p>Breaks in {{ teachingperiod.name() }}</p>
     </div>
   </div>
-  <table mat-table [dataSource]="dataSource" matSort (matSortChange)="sortTableData($event)" class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource" matSort (matSortChange)="sortTableData($event)" class="mat-elevation-z3">
     <ng-container matColumnDef="startDate" sticky>
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Start Date</th>
       <td mat-cell *matCellDef="let break">
