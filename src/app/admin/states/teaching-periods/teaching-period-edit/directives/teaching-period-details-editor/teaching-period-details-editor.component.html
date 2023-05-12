@@ -1,0 +1,56 @@
+<div>
+  <div class="header">
+    <div>
+      <h3>Update Teaching Period</h3>
+      <p>Update overview details of the teaching period below</p>
+    </div>
+  </div>
+  <mat-card class="mat-elevation-z3">
+    <form #form="ngForm" fxLayout="column" fxLayoutAlign="center start" *ngIf="teachingperiod">
+      <div class="main" fxLayout="column">
+        <mat-form-field fxFlexFill appearance="outline">
+          <mat-label>Name</mat-label>
+          <input matInput [(ngModel)]="teachingperiod.period" name="period" />
+        </mat-form-field>
+
+        <mat-form-field fxFlexFill appearance="outline">
+          <mat-label>Year</mat-label>
+          <input matInput [(ngModel)]="teachingperiod.year" name="year" />
+        </mat-form-field>
+
+        <div fxLayout="row">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="startdate" [(ngModel)]="teachingperiod.startDate" name="startDate" />
+            <mat-datepicker-toggle matSuffix [for]="startdate"></mat-datepicker-toggle>
+            <mat-datepicker #startdate></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div fxLayout="row">
+          <mat-form-field appearance="outline">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="enddate" [(ngModel)]="teachingperiod.endDate" name="endDate" />
+            <mat-datepicker-toggle matSuffix [for]="enddate"></mat-datepicker-toggle>
+            <mat-datepicker #enddate></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div fxLayout="row">
+          <mat-form-field appearance="outline">
+            <mat-label>Active Until</mat-label>
+            <input matInput [matDatepicker]="activeuntil" [(ngModel)]="teachingperiod.activeUntil" name="activeUntil" />
+            <mat-datepicker-toggle matSuffix [for]="activeuntil"></mat-datepicker-toggle>
+            <mat-datepicker #activeuntil></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <mat-toolbar>
+          <mat-toolbar-row>
+            <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="submit()">Update</button>
+          </mat-toolbar-row>
+        </mat-toolbar>
+      </div>
+    </form>
+  </mat-card>
+</div>

@@ -1,0 +1,21 @@
+.header {
+    display: flex;
+}
+
+.mat-card{
+    border-radius: 0;
+    padding-bottom: 0;
+}
+
+.main {
+    width: 100%;
+}
+
+.mat-toolbar {
+    background-color: white;
+}
+
+.mat-toolbar-row {
+    padding: 0;
+    justify-content: flex-end;
+}
