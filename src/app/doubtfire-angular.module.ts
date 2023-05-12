@@ -72,6 +72,7 @@ import {
   gradeTaskModalProvider,
   uploadSubmissionModalProvider,
   ConfirmationModalProvider,
+  RolloverTeachingPeriodModalProvider,
 } from './ajs-upgraded-providers';
 import {
   TaskCommentComposerComponent,
@@ -392,6 +393,7 @@ export function playerFactory() {
     TasksInTutorialsPipe,
     TasksForInboxSearchPipe,
     IsActiveUnitRole,
+    RolloverTeachingPeriodModalProvider,
   ],
 })
 
