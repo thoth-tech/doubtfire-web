@@ -107,7 +107,6 @@ import 'build/src/app/admin/states/users/users.js';
 import 'build/src/app/admin/states/teaching-periods/teaching-period-list/teaching-period-list.js';
 import 'build/src/app/admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-breaks/teaching-period-breaks.js';
 import 'build/src/app/admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-details-editor/teaching-period-details-editor.js';
-import 'build/src/app/admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-units/teaching-period-units.js';
 import 'build/src/app/admin/states/teaching-periods/teaching-period-edit/directives/directives.js';
 import 'build/src/app/admin/states/teaching-periods/teaching-period-edit/edit-teaching-period.js';
 import 'build/src/app/admin/admin.js';
@@ -266,6 +265,7 @@ import { FooterComponent } from './common/footer/footer.component';
 import { TaskAssessmentCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-assessment-card/task-assessment-card.component';
 import { TaskSubmissionCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-submission-card/task-submission-card.component';
 import { InboxComponent } from './units/states/tasks/inbox/inbox.component';
+import { TeachingPeriodUnitsComponent } from './admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-units/teaching-period-units.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -399,6 +399,10 @@ DoubtfireAngularJSModule.directive('statusIcon', downgradeComponent({ component:
 DoubtfireAngularJSModule.directive(
   'taskPlagiarismCard',
   downgradeComponent({ component: TaskPlagiarismCardComponent })
+);
+DoubtfireAngularJSModule.directive(
+  'teachingPeriodUnits',
+  downgradeComponent({ component: TeachingPeriodUnitsComponent })
 );
 
 // Global configuration
