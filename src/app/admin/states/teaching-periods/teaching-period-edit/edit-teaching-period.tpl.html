@@ -4,7 +4,7 @@
       <tab-heading>{{tab.title}}</tab-heading>
     </tab>
   </tabset><!--/tabs-->
-  <teaching-period-details-editor teachingperiod="teachingPeriod" ng-if="activeTab === tabs.editorTab"></teaching-period-details-editor>
+  <teaching-period-details-editor [teachingperiod]="teachingPeriod" ng-if="activeTab === tabs.editorTab"></teaching-period-details-editor>
   <teaching-period-breaks teachingperiod="teachingPeriod" ng-if="activeTab === tabs.breaksTab"></teaching-period-breaks>
   <teaching-period-units teachingperiod="teachingPeriod" ng-if="activeTab === tabs.unitsTab"></teaching-period-units>
 </div>

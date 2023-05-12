@@ -40,6 +40,8 @@ import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy
 import { MatGridListModule } from '@angular/material/grid-list';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { UIRouterUpgradeModule } from '@uirouter/angular-hybrid';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import { setTheme } from 'ngx-bootstrap/utils';
 
@@ -327,6 +329,8 @@ export function playerFactory() {
       enabled: environment.production,
       registrationStrategy: () => interval(6000).pipe(take(1)),
     }),
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   // Services we provide
   providers: [
