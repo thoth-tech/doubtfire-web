@@ -1,0 +1,66 @@
+<div>
+  <div class="header">
+    <div>
+      <h3>Units</h3>
+      <p>Units registered with {{ teachingperiod.name() }}</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="filter">
+      <mat-form-field>
+        <mat-label>Search</mat-label>
+        <input matInput (keyup)="applyFilter($event)" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" matSort (matSortChange)="sortTableData($event)" class="mat-elevation-z3">
+    <ng-container matColumnDef="unitCode" sticky>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Unit Code</th>
+      <td mat-cell *matCellDef="let unit">
+        <mat-chip-list>
+          <mat-chip style="cursor: pointer" selected="true" color="primary" (click)="gotoUnit(unit)">
+            {{ unit.code }}
+          </mat-chip>
+        </mat-chip-list>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="name" sticky>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let unit">
+        {{ unit.name }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="teachingPeriod" sticky>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Teaching Period</th>
+      <td mat-cell *matCellDef="let unit">
+        {{ teachingperiod.name() }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="active" sticky>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Active</th>
+      <td mat-cell *matCellDef="let unit">
+        <i *ngIf="teachingperiod.active && unit.active" class="fa fa-check"></i>
+        <i *ngIf="!teachingperiod.active || !unit.active" class="fa fa-times"></i>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <td mat-footer-cell *matFooterCellDef [colSpan]="columns.length">
+        <mat-toolbar>
+          <mat-toolbar-row>
+            <button mat-flat-button color="primary" target="_blank" (click)="rolloverTeachingPeriod()">
+              <i class="fa fa-plus"></i> Rollover Teaching Period
+            </button>
+          </mat-toolbar-row>
+        </mat-toolbar>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    <tr mat-footer-row *matFooterRowDef="['actions']"></tr>
+  </table>
+</div>
