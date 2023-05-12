@@ -1,0 +1,16 @@
+table {
+    width: 100%;
+  }
+  
+  .header {
+    display: flex;
+  }
+  
+  .mat-toolbar {
+    background-color: white;
+  }
+  
+  .mat-toolbar-row {
+    padding: 0;
+    justify-content: flex-end;
+  }
