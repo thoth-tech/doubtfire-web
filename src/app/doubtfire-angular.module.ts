@@ -191,6 +191,7 @@ import { TaskDashboardComponent } from './projects/states/dashboard/directives/t
 import { InboxComponent } from './units/states/tasks/inbox/inbox.component';
 import { ProjectProgressBarComponent } from './common/project-progress-bar/project-progress-bar.component';
 import { TeachingPeriodListComponent } from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
+import { TeachingPeriodBreaksComponent } from './admin/states/teaching-periods/teaching-period-edit/directives/teaching-period-breaks/teaching-period-breaks.component';
 
 // Note we need a separate function as it's required
 // by the AOT compiler.
@@ -270,6 +271,7 @@ export function playerFactory() {
     InboxComponent,
     ProjectProgressBarComponent,
     TeachingPeriodListComponent,
+    TeachingPeriodBreaksComponent,
   ],
   // Module Imports
   imports: [
