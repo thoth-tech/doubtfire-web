@@ -1,51 +1,37 @@
-<form #form="ngForm" (ngSubmit)="submit()" fxLayout="column" fxLayoutAlign="center start">
-  <div class="main-container" style="width: 100%" fxLayout="row" fxLayoutAlign="center start">
-    <div class="main" style="width: 100%" fxLayout="column" fxLayoutAlign="start start">
-      <!-- avatar -->
-      <div fxLayout="row" fxLayoutAlign="space-between center" style="margin-bottom: 25px">
-        <a style="margin-left: 20px" href="https://gravatar.com/connect/?source=_signup/" target="_blank">
-          <user-icon [size]="80" [user]="user" style="margin-right: 25px"></user-icon
-        ></a>
+<form #form="ngForm" (ngSubmit)="submit()" class="flex flex-col items-center justify-start">
+  <div class="w-full flex items-center justify-center">
+    <div class="w-full max-w-xl p-5">
+      <div class="flex justify-between items-center mb-5">
+        <a class="ml-5" href="https://gravatar.com/connect/?source=_signup/" target="_blank">
+          <user-icon [size]="80" [user]="user" class="mr-5"></user-icon>
+        </a>
 
-        <div fxLayout="column" fxLayoutAlign="space-around start">
+        <div class="flex flex-col space-y-2 items-start" style="margin-left: 100px; margin-top: -57px">
           <h1>{{ initialFirstName }}</h1>
           Set up your {{ externalName.value }} profile
         </div>
       </div>
 
-      <div fxLayout="row" fxFlexFill>
-        <mat-form-field fxFlex="48" appearance="outline" fxFlexAlign="start">
+      <div class="flex w-full mt-4" style="margin-top: 50px">
+        <mat-form-field style="width: calc(48.5% - 8px)" appearance="outline">
           <mat-label>First Name</mat-label>
           <input matInput [(ngModel)]="user.firstName" name="first" required />
         </mat-form-field>
 
-        <div fxFlex></div>
-
-        <mat-form-field fxFlex="48" appearance="outline" fxFlexAlign="end">
+        <mat-form-field style="width: calc(48.5% - 8px); margin-left: 30px" appearance="outline">
           <mat-label>Second Name</mat-label>
           <input matInput [(ngModel)]="user.lastName" name="last" required />
         </mat-form-field>
       </div>
 
-      <div fxLayout="row" fxFlexFill>
-        <!-- <mat-form-field fxFlex="25" fxFlexAlign="start" appearance="outline">
-          <mat-label>Pronouns</mat-label>
-          <mat-select [(ngModel)]="formPronouns.pronouns" name="pronouns">
-            <mat-option value="">Do not show</mat-option>
-            <mat-option value="He/Him">He/Him</mat-option>
-            <mat-option value="She/Her">She/Her</mat-option>
-            <mat-option value="They/Them">They/Them</mat-option>
-            <mat-option value="__customPronouns">Custom</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <div fxFlex="3"></div> -->
-        <mat-form-field fxFlexFill appearance="outline">
+      <div class="flex w-full mt-4">
+        <mat-form-field style="width: calc(100% - 8px)" appearance="outline">
           <mat-label>Preferred Name</mat-label>
           <input matInput [(ngModel)]="user.nickname" name="preferred_name" />
         </mat-form-field>
       </div>
 
-      <mat-form-field fxFlexFill appearance="outline" [hidden]="!customPronouns">
+      <mat-form-field class="w-full mt-4" appearance="outline" [class.hidden]="!customPronouns">
         <mat-label>Custom Pronouns</mat-label>
         <input
           matInput
@@ -57,17 +43,25 @@
         />
       </mat-form-field>
 
-      <mat-form-field appearance="outline" fxFlexFill *ngIf="user.systemRole === 'Student'">
-        <mat-label>Student ID</mat-label>
-        <input matInput [(ngModel)]="user.studentId" name="student_id" required />
-      </mat-form-field>
+      <div class="w-full mt-4">
+        <mat-form-field
+          style="width: calc(100% - 8px)"
+          appearance="outline"
+          [class.hidden]="user.systemRole !== 'Student'"
+        >
+          <mat-label>Student ID</mat-label>
+          <input matInput [(ngModel)]="user.studentId" name="student_id" required />
+        </mat-form-field>
+      </div>
 
-      <mat-form-field appearance="outline" fxFlexFill>
-        <mat-label>Email</mat-label>
-        <input type="email" matInput [(ngModel)]="user.email" name="email" required />
-      </mat-form-field>
+      <div class="w-full mt-4">
+        <mat-form-field style="width: calc(100% - 8px)" appearance="outline">
+          <mat-label>Email</mat-label>
+          <input type="email" matInput [(ngModel)]="user.email" name="email" required />
+        </mat-form-field>
+      </div>
 
-      <mat-form-field *ngIf="canSeeSystemRole" fxFlexFill appearance="outline">
+      <mat-form-field class="w-full mt-4" [class.hidden]="!canSeeSystemRole">
         <mat-label>System Role</mat-label>
         <mat-select [(ngModel)]="user.systemRole" name="systemRole" [disabled]="!canEditSystemRole">
           <mat-option value="Admin">Administrator</mat-option>
@@ -77,34 +71,33 @@
         </mat-select>
       </mat-form-field>
 
-      <section fxLayout="column" fxFlexFill fxLayoutAlign="center start">
-        <mat-checkbox class="" color="primary" [(ngModel)]="user.receiveFeedbackNotifications" name="feedback_n"
-          >Receive notifications for new messages</mat-checkbox
-        >
-        <div fxFlex></div>
-        <mat-checkbox color="primary" [(ngModel)]="user.receivePortfolioNotifications" name="portfolio_n"
-          >Receive notifications when your portfolio is ready</mat-checkbox
-        >
-        <div fxFlex></div>
-        <mat-checkbox fxFlex color="primary" [(ngModel)]="user.receiveTaskNotifications" name="task_n"
-          >Receive notifications when new tasks are available</mat-checkbox
-        >
-      </section>
-      <section fxLayout="row" fxFlexFill fxLayoutAlign="start center">
-        <mat-checkbox color="primary" [(ngModel)]="user.optInToResearch" name="optin"
-          >Send anonymous research statistics
+      <section class="flex flex-col justify-start items-start w-full space-y-2 mt-4">
+        <mat-checkbox color="primary" [(ngModel)]="user.receiveFeedbackNotifications" name="feedback_n">
+          Receive notifications for new messages
+        </mat-checkbox>
+        <br />
+        <mat-checkbox color="primary" [(ngModel)]="user.receivePortfolioNotifications" name="portfolio_n">
+          Receive notifications when your portfolio is ready
+        </mat-checkbox>
+        <br />
+        <mat-checkbox color="primary" [(ngModel)]="user.receiveTaskNotifications" name="task_n">
+          Receive notifications when new tasks are available
         </mat-checkbox>
       </section>
 
-      <div fxLayout="row" fxFlexFill style="padding-top: 12px">
-        <button [hidden]="mode === 'edit'" fxFlexAlign="start" type="button" mat-stroked-button (click)="signOut()">
+      <section class="flex justify-start items-center w-full mt-4">
+        <mat-checkbox color="primary" [(ngModel)]="user.optInToResearch" name="optin">
+          Send anonymous research statistics
+        </mat-checkbox>
+      </section>
+      <div class="flex w-full pt-3 justify-end" style="margin-left: 615px">
+        <button [class.hidden]="mode === 'edit'" class="mr-auto" type="button" mat-stroked-button (click)="signOut()">
           Sign Out
         </button>
-        <div fxFlex></div>
         <button
           *ngIf="mode === 'create'"
           [disabled]="form.invalid"
-          fxFlexAlign="end"
+          class="ml-2"
           type="submit"
           mat-flat-button
           color="primary"
@@ -115,7 +108,7 @@
           *ngIf="mode === 'edit'"
           type="button"
           [disabled]="form.invalid"
-          fxFlexAlign="end"
+          class="ml-2"
           (click)="submit()"
           mat-flat-button
           color="primary"
