@@ -3,6 +3,10 @@
   overflow-y: auto;
 }
 
+.buttons-container {
+  justify-content: flex-end;
+}
+
 h1 {
   color: black;
   margin-top: 0;
