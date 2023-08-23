@@ -153,12 +153,12 @@
             </button>
           </span>
         </div>
-        <div ng-show="unitRole">
+        <div ng-show="(project && selectedGroupSet.allowStudentsToManageGroups) || unitRole">
           <form
             editable-form
             name="groupRowForm"
             onbeforesave="updateGroup($data, group)"
-            ng-show="groupRowForm.$visible"
+            ng-show="groupRowForm.$visible && unitRole"
             shown="inserted.id == group.id"
           >
             <button type="submit" ng-disabled="groupRowForm.$waiting" class="btn btn-default btn-sm">
@@ -174,7 +174,7 @@
             </button>
           </form>
           <div ng-hide="groupRowForm.$visible">
-            <button ng-click="groupRowForm.$show()" class="btn btn-default btn-sm">
+            <button ng-click="groupRowForm.$show()" class="btn btn-default btn-sm" ng-show = "unitRole">
               <i class="fa fa-pencil"></i> Edit
             </button>
             <a
@@ -185,7 +185,7 @@
               <i ng-class="{true: 'fa fa-lock', false: 'fa fa-unlock'}[!group.locked]"></i>
               {{!group.locked && "Lock" || "Unlock"}}
             </a>
-            <button ng-click="deleteGroup(group)" class="btn btn-danger btn-sm">
+            <button ng-click="deleteGroup(group)" class="btn btn-danger btn-sm" ng-show = "unitRole">
               <i class="fa fa-trash-o"></i> Delete
             </button>
           </div>
