@@ -158,7 +158,7 @@
             editable-form
             name="groupRowForm"
             onbeforesave="updateGroup($data, group)"
-            ng-show="groupRowForm.$visible && unitRole"
+            ng-show="groupRowForm.$visible"
             shown="inserted.id == group.id"
           >
             <button type="submit" ng-disabled="groupRowForm.$waiting" class="btn btn-default btn-sm">
