@@ -1,20 +1,9 @@
 :host {
   white-space: nowrap;
   text-overflow: ellipsis;
-  display: flex;
 }
-
-.icon-and-text {
-display: flex;
-}
-
 .icon-container {
 margin-right: 5px;
-}
-
-.text-container {
-display: flex;
-flex-direction: column;
 }
 
 a h4 {
