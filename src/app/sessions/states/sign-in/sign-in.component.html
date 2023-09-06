@@ -1,6 +1,6 @@
-<section class="welcome flex column">
+<section class="welcome flex flex-col">
   <f-hero-sidebar class="self-start"></f-hero-sidebar>
-  <section class="content flex-column large">
+  <section class="content flex-col shrink large">
     <div class="container">
       <div class="subcontainer">
         <div class="wordmark flex-row justify-start items-center content-center self-start md:hidden">
@@ -11,7 +11,7 @@
         <form
           #form="ngForm"
           (ngSubmit)="signIn({ username: formData.username, password: formData.password })"
-          class="sign-in-form flex-column justify-center items-center content-center"
+          class="sign-in-form flex-col justify-center items-center content-center"
         >
           <mat-form-field class="w-full h-full" appearance="outline" *ngIf="showCredentials">
             <mat-label>Username</mat-label>
