@@ -1,8 +1,8 @@
-<mat-toolbar class="footer" style="min-height: 85px">
+<mat-toolbar class="footer flex" style="min-height: 85px">
   <div class="flex-row justify-center items-center content-center" style="width: 100%;">
-    <f-user-badge class="flex-item" [selectedTask]="selectedTask"></f-user-badge>
+    <f-user-badge class="flex" [selectedTask]="selectedTask"></f-user-badge>
 
-    <span class="center-buttons flex flex-item">
+    <span class="center-buttons flex justify-center">
       <button
         [disabled]="selectedTask === undefined"
         mat-icon-button
@@ -49,7 +49,7 @@
       </button>
     </span>
 
-    <div class="flex-item flex-end">
+    <div class="flex flex-end items-center">
       <button
         [disabled]="selectedTask === undefined"
         mat-icon-button

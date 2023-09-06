@@ -1,29 +1,12 @@
 .footer {
-  display: flex;
   align-items: center;
   justify-content: space-between;
 
   .flex-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     width: 100%;
   }
 
-  .flex-item {
-    flex: 1;
-  }
-
-  .flex-end {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-
   .center-buttons {
-    display: flex;
-    justify-content: center;
-
     .button {
       margin: 0 6px;
       transform: scale(0.8);
