@@ -3,6 +3,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { StateService, Transition } from '@uirouter/core';
 import { alertService } from 'src/app/ajs-upgraded-providers';
 import { AuthenticationService } from 'src/app/api/services/authentication.service';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
 import { GlobalStateService } from 'src/app/projects/states/index/global-state.service';
 
@@ -24,7 +25,7 @@ type signInData =
 @Component({
   selector: 'f-sign-in',
   templateUrl: './sign-in.component.html',
-  styleUrls: ['./sign-in.component.scss'],
+  styleUrls: ['./sign-in.component.scss']
 })
 export class SignInComponent implements OnInit {
   signingIn: boolean;
@@ -35,22 +36,22 @@ export class SignInComponent implements OnInit {
   authMethodLoaded: boolean;
   externalName: any;
   formData: signInData;
-  constructor(
+  constructor (
     private authService: AuthenticationService,
     private state: StateService,
     private constants: DoubtfireConstants,
     private http: HttpClient,
     private transition: Transition,
     private globalState: GlobalStateService,
-    @Inject(alertService) private alerts: any
+    private alert: AlertService
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit (): void {
     this.formData = {
       username: '',
       password: '',
       remember: false,
-      autoLogin: localStorage.getItem('autoLogin') ? true : false,
+      autoLogin: localStorage.getItem('autoLogin') ? true : false
     };
     // Check for SSO
     this.globalState.hideHeader();
@@ -58,7 +59,7 @@ export class SignInComponent implements OnInit {
     this.externalName = this.constants.ExternalName;
 
     // wait 2 seconds with rxjs
-    const wait = new Promise((resolve) => setTimeout(resolve, 2000));
+    const wait = new Promise(resolve => setTimeout(resolve, 2000));
     this.http.get(`${this.constants.API_URL}/auth/method`).subscribe((response: any) => {
       // if there is a string in response.data.redirect_to
       this.SSOLoginUrl = response.redirect_to || false;
@@ -69,7 +70,7 @@ export class SignInComponent implements OnInit {
           return this.signIn({
             auth_token: this.transition.params().authToken,
             username: this.transition.params().username,
-            remember: true,
+            remember: true
           });
         } else if (this.formData.autoLogin) {
           return wait.then(() => {
@@ -105,7 +106,7 @@ export class SignInComponent implements OnInit {
   /**
    * Redirects the window to the SSO login URL, if the SSO login URL is set.
    */
-  private redirectToSSO(): void {
+  private redirectToSSO (): void {
     if (this.SSOLoginUrl) {
       if (this.formData.autoLogin) {
         localStorage.setItem('autoLogin', 'true');
@@ -117,7 +118,7 @@ export class SignInComponent implements OnInit {
     }
   }
 
-  signIn(signInCredentials: signInData): void {
+  signIn (signInCredentials: signInData): void {
     if (this.SSOLoginUrl && !signInCredentials.auth_token) {
       return this.redirectToSSO();
     }
@@ -130,12 +131,12 @@ export class SignInComponent implements OnInit {
         this.alerts.clearAll();
         this.state.go('home');
       },
-      error: (err) => {
+      error: err => {
         this.signingIn = false;
         this.formData.password = '';
         this.invalidCredentials = true;
         this.alerts.add('warning', err, 6000);
-      },
+      }
     });
   }
 }

@@ -1,7 +1,7 @@
 import {
   csvUploadModalService,
   csvResultModalService,
-  unitStudentEnrolmentModal,
+  unitStudentEnrolmentModal
 } from './../../../../../ajs-upgraded-providers';
 import { ViewChild, Component, Input, Inject, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
@@ -13,11 +13,12 @@ import { FileDownloaderService } from 'src/app/common/file-downloader/file-downl
 import { Project, ProjectService, Unit } from 'src/app/api/models/doubtfire-model';
 import { UIRouter } from '@uirouter/angular';
 import { Subscription } from 'rxjs';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'unit-students-editor',
   templateUrl: 'unit-students-editor.component.html',
-  styleUrls: ['unit-students-editor.component.scss'],
+  styleUrls: ['unit-students-editor.component.scss']
 })
 export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatTable, { static: false }) table: MatTable<Project>;
@@ -33,10 +34,10 @@ export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
 
   // Calls the parent's constructor, passing in an object
   // that maps all of the form controls that this form consists of.
-  constructor(
+  constructor (
     private httpClient: HttpClient,
     @Inject(unitStudentEnrolmentModal) private enrolModal: any,
-    @Inject(alertService) private alerts: any,
+    private alert: AlertService,
     @Inject(csvUploadModalService) private csvUploadModal: any,
     @Inject(csvResultModalService) private csvResultModal: any,
     private fileDownloader: FileDownloaderService,
@@ -45,14 +46,14 @@ export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
   ) {}
 
   // The paginator is inside the table
-  ngAfterViewInit() {
+  ngAfterViewInit () {
     this.dataSource = new MatTableDataSource(this.unit.studentCache.currentValuesClone());
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     this.dataSource.filterPredicate = (data: any, filter: string) => data.matches(filter);
 
     this.subscriptions.push(
-      this.unit.studentCache.values.subscribe((students) => {
+      this.unit.studentCache.values.subscribe(students => {
         this.dataSource.data = students;
       })
     );
@@ -65,11 +66,11 @@ export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((s) => s.unsubscribe());
+  ngOnDestroy (): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  applyFilter(event: Event) {
+  applyFilter (event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
     if (this.dataSource.paginator) {
@@ -77,13 +78,13 @@ export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private sortCompare(aValue: number | string, bValue: number | string, isAsc: boolean) {
+  private sortCompare (aValue: number | string, bValue: number | string, isAsc: boolean) {
     return (aValue < bValue ? -1 : 1) * (isAsc ? 1 : -1);
   }
 
   // Sorting function to sort data when sort
   // event is triggered
-  sortTableData(sort: Sort) {
+  sortTableData (sort: Sort) {
     if (!sort.active || sort.direction === '') {
       return;
     }
@@ -104,15 +105,15 @@ export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  public gotoStudent(student: Project) {
+  public gotoStudent (student: Project) {
     this.router.stateService.go('projects/dashboard', { projectId: student.id, tutor: true, taskAbbr: '' });
   }
 
-  enrolStudent() {
+  enrolStudent () {
     this.enrolModal.show(this.unit);
   }
 
-  uploadEnrolments() {
+  uploadEnrolments () {
     this.csvUploadModal.show(
       'Upload Students to Enrol',
       'Test message',
@@ -128,7 +129,7 @@ export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  uploadWithdrawals() {
+  uploadWithdrawals () {
     this.csvUploadModal.show(
       'Upload Students to Withdraw',
       'Test message',
@@ -144,7 +145,7 @@ export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  downloadEnrolments() {
+  downloadEnrolments () {
     const url: string = this.unit.enrolStudentsCSVUrl;
 
     this.fileDownloader.downloadFile(url, `${this.unit.code}-students.csv`);

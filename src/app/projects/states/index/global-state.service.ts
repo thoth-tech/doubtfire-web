@@ -13,9 +13,10 @@ import {
   UnitRole,
   UnitRoleService,
   UnitService,
-  UserService,
+  UserService
 } from 'src/app/api/models/doubtfire-model';
 import { AuthenticationService } from 'src/app/api/services/authentication.service';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 export class DoubtfireViewState {
   public EntityObject: any; // Unit | Project | undefined
@@ -25,10 +26,10 @@ export class DoubtfireViewState {
 export enum ViewType {
   UNIT = 'UNIT',
   PROJECT = 'PROJECT',
-  OTHER = 'OTHER',
+  OTHER = 'OTHER'
 }
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 /**
  * The global state for the current user. This uses replay subjects, which acts as subjects, but allow
@@ -74,14 +75,14 @@ export class GlobalStateService implements OnDestroy {
   /**
    * The list of all of the units taught by the current user
    */
-  public get unitRolesSubject(): Observable<UnitRole[]> {
+  public get unitRolesSubject (): Observable<UnitRole[]> {
     return this.loadedUnitRoles.values;
   }
 
   /**
    * The list of all of the units studied by the current user
    */
-  public get projectsSubject(): Observable<Project[]> {
+  public get projectsSubject (): Observable<Project[]> {
     return this.currentUserProjects.values;
   }
 
@@ -89,7 +90,7 @@ export class GlobalStateService implements OnDestroy {
 
   public showHideHeader: Subject<boolean> = new Subject<boolean>();
 
-  constructor(
+  constructor (
     private unitRoleService: UnitRoleService,
     private unitService: UnitService,
     private userService: UserService,
@@ -98,7 +99,7 @@ export class GlobalStateService implements OnDestroy {
     private campusService: CampusService,
     private teachingPeriodService: TeachingPeriodService,
     @Inject(UIRouter) private router: UIRouter,
-    @Inject(alertService) private alerts: any,
+    private alert: AlertService,
     private mediaObserver: MediaObserver
   ) {
     this.loadedUnitRoles = this.unitRoleService.cache;
@@ -123,7 +124,7 @@ export class GlobalStateService implements OnDestroy {
     this.resetHeight();
   }
 
-  private resetHeight() {
+  private resetHeight () {
     setTimeout(() => {
       const vh = window.innerHeight * 0.01;
 
@@ -139,53 +140,53 @@ export class GlobalStateService implements OnDestroy {
     }, 0);
   }
 
-  public get isInboxState(): boolean {
+  public get isInboxState (): boolean {
     return this._showFooter;
   }
 
-  public setInboxState() {
+  public setInboxState () {
     this._showFooter = true;
     // set background color to white
     document.body.style.setProperty('background-color', '#f5f5f5');
   }
 
-  public goHome() {
+  public goHome () {
     this.showHeader();
     document.body.style.setProperty('background-color', '#f5f5f5');
   }
 
-  public setNotInboxState() {
+  public setNotInboxState () {
     this._showFooter = false;
     // set background color to white
     document.body.style.setProperty('background-color', '#fff');
   }
 
-  public showFooter(): void {
+  public showFooter (): void {
     this._showFooter = true;
     this.resetHeight();
   }
 
-  public hideFooter(): void {
+  public hideFooter (): void {
     this._showFooter = false;
     this.resetHeight();
   }
 
   // called when we need to set the footer to be a bit taller
   // to account for the alert div
-  public showFooterWarning(): void {
+  public showFooterWarning (): void {
     if (!this._showFooter) return;
     this._showFooterWarning = true;
     this.resetHeight();
   }
 
   // called when we need to set the footer to be normal sized
-  public hideFooterWarning(): void {
+  public hideFooterWarning (): void {
     if (!this._showFooter) return;
     this._showFooterWarning = false;
     this.resetHeight();
   }
 
-  public signOut(): void {
+  public signOut (): void {
     this.isLoadingSubject.next(true);
     this.userService.cache.clear();
     this.clearUnitsAndProjects();
@@ -193,46 +194,46 @@ export class GlobalStateService implements OnDestroy {
     this.router.stateService.go('sign_in');
   }
 
-  public ngOnDestroy(): void {
+  public ngOnDestroy (): void {
     this.isLoadingSubject.complete();
     this.showHideHeader.complete();
     this.currentViewAndEntitySubject$.complete();
   }
 
-  public loadGlobals(): void {
-    const loadingObserver = new Observable((subscriber) => {
+  public loadGlobals (): void {
+    const loadingObserver = new Observable(subscriber => {
       // Loading campuses
       this.campusService.query().subscribe({
-        next: (reponse) => {
+        next: reponse => {
           subscriber.next(true);
         },
-        error: (response) => {
+        error: response => {
           this.alerts.add('danger', 'Unable to access service. Failed loading campuses.', 6000);
-        },
+        }
       });
 
       // Loading teaching periods
       this.teachingPeriodService.query().subscribe({
-        next: (response) => {
+        next: response => {
           subscriber.next(true);
         },
-        error: (response) => {
+        error: response => {
           this.alerts.add('danger', 'Unable to access service. Failed loading teaching periods.', 6000);
-        },
+        }
       });
     });
 
     loadingObserver.pipe(skip(1), take(1)).subscribe({
       next: () => {
         this.loadUnitsAndProjects();
-      },
+      }
     });
   }
 
   /**
    * Query the API for the units taught and studied by the current user.
    */
-  private loadUnitsAndProjects() {
+  private loadUnitsAndProjects () {
     this.unitRoleService.query().subscribe({
       next: (unitRoles: UnitRole[]) => {
         // unit roles are now in the cache
@@ -244,13 +245,13 @@ export class GlobalStateService implements OnDestroy {
             setTimeout(() => {
               this.isLoadingSubject.next(false);
             }, 800);
-          },
+          }
         });
-      },
+      }
     });
   }
 
-  public onLoad(run: () => void): void {
+  public onLoad (run: () => void): void {
     const subscription = this.isLoadingSubject.subscribe((loading: boolean) => {
       if (!loading) {
         run();
@@ -262,7 +263,7 @@ export class GlobalStateService implements OnDestroy {
   /**
    * Clear all of the project and unit role data on sign out
    */
-  public clearUnitsAndProjects(): void {
+  public clearUnitsAndProjects (): void {
     this.loadedUnits.clear();
     this.loadedUnitRoles.clear();
     this.userService.cache.clear();
@@ -272,21 +273,21 @@ export class GlobalStateService implements OnDestroy {
   /**
    * Switch to a new view, and its associated entity object
    */
-  public setView(kind: ViewType, entity?: any): void {
+  public setView (kind: ViewType, entity?: any): void {
     this.currentViewAndEntitySubject$.next({ viewType: kind, entity: entity });
   }
 
   /**
    * Show the header
    */
-  public showHeader(): void {
+  public showHeader (): void {
     this.showHideHeader.next(true);
   }
 
   /**
    * Show the header
    */
-  public hideHeader(): void {
+  public hideHeader (): void {
     this.showHideHeader.next(false);
   }
 }

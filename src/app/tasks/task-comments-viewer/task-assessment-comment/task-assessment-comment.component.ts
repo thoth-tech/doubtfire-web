@@ -3,6 +3,7 @@ import { alertService } from 'src/app/ajs-upgraded-providers';
 import { TaskSubmissionService, TaskAssessmentResult } from 'src/app/common/services/task-submission.service';
 import { TaskAssessmentModalService } from 'src/app/common/modals/task-assessment-modal/task-assessment-modal.service';
 import { Task } from 'src/app/api/models/doubtfire-model';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 export interface User {
   id: number;
@@ -27,40 +28,40 @@ export interface TaskAssessmentComment {
 @Component({
   selector: 'app-task-assessment-comment',
   templateUrl: './task-assessment-comment.component.html',
-  styleUrls: ['./task-assessment-comment.component.scss'],
+  styleUrls: ['./task-assessment-comment.component.scss']
 })
 export class TaskAssessmentCommentComponent implements OnInit {
   @Input() task: Task;
   @Input() comment: TaskAssessmentComment;
 
-  constructor(
-    @Inject(alertService) private alerts: any,
+  constructor (
+    private alert: AlertService,
     @Inject(TaskSubmissionService) private submissions: TaskSubmissionService,
-    private modalService: TaskAssessmentModalService) { }
+    private modalService: TaskAssessmentModalService
+  ) {}
 
-  private handleError(error: any) {
+  private handleError (error: any) {
     this.alerts.add('danger', 'Error: ' + error, 6000);
   }
 
-  ngOnInit() {
+  ngOnInit () {
     this.update();
   }
 
-  get message() {
+  get message () {
     return this.comment.assessment_result.assessment_output;
   }
 
-  showTaskAssessmentResult() {
+  showTaskAssessmentResult () {
     this.modalService.show(this.task);
   }
 
-  scroll(el: HTMLElement) {
-    el.scrollIntoView({behavior: 'smooth'});
+  scroll (el: HTMLElement) {
+    el.scrollIntoView({ behavior: 'smooth' });
   }
 
-  update(): void {
-    this.submissions.getLatestTaskAssessment(this.task)
-    .subscribe(
+  update (): void {
+    this.submissions.getLatestTaskAssessment(this.task).subscribe(
       result => {
         this.comment.assessment_result = {
           assessment_output: result.result,
@@ -80,4 +81,3 @@ export class TaskAssessmentCommentComponent implements OnInit {
     );
   }
 }
-

@@ -2,25 +2,26 @@ import { Component, OnInit, Input, Inject } from '@angular/core';
 import { alertService } from 'src/app/ajs-upgraded-providers';
 import { TaskComment, Task } from 'src/app/api/models/doubtfire-model';
 import { ExtensionComment } from 'src/app/api/models/task-comment/extension-comment';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'extension-comment',
   templateUrl: './extension-comment.component.html',
-  styleUrls: ['./extension-comment.component.scss'],
+  styleUrls: ['./extension-comment.component.scss']
 })
 export class ExtensionCommentComponent implements OnInit {
   @Input() comment: ExtensionComment;
   @Input() task: Task;
 
-  constructor(@Inject(alertService) private alerts: any) {}
+  constructor (private alert: AlertService) {}
 
-  private handleError(error: any) {
+  private handleError (error: any) {
     this.alerts.add('danger', 'Error: ' + error.data.error, 6000);
   }
 
-  ngOnInit() {}
+  ngOnInit () {}
 
-  get message() {
+  get message () {
     const studentName = this.comment.author.name;
     if (this.comment.assessed) {
       return this.comment.extensionResponse;
@@ -32,25 +33,25 @@ export class ExtensionCommentComponent implements OnInit {
     return subject + message;
   }
 
-  get isStudent() {
+  get isStudent () {
     return !this.isNotStudent;
   }
 
-  get isNotStudent() {
+  get isNotStudent () {
     return this.task.unit.currentUserIsStaff;
   }
 
-  denyExtension() {
+  denyExtension () {
     this.comment.deny().subscribe(
-      (tc: TaskComment) => this.alerts.add('success', 'Extension updated', 2000),
-      (response) => this.handleError(response)
+      (tc: TaskComment) => this.alerts.success('Extension updated', 2000),
+      response => this.handleError(response)
     );
   }
 
-  grantExtension() {
+  grantExtension () {
     this.comment.grant().subscribe(
-      (tc: TaskComment) => this.alerts.add('success', 'Extension updated', 2000),
-      (response) => this.handleError(response)
+      (tc: TaskComment) => this.alerts.success('Extension updated', 2000),
+      response => this.handleError(response)
     );
   }
 }

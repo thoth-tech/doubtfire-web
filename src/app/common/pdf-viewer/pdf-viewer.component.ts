@@ -3,11 +3,12 @@ import { Component, Input, Inject, OnDestroy, SimpleChanges, OnChanges, ViewChil
 import { PdfViewerComponent } from 'ng2-pdf-viewer';
 import { alertService } from 'src/app/ajs-upgraded-providers';
 import { FileDownloaderService } from '../file-downloader/file-downloader.service';
+import { AlertService } from '../services/alert.service';
 
 @Component({
   selector: 'f-pdf-viewer',
   templateUrl: './pdf-viewer.component.html',
-  styleUrls: ['./pdf-viewer.component.scss'],
+  styleUrls: ['./pdf-viewer.component.scss']
 })
 export class fPdfViewerComponent implements OnDestroy, OnChanges {
   private _pdfUrl: string;
@@ -18,23 +19,23 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges {
   zoomValue = 1;
   loaded = false;
 
-  constructor(
+  constructor (
     @Inject(FileDownloaderService) private fileDownloader: FileDownloaderService,
-    @Inject(alertService) private alerts: any
+    private alert: AlertService
   ) {}
 
-  ngOnDestroy(): void {
+  ngOnDestroy (): void {
     if (this.pdfBlobUrl) {
       this.fileDownloader.releaseBlob(this.pdfBlobUrl);
       this.pdfBlobUrl = null;
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges (changes: SimpleChanges): void {
     this.pdfUrlChanges(changes.pdfUrl.currentValue);
   }
 
-  pdfUrlChanges(value: string): void {
+  pdfUrlChanges (value: string): void {
     if (this._pdfUrl !== value) {
       // Free the memory used by the old PDF blob
       if (this.pdfBlobUrl) {
@@ -49,29 +50,29 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges {
     }
   }
 
-  searchPdf(stringToSearch: string): void {
+  searchPdf (stringToSearch: string): void {
     this.pdfComponent.eventBus.dispatch('find', {
       query: stringToSearch,
       type: 'again',
       caseSensitive: false,
       findPrevious: undefined,
       highlightAll: true,
-      phraseSearch: true,
+      phraseSearch: true
     });
   }
 
-  zoomIn() {
+  zoomIn () {
     if (this.zoomValue < 2.5) {
       this.zoomValue += 0.1;
     }
   }
-  zoomOut() {
+  zoomOut () {
     if (this.zoomValue > 0.5) {
       this.zoomValue -= 0.1;
     }
   }
 
-  private downloadBlob(downloadUrl: string): void {
+  private downloadBlob (downloadUrl: string): void {
     this.fileDownloader.downloadBlob(
       downloadUrl,
       (url: string, response: HttpResponse<Blob>) => {
@@ -83,7 +84,7 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges {
     );
   }
 
-  onLoaded() {
+  onLoaded () {
     this.loaded = true;
     window.dispatchEvent(new Event('resize'));
   }

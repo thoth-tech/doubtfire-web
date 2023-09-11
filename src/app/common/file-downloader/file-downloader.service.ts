@@ -1,37 +1,38 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from '../services/alert.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class FileDownloaderService {
-  constructor(private httpClient: HttpClient, @Inject(alertService) private alerts: any) {}
+  constructor (private httpClient: HttpClient, private alert: AlertService) {}
 
-  public downloadBlob(
+  public downloadBlob (
     url: string,
     success: (url: string, response: HttpResponse<Blob>) => void,
     failure: (error: any) => void
   ) {
     this.httpClient.get(url, { responseType: 'blob', observe: 'response' }).subscribe({
-      next: (response) => {
+      next: response => {
         const binaryData = [];
         binaryData.push(response.body);
         // response.headers.get('content-type')
         const resourceUrl: string = window.URL.createObjectURL(new Blob(binaryData, { type: response.body.type }));
         success(resourceUrl, response);
       },
-      error: (error) => {
+      error: error => {
         if (failure) failure(error);
       }
     });
   }
 
-  public releaseBlob(url: string): void {
+  public releaseBlob (url: string): void {
     window.URL.revokeObjectURL(url);
   }
 
-  public downloadFile(url: string, defaultFilename: string) {
+  public downloadFile (url: string, defaultFilename: string) {
     this.downloadBlob(
       url,
       (resourceUrl: string, response: HttpResponse<Blob>) => {

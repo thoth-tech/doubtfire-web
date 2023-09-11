@@ -5,11 +5,12 @@ import { alertService } from 'src/app/ajs-upgraded-providers';
 import { EntityFormComponent } from 'src/app/common/entity-form/entity-form.component';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { MatSort, Sort } from '@angular/material/sort';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'overseer-image-list',
   templateUrl: 'overseer-image-list.component.html',
-  styleUrls: ['overseer-image-list.component.scss'],
+  styleUrls: ['overseer-image-list.component.scss']
 })
 export class OverseerImageListComponent extends EntityFormComponent<OverseerImage> {
   @ViewChild(MatTable, { static: true }) table: MatTable<any>;
@@ -23,23 +24,26 @@ export class OverseerImageListComponent extends EntityFormComponent<OverseerImag
 
   // Calls the parent's constructor, passing in an object
   // that maps all of the form controls that this form consists of.
-  constructor(private overseerImageService: OverseerImageService, @Inject(alertService) private alerts: any) {
-    super({
-      name: new UntypedFormControl('', [Validators.required]),
-      tag: new UntypedFormControl('', [Validators.required]),
-    }, "Overseer Image");
+  constructor (private overseerImageService: OverseerImageService, private alert: AlertService) {
+    super(
+      {
+        name: new UntypedFormControl('', [Validators.required]),
+        tag: new UntypedFormControl('', [Validators.required])
+      },
+      'Overseer Image'
+    );
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit () {
     // Get all the overseer images and add them to the table
-    this.overseerImageService.fetchAll().subscribe((response) => {
+    this.overseerImageService.fetchAll().subscribe(response => {
       this.pushToTable(response);
     });
   }
 
   // This method is passed to the submit method on the parent
   // and is only run when an entity is successfully created or updated
-  onSuccess(response: OverseerImage, isNew: boolean) {
+  onSuccess (response: OverseerImage, isNew: boolean) {
     if (isNew) {
       this.pushToTable(response);
     }
@@ -47,7 +51,7 @@ export class OverseerImageListComponent extends EntityFormComponent<OverseerImag
 
   // Push the values that will be displayed in the table
   // to the datasource
-  private pushToTable(value: OverseerImage | OverseerImage[]) {
+  private pushToTable (value: OverseerImage | OverseerImage[]) {
     if (!value) return;
     value instanceof Array ? this.overseerImages.push(...value) : this.overseerImages.push(value);
     this.dataSource.sort = this.sort;
@@ -55,30 +59,32 @@ export class OverseerImageListComponent extends EntityFormComponent<OverseerImag
 
   // This method is called when the form is submitted,
   // which then calls the parent's submit.
-  submit() {
+  submit () {
     super.submit(this.overseerImageService, this.alerts, this.onSuccess.bind(this));
   }
 
   // This method is called when pull button is clicked to pull overseer image.
-  pullOverseerImage(image: OverseerImage) {
+  pullOverseerImage (image: OverseerImage) {
     this.loading = true;
-    image.pulledImageStatus = "loading";
-    this.overseerImageService.pullDockerImage(image).subscribe((response) => {
+    image.pulledImageStatus = 'loading';
+    this.overseerImageService.pullDockerImage(image).subscribe(response => {
       this.loading = false;
-    })
+    });
   }
 
-  deleteOverseerImage(image: OverseerImage) {
-    this.overseerImageService.delete(image).subscribe( ((response) => {
-      this.cancelEdit();
-      this.overseerImages.splice(this.overseerImages.indexOf(image), 1);
-      this.dataSource.data = this.overseerImages;
-    }).bind(this));
+  deleteOverseerImage (image: OverseerImage) {
+    this.overseerImageService.delete(image).subscribe(
+      (response => {
+        this.cancelEdit();
+        this.overseerImages.splice(this.overseerImages.indexOf(image), 1);
+        this.dataSource.data = this.overseerImages;
+      }).bind(this)
+    );
   }
 
   // Sorting function to sort data when sort
   // event is triggered
-  sortTableData(sort: Sort) {
+  sortTableData (sort: Sort) {
     if (!sort.active || sort.direction === '') {
       return;
     }

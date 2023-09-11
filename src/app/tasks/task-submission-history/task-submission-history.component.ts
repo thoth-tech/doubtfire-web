@@ -5,11 +5,12 @@ import { alertService } from 'src/app/ajs-upgraded-providers';
 import { Subject } from 'rxjs';
 import { OverseerAssessmentService, Task } from 'src/app/api/models/doubtfire-model';
 import { OverseerAssessment } from 'src/app/api/models/doubtfire-model';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'task-submission-history',
   templateUrl: './task-submission-history.component.html',
-  styleUrls: ['./task-submission-history.component.scss'],
+  styleUrls: ['./task-submission-history.component.scss']
 })
 export class TaskSubmissionHistoryComponent implements OnInit {
   @Input() task: Task;
@@ -19,25 +20,25 @@ export class TaskSubmissionHistoryComponent implements OnInit {
   selectedTab: OverseerAssessment = new OverseerAssessment();
   @Input() refreshTrigger: Subject<boolean>;
 
-  constructor(
-    @Inject(alertService) private alerts: any,
+  constructor (
+    private alert: AlertService,
     private submissions: TaskSubmissionService,
     private overseerAssessmentService: OverseerAssessmentService
-  ) { }
+  ) {}
 
-  ngOnInit() {
+  ngOnInit () {
     this.fillTabs();
 
-    this.refreshTrigger.subscribe( () => {
+    this.refreshTrigger.subscribe(() => {
       this.fillTabs();
-   });
+    });
   }
 
-  private handleError(error: any) {
+  private handleError (error: any) {
     this.alerts.add('danger', 'Error: ' + error, 6000);
   }
 
-  fillTabs(): void {
+  fillTabs (): void {
     // this.submissions.getLatestSubmissionsTimestamps(this.task);
     // let transformedData = this.overseerAssessmentService.queryForTask(this.task).pipe(
     //   map(data => {
@@ -59,7 +60,9 @@ export class TaskSubmissionHistoryComponent implements OnInit {
       tabs => {
         if (tabs.length === 0) {
           this.tabs = [new OverseerAssessment()];
-          this.selectedTab.content = [{label: 'No Data', result: 'There are no submissions for this task at the moment.' }];
+          this.selectedTab.content = [
+            { label: 'No Data', result: 'There are no submissions for this task at the moment.' }
+          ];
         } else {
           this.tabs = tabs;
         }
@@ -75,31 +78,34 @@ export class TaskSubmissionHistoryComponent implements OnInit {
     );
   }
 
-  triggerOverseer(tab: OverseerAssessment) {
+  triggerOverseer (tab: OverseerAssessment) {
     this.overseerAssessmentService.triggerOverseer(tab).subscribe(
-      (response: OverseerAssessment) => { this.alerts.add('success', 'Overseer assessment will be run again.', 2000); },
-      (response: any) => { this.alerts.add('danger', 'Error requesting overseer assessment.', 6000); }
+      (response: OverseerAssessment) => {
+        this.alerts.success('Overseer assessment will be run again.', 2000);
+      },
+      (response: any) => {
+        this.alerts.add('danger', 'Error requesting overseer assessment.', 6000);
+      }
     );
   }
 
-  openSubmission(tab: OverseerAssessment) {
+  openSubmission (tab: OverseerAssessment) {
     this.selectedTab = tab;
     // this.selectedTab.timestamp = tab.timestamp;
     // this.selectedTab.timestampString = tab.timestampString;
     // this.selectedTab.taskStatus = tab.taskStatus;
     // this.selectedTab.submissionStatus = tab.submissionStatus;
 
-    this.submissions.getSubmissionByTimestamp(this.task, tab.timestampString)
-      .subscribe(
-        sub => {
-          this.selectedTab.content = sub;
-          this.hasNoData.emit(false);
-        },
-        error => {
-          // TODO: make error handling more readable...
-          this.selectedTab.content = [{label: 'Error', result: error?.error?.error}];
-          this.hasNoData.emit(true);
-        }
-      );
+    this.submissions.getSubmissionByTimestamp(this.task, tab.timestampString).subscribe(
+      sub => {
+        this.selectedTab.content = sub;
+        this.hasNoData.emit(false);
+      },
+      error => {
+        // TODO: make error handling more readable...
+        this.selectedTab.content = [{ label: 'Error', result: error?.error?.error }];
+        this.hasNoData.emit(true);
+      }
+    );
   }
 }

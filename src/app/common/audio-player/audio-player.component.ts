@@ -3,11 +3,12 @@ import { Component, Inject, Input, ViewChild, ElementRef, OnDestroy } from '@ang
 import { alertService } from 'src/app/ajs-upgraded-providers';
 import { Project, Task, TaskComment } from 'src/app/api/models/doubtfire-model';
 import { FileDownloaderService } from '../file-downloader/file-downloader.service';
+import { AlertService } from '../services/alert.service';
 
 @Component({
   selector: 'audio-player',
   templateUrl: './audio-player.component.html',
-  styleUrls: ['./audio-player.component.scss'],
+  styleUrls: ['./audio-player.component.scss']
 })
 export class AudioPlayerComponent implements OnDestroy {
   @Input() project: Project;
@@ -22,9 +23,9 @@ export class AudioPlayerComponent implements OnDestroy {
   public audioProgress = 0;
   public audio: HTMLAudioElement = document.createElement('AUDIO') as HTMLAudioElement;
 
-  constructor(
+  constructor (
     @Inject(FileDownloaderService) private fileDownloader: FileDownloaderService,
-    @Inject(alertService) private alerts: any
+    private alert: AlertService
   ) {
     this.audio.ontimeupdate = () => {
       const percentagePlayed = this.audio.currentTime / this.audio.duration;
@@ -36,19 +37,19 @@ export class AudioPlayerComponent implements OnDestroy {
     };
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy (): void {
     // Clean up the blob
-    if ( this.audio.src ) {
+    if (this.audio.src) {
       this.fileDownloader.releaseBlob(this.audio.src);
     }
   }
 
-  private setTime(percent: number) {
+  private setTime (percent: number) {
     const newTime = percent * this.audio.duration;
     this.audio.currentTime = newTime;
   }
 
-  public seek(evt: MouseEvent) {
+  public seek (evt: MouseEvent) {
     const offset = evt.offsetX;
     const percent = offset / this.progressBar.nativeElement.offsetWidth;
 
@@ -57,9 +58,9 @@ export class AudioPlayerComponent implements OnDestroy {
     });
   }
 
-  public setSrc(src: string) {
+  public setSrc (src: string) {
     // If there was an old blob, then free the memory it uses
-    if ( this.audio.src ) {
+    if (this.audio.src) {
       this.fileDownloader.releaseBlob(this.audio.src);
     }
     this.audio.src = src;
@@ -70,7 +71,7 @@ export class AudioPlayerComponent implements OnDestroy {
     this.audioProgress = 0;
   }
 
-  private execWithAudio(onLoad: boolean, fn: () => void) {
+  private execWithAudio (onLoad: boolean, fn: () => void) {
     if (this.isLoaded) {
       fn();
     } else {
@@ -103,7 +104,7 @@ export class AudioPlayerComponent implements OnDestroy {
     }
   }
 
-  public pausePlay() {
+  public pausePlay () {
     this.execWithAudio(
       true,
       (() => {

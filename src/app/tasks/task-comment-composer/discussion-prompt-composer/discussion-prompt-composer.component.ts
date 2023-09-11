@@ -2,11 +2,12 @@ import { Component, Inject, Input, ViewChild, ElementRef } from '@angular/core';
 import { BaseAudioRecorderComponent } from 'src/app/common/audio-recorder/audio/base-audio-recorder';
 import { audioRecorderService, alertService } from 'src/app/ajs-upgraded-providers';
 import { TaskComment, TaskCommentService, Task } from 'src/app/api/models/doubtfire-model';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'discussion-prompt-composer',
   templateUrl: './discussion-prompt-composer.component.html',
-  styleUrls: ['./discussion-prompt-composer.component.scss'],
+  styleUrls: ['./discussion-prompt-composer.component.scss']
 })
 export class DiscussionPromptComposerComponent extends BaseAudioRecorderComponent {
   @Input() task: Task;
@@ -18,48 +19,48 @@ export class DiscussionPromptComposerComponent extends BaseAudioRecorderComponen
   canvasCtx: CanvasRenderingContext2D;
   isSending: boolean = false;
 
-  get canAddRecording(): boolean {
+  get canAddRecording (): boolean {
     return this.recordings.length < 3;
   }
 
-  get canSendPrompt(): boolean {
+  get canSendPrompt (): boolean {
     return this.recordings.length > 0 && this.blob.size === 0;
   }
 
-  constructor(
+  constructor (
     @Inject(audioRecorderService) mediaRecorderService: any,
     @Inject(TaskCommentService) private taskCommentService: TaskCommentService,
-    @Inject(alertService) private alerts: any
+    private alert: AlertService
   ) {
     super(mediaRecorderService);
   }
 
   // We have to use ngAfterViewInit
   // To ensure the dialog has been infalted
-  ngAfterViewInit() {
+  ngAfterViewInit () {
     if (this.canRecord) {
       this.init();
     }
   }
 
-  init(): void {
+  init (): void {
     super.init();
     this.audio = this.audioRef.nativeElement;
     this.canvas = this.canvasRef.nativeElement;
     this.canvasCtx = this.canvas.getContext('2d');
   }
 
-  getUrl(b: Blob) {
+  getUrl (b: Blob) {
     return URL.createObjectURL(b);
   }
 
-  playRecording(url: string) {
+  playRecording (url: string) {
     this.audio.src = url;
     this.audio.load();
     this.audio.play();
   }
 
-  saveRecording(): void {
+  saveRecording (): void {
     if (this.blob && this.blob.size > 0) {
       if (this.canAddRecording) {
         this.recordings.push(this.blob);
@@ -69,7 +70,7 @@ export class DiscussionPromptComposerComponent extends BaseAudioRecorderComponen
     }
   }
 
-  sendRecording(): void {
+  sendRecording (): void {
     this.taskCommentService.addComment(this.task, undefined, 'discussion', undefined, this.recordings).subscribe(
       (tc: TaskComment) => {
         this.isSending = false;
@@ -86,7 +87,7 @@ export class DiscussionPromptComposerComponent extends BaseAudioRecorderComponen
     this.recordingAvailable = false;
   }
 
-  visualise(): void {
+  visualise (): void {
     const draw = () => {
       const WIDTH = this.canvas.width;
       const HEIGHT = this.canvas.height;

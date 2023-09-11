@@ -3,8 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
 import { alertService } from 'src/app/ajs-upgraded-providers';
 import { Observable } from 'rxjs';
-import { Task, OverseerAssessment, OverseerAssessmentService, OverseerImage, OverseerImageService } from 'src/app/api/models/doubtfire-model';
+import {
+  Task,
+  OverseerAssessment,
+  OverseerAssessmentService,
+  OverseerImage,
+  OverseerImageService
+} from 'src/app/api/models/doubtfire-model';
 import { AppInjector } from 'src/app/app-injector';
+import { AlertService } from './alert.service';
 
 export interface TaskAssessmentResult {
   id?: number;
@@ -38,34 +45,37 @@ export class TaskSubmissionService {
 
   private readonly overseerImagesEndpointFormat = 'admin/overseer_images';
 
-  constructor(
-    @Inject(alertService) private alerts: any,
+  constructor (
+    private alert: AlertService,
     private http: HttpClient,
     private constants: DoubtfireConstants,
     private overseerImages: OverseerImageService,
     private overseerAssessmentService: OverseerAssessmentService
-    ) { }
+  ) {}
 
-  public getLatestTaskAssessment(taskInfo: Task): Observable<any> {
-    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${taskInfo.project.id}/task_def_id/${taskInfo.definition.id}/submissions/latest`;
+  public getLatestTaskAssessment (taskInfo: Task): Observable<any> {
+    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${taskInfo.project.id}/task_def_id/${
+      taskInfo.definition.id
+    }/submissions/latest`;
     return this.http.get<any>(url);
   }
 
-  public getLatestSubmissionsTimestamps(taskInfo: Task): Observable<OverseerAssessment[]> {
+  public getLatestSubmissionsTimestamps (taskInfo: Task): Observable<OverseerAssessment[]> {
     return this.overseerAssessmentService.queryForTask(taskInfo);
   }
 
-  public getSubmissionByTimestamp(taskInfo: Task, timestamp: string): Observable<any> {
-    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${taskInfo.project.id}/task_def_id/${taskInfo.definition.id}/submissions/timestamps/${timestamp}`;
+  public getSubmissionByTimestamp (taskInfo: Task, timestamp: string): Observable<any> {
+    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${taskInfo.project.id}/task_def_id/${
+      taskInfo.definition.id
+    }/submissions/timestamps/${timestamp}`;
     return this.http.get<any>(url);
   }
 
-  public getDockerImages(): Observable<OverseerImage[]> {
+  public getDockerImages (): Observable<OverseerImage[]> {
     return this.overseerImages.query();
   }
 
-  public getDockerImagesAsPromise() {
-    return this.getDockerImages()
-       .toPromise();
+  public getDockerImagesAsPromise () {
+    return this.getDockerImages().toPromise();
   }
 }
