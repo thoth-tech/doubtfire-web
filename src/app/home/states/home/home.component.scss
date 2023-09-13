@@ -25,7 +25,6 @@
 }
 
 .mat-card-header {
-  
 }
 
 .base-card {
@@ -35,7 +34,6 @@
   overflow: hidden;
   clip: auto;
 
-  // safari only hack
   -webkit-mask-image: -webkit-linear-gradient(top, #ffffff 0%, #ffffff 100%);
   mask-image: -webkit-linear-gradient(top, #ffffff 0%, #ffffff 100%);
 
@@ -73,4 +71,25 @@
   mat-card-actions {
     margin-bottom: 0px;
   }
+}
+
+.flex-a {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  // justify-content: center;
+  align-content: center;
+  align-items: center;
+}
+
+.flex-b {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  //justify-content: center;
+  align-items: center;
+  align-content: center;
+  align-self: center;
+  margin-left: 100px;
+  // justify-content: flex-start;
 }
