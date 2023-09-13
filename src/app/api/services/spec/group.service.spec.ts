@@ -1,7 +1,8 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Group, Unit } from 'src/app/api/models/doubtfire-model';
-import { GroupService } from '../group.service'; // Correct this path
+import { GroupService } from '../group.service';
+import { HttpRequest } from '@angular/common/http';
 
 describe('GroupService', () => {
   let groupService: GroupService;
@@ -21,30 +22,32 @@ describe('GroupService', () => {
     httpMock.verify();
   });
 
-  it('should be created', () => {
-    expect(groupService).toBeTruthy();
-  });
+  it('should return expected group (HttpClient called once)', fakeAsync(() => {
+    const dummyUnit = new Unit();
+    const g = new Group(dummyUnit);
 
-  it('should correctly create an instance from JSON', () => {
-    // Setup mock data
-    const mockUnit = new Unit();
-    mockUnit.id = 1; // ... and any other necessary properties
+    g.id = 1;
+    g.name = 'Group 1';
+    g.capacityAdjustment = 10;
+    g.locked = false;
+    g.studentCount = 15;
 
-    const mockJson = {
-      // Include the properties you'd expect to be in the JSON, e.g.:
-      id: 5,
-      name: 'Test Group'
-      // ... any other properties ...
-    };
+    const expectedGroups: Group[] = [g];
 
-    // Call the service method
-    const groupInstance = groupService.createInstanceFrom(mockJson, mockUnit);
+    const mockUnitId = 1;
+    const mockGroupSetId = 2;
+    groupService
+      .query({ unitId: mockUnitId, groupSetId: mockGroupSetId })
+      .subscribe(groups => expect(groups).toEqual(expectedGroups, 'expected groups'));
 
-    // Assertions to validate the created instance
-    expect(groupInstance).toBeTruthy();
-    expect(groupInstance instanceof Group).toBe(true, 'Should be an instance of Group');
-    expect(groupInstance.id).toBe(mockJson.id, 'ID should match mock data');
-    expect(groupInstance.name).toBe(mockJson.name, 'Name should match mock data');
-    // Add any other assertions based on other properties or logic ...
-  });
+    const req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
+      expect(request.url).toEqual(`http://localhost:3000/api/units/${mockUnitId}/group_sets/${mockGroupSetId}/groups/`);
+      expect(request.method).toBe('GET');
+      return true;
+    });
+
+    req.flush([g]);
+
+    tick();
+  }));
 });
