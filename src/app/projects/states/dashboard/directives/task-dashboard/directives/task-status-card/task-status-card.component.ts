@@ -9,22 +9,22 @@ import { ExtensionModalService } from 'src/app/common/modals/extension-modal/ext
 @Component({
   selector: 'f-task-status-card',
   templateUrl: './task-status-card.component.html',
-  styleUrls: ['./task-status-card.component.scss'],
+  styleUrls: ['./task-status-card.component.scss']
 })
 export class TaskStatusCardComponent implements OnChanges {
   triggers: any;
-  constructor(private extensions: ExtensionModalService, private taskService: TaskService, private router: UIRouter) {}
+  constructor (private extensions: ExtensionModalService, private taskService: TaskService, private router: UIRouter) {}
 
   @Input() task: Task;
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges (changes: SimpleChanges): void {
     if (changes.task) {
       this.task = changes.task.currentValue;
       this.reapplyTriggers();
     }
   }
 
-  reapplyTriggers(): void {
+  reapplyTriggers (): void {
     // if tutor is in queryParam
     if (this.router.globals.params.tutor != null) {
       this.triggers = this.taskService.statusKeys.map(this.taskService.statusData);
@@ -36,17 +36,30 @@ export class TaskStatusCardComponent implements OnChanges {
     this.taskService.statusKeys;
   }
 
-  triggerTransition(trigger: TaskStatusEnum): void {
+  triggerTransition (trigger: TaskStatusEnum): void {
     this.task.triggerTransition(trigger);
   }
 
-  updateFilesInSubmission(): void {
+  updateFilesInSubmission (): void {
     this.task.presentTaskSubmissionModal(this.task.status, true);
   }
 
-  applyForExtension(): void {
-    this.extensions.show(this.task, () => {
-      this.task.refresh();
-    });
+  applyForExtension (): void {
+    if (this.task.isGroupTask) {
+      const confirmation = window.confirm('Are you sure you want to request an extension for this group task?');
+      if (confirmation) {
+        this.extensions.show(this.task, () => {
+          this.task.refresh();
+        });
+      } else {
+        // Handle the case where the user cancels the extension request for a group task.
+        // You can show an alert or perform other actions here.
+      }
+    } else {
+      // Original code for non-group tasks
+      this.extensions.show(this.task, () => {
+        this.task.refresh();
+      });
+    }
   }
 }
