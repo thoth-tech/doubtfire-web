@@ -4,7 +4,7 @@ import { TutorialStream } from 'src/app/api/models/doubtfire-model';
 import { TutorialStreamService } from '../tutorial-stream.service';
 import { HttpRequest } from '@angular/common/http';
 
-describe('CampusService', () => {
+describe('TutorialStreamService', () => {
   let tutorialStreamService: TutorialStreamService;
   let httpMock: HttpTestingController;
 
