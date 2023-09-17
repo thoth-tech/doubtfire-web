@@ -4,7 +4,8 @@ import { UnitRole, User, Unit } from 'src/app/api/models/doubtfire-model';
 import { UnitRoleService } from '../unit-role.service';
 import { HttpRequest } from '@angular/common/http';
 
-describe('CampusService', () => {
+describe('UnitRoleService', () => {
+  // Updated the describe block name to match the service being tested
   let unitRoleService: UnitRoleService;
   let httpMock: HttpTestingController;
 
@@ -22,7 +23,8 @@ describe('CampusService', () => {
     httpMock.verify();
   });
 
-  it('should return expected campuses (HttpClient called once)', fakeAsync(() => {
+  it('should return expected unit roles (HttpClient called once)', fakeAsync(() => {
+    // Updated the test description
     const ur = new UnitRole();
 
     ur.role = 'tutor';
@@ -46,7 +48,7 @@ describe('CampusService', () => {
 
     unitRoleService
       .query()
-      .subscribe((unit_roles) => expect(unit_roles).toEqual(expectedUnitRoles, 'expected unit_roles'));
+      .subscribe((unitRoles) => expect(unitRoles).toEqual(expectedUnitRoles, 'expected unit roles'));
 
     const req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
       expect(request.url).toEqual('http://localhost:3000/api/unit_roles/');
@@ -55,7 +57,7 @@ describe('CampusService', () => {
     });
 
     ur.id = 1;
-    req.flush(ur);
+    req.flush([ur]); // Updated to pass an array of unit roles
 
     tick();
   }));
