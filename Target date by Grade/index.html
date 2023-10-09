@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade and Target Date Selector</title>
+</head>
+<body>
+    <h1>Welcome to Ontrack</h1>
+    
+    <!-- Student Grade Selector -->
+    <label for="gradeSelect">Select Your Grade:</label>
+    <select id="gradeSelect">
+        <option value="A">Grade A</option>
+        <option value="B">Grade B</option>
+        <option value="C">Grade C</option>
+        <option value="D">Grade D</option>
+    </select>
+
+    <!-- Display Target Date -->
+    <h2>Your Target Date: <span id="targetDate">Not set</span></h2>
+
+    <!-- Teacher Target Date Setter -->
+    <h3>Teacher: Set Target Date Manually</h3>
+    <label for="manualDate">Set Target Date:</label>
+    <input type="date" id="manualDate">
+    <button id="setManualDate">Set</button>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const gradeSelect = document.getElementById('gradeSelect');
+        const targetDateDisplay = document.getElementById('targetDate');
+        const manualDateInput = document.getElementById('manualDate');
+        const setManualDateButton = document.getElementById('setManualDate');
+
+        // Initial target date (can be set by the teacher)
+        let targetDate = null;
+
+        // Listen for grade selection changes
+        gradeSelect.addEventListener('change', () => {
+            const selectedGrade = gradeSelect.value;
+
+            // Logic to determine target date based on grade (simplified example)
+            switch (selectedGrade) {
+                case 'A':
+                    targetDate = '2023-12-31';
+                    break;
+                case 'B':
+                    targetDate = '2023-11-30';
+                    break;
+                case 'C':
+                    targetDate = '2023-10-31';
+                    break;
+                case 'D':
+                    targetDate = '2023-09-30';
+                    break;
+                default:
+                    targetDate = null;
+                    break;
+            }
+
+            // Update the display with the new target date
+            targetDateDisplay.textContent = targetDate || 'Not set';
+        });
+
+        // Listen for teacher's manual target date setting
+        setManualDateButton.addEventListener('click', () => {
+            const manualDate = manualDateInput.value;
+            if (manualDate) {
+                targetDate = manualDate;
+                targetDateDisplay.textContent = targetDate;
+            }
+        });
+    </script>
+</body>
+</html>
