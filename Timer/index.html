@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutor's Marking Progress</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Tutor's Marking Progress</h1>
+    </header>
+    <div class="container">
+        <div class="timer">
+            <h2>Timer</h2>
+            <p id="timerDisplay">00:00:00</p>
+            <button id="startTimer">Start</button>
+            <button id="stopTimer">Stop</button>
+            <button id="resetTimer">Reset</button>
+        </div>
+        <div class="student-feedback">
+            <h2>Student Feedback</h2>
+            <div class="student-list">
+                <div class="student">
+                    <input type="text" placeholder="Student Name" id="studentName">
+                    <input type="number" placeholder="Time (minutes)" id="studentTime">
+                    <button id="addStudent">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="milestone">
+        <p>50% Completion Milestone: <span id="milestoneAlert">Not reached</span></p>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
