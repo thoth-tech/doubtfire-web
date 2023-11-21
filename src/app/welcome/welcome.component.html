@@ -1,17 +1,17 @@
-<section class="welcome" fxFlex fxLayout="row">
-  <f-hero-sidebar fxHide.lt-md fxFlexAlign="start"></f-hero-sidebar>
-  <!-- <section class="content" fxFlex.gt-sm  > -->
-  <section class="content" fxFlex.gt-sm fxLayout.gt-sm="column" [ngClass.gt-sm]="'large'">
+<section class="welcome flex">
+  <div class="hidden md:block">
+    <f-hero-sidebar></f-hero-sidebar>
+  </div>
+  <section class="content flex flex-col md:flex-row md:justify-between md:items-center lg:w-large">
     <div class="container">
       <div class="subcontainer">
-        <div class="wordmark" fxLayout="row" fxLayoutAlign="start center" fxHide.gt-sm fxFlexAlign="start">
-          <img src="../../../assets/images/logo-bw.svg" width="40px" alt="Homepage Logo" />
+        <div class="wordmark flex items-center md:hidden">
+          <img src="../../../assets/images/logo-bw.svg" width="40px" alt="Homepage_Logo" />
           <p>{{ externalName.value }}</p>
         </div>
-        <h1 class="welcome-heading" fxFlexAlign="start">Welcome to {{ externalName.value }}</h1>
+        <h1 class="welcome-heading">Welcome to {{ externalName.value }}</h1>
         <f-edit-profile-form mode="create"></f-edit-profile-form>
       </div>
     </div>
   </section>
-  <!-- </section> -->
 </section>
