@@ -1,5 +1,8 @@
 div {
   width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 
 p {
@@ -45,10 +48,8 @@ hr {
     position: relative;
     display: inline-block;
     color: black;
-
     padding: 0 0.5em;
     line-height: 1.5em;
-
     color: #9696969d;
     background-color: #fff;
   }
