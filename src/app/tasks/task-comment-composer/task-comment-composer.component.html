@@ -1,83 +1,86 @@
-<emoji-mart [darkMode]="false" [isNative]="true" [hideRecent]="false" [hidden]="!showEmojiPicker" class="emoji-picker"
-  title="Pick your emoji…" emoji="thumbsup" (emojiSelect)="addEmoji($event)"></emoji-mart>
+<emoji-mart [darkMode]="false" [isNative]="true" [hideRecent]="false" [hidden]="!$this.showEmojiPicker"
+  class="emoji-picker" title="Pick your emoji…" emoji="thumbsup" (emojiSelect)="$this.addEmoji($event)"></emoji-mart>
 
-@if (task) {
-<div id="replyContainer" [hidden]="originalComment === null">
+@if ($this.task) {
+<div id="replyContainer" [hidden]="$this.originalComment === null">
   <div>
     <div class="replying-wrap">
       Replying to:
-      <b>{{ originalComment !== null ? originalComment.author.name : '' }}</b>
-      <button id="cancelReplyButton" (click)="cancelReply()" mat-icon-button aria-label="Close reply">
+      <b>{{ $this.originalComment !== null ? $this.originalComment.author.name : '' }}</b>
+      <button id="cancelReplyButton" (click)="$this.cancelReply()" mat-icon-button aria-label="Close reply">
         <mat-icon inline="true" aria-label="Quit cross icon">close</mat-icon>
       </button>
     </div>
-    <p>{{ originalComment !== null ? originalComment.text : '' }}</p>
+    <p>{{ $this.originalComment !== null ? $this.originalComment.text : '' }}</p>
   </div>
 </div>
 }
 
-<mat-action-list [hidden]="!emojiSearchMode || !(emojiSearchResults?.length > 0)" dense id="emojiSearchResults">
-  @for (emoji of emojiSearchResults; track emoji) {
-  <mat-list-item (click)="emojiSelected(emoji.native)">
+<mat-action-list [hidden]="!$this.emojiSearchMode || !($this.emojiSearchResults?.length > 0)" dense
+  id="emojiSearchResults">
+  @foreach ($this.emojiSearchResults as $emoji)
+  <mat-list-item (click)="$this.emojiSelected($emoji.native)">
     <div class="flex items-center">
-      <ngx-emoji class="align-items: center" [emoji]="emoji" set="apple" size="20"></ngx-emoji>
+      <ngx-emoji class="align-items: center" [emoji]="$emoji" set="apple" size="20"></ngx-emoji>
       <div class="emoji-details flex flex-col items-center justify-start">
-        <div class="font-bold text-sm">{{ emoji.name }}</div>
-        <div class="text-xs">{{ emoji.colons }}</div>
+        <div class="font-bold text-sm">{{ $emoji.name }}</div>
+        <div class="text-xs">{{ $emoji.colons }}</div>
       </div>
     </div>
   </mat-list-item>
-  }
+  @endforeach
 </mat-action-list>
 
-<form [hidden]="!task" style="display: flex; width: 100%" class="input-group col-sm-12 comment-submitter"
-  ng-submit="addComment()" role="form">
+<form [hidden]="!$this.task" class="input-group col-sm-12 comment-submitter" ng-submit="$this.addComment()" role="form">
   <div class="flex justify-around items-center composer-container">
-    <div class="composer-action-group" [@shrinkgrow]="$userIsTyping | async">
-      <!-- if active -->
+    <div class="composer-action-group" [@shrinkgrow]="$this.$userIsTyping | async">
       <div class="flex items-center">
-        @if ($userIsTyping | async) {
-        <button (click)="$userIsTyping.next(false); recording = false" matTooltip="Expand action buttons"
+        @if ($this.$userIsTyping | async)
+        <button (click)="$this.$userIsTyping.next(false); $this.recording = false" matTooltip="Expand action buttons"
           matTooltipShowDelay="400" mat-icon-button class="btn-no-outline" type="button"
-          aria-label="Expand action buttons" style="margin-right: -4px; margin-left: -4px">
-          <mat-icon>{{ recording ? 'cancel' : 'chevron_right' }}</mat-icon>
+          aria-label="Expand action buttons">
+          <mat-icon>{{ $this.recording ? 'cancel' : 'chevron_right' }}</mat-icon>
         </button>
-        }
+        @endif
 
-        @if (isStaff) {
-        <button [hidden]="$userIsTyping | async" matTooltip="Create a Real Talk discussion" matTooltipShowDelay="400"
-          mat-icon-button class="btn-no-outline" type="button" aria-label="launch real talk took"
-          (click)="openDiscussionComposer()">
+        @if ($this.isStaff)
+        <button [hidden]="$this.$userIsTyping | async" matTooltip="Create a Real Talk discussion"
+          matTooltipShowDelay="400" mat-icon-button class="btn-no-outline" type="button"
+          aria-label="launch real talk took" (click)="$this.openDiscussionComposer()">
           <mat-icon class="message-inbox-icon">mark_chat_read</mat-icon>
         </button>
-        }
+        @endif
 
-        <button [hidden]="$userIsTyping | async" matTooltip="Attach a file" matTooltipShowDelay="400" mat-icon-button
-          class="btn-no-outline" type="button" (click)="openFile()" aria-label="attach a file icon button">
+        <button [hidden]="$this.$userIsTyping | async" matTooltip="Attach a file" matTooltipShowDelay="400"
+          mat-icon-button class="btn-no-outline" type="button" (click)="$this.openFile()"
+          aria-label="attach a file icon button">
           <mat-icon class="message-inbox-icon">attach_file</mat-icon>
           <input #uploader type="file" multiple="multiple" accept="audio/*,image/*,.pdf" style="display: none"
-            (change)="uploadFiles($event.target.files)" />
+            (change)="$this.uploadFiles($event.target.files)" />
         </button>
 
-        <button [hidden]="$userIsTyping | async" matTooltip="Send a recording" matTooltipShowDelay="400" mat-icon-button
-          class="btn-no-outline" type="button" aria-label="audio recording button" (click)="recordingMode()">
+        <button [hidden]="$this.$userIsTyping | async" matTooltip="Send a recording" matTooltipShowDelay="400"
+          mat-icon-button class="btn-no-outline" type="button" aria-label="audio recording button"
+          (click)="$this.recordingMode()">
           <mat-icon class="message-inbox-icon">mic</mat-icon>
         </button>
       </div>
     </div>
-    <div id="textFieldContainer" [class.active]="$userIsTyping | async" [ngClass]="{recording: recording}">
-      <div [hidden]="recording" (focus)="$userIsTyping.next(true)" (blur)="$userIsTyping.next(false)"
-        [class.active]="($userIsTyping | async) === false" #commentInput id="textField"
-        [attr.contenteditable]="contentEditableValue() && !recording" (keydown.enter)="send($event)"
-        (keydown)="keyTyped()" placeholder="Aa" name="commentComposer"></div>
-      @if (recording) {
+    <div id="textFieldContainer" [class.active]="$this.$userIsTyping | async"
+      [ngClass]="{ recording: $this.recording }">
+      <div [hidden]="$this.recording" (focus)="$this.$userIsTyping.next(true)" (blur)="$this.$userIsTyping.next(false)"
+        [class.active]="($this.$userIsTyping | async) === false" #commentInput id="textField"
+        [attr.contenteditable]="$this.contentEditableValue() && !$this.recording" (keydown.enter)="$this.send($event)"
+        (keydown)="$this.keyTyped()" placeholder="Aa" name="commentComposer"></div>
+      @if ($this.recording)
       <audio-comment-recorder style="display: flex; justify-content: center; width: 100%"
-        [task]="task"></audio-comment-recorder>
-      }
-      <div id="innerButtons" [hidden]="recording">
+        [task]="$this.task"></audio-comment-recorder>
+      @endif
+      <div id="innerButtons" [hidden]="$this.recording">
         <mat-icon matTooltip="Choose an emoji" matTooltipShowDelay="400" id="emojiButton"
-          (click)="showEmojiPicker = !showEmojiPicker" aria-label="Emoji picker button">
-          emoji_emotions</mat-icon>
+          (click)="$this.showEmojiPicker = !$this.showEmojiPicker" aria-label="Emoji picker button">
+          emoji_emotions
+        </mat-icon>
       </div>
     </div>
   </div>
