@@ -1,23 +1,12 @@
-<!-- 'audio-comment-container' is your custom class.
-     'flex' activates Flexbox layout,
-     'flex-row' arranges child elements in a row,
-     'items-center' aligns child elements vertically in the center,
-     and 'justify-start' aligns them to the start of the container horizontally. -->
-     <div class="audio-comment-container flex flex-row items-center justify-start">
-      <!-- Button for play/pause functionality -->
-      <button class="play-button" (click)="pausePlay()">
-        <!-- Icon inside the button changes based on the 'isPlaying' state.
-             Uses Font Awesome icons for play and pause. -->
-        <i id="playButton" class="play-button fa" [ngClass]="isPlaying ? 'fa-pause-circle' : 'fa-play-circle'"></i>
-      </button>
-      <!-- Material progress bar component to show audio progress.
-           The 'value' attribute is bound to 'audioProgress' for dynamic updates. -->
-      <mat-progress-bar
-        #progressBar
-        id="progressBar"
-        class="progress-bar-container"
-        [value]="audioProgress"
-        (click)="seek($event)"
-      ></mat-progress-bar>
-    </div>
-
+<div class="audio-comment-container flex flex-row justify-start items-center">
+  <button class="play-button" (click)="pausePlay()">
+    <i id="playButton" class="play-button fa" [ngClass]="isPlaying ? 'fa-pause-circle' : 'fa-play-circle'"></i>
+  </button>
+  <mat-progress-bar
+    #progressBar
+    id="progressBar"
+    class="progress-bar-container"
+    [value]="audioProgress"
+    (click)="seek($event)"
+  ></mat-progress-bar>
+</div>
