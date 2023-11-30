@@ -36,6 +36,7 @@ h1 {
 }
 
 .wordmark {
+  display: none;
   p {
     margin: 0;
     padding: 0;
@@ -48,6 +49,12 @@ h1 {
   }
 }
 
+@media screen and (max-width: 768px) {
+  .wordmark {
+    display: flex; /* Show on small screens */
+  }
+}
+
 f-sign-in .container,
 f-welcome .container {
   max-width: 416px;
@@ -57,4 +64,15 @@ f-welcome .container {
 
 .welcome {
   width: 100%;
+}
+
+.media-screen-hide {
+  display: block; /* Initially visible */
+}
+
+/* Media query for small screens */
+@media screen and (max-width: 768px) {
+  .media-screen-hide {
+    display: none; /* Hide on small screens */
+  }
 }
