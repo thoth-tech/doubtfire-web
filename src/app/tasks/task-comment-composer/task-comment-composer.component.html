@@ -2,7 +2,7 @@
   [darkMode]="false"
   [isNative]="true"
   [hideRecent]="false"
-  [hidden]="!this.showEmojiPicker"
+  [hidden]="!showEmojiPicker"
   class="emoji-picker"
   title="Pick your emoji…"
   emoji="thumbsup"
@@ -36,11 +36,11 @@
 >
   @for (emoji of emojiSearchResults; track emoji) {
     <mat-list-item (click)="emojiSelected(emoji.native)">
-      <div fxLayout="row" fxLayoutAlign="start center">
-        <ngx-emoji style="align-items: center" [emoji]="emoji" set="apple" size="20"></ngx-emoji>
-        <div class="emoji-details" fxLayout="column" fxLayoutAlign="center start">
-          <div style="font-weight: 500; font-size: 12px">{{ emoji.name }}</div>
-          <div style="font-size: 10px">{{ emoji.colons }}</div>
+      <div class="flex items-center">
+        <ngx-emoji class="align-items: center" [emoji]="emoji" set="apple" size="20"></ngx-emoji>
+        <div class="emoji-details flex flex-col items-center justify-start">
+          <div class="font-bold text-sm">{{ emoji.name }}</div>
+          <div class="text-xs">{{ emoji.colons }}</div>
         </div>
       </div>
     </mat-list-item>
@@ -48,16 +48,16 @@
 </mat-action-list>
 
 <form
-  [hidden]="!this.task"
+  [hidden]="!task"
   style="display: flex; width: 100%"
   class="input-group col-sm-12 comment-submitter"
   ng-submit="addComment()"
   role="form"
 >
-  <div fxLayout="row" fxLayoutAlign="space-around center" class="composer-container">
+  <div class="flex justify-around items-center composer-container">
     <div class="composer-action-group" [@shrinkgrow]="$userIsTyping | async">
       <!-- if active -->
-      <div fxLayout="row" fxLayoutAlign="start center">
+      <div class="flex items-center">
         @if ($userIsTyping | async) {
           <button
             (click)="$userIsTyping.next(false); recording = false"
@@ -72,20 +72,6 @@
             <mat-icon>{{ recording ? 'cancel' : 'chevron_right' }}</mat-icon>
           </button>
         }
-
-        <!-- <button
-          [hidden]="shrinkGrowToggle"
-          *ngIf="isStaff"
-          matTooltip="Create a Real Talk discussion"
-          matTooltipShowDelay="400"
-          mat-icon-button
-          class="btn-no-outline"
-          type="button"
-          aria-label="launch real talk took"
-          (click)="openDiscussionComposer()"
-        >
-          <mat-icon>crisis_alert</mat-icon>
-        </button> -->
 
         @if (isStaff) {
           <button
@@ -166,7 +152,7 @@
           matTooltip="Choose an emoji"
           matTooltipShowDelay="400"
           id="emojiButton"
-          (click)="this.showEmojiPicker = !this.showEmojiPicker"
+          (click)="showEmojiPicker = !showEmojiPicker"
           aria-label="Emoji picker button"
         >
           emoji_emotions</mat-icon
