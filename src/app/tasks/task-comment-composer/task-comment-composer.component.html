@@ -9,12 +9,12 @@
   (emojiSelect)="addEmoji($event)"
 ></emoji-mart>
 
-@if (task) {
-  <div id="replyContainer" [hidden]="originalComment === null">
+@if (this.task) {
+  <div id="replyContainer" [hidden]="this.originalComment === null">
     <div>
       <div class="replying-wrap">
         Replying to:
-        <b>{{ originalComment !== null ? originalComment.author.name : '' }}</b>
+        <b>{{ this.originalComment !== null ? this.originalComment.author.name : '' }}</b>
         <button
           id="cancelReplyButton"
           (click)="cancelReply()"
@@ -24,27 +24,32 @@
           <mat-icon inline="true" aria-label="Quit cross icon">close</mat-icon>
         </button>
       </div>
-      <p>{{ originalComment !== null ? originalComment.text : '' }}</p>
+      <p>{{ this.originalComment !== null ? this.originalComment.text : '' }}</p>
     </div>
   </div>
 }
 
 <mat-action-list
-  [hidden]="!emojiSearchMode || !(emojiSearchResults?.length > 0)"
+  [hidden]="!this.emojiSearchMode || !(this.emojiSearchResults?.length > 0)"
   dense
   id="emojiSearchResults"
 >
-  @for (emoji of emojiSearchResults; track emoji) {
+<mat-action-list [hidden]="!this.emojiSearchMode || !(this.emojiSearchResults?.length > 0)" dense id="emojiSearchResults">
+  <ng-container *ngFor="let emoji of this.emojiSearchResults">
     <mat-list-item (click)="emojiSelected(emoji.native)">
       <div class="flex items-center">
+<<<<<<< Updated upstream
         <ngx-emoji class="align-items: center" [emoji]="emoji" set="apple" size="20"></ngx-emoji>
+=======
+        <ngx-emoji [emoji]="emoji" set="apple" size="20"></ngx-emoji>
+>>>>>>> Stashed changes
         <div class="emoji-details flex flex-col items-center justify-start">
           <div class="font-bold text-sm">{{ emoji.name }}</div>
           <div class="text-xs">{{ emoji.colons }}</div>
         </div>
       </div>
     </mat-list-item>
-  }
+  </ng-container>
 </mat-action-list>
 
 <form
@@ -56,26 +61,34 @@
 >
   <div class="flex justify-around items-center composer-container">
     <div class="composer-action-group" [@shrinkgrow]="$userIsTyping | async">
+<<<<<<< Updated upstream
       <!-- if active -->
       <div class="flex items-center">
         @if ($userIsTyping | async) {
+=======
+      <div class="flex items-center">
+        @if (this.$userIsTyping | async) {
+>>>>>>> Stashed changes
           <button
-            (click)="$userIsTyping.next(false); recording = false"
+            (click)="this.$userIsTyping.next(false); this.recording = false"
             matTooltip="Expand action buttons"
             matTooltipShowDelay="400"
             mat-icon-button
             class="btn-no-outline"
             type="button"
             aria-label="Expand action buttons"
-            style="margin-right: -4px; margin-left: -4px"
           >
-            <mat-icon>{{ recording ? 'cancel' : 'chevron_right' }}</mat-icon>
+            <mat-icon>{{ this.recording ? 'cancel' : 'chevron_right' }}</mat-icon>
           </button>
         }
 
+<<<<<<< Updated upstream
         @if (isStaff) {
+=======
+        @if (this.isStaff) {
+>>>>>>> Stashed changes
           <button
-            [hidden]="$userIsTyping | async"
+            [hidden]="this.$userIsTyping | async"
             matTooltip="Create a Real Talk discussion"
             matTooltipShowDelay="400"
             mat-icon-button
@@ -89,7 +102,7 @@
         }
 
         <button
-          [hidden]="$userIsTyping | async"
+          [hidden]="this.$userIsTyping | async"
           matTooltip="Attach a file"
           matTooltipShowDelay="400"
           mat-icon-button
@@ -110,7 +123,7 @@
         </button>
 
         <button
-          [hidden]="$userIsTyping | async"
+          [hidden]="this.$userIsTyping | async"
           matTooltip="Send a recording"
           matTooltipShowDelay="400"
           mat-icon-button
@@ -125,37 +138,36 @@
     </div>
     <div
       id="textFieldContainer"
-      [class.active]="$userIsTyping | async"
-      [ngClass]="{recording: recording}"
+      [class.active]="this.$userIsTyping | async"
+      [ngClass]="{recording: this.recording}"
     >
       <div
-        [hidden]="recording"
-        (focus)="$userIsTyping.next(true)"
-        (blur)="$userIsTyping.next(false)"
-        [class.active]="($userIsTyping | async) === false"
+        [hidden]="this.recording"
+        (focus)="this.$userIsTyping.next(true)"
+        (blur)="this.$userIsTyping.next(false)"
+        [class.active]="(this.$userIsTyping | async) === false"
         #commentInput
         id="textField"
-        [attr.contenteditable]="contentEditableValue() && !recording"
-        (keydown.enter)="send($event)"
-        (keydown)="keyTyped()"
+        [attr.contenteditable]="this.contentEditableValue() && !this.recording"
+        (keydown.enter)="this.send($event)"
+        (keydown)="this.keyTyped()"
         placeholder="Aa"
         name="commentComposer"
       ></div>
-      @if (recording) {
+      @if (this.recording) {
         <audio-comment-recorder
           style="display: flex; justify-content: center; width: 100%"
-          [task]="task"
+          [task]="this.task"
         ></audio-comment-recorder>
       }
-      <div id="innerButtons" [hidden]="recording">
+      <div id="innerButtons" [hidden]="this.recording">
         <mat-icon
           matTooltip="Choose an emoji"
           matTooltipShowDelay="400"
           id="emojiButton"
           (click)="showEmojiPicker = !showEmojiPicker"
           aria-label="Emoji picker button"
-        >
-          emoji_emotions</mat-icon
+          >emoji_emotions</mat-icon
         >
       </div>
     </div>
