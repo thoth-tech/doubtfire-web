@@ -13,10 +13,8 @@
       </div>
 }
       <div
-        fxLayout="column"
-        fxLayoutAlign="space-around center"
         [hidden]="!responseAvailable"
-        class="audio-comment-container"
+        class="audio-comment-container flex flex-col content-center justify-around items-center"
       >
         <audio-player #player></audio-player>
         <mat-button-toggle-group value="response">
@@ -32,7 +30,7 @@
 <mat-button-toggle
             matTooltip="Plays the second discussion prompt"
             matTooltipPosition="above"
-           
+
             (click)="setPromptTrack('prompt', 1)"
             aria-label="Prompt toggle"
           >
@@ -44,7 +42,7 @@
             matTooltip="Plays the third discussion prompt"
             matTooltipPosition="above"
             (click)="setPromptTrack('prompt', 2)"
-           
+
             aria-label="Prompt toggle"
           >
             P3
