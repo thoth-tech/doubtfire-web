@@ -7,6 +7,7 @@ import {UpgradeModule} from '@angular/upgrade/static';
 import {AppInjector, setAppInjector} from './app-injector';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {NgxChartsModule} from '@swimlane/ngx-charts';
 
 // Lottie animation module
 // import {LottieModule, LottieCacheModule} from 'ngx-lottie';
@@ -237,6 +238,7 @@ import {
   TeachingPeriodUnitImportDialogComponent,
   TeachingPeriodUnitImportService,
 } from './admin/states/teaching-periods/teaching-period-unit-import/teaching-period-unit-import.dialog';
+<<<<<<< HEAD
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
 import {TiiActionLogComponent} from './admin/tii-action-log/tii-action-log.component';
 import {TiiActionService} from './api/services/tii-action.service';
@@ -318,8 +320,15 @@ import {UnitRootStateComponent} from './units/unit-root-state.component';
 import {TaskViewerStateComponent} from './units/task-viewer/task-viewer-state.component';
 import {ProjectRootStateComponent} from './projects/states/project-root-state.component';
 import {ProjectProgressDashboardComponent} from './projects/project-progress-dashboard/project-progress-dashboard.component';
-
-
+import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
+import {TiiActionLogComponent} from './admin/tii-action-log/tii-action-log.component';
+import {TiiActionService} from './api/services/tii-action.service';
+import {FUnitsComponent} from './admin/states/units/units.component';
+import {FUnitTaskListComponent} from './units/task-viewer/directives/unit-task-list/unit-task-list.component';
+import {FTaskDetailsViewComponent} from './units/task-viewer/directives/task-details-view/task-details-view.component';
+import {FTaskSheetViewComponent} from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
+import {ProgressBurndownChartComponent} from './visualisations/progress-burndown-chart/progressburndownchart.component';
+import {TaskVisualisationComponent} from './visualisations/task-visualisation/taskvisualisation.component';
 
 @NgModule({
   // Components we declare
@@ -435,6 +444,7 @@ import {ProjectProgressDashboardComponent} from './projects/project-progress-das
     ProjectProgressGaugeComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+<<<<<<< HEAD
     CommentsModalComponent,
     ScormPlayerComponent,
     ScormCommentComponent,
@@ -467,6 +477,8 @@ import {ProjectProgressDashboardComponent} from './projects/project-progress-das
     AnalyticsTutorTimesComponent,
     PortfolioIncludedTasksComponent,
     OverseerScriptEditorModalComponent,
+    ProgressBurndownChartComponent,
+    TaskVisualisationComponent,
   ],
   providers: [
     // Services we provide
@@ -619,8 +631,82 @@ import {ProjectProgressDashboardComponent} from './projects/project-progress-das
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModuleNew,
+<<<<<<< HEAD
     CalendarModule.forRoot({provide: CalendarDateAdapter, useFactory: adapterFactory}),
     CodeEditorModule.forRoot(),
+=======
+    NgxChartsModule
+  ],
+  // Services we provide
+  providers: [
+    CampusService,
+    AuthenticationService,
+    GroupSetService,
+    GroupService,
+    UnitService,
+    ProjectService,
+    UnitRoleService,
+    LearningOutcomeService,
+    TaskDefinitionService,
+    TeachingPeriodService,
+    TiiActionService,
+    TeachingPeriodBreakService,
+    TeachingPeriodUnitImportService,
+    TutorialService,
+    TutorialStreamService,
+    UserService,
+    TaskService,
+    TaskSimilarityService,
+    WebcalService,
+    ActivityTypeService,
+    OverseerImageService,
+    OverseerAssessmentService,
+    EmojiService,
+    FileDownloaderService,
+    CheckForUpdateService,
+    TaskOutcomeAlignmentService,
+    visualisationsProvider,
+    commentsModalProvider,
+    rootScopeProvider,
+    calendarModalProvider,
+    aboutDoubtfireModalProvider,
+    gradeServiceProvider,
+    uploadSubmissionModalProvider,
+    gradeTaskModalProvider,
+    analyticsServiceProvider,
+    dateServiceProvider,
+    alertServiceProvider,
+    CsvUploadModalProvider,
+    CsvResultModalProvider,
+    { provide: MAT_DATE_LOCALE, useValue: 'en-AU' },
+    UnitStudentEnrolmentModalProvider,
+    TaskCommentService,
+    AudioRecorderProvider,
+    AudioRecorderServiceProvider,
+    plagiarismReportModalProvider,
+    UnitStudentsEditorComponent,
+    ConfirmationModalProvider,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpAuthenticationInterceptor,
+      multi: true,
+      deps: [UserService],
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
+      multi: true,
+      deps: [AuthenticationService, UserService],
+    },
+    AboutDoubtfireModal,
+    AboutDoubtfireModalService,
+    DoubtfireConstants,
+    TasksOfTaskDefinitionPipe,
+    TasksInTutorialsPipe,
+    TasksForInboxSearchPipe,
+    IsActiveUnitRole,
+    CreateNewUnitModal,
+>>>>>>> f1cc39e5 (feat: visualisations)
   ],
 })
 

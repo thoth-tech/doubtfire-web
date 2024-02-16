@@ -30,7 +30,7 @@
           </div>
         </div><!--/burndown-heading-->
         <div class="card-body">
-          <progress-burndown-chart project="project" unit="project.unit"></progress-burndown-chart>
+          <app-progress-burndown-chart [project]="project" [unit]="project.unit" [grade]="project.targetGrade"></app-progress-burndown-chart>
         </div><!--/burndown-body-->
         <div class="card-footer">
           Aim to keep your
@@ -50,10 +50,10 @@
           </div>
         </div><!--/pie-chart-heading-->
         <div class="card-body">
-          <student-task-status-pie-chart
-            project="project"
-            update-data="renderTaskStatusPieChart">
-          </student-task-status-pie-chart>
+          <app-task-visualisation
+            [project]="project"
+            [grade]="project.targetGrade">
+        </app-task-visualisation>
         </div><!--/pie-chart-body-->
       </div><!--/pie-chart-card-->
     </div><!--/pie-chart-column-->
