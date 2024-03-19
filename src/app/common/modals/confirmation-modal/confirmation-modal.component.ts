@@ -10,7 +10,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 export class ConfirmationModalComponent implements OnInit {
   @Input() title: string;
   @Input() message: string;
-  action: () => void;
+  @Input() action: () => void;
 
   constructor(
     @Inject(alertService) private alertService: any,
@@ -24,13 +24,18 @@ export class ConfirmationModalComponent implements OnInit {
 
   public confirmAction() {
     console.log('confirmAction');
+    if (typeof this.action === 'function') {
+      this.action();
+    } else {
+      this.alertService.add("danger", `${this.title} action failed`, 3000);
+    }
     /** note - page reload after closing **/
     this.dialogRef.close();
   }
 
   public cancelAction() {
     console.log('cancelAction');
-    this.alertService.add('info', '${title} action cancelled', 3000);
+    this.alertService.add("info", `${this.title} action cancelled`, 3000);
     this.dialogRef.close();
   }
 }
