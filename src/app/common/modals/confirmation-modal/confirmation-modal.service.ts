@@ -8,8 +8,10 @@ import { ConfirmationModalComponent } from './confirmation-modal.component';
 export class ConfirmationModalService {
   constructor(public dialog: MatDialog) {}
 
-  public show(task: any) {
+  public show(title: string, message: string) {
     let dialogRef: MatDialogRef<ConfirmationModalComponent, any>;
     dialogRef = this.dialog.open(ConfirmationModalComponent);
+    dialogRef.componentInstance.title = title;
+    dialogRef.componentInstance.message = message;
   }
 }
