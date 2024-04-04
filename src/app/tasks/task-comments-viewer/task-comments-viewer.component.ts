@@ -143,10 +143,10 @@ export class TaskCommentsViewerComponent implements OnChanges, OnInit {
     document.querySelector(`#comment-${commentID}`).scrollIntoView();
   }
 
-  openCommentsModal(comment: TaskComment) {
+  /*openCommentsModal(comment: TaskComment) {
     const resourceUrl = comment.attachmentUrl;
     this.commentsModalRef.show(resourceUrl, comment.commentType);
-  }
+  }*/
 
   shouldShowAuthorIcon(commentType: string) {
     return !(commentType === 'extension' || commentType === 'status' || commentType == 'assessment');

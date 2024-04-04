@@ -51,6 +51,8 @@ export class FileDownloaderService {
 
         downloadLink.click();
         downloadLink.parentNode.removeChild(downloadLink);
+
+        this.alerts.add('info', 'File downloaded.', 3000);
       },
       (error: any) => {
         this.alerts.add('danger', `Error downloading file - ${error}`);

@@ -1,0 +1,10 @@
+<div class="modal-comment">
+    <div class="modal-body">
+      <div *ngIf="commentType == 'image'">
+        <img class="image-comment" [src]="commentResourceUrl" />
+      </div>
+      <div *ngIf="commentType == 'pdf'">
+        <iframe class="pdf-comment" [src]="commentResourceUrl" type="application/pdf"></iframe>
+      </div>
+    </div>
+  </div>
