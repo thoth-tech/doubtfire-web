@@ -1,0 +1,30 @@
+<h3 mat-dialog-title>{{isNew ? "Create Learning Outcome" : "Edit Learning Outcome: " + iloNum}}</h3>
+<div mat-dialog-content>
+  <mat-form-field style="width: 100%">
+    <mat-label>Name</mat-label>
+    <input required matInput [(ngModel)]="editedName" />
+  </mat-form-field>
+  <mat-form-field style="width: 100%">
+    <mat-label>Abbreviation</mat-label>
+    <input required matInput [(ngModel)]="editedAbbreviation" />
+  </mat-form-field>
+  <mat-form-field style="width: 100%">
+    <mat-label>Description</mat-label>
+    <textarea cdkTextareaAutosize required matInput [(ngModel)]="editedDescription"></textarea>
+  </mat-form-field>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-dialog-close mat-flat-button color="warn">Cancel</button>
+  <button
+    mat-dialog-close
+    style="margin-right: 10px"
+    mat-flat-button
+    color="primary"
+    mat-button
+    [disabled]="editedName.length === 0 || editedAbbreviation.length === 0 || editedDescription.length === 0"
+    (click)="submitILO()"
+  >
+    Submit
+  </button>
+</div>
