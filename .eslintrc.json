@@ -1,5 +1,14 @@
 {
   "root": true,
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "warn"
+  },
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "env": {
+    "browser": true,
+    "jasmine": true
+  },
   "overrides": [
     {
       "files": ["*.ts"],
@@ -25,7 +34,7 @@
           "warn",
           {
             "type": "attribute",
-            "prefix": "df",
+            "prefix": "f",
             "style": "camelCase"
           }
         ],
@@ -33,7 +42,7 @@
           "warn",
           {
             "type": "element",
-            "prefix": "df",
+            "prefix": "f",
             "style": "kebab-case"
           }
         ],
