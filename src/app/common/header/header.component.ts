@@ -7,7 +7,7 @@ import { IsActiveUnitRole } from '../pipes/is-active-unit-role.pipe';
 import { UserService } from 'src/app/api/services/user.service';
 import { AuthenticationService, Project, Task, Unit, UnitRole, User } from 'src/app/api/models/doubtfire-model';
 import { Subscription } from 'rxjs';
-import { MediaObserver } from '@angular/flex-layout';
+import { MediaObserver } from 'ng-flex-layout';
 
 @Component({
   selector: 'app-header',
