@@ -10,7 +10,7 @@ angular.module('doubtfire.visualisations.summary-task-status-scatter', [])
       unit: '='
     },
     controller: function($scope, newTaskService, Visualisation) {
-      // Function to format y-axis tick labels
+      ## Function to format y-axis tick labels
       var yAxisTickFormatFunction = function(value) {
         if ($scope.unit.taskDefinitions[value]) {
           return $scope.unit.taskDefinitions[value].abbreviation;
