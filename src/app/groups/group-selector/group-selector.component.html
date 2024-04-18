@@ -1,0 +1,220 @@
+<div class="panel-heading">
+  <h4 class="panel-title">
+    Groups for
+    <strong *ngIf="!showGroupSetSelector"> {{selectedGroupSet.name}} </strong>
+    <group-set-selector
+      [ngIf]="showGroupSetSelector"
+      [unit]="unit"
+      [(ngModel)]="selectedGroupSet"
+      (ngModelChange)="selectGroupSet($event)"
+    >
+    </group-set-selector>
+  </h4>
+</div>
+<!--/panel-heading-->
+<div
+  class="panel-body panel-toolbar"
+  *ngIf="loaded && canCreateGroups && (unitRole || project.tutorials.length > 0)"
+>
+  <div class="clearfix">
+    <div class="input-group pull-left col-md-6 staff-filter" *ngIf="unitRole">
+      <div class="btn-group">
+        <label
+          class="btn btn-default col-sm-6"
+          [(ngModel)]="staffFilter"
+          btnRadio="'all'"
+          (click)="setStaffFilter('all')"
+        >
+          <i class="fa fa-university"></i> All Tutorials
+        </label>
+        <label
+          class="btn btn-default col-sm-6"
+          [(ngModel)]="staffFilter"
+          btnRadio="'mine'"
+          (click)="setStaffFilter('mine')"
+        >
+          <i class="fa fa-pencil"></i> My Tutorials
+        </label>
+      </div>
+    </div>
+    <!--/staff-filter-button-group-->
+    <div
+      class="input-group pull-right col-md-6"
+    >
+      <input class="form-control" placeholder="Group Name" [(ngModel)]="newGroupName" />
+      <span class="input-group-btn" *ngIf="canCreateGroups">
+        <button class="btn btn-success" (click)="addGroup(newGroupName)"><i class="fa fa-plus"></i> Create Group</button>
+      </span>
+    </div>
+    <!--/group-name-create-->
+  </div>
+</div>
+<!--/creation-options-->
+<div class="panel-body panel-loading" *ngIf="!loaded"><i class="fa fa-spinner fa-pulse"></i> Loading Groups...</div>
+<!--/loading-spinner-->
+<div class="panel-body" *ngIf="loaded && shownGroups.length == 0">
+  <div class="callout callout-primary row">
+    <h4>No Groups To Show</h4>
+    <p>
+      There are no groups available for <strong>{{selectedGroupSet.name}}</strong>{{staffFilter == 'mine' ||
+      selectedGroupSet.keepGroupsInSameClass ? " in your tutorials." : ""}}{{newGroupName.length > 0 ? " with name " + newGroupName + "." : "."}}
+    </p>
+    <p *ngIf="selectedGroupSet.keepGroupsInSameClass">
+      Please make sure that you are enrolled in the correct tutorial. You can only join a group that is running in your
+      allocated tutorial. Use the <a [routerLink]="['projects/tutorials', { projectId: project.id }]">Tutorial List</a> to
+      check and update your tutorial enrolment.
+    </p>
+  </div>
+</div>
+<!--/no-groups-->
+<table *ngIf="loaded && shownGroups.length > 0" class="table table-condensed table-hover table-pointer">
+  <thead>
+    <tr>
+      <th class="name">
+        <a (click)="sortTableBy('name')">
+          Name <i *ngIf="tableSort.order == 'name'" class="fa fa-caret-{{tableSort.reverse ? 'up' : 'down'}}"></i>
+        </a>
+      </th>
+      <th class="tutorial">
+        <a (click)="sortTableBy('tutorial.abbreviation')">
+          Tutorial
+          <i *ngIf="tableSort.order == 'tutorial.abbreviation'" class="fa fa-caret-{{tableSort.reverse ? 'up' : 'down'}}"></i>
+        </a>
+      </th>
+      <th class="capacityAdjustment" *ngIf="unitRole">
+        <a (click)="sortTableBy('capacityAdjustment')">
+          Capacity Adjustment
+          <i
+            *ngIf="tableSort.order == 'capacityAdjustment'"
+            class="fa fa-caret-{{tableSort.reverse ? 'up' : 'down'}}"
+          ></i>
+        </a>
+      </th>
+      <th class="capacity">
+        <a (click)="sortTableBy('hasSpace()')">
+          Capacity
+          <i *ngIf="tableSort.order == 'hasSpace()'" class="fa fa-caret-{{tableSort.reverse ? 'up' : 'down'}}"></i>
+        </a>
+      </th>
+      <th class="actions" *ngIf="(project && selectedGroupSet.allowStudentsToManageGroups) || unitRole">
+        Actions
+      </th>
+    </tr>
+  </thead>
+  <!--/header-->
+  <tbody>
+    <tr
+      [ngClass]="{info: group.id == selectedGroup.id}"
+      *ngFor="let group of shownGroups = (filteredGroups | groupsForStudent:project:selectedGroupSet | groupsWithName:newGroupName)"
+    >
+      <th (click)="selectGroup(group)">
+        <span editable-text="group.name" e-name="name" e-form="groupRowForm" e-required>
+          {{ group.name || 'Not Set' }}
+        </span>
+      </th>
+      <!--/group-name-->
+      <td (click)="selectGroup(group)">
+        <span
+          editable-select="group.tutorial"
+          e-name="tutorial"
+          e-form="groupRowForm"
+          e-ng-options="t as (t.abbreviation + ' - ' + t.description) for t in unit.tutorials | orderBy: 'abbreviation'"
+        >
+          <span tooltip="{{group.tutorial.description}}" tooltip-popup-delay="200" tooltip-append-to-body="true">
+            {{group.tutorial.abbreviation}}
+          </span>
+        </span>
+      </td>
+      <!--/group-tutorial-->
+      <td *ngIf="unitRole" (click)="selectGroup(group)">
+        <span editable-text="group.capacityAdjustment" e-form="groupRowForm" e-name="capacityAdjustment">
+          {{group.capacityAdjustment}}
+        </span>
+      </td>
+      <!--/capacityAdjustment-->
+      <td (click)="selectGroup(group)">
+        <span *ngIf="group.hasSpace()">Available</span>
+        <span *ngIf="!group.hasSpace()">Full</span>
+      </td>
+      <!--/capacity-->
+      <td *ngIf="(project && selectedGroupSet.allowStudentsToManageGroups) || unitRole">
+        <div *ngIf="project">
+          <span *ngIf="group.hasSpace()">
+            <button
+              (click)="joinGroup(group)"
+              [disabled]="projectInGroup(group)"
+              class="btn btn-success btn-sm joinButton"
+              *ngIf="!group.locked && !selectedGroupSet.locked"
+            >
+              <i class="fa fa-plus"></i> Join
+            </button>
+            <button class="btn btn-sm joinButton" *ngIf="group.locked || selectedGroupSet.locked">
+              <i class="fa fa-lock"></i> Locked
+            </button>
+          </span>
+        </div>
+        <div *ngIf="unitRole">
+          <form
+            editable-form
+            name="groupRowForm"
+            onbeforesave="updateGroup($event, group)"
+            *ngIf="groupRowForm.$visible"
+            [ngClass]="{ 'inserted.id == group.id': true }"
+          >
+            <button type="submit" [disabled]="groupRowForm.$waiting" class="btn btn-default btn-sm">
+              <i class="fa fa-floppy-o"></i> Save
+            </button>
+            <button
+              type="button"
+              [disabled]="groupRowForm.$waiting"
+              (click)="groupRowForm.$cancel()"
+              class="btn btn-default btn-sm"
+            >
+              <i class="fa fa-times"></i> Cancel
+            </button>
+          </form>
+          <div *ngIf="!groupRowForm.$visible">
+            <button (click)="groupRowForm.$show()" class="btn btn-default btn-sm">
+              <i class="fa fa-pencil"></i> Edit
+            </button>
+            <a
+              class="btn btn-sm lockButton"
+              [ngClass]="{ 'btn-warning': !group.locked, 'btn-info': group.locked }"
+              (click)="toggleLocked(group)"
+            >
+              <i [ngClass]="{ 'fa fa-lock': !group.locked, 'fa fa-unlock': group.locked }"></i>
+              {{!group.locked ? 'Lock' : 'Unlock'}}
+            </a>
+            <button (click)="deleteGroup(group)" class="btn btn-danger btn-sm">
+              <i class="fa fa-trash-o"></i> Delete
+            </button>
+          </div>
+          <!--/actions-->
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div
+  class="panel-footer text-center"
+  *ngIf="pagination.show || selectedGroupSet.keepGroupsInSameClass && shownGroups.length > 0 && !unitRole"
+>
+  <pagination
+    *ngIf="pagination.show"
+    totalItems="pagination.totalSize"
+    (pageChanged)="pagination.onChange()"
+    [(ngModel)]="pagination.currentPage"
+    itemsPerPage="pagination.pageSize"
+    maxSize="pagination.maxSize"
+    class="pagination-sm"
+    [boundaryLinks]="true"
+    [rotate]="false"
+  >
+  </pagination>
+
+  <p *ngIf="selectedGroupSet.keepGroupsInSameClass && shownGroups.length > 0 && !unitRole">
+    Can't see the group you need to join? Groups shown are limited to those in your allocated tutorials. Use the
+    <a [routerLink]="['projects/tutorials', { projectId: project.id }]">Tutorial List</a> to check and update your tutorial
+    enrolment if needed.
+  </p>
+</div>

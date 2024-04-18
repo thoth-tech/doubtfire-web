@@ -96,7 +96,6 @@ import 'build/src/app/admin/modals/create-unit-modal/create-unit-modal.js';
 import 'build/src/app/admin/states/states.js';
 import 'build/src/app/admin/states/units/units.js';
 import 'build/src/app/admin/admin.js';
-import 'build/src/app/groups/group-selector/group-selector.js';
 import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
@@ -197,6 +196,7 @@ import { fPdfViewerComponent } from './common/pdf-viewer/pdf-viewer.component';
 import { PdfViewerPanelComponent } from './common/pdf-viewer-panel/pdf-viewer-panel.component';
 import { StaffTaskListComponent } from './units/states/tasks/inbox/directives/staff-task-list/staff-task-list.component';
 import { StatusIconComponent } from './common/status-icon/status-icon.component';
+import { GroupSelectorComponent } from './groups/group-selector/group-selector.component';
 import {
   GroupSetService,
   LearningOutcomeService,
@@ -363,6 +363,11 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'taskDescriptionCard',
   downgradeComponent({ component: TaskDescriptionCardComponent }),
+);
+
+DoubtfireAngularJSModule.directive(
+  'GroupSelector',
+  downgradeComponent({ component: GroupSelectorComponent })
 );
 
 DoubtfireAngularJSModule.directive(
