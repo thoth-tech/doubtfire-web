@@ -39,7 +39,7 @@ import 'build/src/app/visualisations/task-status-pie-chart.js';
 import 'build/src/app/visualisations/task-completion-box-plot.js';
 import 'build/src/app/visualisations/visualisations.js';
 import 'build/src/app/visualisations/alignment-bullet-chart.js';
-import 'build/src/app/visualisations/achievement-custom-bar-chart.js';
+//import 'build/src/app/visualisations/achievement-custom-bar-chart.js';
 import 'build/src/app/visualisations/alignment-bar-chart.js';
 import 'build/src/app/visualisations/achievement-box-plot.js';
 import 'build/src/app/tasks/task-submission-viewer/task-submission-viewer.js';
@@ -200,7 +200,7 @@ import 'build/src/i18n/resources-locale_en-US.js';
 import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
-
+import {AchievementCustomBarChartComponent} from 'src/app/visualisations/AchievementCustomBarChartComponent';
 import { AboutDoubtfireModal } from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import { TaskCommentComposerComponent } from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
