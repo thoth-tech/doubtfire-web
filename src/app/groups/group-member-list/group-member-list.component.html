@@ -23,9 +23,9 @@
         </a>
       </th>
       <th ng-show="unitRole">
-        <a ng-click="sortTableBy('targetGrade')">
+        <a ng-click="sortTableBy('targetGrade')" title="Using target grade to sort">
           Target Grade
-          <i ng-show="tableSort.order == 'targetGrade'" class="fa fa-caret-{{tableSort.reverse ? 'up' : 'down'}}"></i>
+          <i ng-show="tableSort.order == 'targetGrade'" class="fa fa-caret-{{tableSort.reverse ? 'up' : 'down'}}" title="Using target grade to sort"></i>
         </a>
       </th>
       <th ng-if="canRemoveMembers">
