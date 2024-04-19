@@ -156,7 +156,7 @@ import 'build/src/app/sessions/auth/http-auth-injector.js';
 import 'build/src/app/sessions/sessions.js';
 import 'build/src/app/errors/errors.js';
 import 'build/src/app/errors/states/unauthorised/unauthorised.js';
-import 'build/src/app/errors/states/timeout/timeout.js';
+// import 'build/src/app/errors/states/timeout/timeout.js';
 import 'build/src/app/errors/states/states.js';
 import 'build/src/common/utilService/utilService.js';
 import 'build/src/common/i18n/localize.js';
@@ -241,6 +241,8 @@ import { FTaskSheetViewComponent } from './units/states/tasks/viewer/directives/
 import { TasksViewerComponent } from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 
 import { FUnitsComponent } from './admin/states/f-units/f-units.component';
+
+import { TimeoutComp } from './errors/states/timeout/timeout';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -261,6 +263,7 @@ DoubtfireAngularJSModule.factory(
   'TeachingPeriodUnitImportService',
   downgradeInjectable(TeachingPeriodUnitImportService),
 );
+DoubtfireAngularJSModule.factory('timeoutCtrl',downgradeInjectable(TimeoutComp));
 DoubtfireAngularJSModule.factory('DoubtfireConstants', downgradeInjectable(DoubtfireConstants));
 DoubtfireAngularJSModule.factory('ExtensionModal', downgradeInjectable(ExtensionModalService));
 DoubtfireAngularJSModule.factory('CalendarModal', downgradeInjectable(CalendarModalService));
