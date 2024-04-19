@@ -190,6 +190,7 @@ import { TaskDashboardComponent } from './projects/states/dashboard/directives/t
 import { InboxComponent } from './units/states/tasks/inbox/inbox.component';
 import { ProjectProgressBarComponent } from './common/project-progress-bar/project-progress-bar.component';
 import { TeachingPeriodListComponent } from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
+import {UnauthorisedComponent} from './errors/states/unauthorised/unauthorised';
 
 // Note we need a separate function as it's required
 // by the AOT compiler.
@@ -272,6 +273,7 @@ import { TeachingPeriodUnitImportDialogComponent, TeachingPeriodUnitImportServic
     ProjectProgressBarComponent,
     TeachingPeriodListComponent,
   ],
+
   // Module Imports
   imports: [
     BrowserModule,
@@ -332,6 +334,7 @@ import { TeachingPeriodUnitImportDialogComponent, TeachingPeriodUnitImportServic
   ],
   // Services we provide
   providers: [
+    UnauthorisedComponent,
     CampusService,
     AuthenticationService,
     GroupSetService,

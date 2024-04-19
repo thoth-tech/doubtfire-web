@@ -189,7 +189,7 @@ import 'build/src/app/api/models/task-similarity.js';
 import 'build/src/app/api/api.js';
 import 'build/src/app/api/resource-plus.js';
 import 'build/src/app/errors/errors.js';
-import 'build/src/app/errors/states/unauthorised/unauthorised.js';
+//import 'build/src/app/errors/states/unauthorised/unauthorised.js';
 import 'build/src/app/errors/states/not-found/not-found.js';
 import 'build/src/app/errors/states/timeout/timeout.js';
 import 'build/src/app/errors/states/states.js';
@@ -267,6 +267,7 @@ import { TaskAssessmentCardComponent } from './projects/states/dashboard/directi
 import { TaskSubmissionCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-submission-card/task-submission-card.component';
 import { InboxComponent } from './units/states/tasks/inbox/inbox.component';
 import { TeachingPeriodUnitImportService } from './admin/states/teaching-periods/teaching-period-unit-import/teaching-period-unit-import.dialog';
+import {UnauthorisedComponent} from './errors/states/unauthorised/unauthorised';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -284,6 +285,7 @@ export const DoubtfireAngularJSModule = angular.module('doubtfire', [
 
 // Downgrade angular modules that we need...
 // factory -> service
+DoubtfireAngularJSModule.factory('UnauthorisedCompinent',downgradeInjectable(UnauthorisedComponent));
 DoubtfireAngularJSModule.factory('AboutDoubtfireModal', downgradeInjectable(AboutDoubtfireModal));
 DoubtfireAngularJSModule.factory('TeachingPeriodUnitImportService', downgradeInjectable(TeachingPeriodUnitImportService));
 DoubtfireAngularJSModule.factory('DoubtfireConstants', downgradeInjectable(DoubtfireConstants));
