@@ -1,30 +1,42 @@
-<h3 mat-dialog-title>{{isNew ? "Create Learning Outcome" : "Edit Learning Outcome: " + iloNum}}</h3>
-<div mat-dialog-content>
-  <mat-form-field style="width: 100%">
-    <mat-label>Name</mat-label>
-    <input required matInput [(ngModel)]="editedName" />
-  </mat-form-field>
-  <mat-form-field style="width: 100%">
-    <mat-label>Abbreviation</mat-label>
-    <input required matInput [(ngModel)]="editedAbbreviation" />
-  </mat-form-field>
-  <mat-form-field style="width: 100%">
-    <mat-label>Description</mat-label>
-    <textarea cdkTextareaAutosize required matInput [(ngModel)]="editedDescription"></textarea>
-  </mat-form-field>
-</div>
+<h3 mat-dialog-title>
+  {{ isNew ? 'Create Learning Outcome' : 'Edit Learning Outcome: ' + ilo.iloNumber }}
+</h3>
 
-<div mat-dialog-actions align="end">
-  <button mat-dialog-close mat-flat-button color="warn">Cancel</button>
+<mat-divider />
+
+<mat-dialog-content class="grid grid-cols-9 gap-x-8 w-[800px]">
+  <label class="col-span-2 mt-6">Name</label>
+  <mat-form-field appearance="outline" class="col-span-6">
+    <input placeholder="Outcome Name" matInput [(ngModel)]="editedName" />
+  </mat-form-field>
+  <label class="col-span-2 mt-6">Abbreviation</label>
+  <mat-form-field appearance="outline" class="col-span-6">
+    <input placeholder="ABBR" matInput [(ngModel)]="editedAbbreviation" />
+  </mat-form-field>
+  <label class="col-span-2 mt-6">Description</label>
+  <mat-form-field appearance="outline" class="col-span-6">
+    <textarea
+      placeholder="Enter markdown description..."
+      matInput
+      [(ngModel)]="editedDescription"
+      class="h-[200px]"
+    ></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-divider />
+
+<mat-dialog-actions align="end">
   <button
     mat-dialog-close
-    style="margin-right: 10px"
     mat-flat-button
     color="primary"
     mat-button
-    [disabled]="editedName.length === 0 || editedAbbreviation.length === 0 || editedDescription.length === 0"
+    [disabled]="
+      editedName.length === 0 || editedAbbreviation.length === 0 || editedDescription.length === 0
+    "
     (click)="submitILO()"
   >
-    Submit
+    {{ isNew ? 'Create' : ' Update' }}
   </button>
-</div>
+</mat-dialog-actions>
