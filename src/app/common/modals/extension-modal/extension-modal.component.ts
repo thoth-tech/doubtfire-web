@@ -12,7 +12,7 @@ import { formatDate } from '@angular/common';
   styleUrls: ['./extension-modal.component.scss'],
 })
 export class ExtensionModalComponent implements OnInit {
-  weeksRequested: number;
+  daysRequested: number;
   reason: string = '';
   constructor(
     public dialogRef: MatDialogRef<ExtensionModalComponent>,
@@ -21,14 +21,14 @@ export class ExtensionModalComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.weeksRequested = this.minWeeksCanExtend + 1;
-    if (this.weeksRequested > this.maxWeeksCanExtend) {
-      this.weeksRequested = this.maxWeeksCanExtend;
+    this.daysRequested = this.minDaysCanExtend + 1;
+    if (this.daysRequested > this.maxDaysCanExtend) {
+      this.daysRequested = this.maxDaysCanExtend;
     }
   }
 
   get newDueDate() {
-    const calculatedDueDate = new Date(this.data.task.localDueDate().getTime() + this.weeksRequested * 1000 * 60 * 60 * 24 * 7 );
+    const calculatedDueDate = new Date(this.data.task.localDueDate().getTime() + this.daysRequested * 1000 * 60 * 60 * 24 );
     const taskDeadlineDate: Date = this.data.task.definition.localDeadlineDate();
 
     const locale: string = AppInjector.get(LOCALE_ID);
@@ -40,12 +40,12 @@ export class ExtensionModalComponent implements OnInit {
     }
   }
 
-  get maxWeeksCanExtend() {
-    return this.data.task.maxWeeksCanExtend();
+  get maxDaysCanExtend() {
+    return this.data.task.maxDaysCanExtend();
   }
 
-  get minWeeksCanExtend() {
-    return this.data.task.minWeeksCanExtend();
+  get minDaysCanExtend() {
+    return this.data.task.minDaysCanExtend();
   }
 
   private scrollCommentsDown(): void {
@@ -59,7 +59,7 @@ export class ExtensionModalComponent implements OnInit {
   submitApplication() {
     const tcs: TaskCommentService = AppInjector.get(TaskCommentService);
 
-    tcs.requestExtension(this.reason, this.weeksRequested, this.data.task).subscribe({
+    tcs.requestExtension(this.reason, this.daysRequested, this.data.task).subscribe({
       next: ((tc: TaskComment) => {
         this.alerts.add('success', 'Extension requested.', 2000);
         this.scrollCommentsDown();

@@ -12,7 +12,7 @@ export class ExtensionComment extends TaskComment {
   granted: boolean;
   extensionResponse: string;
   dateAssessed: Date;
-  weeksRequested: number;
+  daysRequested: number;
 
   taskStatus: string;
   taskDueDate: Date;

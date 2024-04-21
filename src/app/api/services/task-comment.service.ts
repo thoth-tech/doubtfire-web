@@ -76,7 +76,7 @@ export class TaskCommentService extends CachedEntityService<TaskComment> {
       'extensionResponse',
       'granted',
       'dateAssessed',
-      'weeksRequested',
+      'daysRequested',
       'taskStatus',
       ['taskDueDate', 'due_date'],
       ['taskExtensions', 'extensions'],
@@ -184,12 +184,12 @@ export class TaskCommentService extends CachedEntityService<TaskComment> {
     );
   }
 
-  public requestExtension(reason: string, weeksRequested: number, task: any): Observable<TaskComment> {
+  public requestExtension(reason: string, daysRequested: number, task: any): Observable<TaskComment> {
     const opts: RequestOptions<TaskComment> = {
       endpointFormat: this.requestExtensionEndpointFormat,
       body: {
         comment: reason,
-        weeks_requested: weeksRequested,
+        days_requested: daysRequested,
       },
       cache: task.commentCache
     };

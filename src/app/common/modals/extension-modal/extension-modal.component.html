@@ -12,13 +12,12 @@
 
   <p>Requesting extension to: {{ newDueDate }}</p>
   <mat-slider
-    id="requestWeekSlider"
-    thumbLabel
-    [min]="minWeeksCanExtend"
-    [max]="maxWeeksCanExtend"
+    id="requestDaySlider"
+    [min]="minDaysCanExtend"
+    [max]="maxDaysCanExtend"
     step="1"
-    [(ngModel)]="weeksRequested"
-    ><input matSliderThumb /><input matSliderThumb />
+    [(ngModel)]="daysRequested"
+    ><input matSliderThumb />
   </mat-slider>
 </div>
 
@@ -30,9 +29,9 @@
     mat-stroked-button
     color="primary"
     mat-button
-    [disabled]="weeksRequested === 0 || reason.length < 15"
+    [disabled]="daysRequested === 0 || reason.length < 15"
     (click)="submitApplication()"
   >
-    Request {{ weeksRequested }} {{ weeksRequested === 1 ? 'week' : 'weeks' }}
+    Request {{ daysRequested }} {{ daysRequested === 1 ? 'day' : 'days' }}
   </button>
 </div>

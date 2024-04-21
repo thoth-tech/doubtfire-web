@@ -60,7 +60,7 @@ export class Unit extends Entity {
   draftTaskDefinition: TaskDefinition;
 
   allowStudentExtensionRequests: boolean;
-  extensionWeeksOnResubmitRequest: number;
+  extensionDaysOnResubmitRequest: number;
   allowStudentChangeTutorial: boolean;
 
   public readonly learningOutcomesCache: EntityCache<LearningOutcome> = new EntityCache<LearningOutcome>();

@@ -26,8 +26,8 @@ export class ExtensionCommentComponent implements OnInit {
       return this.comment.extensionResponse;
     }
     const subject = this.isStudent ? 'You have ' : studentName + ' has ';
-    const message = `requested an extension for ${this.comment.weeksRequested} ${
-      this.comment.weeksRequested === 1 ? 'week' : 'weeks'
+    const message = `requested an extension for ${this.comment.daysRequested} ${
+      this.comment.daysRequested === 1 ? 'day' : 'days'
     }.`;
     return subject + message;
   }

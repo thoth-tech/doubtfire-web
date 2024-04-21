@@ -128,7 +128,7 @@ export class UnitService extends CachedEntityService<Unit> {
       'enableSyncEnrolments',
       'enableSyncTimetable',
       'allowStudentExtensionRequests',
-      'extensionWeeksOnResubmitRequest',
+      'extensionDaysOnResubmitRequest',
       'allowStudentChangeTutorial',
       {
         keys: 'ilos',
@@ -234,7 +234,7 @@ export class UnitService extends CachedEntityService<Unit> {
 
       'draftTaskDefinition',
       'allowStudentExtensionRequests',
-      'extensionWeeksOnResubmitRequest',
+      'extensionDaysOnResubmitRequest',
       'allowStudentChangeTutorial'
     );
   }

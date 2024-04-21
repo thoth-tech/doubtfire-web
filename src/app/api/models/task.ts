@@ -689,7 +689,7 @@ export class Task extends Entity {
       this.unit.allowStudentExtensionRequests &&
       this.inStateThatAllowsExtension() &&
       (!this.isPastDeadline() || this.wasSubmittedOnTime()) &&
-      this.maxWeeksCanExtend() > 0
+      this.maxDaysCanExtend() > 0
     );
   }
 
@@ -697,20 +697,20 @@ export class Task extends Entity {
     return this.submissionDate && this.submissionDate.getTime() <= this.definition.finalDeadlineDate().getTime();
   }
 
-  public maxWeeksCanExtend(): number {
-    return Math.ceil(this.daysBetween(this.localDueDate(), this.definition.localDeadlineDate()) / 7);
+  public maxDaysCanExtend(): number {
+    return this.daysBetween(this.localDueDate(), this.definition.localDeadlineDate());
   }
 
   /**
-   * Returns the minimum number of weeks the task must be extended to be
+   * Returns the minimum number of days the task must be extended to be
    * able to available for tutors to provide feedback.
    */
-  public minWeeksCanExtend(): number {
-    const minWeeks = Math.ceil(this.daysBetween(this.localDueDate(), new Date()) / 7);
-    if (minWeeks < 0) {
+  public minDaysCanExtend(): number {
+    const minDays = Math.ceil(this.daysBetween(this.localDueDate(), new Date()));
+    if (minDays < 0) {
       return 0;
     } else {
-      return minWeeks;
+      return minDays;
     }
   }
 
