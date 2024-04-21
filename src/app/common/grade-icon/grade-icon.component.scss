@@ -1,0 +1,27 @@
+.grade-icon {
+  color: #fff;
+  font-size: 1em;
+  border-radius: 100%;
+  width: 2.25em;
+  height: 2.25em;
+  font-weight: 100;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.colorful {
+    &.grade-0 { background-color: blue; }
+    &.grade-1 { background-color: green; }
+    &.grade-2 { background-color: yellow; }
+    &.grade-3 { background-color: red; }
+  }
+}
+
+.text-left .grade-icon {
+  margin-left: 0;
+}
+
+.text-right .grade-icon {
+  margin-right: 0;
+}

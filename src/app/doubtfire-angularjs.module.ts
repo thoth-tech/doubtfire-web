@@ -48,7 +48,6 @@ import 'build/src/app/welcome/states/states.js';
 import 'build/src/app/tasks/task-submission-viewer/task-submission-viewer.js';
 import 'build/src/app/tasks/task-status-selector/task-status-selector.js';
 import 'build/src/app/tasks/modals/upload-submission-modal/upload-submission-modal.js';
-import 'build/src/app/tasks/modals/grade-task-modal/grade-task-modal.js';
 import 'build/src/app/tasks/modals/modals.js';
 import 'build/src/app/tasks/modals/plagiarism-report-modal/plagiarism-report-modal.js';
 import 'build/src/app/tasks/task-definition-selector/task-definition-selector.js';
@@ -179,7 +178,6 @@ import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
 import 'build/src/app/common/modals/progress-modal/progress-modal.js';
 import 'build/src/app/common/modals/modals.js';
-import 'build/src/app/common/grade-icon/grade-icon.js';
 import 'build/src/app/common/file-uploader/file-uploader.js';
 import 'build/src/app/common/common.js';
 import 'build/src/app/common/header/header.js';
@@ -247,7 +245,6 @@ import 'build/src/i18n/resources-locale_en-US.js';
 import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
-
 import { AboutDoubtfireModal } from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import { TaskCommentComposerComponent } from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
@@ -289,6 +286,8 @@ import { TaskAssessmentModalService } from './common/modals/task-assessment-moda
 import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
+import { GradeTaskModalService } from './tasks/modals/grade-task-modal/grade-task-modal.service';
+import { GradeIconService } from './common/grade-icon/grade-icon.service';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -322,12 +321,16 @@ DoubtfireAngularJSModule.factory('checkForUpdateService', downgradeInjectable(Ch
 DoubtfireAngularJSModule.factory('TaskAssessmentModal', downgradeInjectable(TaskAssessmentModalService));
 DoubtfireAngularJSModule.factory('TaskSubmission', downgradeInjectable(TaskSubmissionService));
 DoubtfireAngularJSModule.factory('GlobalStateService', downgradeInjectable(GlobalStateService));
+DoubtfireAngularJSModule.factory('GradeTaskModal', downgradeInjectable(GradeTaskModalService));
+DoubtfireAngularJSModule.factory('GradeIcon', downgradeInjectable(GradeIconService));
 
 // directive -> component
+
 DoubtfireAngularJSModule.directive(
   'taskCommentComposer',
   downgradeComponent({ component: TaskCommentComposerComponent })
 );
+
 DoubtfireAngularJSModule.directive(
   'appHeader',
   downgradeComponent({ component: HeaderComponent })

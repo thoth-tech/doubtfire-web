@@ -13,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -32,7 +32,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatGridListModule } from '@angular/material/grid-list';
-
 import { UIRouterUpgradeModule } from '@uirouter/angular-hybrid';
 
 import { PopoverModule } from 'ngx-bootstrap/popover';
@@ -164,10 +163,14 @@ import { HeaderComponent } from './common/header/header.component';
 import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdown.component';
 import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
+import { GradeTaskModalComponent } from './tasks/modals/grade-task-modal/grade-task-modal.component';
+import { GradeIconComponent } from './common/grade-icon/grade-icon.component';
 
 @NgModule({
   // Components we declare
   declarations: [
+    GradeIconComponent,
+    GradeTaskModalComponent,
     AboutDoubtfireModalContent,
     TaskCommentComposerComponent,
     AudioCommentRecorderComponent,
@@ -279,6 +282,7 @@ import { SplashScreenComponent } from './home/splash-screen/splash-screen.compon
   ],
   // Services we provide
   providers: [
+    GradeTaskModalComponent,
     CampusService,
     TutorialService,
     TutorialStreamService,
