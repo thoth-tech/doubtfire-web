@@ -1,0 +1,25 @@
+
+<div class="-side-panel">
+    <div class="-info">
+      <h2>{{ Code }}</h2>
+      <h3>{{ Name }}</h3>
+      <p>Credits: {{ Credits }}</p>
+      <p>Type: {{ Type }}</p>
+    </div>
+    
+    <div class="prerequisites">
+      <h4>Prerequisites</h4>
+      <ul>
+        <li *ngFor="let prerequisite of prerequisites">{{ prerequisite }}</li>
+      </ul>
+    </div>
+    
+    <div class="learning-outcomes">
+      <h4>Learning Outcomes</h4>
+      <ul>
+        <li *ngFor="let outcome of learningOutcomes">{{ outcome }}</li>
+      </ul>
+    </div>
+    
+    <button (click)="view()">View </button>
+  </div>
