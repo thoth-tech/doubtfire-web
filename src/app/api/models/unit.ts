@@ -27,6 +27,9 @@ import {
 import { LearningOutcome } from './learning-outcome';
 
 export class Unit extends Entity {
+  updateGroup(group: Group, arg1: (success: { locked: boolean; }) => void) {
+    throw new Error('Method not implemented.');
+  }
   id: number;
   code: string;
   name: string;
