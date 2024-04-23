@@ -1,69 +1,63 @@
-angular.module('doubtfire.groups.group-member-list', [])
-.directive('groupMemberList', () => {
-  return {
-    restrict: 'E',
-    templateUrl: 'groups/group-member-list/group-member-list.tpl.html',
-    scope: {
-      unit: '=',
-      project: '=',
-      unitRole: '=',
-      selectedGroup: '=',
-      onMembersLoaded: '=?'
-    },
-    controller: ['$scope', '$timeout', 'gradeService', 'alertService', 'listenerService', ($scope, $timeout, gradeService, alertService, listenerService) => {
-      // Cleanup
-      const listeners = listenerService.listenTo($scope);
+import { Component, Input, OnInit } from '@angular/core';
+import { Subject, throwError } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 
-      // Initial sort orders
-      $scope.tableSort = {
-        order: 'student_name',
-        reverse: false
-      };
+@Component({
+  selector: 'group-member-list',
+  templateUrl: 'group-member-list.component.html',
+  styleUrls: ['group-member-list.component.scss'],
+})
+export class GroupMemberListComponent implements OnInit {
+  @Input() unit: any;
+  @Input() project: any;
+  @Input() unitRole: any;
+  @Input() selectedGroup: any;
+  onMembersLoaded: Subject<any> = new Subject();
 
-      // Table sorting
-      $scope.sortTableBy = (column: string) => {
-        $scope.tableSort.order = column;
-        $scope.tableSort.reverse = !$scope.tableSort.reverse;
-      };
+  members: any[];
+  canRemoveMembers: boolean = false;
+  loaded: boolean = false;
 
-      // Loading
-      const startLoading = () => $scope.loaded = false;
-      const finishLoading = () => $timeout(() => {
-        $scope.loaded = true;
-        if ($scope.onMembersLoaded) {
-          $scope.onMembersLoaded();
-        }
-      }, 500);
+  constructor(private gradeService: any,
+              private alertService: any,
+              private listenerService: any) {
+  }
 
-      // Initially not loaded
-      $scope.loaded = false;
+  ngOnInit(): void {
+    this.loadMembers();
+  }
 
-      // Remove group members
-      $scope.removeMember = (member) => {
-        $scope.selectedGroup.removeMember(member);
-      };
+  loadMembers(): void {
+    if (!this.selectedGroup || !this.selectedGroup.id) {
+      return;
+    }
+    this.loaded = false;
+    this.selectedGroup.getMembers()
+      .pipe(
+        catchError((error: any) => {
+          this.alertService.add("danger", "Unauthorized to view members in this group", 3000);
+          return throwError(error);
+        }),
+        finalize(() => this.loaded = true)
+      )
+      .subscribe((members: any[]) => {
+        this.members = members;
+        this.onMembersLoaded.next(members);
+        this.canRemoveMembers = this.unitRole ||
+                                (this.selectedGroup.groupSet.allowStudentsToManageGroups &&
+                                 !this.selectedGroup.locked);
+      });
+  }
 
-      // Listen for changes to group
-      listeners.push($scope.$watch("selectedGroup.id", (newGroupId) => {
-        if (!newGroupId) {
-          return;
-        }
-        startLoading();
-        $scope.canRemoveMembers = $scope.unitRole || ($scope.selectedGroup.groupSet.allowStudentsToManageGroups && !$scope.selectedGroup.locked);
-
-        $scope.selectedGroup.getMembers().subscribe({
-          next: (members) => {
-            finishLoading();
-          },
-          error: (failure) => {
-            $timeout(() => {
-              alertService.add("danger", "Unauthorised to view members in this group", 3000);
-              $scope.selectedGroup = null;
-            }, 1000);
-          }
-        });
-      }));
-    }]
-  };
-});
-
+  removeMember(member: any): void {
+    if (!this.canRemoveMembers) {
+      this.alertService.add("danger", "You do not have permission to remove members", 3000);
+      return;
+    }
+    this.selectedGroup.removeMember(member)
+      .subscribe(() => {
+        this.alertService.add("success", "Member removed successfully", 3000);
+        this.loadMembers();
+      });
+  }
+}
