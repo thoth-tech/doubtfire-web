@@ -24,10 +24,36 @@ export class UnitStudentEnrolmentModalComponent {
   campusId: number = 1;
 
   ngOnInit(): void {
-    console.log('unit-student-enrolment-model ngOnInit()');
+    this.campusService.query().subscribe((campuses) => {
+      this.campuses = campuses;
+      this.campusId = campuses[0].id;
+    });
   }
 
   public enrolStudent(studentId: any, campusId: any): void {
-    console.log('enrolStudent function');
+    if (!campusId) {
+      this.alertService.add('danger', 'Campus missing. Please indicate student campus', 5000);
+      return
+    }
+
+    this.newProjectService.create(
+      {}, 
+      { cache: this.unit.studentCache,
+        body: {
+          unit_id: this.unit.id,
+          student_num: studentId,
+          campus_id: campusId
+        },
+        constructorParams: this.unit
+       }
+    ).subscribe({
+      next: (project) => {
+        this.alertService.add('success', 'Student enrolled', 2000);
+        this.dialogRef.close();
+      },
+      error: (message) => {
+        this.alertService.add('danger', `Error enrolling student: ${message}`, 6000);
+      },
+    });
   }
 }
