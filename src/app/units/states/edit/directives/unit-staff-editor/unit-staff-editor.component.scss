@@ -1,0 +1,52 @@
+.unit-staff-editor {
+    width: 100%;
+    height: 100%;
+  }
+  
+  mat-card-header {
+    background-color: #4c89bc;
+    border-radius: 5px 5px 0 0;
+    color: white;
+  }
+  
+  mat-card-subtitle {
+    color: white;
+  }
+  
+  mat-card-content {
+    width: 100%;
+    border-radius: 0 0 5px 5px;
+    padding-bottom: 5px;
+    border-width: 0 1px 1px 1px;
+    border-color: #4c89bc;
+  }
+  
+  table {
+    width: 100%;
+    padding: 10px;
+  }
+  
+  input {
+    width: 80%;
+    border-radius: 5px 0 0 5px;
+  }
+  
+  
+  mat-form-field {
+    width: 80%;
+    background-color: white;
+    border-radius:0 0  5px 5px;
+    left: 5px;
+    border: solid 1px #4c89bc;
+  }
+  
+  .delete-button {
+    background-color: darkred;
+    color: white;
+  }
+  
+  
+  
+  
+  
+  

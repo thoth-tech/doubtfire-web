@@ -120,7 +120,6 @@ import 'build/src/app/units/states/groups/groups.js';
 import 'build/src/app/units/states/states.js';
 import 'build/src/app/units/states/edit/directives/unit-group-set-editor/unit-group-set-editor.js';
 import 'build/src/app/units/states/edit/directives/unit-details-editor/unit-details-editor.js';
-import 'build/src/app/units/states/edit/directives/unit-staff-editor/unit-staff-editor.js';
 import 'build/src/app/units/states/edit/directives/unit-ilo-editor/unit-ilo-editor.js';
 import 'build/src/app/units/states/edit/directives/directives.js';
 import 'build/src/app/units/states/edit/edit.js';
@@ -239,6 +238,7 @@ import { FUnitTaskListComponent } from './units/states/tasks/viewer/directives/f
 import { FTaskDetailsViewComponent } from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import { FTaskSheetViewComponent } from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import { TasksViewerComponent } from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import { UnitStaffEditorComponent } from './units/states/edit/directives/unit-staff-editor/unit-staff-editor.component';
 
 import { FUnitsComponent } from './admin/states/f-units/f-units.component';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
@@ -342,6 +342,11 @@ DoubtfireAngularJSModule.directive(
   'unitStudentsEditor',
   downgradeComponent({ component: UnitStudentsEditorComponent }),
 );
+DoubtfireAngularJSModule.directive(
+  'unitStaffEditor',
+  downgradeComponent({ component: UnitStaffEditorComponent }),
+);
+
 DoubtfireAngularJSModule.directive(
   'fTaskDefinitionEditor',
   downgradeComponent({ component: TaskDefinitionEditorComponent }),

@@ -1,0 +1,73 @@
+<div class="unit-staff-editor">
+    <script type="text/ng-template" id="staffAvatar.html">
+        <a>
+          <span bind-html-unsafe="match.label | typeaheadHighlight:query"></span>
+        </a>
+    </script>
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>Modify Unit Staff</mat-card-title>  
+            <mat-card-subtitle>Add staff members to the unit, assigning them a convenor or tutor role.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+            <table
+                mat-table [dataSource]="dataSource"
+                matSort
+                class="f-table"
+            >
+                <!-- Name Column-->
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+                    <td mat-cell *matCellDef="let staff">
+                        {{staff.user.name}}
+                    </td>
+                </ng-container>
+                
+                <!-- Role Column -->
+        <ng-container matColumnDef="role" sticky>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Role</th>
+            <td mat-cell *matCellDef="let staff">
+              
+              <mat-button-toggle-group name="fontStyle" aria-label="Font Style" [(ngModel)]="staff.role" value="{{staff.role}}">
+                <mat-button-toggle value="Tutor"  (click)="changeRole(staff,2)" matTooltip="Tutors deliver unit content">Tutor</mat-button-toggle>
+                <mat-button-toggle value="Convenor"  (click)="changeRole(staff,3)" matTooltip="Convenors manage the unit">Convenor</mat-button-toggle>
+              </mat-button-toggle-group>
+            </td>
+          </ng-container>
+  
+          <!-- Main Convenor Toggle Column-->
+          <ng-container matColumnDef="main_convenor" sticky>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Main Convenor</th>
+            <td mat-cell *matCellDef="let staff">
+              <button
+                ng-show="staff.user.role == 'Convenor'"
+                ng-disabled="staff.user.id == unit.main_convenor_id"
+                type="button"
+                class="btn btn-default"
+                [(ng-model)]="unit.main_convenor_id"
+                (click)="changeMainConvenor(staff)"
+              >
+              <i class="fa fa-{{staff.user.id == unit.main_convenor_id ? 'check' : 'times'}}"></i>
+            </button>
+            </td>
+          </ng-container>
+  
+    
+          <!-- Action Column-->
+          <ng-container matColumnDef="test">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
+            <td style="width: 30px">
+            </td>
+            <td mat-cell *matCellDef="let staff">
+              <button class="delete-button" mat-flat-button (click)="removeStaff(staff)">
+                <i class="fa fa-trash-o"></i>
+              </button>
+            </td>
+          </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columns"></tr>
+                <tr mat-row *matRowDef="let row; columns: columns" class="table-row"></tr>
+            </table>
+        </mat-card-content>
+    </mat-card>
+</div>
