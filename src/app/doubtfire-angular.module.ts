@@ -164,6 +164,7 @@ import {OverseerImageListComponent} from './admin/institution-settings/overseer-
 import {TaskAssessmentCommentComponent} from './tasks/task-comments-viewer/task-assessment-comment/task-assessment-comment.component';
 import {TaskAssessmentModalComponent} from './common/modals/task-assessment-modal/task-assessment-modal.component';
 
+<<<<<<< Updated upstream
 import {TaskSubmissionHistoryComponent} from './tasks/task-submission-history/task-submission-history.component';
 import {HomeComponent} from './home/states/home/home.component';
 import {IsActiveUnitRole} from './common/pipes/is-active-unit-role.pipe';
@@ -229,6 +230,16 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+=======
+import { GroupSetSelector } from './groups/group-set-selector/group-set-selector.component';
+import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
+import { HomeComponent } from './home/states/home/home.component';
+import { IsActiveUnitRole } from './common/pipes/is-active-unit-role.pipe';
+import { HeaderComponent } from './common/header/header.component';
+import { UnitDropdownComponent } from './common/header/unit-dropdown/unit-dropdown.component';
+import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdown.component';
+import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
+>>>>>>> Stashed changes
 
 @NgModule({
   // Components we declare
@@ -293,6 +304,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     TaskAssessmentCommentComponent,
     TaskAssessmentModalComponent,
     TaskSubmissionHistoryComponent,
+    GroupSetSelector,
     HeaderComponent,
     UnitDropdownComponent,
     TaskDropdownComponent,
