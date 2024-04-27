@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GradeIconService } from 'src/app/common/grade-icon/grade-icon.service'; // Import GradeIconService
 
 @Component({
   selector: 'grade-task-modal',
@@ -24,14 +23,13 @@ export class GradeTaskModalComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<GradeTaskModalComponent, any>,
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
-    private gradeIconService: GradeIconService
   ) {}
 
   ngOnInit(): void {
     this.task = this.dialogData.task;
     this.data.desiredGrade = this.task.grade;
     this.data.rating = this.task.quality_pts || 1;
-    this.grades = Object.values(this.gradeIconService.gradeAcronyms);    
+    this.grades = this.task.grades;
     this.numStars = this.task.definition.max_quality_pts || 5;
   }
 
@@ -40,6 +38,11 @@ export class GradeTaskModalComponent implements OnInit {
       qualityPts: this.data.rating,
       selectedGrade: this.data.desiredGrade,
     });
+
+  }
+
+  dismiss(): void {
+    this.dialogRef.close()
   }
 
   hoveringOver(value: number): void {

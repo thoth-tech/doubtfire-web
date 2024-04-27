@@ -75,6 +75,7 @@ import {
   aboutDoubtfireModalProvider,
   calendarModalProvider,
   userNotificationSettingsModalProvider,
+  gradeService,
 } from './ajs-upgraded-providers';
 import {
   TaskCommentComposerComponent,
@@ -165,6 +166,7 @@ import { TaskDropdownComponent } from './common/header/task-dropdown/task-dropdo
 import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
 import { GradeTaskModalComponent } from './tasks/modals/grade-task-modal/grade-task-modal.component';
 import { GradeIconComponent } from './common/grade-icon/grade-icon.component';
+import { GradeService } from './common/grade-icon/grade-icon.service';
 
 @NgModule({
   // Components we declare
@@ -282,7 +284,7 @@ import { GradeIconComponent } from './common/grade-icon/grade-icon.component';
   ],
   // Services we provide
   providers: [
-    GradeTaskModalComponent,
+    GradeService,
     CampusService,
     TutorialService,
     TutorialStreamService,

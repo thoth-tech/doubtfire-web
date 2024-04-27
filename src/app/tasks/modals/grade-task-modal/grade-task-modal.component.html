@@ -6,18 +6,17 @@
     <div *ngIf="task.definition.is_graded">
       <p>Please provide a grade to change the student's status for task <span class="label label-info">{{ task.definition.abbreviation }}</span>.</p>
       <p class="btn-group">
-      <label *ngFor="let idx of gradeValues" class="btn btn-default col-sm-15 text-center" [(ngModel)]="data.desiredGrade" btnRadio="{{ idx }}">
-          <grade-icon [grade]="grades[idx]" [tooltip]="'This student completed the task to a ' + grades[idx] + ' standard'" tooltip-append-to-body="true"></grade-icon>
-      </label>
+        <label *ngFor="let grade of gradeValues" class="btn btn-default col-sm-15 text-center">
+          <input type="radio" name="desiredGrade" [(ngModel)]="data.desiredGrade" [value]="grade">
+          <grade-icon [inputGrade]="grade"></grade-icon>
+        </label>
       </p>
     </div>
     <div *ngIf="task.definition.max_quality_pts > 0">
       <p>Please provide a quality rating for task <span class="label label-info">{{ task.definition.abbreviation }}</span>.</p>
-      <!-- Adjust rating component or use an alternative -->
-    </div>
   </div>
   <div class="modal-footer">
-    <button class="btn btn-default">
+    <button class="btn btn-default" (click)="dismiss()">
       <i class="fa fa-times"></i>
     </button>
     <button class="btn btn-primary" (click)="close()" [disabled]="task.is_graded && data.desiredGrade == null">

@@ -6,4 +6,5 @@ angular.module("doubtfire.common", [
   'doubtfire.common.file-uploader'
   'doubtfire.common.content-editable'
   'doubtfire.common.alert-list'
+  'doubtfire.common.grade-icon'
 ])

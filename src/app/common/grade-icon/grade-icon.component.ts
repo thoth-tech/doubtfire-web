@@ -1,24 +1,28 @@
-import { Component, Input } from '@angular/core';
-import { GradeIconService } from './grade-icon.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { GradeService } from './grade-icon.service';
 
 @Component({
   selector: 'grade-icon',
   templateUrl: './grade-icon.component.html',
-  styleUrls: ['./grade-icon.component.scss']
+  styleUrls: ['./grade-icon.component.scss'],
 })
+export class GradeIconComponent implements OnInit {
+  @Input() inputGrade: string;
+  @Input() colorful?: boolean;
 
-export class GradeIconComponent {
-  @Input() grade: number;
-  @Input() colorful: boolean;
-  @Input() tooltip: string;
+  grade: number | undefined;
+  gradeText: (grade: number) => string | undefined;
+  gradeLetter: (grade: number) => string;
 
-  constructor(private gradeIconService: GradeIconService) {}
+  constructor(private gradeService: GradeService) {}
 
-  gradeText(grade: number): string {
-    return this.gradeIconService.getGradeText(grade);
+  ngOnInit(): void {
+    this.gradeText = (grade: number) => this.gradeService.getGradeText(grade);
+    this.gradeLetter = (grade: number) => this.gradeService.getGradeLetter(grade);
+    this.calculateGrade();
   }
 
-  gradeLetter(grade: number): string {
-    return this.gradeIconService.getGradeLetter(grade);
+  private calculateGrade(): void {
+    this.grade = this.gradeService.calculateGrade(this.inputGrade);
   }
 }

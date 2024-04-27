@@ -1,7 +1,13 @@
 <div class="grade-icon">
-  <span class="grade-icon"
-        [ngClass]="{'colorful': colorful, 'grade-0': grade === 0, 'grade-1': grade === 1, 'grade-2': grade === 2, 'grade-3': grade === 3}"
-        [attr.tooltip]="tooltip">
-    {{ gradeLetter(grade) }}
-  </span>
-</div>
+    <span
+      class="grade-icon"
+      [class.colorful]="colorful"
+      [class.grade-0]="grade === 0"
+      [class.grade-1]="grade === 1"
+      [class.grade-2]="grade === 2"
+      [class.grade-3]="grade === 3"
+      [attr.tooltip]="gradeText(grade)">
+      {{ gradeText(grade) }}
+    </span>
+  </div>
+  

@@ -9,8 +9,10 @@ export class GradeTaskModalService {
   constructor(public dialog: MatDialog) {}
 
   public show(task: any) {
-    let dialogRef: MatDialogRef<GradeTaskModalComponent, any>;
-    dialogRef = this.dialog.open(GradeTaskModalComponent, { position: { top: '2.5%' } });
-    dialogRef.componentInstance.task = task;
+    let dialogRef: MatDialogRef<any, any>;
+    dialogRef = this.dialog.open(GradeTaskModalComponent, {
+      data: { task: task },
+      position: { top: '2.5%' }
+    });
   }
 }
