@@ -229,7 +229,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
-import {groupsetmanager} from './groups/group-set-manager/group-set-manager.component';
+import {groupsetmanagercomponent} from './groups/group-set-manager/group-set-manager.component';
 
 @NgModule({
   // Components we declare
@@ -247,7 +247,7 @@ import {groupsetmanager} from './groups/group-set-manager/group-set-manager.comp
     ExtensionCommentComponent,
     PdfImageCommentComponent,
     CampusListComponent,
-    groupsetmanager,
+    groupsetmanagercomponent,
     ActivityTypeListComponent,
     OverseerImageListComponent,
     ExtensionModalComponent,
