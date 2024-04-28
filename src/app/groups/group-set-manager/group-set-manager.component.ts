@@ -5,6 +5,6 @@ import { Component, Input, Inject } from '@angular/core';
   templateUrl: 'group-set-manager.component.html',
   styleUrls: ['group-set-manager.component.scss'],
 })
-export class GroupSetManagerComponent {
+export class groupsetmanagercomponent {
   constructor() {}
 }
