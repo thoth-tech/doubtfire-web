@@ -6,8 +6,6 @@ import { AlertService } from './alert.service';
   templateUrl: 'group-set-manager.component.html',
   styleUrls: ['group-set-manager.component.scss'],
 })
-
-
 export class GroupSetManagerComponent {
   @Input() unit: any;
   @Input() unitRole: any;
