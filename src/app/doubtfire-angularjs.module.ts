@@ -164,6 +164,7 @@ import 'build/src/i18n/resources-locale_default.js';
 import 'build/src/i18n/resources-locale_en-US.js';
 import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
+
 //#endregion
 
 import { AboutDoubtfireModal } from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
@@ -239,6 +240,7 @@ import { FUnitTaskListComponent } from './units/states/tasks/viewer/directives/f
 import { FTaskDetailsViewComponent } from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import { FTaskSheetViewComponent } from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import { TasksViewerComponent } from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import { groupsetmanagercomponent } from './groups/group-set-manager/group-set-manager.component';
 
 import { FUnitsComponent } from './admin/states/f-units/f-units.component';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
@@ -309,6 +311,8 @@ DoubtfireAngularJSModule.directive(
   'intelligentDiscussionPlayer',
   downgradeComponent({ component: IntelligentDiscussionPlayerComponent }),
 );
+DoubtfireAngularJSModule.directive('fFooter', downgradeComponent({ component: FooterComponent }));
+DoubtfireAngularJSModule.directive('groupsetmanager',downgradeComponent({ component: groupsetmanagercomponent }));
 DoubtfireAngularJSModule.directive('fUnitAnalytics', downgradeComponent({ component: UnitAnalyticsComponent }));
 DoubtfireAngularJSModule.directive('extensionComment', downgradeComponent({ component: ExtensionCommentComponent }));
 DoubtfireAngularJSModule.directive('fUnitTaskList', downgradeComponent({ component: FUnitTaskListComponent }));
