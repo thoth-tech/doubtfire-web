@@ -56,7 +56,7 @@ import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/t
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-editor/task-ilo-alignment-editor.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-viewer/task-ilo-alignment-viewer.js';
 import 'build/src/app/config/privacy-policy/privacy-policy.js';
-import 'build/src/app/config/runtime/runtime.js';
+//import 'build/src/app/config/runtime/runtime.js';
 import 'build/src/app/config/config.js';
 import 'build/src/app/config/root-controller/root-controller.js';
 import 'build/src/app/config/local-storage/local-storage.js';
