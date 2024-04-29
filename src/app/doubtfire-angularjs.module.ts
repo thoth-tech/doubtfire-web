@@ -216,6 +216,7 @@ import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import { TransitionHooksService } from './sessions/transition-hooks.service';
 import { AuthenticationService } from './api/services/authentication.service';
 import { ProjectService } from './api/services/project.service';
@@ -240,6 +241,9 @@ import { FUnitTaskListComponent } from './units/states/tasks/viewer/directives/f
 import { FTaskDetailsViewComponent } from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import { FTaskSheetViewComponent } from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import { TasksViewerComponent } from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+=======
+import { GroupSetSelectorComponent } from './groups/group-set-selector/group-set-selector.component';
+>>>>>>> Stashed changes
 =======
 import { GroupSetSelectorComponent } from './groups/group-set-selector/group-set-selector.component';
 >>>>>>> Stashed changes
@@ -292,9 +296,13 @@ DoubtfireAngularJSModule.factory('TaskAssessmentModal', downgradeInjectable(Task
 DoubtfireAngularJSModule.factory('TaskSubmission', downgradeInjectable(TaskSubmissionService));
 DoubtfireAngularJSModule.factory('GlobalStateService', downgradeInjectable(GlobalStateService));
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 DoubtfireAngularJSModule.factory('TransitionHooksService', downgradeInjectable(TransitionHooksService));
 DoubtfireAngularJSModule.factory('EditProfileService', downgradeInjectable(EditProfileDialogService));
 DoubtfireAngularJSModule.factory('CreateNewUnitModal', downgradeInjectable(CreateNewUnitModal));
+=======
+DoubtfireAngularJSModule.directive('groupSetSelector', downgradeComponent({ component: GroupSetSelectorComponent }));
+>>>>>>> Stashed changes
 =======
 DoubtfireAngularJSModule.directive('groupSetSelector', downgradeComponent({ component: GroupSetSelectorComponent }));
 >>>>>>> Stashed changes
