@@ -14,6 +14,7 @@ import { alertService } from 'src/app/ajs-upgraded-providers';
 import { AlertService } from 'src/app/common/services/alert.service';
 import { MatFormField } from '@angular/material/form-field';
 import _ from 'lodash';
+import { ChangeDetectorRef } from '@angular/core';
 import { consumerPollProducersForChange } from '@angular/core/primitives/signals';
 
 
@@ -33,6 +34,10 @@ export class UnitStaffEditorComponent {
 
     private subscriptions: Subscription[] = [];
 
+    staffControl = new FormControl();
+
+
+
     columns: string[] = ['name', 'role', 'mainConvenor', 'test'];
     dataSource: MatTableDataSource<UnitRole>;
 
@@ -41,6 +46,7 @@ export class UnitStaffEditorComponent {
         private unitRoleService: UnitRoleService,
         private alertService: AlertService,
         private userService: UserService,
+        private cdr: ChangeDetectorRef,
     ) {}
 
  
@@ -59,9 +65,14 @@ export class UnitStaffEditorComponent {
     
     }
 
+
     ngOnDestroy(): void {
         this.subscriptions.forEach((s) => s.unsubscribe());
-      }
+    }
+
+    displayFn(staff: User): string {
+        return staff && staff.name ? staff.name : '';
+    }
 
     applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -86,7 +97,10 @@ export class UnitStaffEditorComponent {
 
     removeStaff(staff) {
         console.log("removing staff");
-        this.unitRoleService.delete(staff, {cache: this.unit.statffCache}).subscribe();
+        this.unitRoleService.delete(staff, {cache: this.unit.staffCache}).subscribe();
+        this.alertService.success("Staff removed", 3000);
+
+        
     }
 
     addSelectedStaff() {
@@ -95,8 +109,8 @@ export class UnitStaffEditorComponent {
         console.log(staff)
         this.unit.selectedStaff = null;
         this.unit.addStaff(staff, 'Tutor').subscribe();
+        this.alertService.success("Staff added", 3000);
 
-        
     }
 
     filterStaff(staff) {
