@@ -58,6 +58,7 @@ export class GroupSelectorComponent implements OnInit {
         this.staffFilter,
       );
     } else {
+      // Apply other filters if needed
     }
 
     this.filteredGroups = this.paginateAndSort(
@@ -188,7 +189,7 @@ export class GroupSelectorComponent implements OnInit {
     });
   }
 
-  updateGroup(data: GroupUpdateData, group: Group) {
+  updateGroup(data: GroupUpdateData, group: Group): void {
     group.capacityAdjustment = data.capacityAdjustment;
     group.tutorial = data.tutorial;
     group.name = data.name;
@@ -222,9 +223,14 @@ export class GroupSelectorComponent implements OnInit {
 
   toggleLocked(group: Group) {
     group.locked = !group.locked;
-    this.unit.updateGroup(group, (success: {locked: boolean}) => {
-      group.locked = success.locked;
-      console.log('Group updated');
+    this.groupService.update(group).subscribe({
+      next: (success: {locked: boolean}) => {
+        group.locked = success.locked;
+        console.log('Group updated');
+      },
+      error: (message: string) => {
+        console.error(`Failed to update group: ${message}`);
+      },
     });
   }
 
