@@ -1,14 +1,13 @@
 <div class="panel-heading">
   <h4 class="panel-title">
     Groups for
-    <strong *ngIf="!showGroupSetSelector"> {{ selectedGroupSet.name }} </strong>
-    <group-set-selector
-      [ngIf]="showGroupSetSelector"
+    <strong *ngIf="!showGroupSetSelector">{{ selectedGroupSet.name }}</strong>
+    <app-group-set-selector
+      *ngIf="showGroupSetSelector"
       [unit]="unit"
       [(ngModel)]="selectedGroupSet"
-      (ngModelChange)="selectGroupSet($event)"
-    >
-    </group-set-selector>
+      (onChange)="selectGroupSet($event)"
+    ></app-group-set-selector>
   </h4>
 </div>
 <!--/panel-heading-->
@@ -58,18 +57,17 @@
   <div class="callout callout-primary row">
     <h4>No Groups To Show</h4>
     <p>
-      There are no groups available for <strong>{{ selectedGroupSet.name }}</strong
-      >{{
-        staffFilter === 'mine' || selectedGroupSet.keepGroupsInSameClass
-          ? ' in your tutorials.'
-          : ''
-      }}{{ newGroupName.length > 0 ? ' with name ' + newGroupName + '.' : '.' }}
+      There are no groups available for <strong>{{ selectedGroupSet.name }}</strong>
+      {{
+        staffFilter === 'mine' || selectedGroupSet.keepGroupsInSameClass ? ' in your tutorials.' : ''
+      }}
+      {{ newGroupName.length > 0 ? ' with name ' + newGroupName + '.' : '.' }}
     </p>
     <p *ngIf="selectedGroupSet.keepGroupsInSameClass">
       Please make sure that you are enrolled in the correct tutorial. You can only join a group that
       is running in your allocated tutorial. Use the
-      <a [routerLink]="['projects/tutorials', {projectId: project.id}]">Tutorial List</a> to check
-      and update your tutorial enrolment.
+      <a [routerLink]="['/projects/tutorials', project.id]">Tutorial List</a> to check and update
+      your tutorial enrolment.
     </p>
   </div>
 </div>
@@ -127,45 +125,29 @@
   <!--/header-->
   <tbody>
     <tr
-      [ngClass]="{info: group.id === selectedGroup.id}"
       *ngFor="let group of shownGroups = (filteredGroups | groupsForStudent:project:selectedGroupSet | groupsWithName:newGroupName)"
+      [ngClass]="{'info': group.id == selectedGroup.id}"
     >
       <th (click)="selectGroup(group)">
-        <span editable-text="group.name" e-name="name" e-form="groupRowForm" e-required>
-          {{ group.name || 'Not Set' }}
-        </span>
+        <span>{{ group.name || 'Not Set' }}</span>
       </th>
       <!--/group-name-->
       <td (click)="selectGroup(group)">
         <span
-          editable-select="group.tutorial"
-          e-name="tutorial"
-          e-form="groupRowForm"
-          e-ng-options="t as (t.abbreviation + ' - ' + t.description) for t in unit.tutorials | orderBy: 'abbreviation'"
+          tooltip="{{ group.tutorial.description }}"
+          tooltipPopupDelay="200"
+          tooltipAppendToBody="true"
         >
-          <span
-            tooltip="{{ group.tutorial.description }}"
-            tooltip-popup-delay="200"
-            tooltip-append-to-body="true"
-          >
-            {{ group.tutorial.abbreviation }}
-          </span>
+          {{ group.tutorial.abbreviation }}
         </span>
       </td>
       <!--/group-tutorial-->
       <td *ngIf="unitRole" (click)="selectGroup(group)">
-        <span
-          editable-text="group.capacityAdjustment"
-          e-form="groupRowForm"
-          e-name="capacityAdjustment"
-        >
-          {{ group.capacityAdjustment }}
-        </span>
+        <span>{{ group.capacityAdjustment }}</span>
       </td>
       <!--/capacityAdjustment-->
       <td (click)="selectGroup(group)">
-        <span *ngIf="group.hasSpace()">Available</span>
-        <span *ngIf="!group.hasSpace()">Full</span>
+        <span>{{ group.hasSpace() ? 'Available' : 'Full' }}</span>
       </td>
       <!--/capacity-->
       <td *ngIf="(project && selectedGroupSet.allowStudentsToManageGroups) || unitRole">
@@ -185,13 +167,14 @@
           </span>
         </div>
         <div *ngIf="unitRole">
-          <form
-            editable-form
-            name="groupRowForm"
-            onbeforesave="updateGroup($event, group)"
-            *ngIf="groupRowForm.$visible"
-            [ngClass]="{'inserted.id == group.id': true}"
+          <button
+            *ngIf="!groupRowForm.$visible"
+            (click)="groupRowForm.$show()"
+            class="btn btn-default btn-sm"
           >
+            <i class="fa fa-pencil"></i> Edit
+          </button>
+          <div *ngIf="groupRowForm.$visible">
             <button type="submit" [disabled]="groupRowForm.$waiting" class="btn btn-default btn-sm">
               <i class="fa fa-floppy-o"></i> Save
             </button>
@@ -203,25 +186,20 @@
             >
               <i class="fa fa-times"></i> Cancel
             </button>
-          </form>
-          <div *ngIf="!groupRowForm.$visible">
-            <button (click)="groupRowForm.$show()" class="btn btn-default btn-sm">
-              <i class="fa fa-pencil"></i> Edit
-            </button>
-            <a
-              class="btn btn-sm lockButton"
-              [ngClass]="{'btn-warning': !group.locked, 'btn-info': group.locked}"
-              (click)="toggleLocked(group)"
-            >
-              <i [ngClass]="{'fa fa-lock': !group.locked, 'fa fa-unlock': group.locked}"></i>
-              {{ !group.locked ? 'Lock' : 'Unlock' }}
-            </a>
-            <button (click)="deleteGroup(group)" class="btn btn-danger btn-sm">
-              <i class="fa fa-trash-o"></i> Delete
-            </button>
           </div>
-          <!--/actions-->
+          <a
+            class="btn btn-sm lockButton"
+            [ngClass]="{'btn-warning': !group.locked, 'btn-info': group.locked}"
+            (click)="toggleLocked(group)"
+          >
+            <i [ngClass]="{'fa fa-lock': !group.locked, 'fa fa-unlock': group.locked}"></i>
+            {{ group.locked ? 'Unlock' : 'Lock' }}
+          </a>
+          <button (click)="deleteGroup(group)" class="btn btn-danger btn-sm">
+            <i class="fa fa-trash-o"></i> Delete
+          </button>
         </div>
+        <!--/actions-->
       </td>
     </tr>
   </tbody>
@@ -235,21 +213,20 @@
 >
   <pagination
     *ngIf="pagination.show"
-    totalItems="pagination.totalSize"
-    (pageChanged)="pagination.onChange()"
     [(ngModel)]="pagination.currentPage"
-    itemsPerPage="pagination.pageSize"
-    maxSize="pagination.maxSize"
-    class="pagination-sm"
+    [totalItems]="pagination.totalSize"
+    (ngModelChange)="pagination.onChange()"
+    [itemsPerPage]="pagination.pageSize"
+    [maxSize]="pagination.maxSize"
     [boundaryLinks]="true"
     [rotate]="false"
-  >
-  </pagination>
+    class="pagination-sm"
+  ></pagination>
 
   <p *ngIf="selectedGroupSet.keepGroupsInSameClass && shownGroups.length > 0 && !unitRole">
     Can't see the group you need to join? Groups shown are limited to those in your allocated
     tutorials. Use the
-    <a [routerLink]="['projects/tutorials', {projectId: project.id}]">Tutorial List</a> to check and
-    update your tutorial enrolment if needed.
+    <a [routerLink]="['/projects/tutorials', project.id]">Tutorial List</a> to check and update your
+    tutorial enrolment if needed.
   </p>
 </div>

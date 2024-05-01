@@ -5,9 +5,6 @@ import { Group, Unit, User } from '../doubtfire-model';
 
 
 export class GroupSet extends Entity {
-  groupsInTutorials(unitRole: string, staffFilter: string): Group[] {
-    throw new Error('Method not implemented.');
-  }
 
   public id: number;
   public name: string;

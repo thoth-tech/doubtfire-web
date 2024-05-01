@@ -5,7 +5,7 @@ import {GroupService} from 'src/app/api/services/group.service';
 
 interface GroupUpdateData {
   capacityAdjustment: number;
-  tutorial: Tutorial; // Assuming Tutorial is the correct type for the tutorial property
+  tutorial: Tutorial;
   name: string;
 }
 
@@ -223,14 +223,12 @@ export class GroupSelectorComponent implements OnInit {
   toggleLocked(group: Group) {
     group.locked = !group.locked;
     this.unit.updateGroup(group, (success: {locked: boolean}) => {
-      // Specified the type of success object
       group.locked = success.locked;
       console.log('Group updated');
     });
   }
 
   selectGroupSetFromEvent(event: MouseEvent, args: {id: number}) {
-    // Specified the type of args
     const newGroupSet = this.unit.findGroupSet(args.id);
     this.selectGroupSet(newGroupSet);
   }
