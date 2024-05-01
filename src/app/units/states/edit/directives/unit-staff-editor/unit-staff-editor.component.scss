@@ -1,0 +1,93 @@
+.unit-staff-editor {
+    width: 100%;
+    height: 100%;
+  }
+  
+  mat-card-header {
+    background-color: #337cb7;
+    border-radius: 5px 5px 0 0;
+    color: white;
+    padding-bottom: 3px;    
+  }
+
+  mat-card-title {
+    top: 3px;
+    font-size: small;
+  }
+  
+  mat-card-subtitle {
+    color: white;
+  }
+
+  
+  mat-card-content {
+    width: 100%;
+    padding-bottom: 5px;
+    border-width: 0 1px 0 1px;
+    border-color: #337cb7;
+  }
+  
+  table {
+    width: 100%;
+    padding: 10px;
+  }
+  
+  input {
+    width: 80%;
+    border-radius: 5px 0 0 5px;
+    margin-top: 20px;
+  }
+
+  td {
+    justify-content: center;
+  }
+  
+  mat-form-field {
+    width: 80%;
+    background-color: white;
+    padding: 5px;
+    left: 5px;
+  }
+
+  p {
+    margin-left: 10px;
+  }
+  
+  mat-card-footer {
+    border-radius: 0 0 5px 5px;
+    border-width: 0 1px 1px 1px;
+    border-color: #337cb7;
+  } 
+
+  .delete-button {
+    background-color: rgb(180, 1, 1);
+    color: white;
+  }
+
+  .add-button {
+    background-color: rgb(36, 181, 36);
+    width: 15%;
+  }
+
+  .staff-name-container {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    align-content: center;
+    padding: 3px; 
+  }
+
+  span {
+
+  }
+  
+  .mat-form-field {
+    font-size: 074rem;
+  }
+
+  
+  
+  
+  
+  
+  
