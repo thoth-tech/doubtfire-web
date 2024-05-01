@@ -23,7 +23,7 @@ group-selector .panel-title > group-set-selector {
   max-width: 50%;
   padding-left: 1ex;
 }
-@media (max-width: $screen-md) {
+@media (max-width: 768px) {
   group-selector .input-group.staff-filter {
     margin-bottom: 1em;
     &,

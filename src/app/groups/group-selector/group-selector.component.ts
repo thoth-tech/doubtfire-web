@@ -1,264 +1,225 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {Group, GroupSet, Unit, Project, Tutorial} from 'src/app/api/models/doubtfire-model';
-import {Subscription, Observable} from 'rxjs';
+/* eslint-disable @angular-eslint/component-selector */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import {Component, Input, OnInit, OnDestroy, Inject} from '@angular/core';
+import {Subscription, throwError} from 'rxjs';
+import {catchError, finalize} from 'rxjs/operators';
+import {HttpClient} from '@angular/common/http';
+import {alertService} from 'src/app/ajs-upgraded-providers';
+import {Group, GroupSet} from 'src/app/api/models/doubtfire-model';
 import {GroupService} from 'src/app/api/services/group.service';
-
-interface GroupUpdateData {
-  capacityAdjustment: number;
-  tutorial: Tutorial;
-  name: string;
-}
-
 @Component({
-  selector: 'f-group-selector',
+  selector: 'group-selector',
   templateUrl: './group-selector.component.html',
   styleUrls: ['./group-selector.component.scss'],
 })
-export class GroupSelectorComponent implements OnInit {
-  @Input() unit: Unit;
-  @Input() project?: Project;
-  @Input() unitRole?: string;
-  @Input() selectedGroupSet: GroupSet;
-  @Input() selectedGroup?: Group;
-  @Input() showGroupSetSelector?: boolean;
-  @Input() onSelect?: (group: Group) => void;
-
-  listeners: Subscription[] = [];
-  staffFilter: string | null = null;
-  filteredGroups: Group[] = [];
-  pagination = {
+export class GroupSelectorComponent implements OnInit, OnDestroy {
+  @Input() unit: any;
+  @Input() project: any;
+  @Input() unitRole: any;
+  @Input() selectedGroupSet: any;
+  selectedGroup: any;
+  canCreateGroups: any;
+  shownGroups: any;
+  showGroupSetSelector: boolean = false;
+  loaded: boolean = false;
+  staffFilter: string;
+  newGroupName: string = '';
+  pagination: any = {
     currentPage: 1,
     maxSize: 10,
     pageSize: 10,
     totalSize: null,
     show: false,
-    onChange: () => this.applyFilters(),
+    onChange: this.applyFilters.bind(this),
   };
-
-  tableSort = {
+  tableSort: any = {
     order: 'name',
     reverse: false,
   };
-  loaded = false;
-  canCreateGroups: boolean = false;
-  newGroupName = '';
-  shownGroups: Observable<Group[]>; // Changed to Observable<Group[]>
+  filteredGroups: Group[] = [];
+  listeners: Subscription[] = [];
 
-  constructor(private groupService: GroupService) {} // Inject GroupService
+  constructor(
+    private http: HttpClient,
+    @Inject(alertService) private alerts: any,
+    @Inject(GroupService) private groupService: any,
+  ) {}
 
-  ngOnInit() {
-    this.applyFilters();
-    this.selectGroupSet(this.selectedGroupSet);
+  ngOnInit(): void {
+    this.listeners.push(this.listenTo());
+    if ((!this.unitRole && !this.project) || (this.unitRole && this.project)) {
+      throw new Error('Group selector must have exactly one unit role or one project');
+    }
+    this.setStaffFilter(this.unitRole ? 'all' : 'mine');
+    this.selectGroupSet(this.selectedGroupSet || this.unit.groupSets[0]);
   }
 
-  applyFilters() {
+  listenTo(): Subscription {
+    return new Subscription();
+  }
+
+  applyFilters(): void {
+    let filteredGroups: Group[];
     if (this.unitRole) {
-      this.filteredGroups = this.selectedGroupSet.groupsInTutorials(
-        this.unitRole,
-        this.staffFilter,
+      filteredGroups = this.selectedGroupSet.group.filter(
+        (group: Group) => group.tutorial.toString() === this.staffFilter,
       );
     } else {
-      // Apply other filters if needed
+      filteredGroups = this.selectedGroupSet.groups;
     }
-
-    this.filteredGroups = this.paginateAndSort(
-      this.filteredGroups,
-      this.pagination,
-      this.tableSort,
-    );
+    this.filteredGroups = this.paginateAndSort(filteredGroups);
   }
 
-  setStaffFilter(scope: string) {
+  paginateAndSort(groups: Group[]): Group[] {
+    groups.sort((a, b) => {
+      if (this.tableSort.order === 'name') {
+        return this.tableSort.reverse ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
+      } else if (this.tableSort.order === 'tutorial.abbreviation') {
+        return this.tableSort.reverse
+          ? b.tutorial.abbreviation.localeCompare(a.tutorial.abbreviation)
+          : a.tutorial.abbreviation.localeCompare(b.tutorial.abbreviation);
+      } else if (this.tableSort.order === 'capacityAdjustment') {
+        return this.tableSort.reverse
+          ? b.capacityAdjustment - a.capacityAdjustment
+          : a.capacityAdjustment - b.capacityAdjustment;
+      } else if (this.tableSort.order === 'hasSpace()') {
+        return this.tableSort.reverse ? (b.hasSpace() ? -1 : 1) : a.hasSpace() ? -1 : 1;
+      }
+      return 0;
+    });
+    const startIndex = (this.pagination.currentPage - 1) * this.pagination.pageSize;
+    const endIndex = startIndex + this.pagination.pageSize;
+    return groups.slice(startIndex, endIndex);
+  }
+
+  setStaffFilter(scope: string): void {
     this.staffFilter = scope;
     this.applyFilters();
   }
 
-  sortTableBy(column: string) {
-    this.tableSort.order = column;
-    this.tableSort.reverse = !this.tableSort.reverse;
-    this.applyFilters();
+  selectGroupSet(groupSet: GroupSet | undefined): void {
+    if (!groupSet) return;
+    this.startLoading();
+    this.selectedGroup = null;
+    this.newGroupName = '';
+    this.http
+      .get<any[]>(`/api/groups?unitId=${this.unit.id}&groupSetId=${groupSet.id}`)
+      .pipe(
+        catchError((error) => {
+          this.finishLoading();
+          this.alerts.add('danger', `Unable to get groups ${error.message}`, 6000);
+          return throwError(error);
+        }),
+        finalize(() => this.finishLoading()),
+      )
+      .subscribe(() => {
+        this.selectedGroupSet = groupSet;
+        this.applyFilters();
+      });
   }
 
-  startLoading() {
+  startLoading(): void {
     this.loaded = false;
   }
 
-  finishLoading() {
+  finishLoading(): void {
     setTimeout(() => {
       this.loaded = true;
       if (this.project) {
-        this.selectGroup(this.project.groupForGroupSet(this.selectedGroupSet));
+        this.selectedGroup = this.project.groupForGroupSet(this.selectedGroupSet);
       }
     }, 500);
   }
 
-  selectGroup(group: Group) {
-    if (this.project && !this.project.inGroup(group)) {
-      return;
-    }
+  selectGroup(group: Group): void {
+    if (this.project && !this.project.inGroup(group)) return;
     this.selectedGroup = group;
-    if (this.onSelect) {
-      this.onSelect(group);
-    }
   }
 
-  resetNewGroupForm() {
+  resetNewGroupForm(): void {
     this.newGroupName = '';
   }
 
-  selectGroupSet(groupSet: GroupSet) {
-    if (!groupSet) {
-      return;
-    }
-    this.startLoading();
-    this.selectGroup(null);
-    this.canCreateGroups = !!this.unitRole || groupSet.allowStudentsToCreateGroups; // Convert unitRole to boolean
-    this.unit.getGroups(groupSet).subscribe({
-      next: () => {
-        this.selectedGroupSet = groupSet;
-        this.finishLoading();
-        this.resetNewGroupForm();
-        this.applyFilters();
-      },
-      error: (message: string) => {
-        this.finishLoading();
-        console.error(`Unable to get groups: ${message}`);
-      },
-    });
-  }
-
-  addGroup(name: string) {
+  addGroup(name: string): void {
     if (this.unit.tutorials.length === 0) {
-      console.error('Please ensure there is at least one tutorial before groups are created');
+      this.alerts.add(
+        'danger',
+        'Please ensure there is at least one tutorial before groups are created',
+        6000,
+      );
       return;
     }
-
-    let tutorialId;
-    if (this.project) {
-      tutorialId = this.project.tutorials[0]?.id || this.unit.tutorials[0]?.id;
-    } else {
-      const tutorName = this.unitRole || 'Default Tutor'; // Provide default value if unitRole is undefined
-      tutorialId = this.unit.tutorials.find((tute) => tute.tutor?.name === tutorName)?.id;
-      tutorialId ??= this.unit.tutorials[0]?.id;
-    }
-
-    this.groupService
-      .create(
-        {
-          unitId: this.unit.id,
-          groupSetId: this.selectedGroupSet.id,
-        },
-        {
-          cache: this.selectedGroupSet.groupsCache,
-          constructorParams: this.unit,
-          body: {
-            group: {
-              name: name,
-              tutorial_id: tutorialId,
-            },
-          },
-        },
-      )
+    const tutorialId =
+      this.project?.tutorials[0]?.id ||
+      this.unit.tutorials.find((tute: any) => tute.tutor?.name === this.unitRole?.name)?.id ||
+      this.unit.tutorials[0].id;
+    this.http
+      .post<any>(`/api/groups`, {
+        unitId: this.unit.id,
+        groupSetId: this.selectedGroupSet.id,
+        name: name,
+        tutorialId: tutorialId,
+      })
       .subscribe({
         next: (group: Group) => {
           this.resetNewGroupForm();
           this.applyFilters();
           this.selectedGroup = group;
         },
-        error: (message: string) => {
-          console.error(message);
-        },
+        error: (error) => this.alerts.add('danger', error.message, 6000),
       });
   }
 
-  projectInGroup(group: Group) {
+  projectInGroup(group: Group): boolean {
     return this.project?.inGroup(group);
   }
 
-  joinGroup(group: Group) {
-    if (!this.project) {
-      return;
-    }
+  joinGroup(group: Group): void {
+    if (!this.project) return;
     const partOfGroup = this.projectInGroup(group);
     if (partOfGroup) {
-      console.error('You are already a member of this group');
+      this.alerts.add('danger', 'You are already a member of this group');
       return;
     }
-    group.addMember(this.project, () => {
-      this.selectedGroup = group;
-    });
   }
 
-  updateGroup(data: GroupUpdateData, group: Group): void {
+  updateGroup(data: any, group: Group): void {
     group.capacityAdjustment = data.capacityAdjustment;
     group.tutorial = data.tutorial;
     group.name = data.name;
 
     this.groupService.update(group).subscribe({
       next: () => {
-        console.log('Updated group');
+        this.alerts.add('success', 'Updated group', 2000);
         this.applyFilters();
       },
-      error: (message: string) => {
-        console.error(`Failed to update group: ${message}`);
-      },
+      error: (message: string) =>
+        this.alerts.add('danger', `Failed to update group. ${message}`, 6000),
     });
   }
 
-  deleteGroup(group: Group) {
+  deleteGroup(group: Group): void {
     this.groupService.delete(group, {cache: this.selectedGroupSet.groupsCache}).subscribe({
       next: () => {
-        console.log('Deleted group');
-        if (group.id === this.selectedGroup?.id) {
-          this.selectedGroup = null;
-        }
+        this.alerts.add('success', 'Deleted group', 2000);
+        if (group.id === this.selectedGroup?.id) this.selectedGroup = null;
         this.resetNewGroupForm();
         this.applyFilters();
       },
-      error: () => {
-        console.error('Failed to delete group');
-      },
+      error: () => this.alerts.add('danger', 'Failed to delete group', 6000),
     });
   }
 
-  toggleLocked(group: Group) {
+  toggleLocked(group: Group): void {
     group.locked = !group.locked;
-    this.groupService.update(group).subscribe({
-      next: (success: {locked: boolean}) => {
-        group.locked = success.locked;
-        console.log('Group updated');
-      },
-      error: (message: string) => {
-        console.error(`Failed to update group: ${message}`);
-      },
+    this.unit.updateGroup(group, (success: any) => {
+      group.locked = success.locked;
+      this.alerts.add('success', 'Group updated', 2000);
     });
   }
 
-  selectGroupSetFromEvent(event: MouseEvent, args: {id: number}) {
-    const newGroupSet = this.unit.findGroupSet(args.id);
-    this.selectGroupSet(newGroupSet);
-  }
-
-  paginateAndSort(
-    groups: Group[],
-    pagination: {currentPage: number; pageSize: number},
-    tableSort: {order: string; reverse: boolean},
-  ): Group[] {
-    const sortedGroups = [...groups];
-
-    sortedGroups.sort((a, b) => {
-      if (a[tableSort.order] < b[tableSort.order]) {
-        return tableSort.reverse ? 1 : -1;
-      }
-      if (a[tableSort.order] > b[tableSort.order]) {
-        return tableSort.reverse ? -1 : 1;
-      }
-      return 0;
-    });
-
-    // Paginate the sorted groups
-    const startIndex = (pagination.currentPage - 1) * pagination.pageSize;
-    const endIndex = startIndex + pagination.pageSize;
-    return sortedGroups.slice(startIndex, endIndex);
+  ngOnDestroy(): void {
+    this.listeners.forEach((sub) => sub.unsubscribe());
   }
 }
