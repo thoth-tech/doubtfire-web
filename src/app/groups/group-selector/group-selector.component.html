@@ -2,12 +2,12 @@
   <h4 class="panel-title">
     Groups for
     <strong *ngIf="!showGroupSetSelector"> {{ selectedGroupSet?.name }} </strong>
-    <app-group-set-selector
+    <group-set-selector
       *ngIf="showGroupSetSelector"
       [unit]="unit"
       [(ngModel)]="selectedGroupSet"
       (onChange)="selectGroupSet($event)"
-    ></app-group-set-selector>
+    ></group-set-selector>
   </h4>
 </div>
 <!--/panel-heading-->

@@ -366,7 +366,7 @@ DoubtfireAngularJSModule.directive(
 );
 
 DoubtfireAngularJSModule.directive(
-  'GroupSelector',
+  'groupSelector',
   downgradeComponent({ component: GroupSelectorComponent })
 );
 

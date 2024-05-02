@@ -8,6 +8,7 @@ import {HttpClient} from '@angular/common/http';
 import {alertService} from 'src/app/ajs-upgraded-providers';
 import {Group, GroupSet} from 'src/app/api/models/doubtfire-model';
 import {GroupService} from 'src/app/api/services/group.service';
+
 @Component({
   selector: 'group-selector',
   templateUrl: './group-selector.component.html',
@@ -43,16 +44,27 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     @Inject(alertService) private alerts: any,
-    @Inject(GroupService) private groupService: any,
+    private groupService: GroupService,
   ) {}
 
   ngOnInit(): void {
     this.listeners.push(this.listenTo());
+
     if ((!this.unitRole && !this.project) || (this.unitRole && this.project)) {
       throw new Error('Group selector must have exactly one unit role or one project');
     }
+
+    // If unitRole is present, set the staff filter to 'all', otherwise set it to 'mine'
     this.setStaffFilter(this.unitRole ? 'all' : 'mine');
-    this.selectGroupSet(this.selectedGroupSet || this.unit.groupSets[0]);
+
+    // Select the group set based on the provided selectedGroupSet or the first group set of the unit
+    if (this.selectedGroupSet) {
+      this.selectGroupSet(this.selectedGroupSet);
+    } else if (this.unit && this.unit.groupSets && this.unit.groupSets.length > 0) {
+      this.selectGroupSet(this.unit.groupSets[0]);
+    } else {
+      console.error('No group sets available for selection.');
+    }
   }
 
   listenTo(): Subscription {
@@ -62,7 +74,8 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
   applyFilters(): void {
     let filteredGroups: Group[];
     if (this.unitRole) {
-      filteredGroups = this.selectedGroupSet.group.filter(
+      filteredGroups = this.selectedGroupSet.groups.filter(
+        // Corrected property name
         (group: Group) => group.tutorial.toString() === this.staffFilter,
       );
     } else {
@@ -109,13 +122,14 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
         catchError((error) => {
           this.finishLoading();
           this.alerts.add('danger', `Unable to get groups ${error.message}`, 6000);
-          return throwError(error);
+          return throwError(() => error);
         }),
         finalize(() => this.finishLoading()),
       )
       .subscribe(() => {
         this.selectedGroupSet = groupSet;
         this.applyFilters();
+        this.finishLoading();
       });
   }
 
