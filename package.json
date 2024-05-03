@@ -67,6 +67,7 @@
     "bootstrap-sass": "~3.4",
     "canvas-confetti": "^1.6.0",
     "codemirror": "5.65.0",
+    "commitlint": "^19.3.0",
     "core-js": "^3.21.1",
     "d3": "3.5.17",
     "es5-shim": "^4.5.12",

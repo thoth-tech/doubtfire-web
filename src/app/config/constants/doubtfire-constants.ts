@@ -43,6 +43,7 @@ export class DoubtfireConstants {
   public IsTiiEnabled: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   private readonly settingsUrl: string = `${this.API_URL}/settings`;
+  SomeConstant: string;
 
   constructor(handler: HttpBackend) {
     // Don't use interceptors for Doubtfire Constants

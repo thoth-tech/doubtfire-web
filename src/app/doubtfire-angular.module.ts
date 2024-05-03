@@ -1,6 +1,7 @@
 import {interval} from 'rxjs';
 import {take} from 'rxjs/operators';
 
+import {RouterModule} from '@angular/router'; //courseflow
 import {NgModule, Injector, DoBootstrap} from '@angular/core';
 import {BrowserModule, DomSanitizer, Title} from '@angular/platform-browser';
 import {UpgradeModule} from '@angular/upgrade/static';
@@ -224,6 +225,7 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
+import {CourseFlowComponent} from './courseflow/courseflow.component';
 
 @NgModule({
   // Components we declare
@@ -325,6 +327,7 @@ import {GradeService} from './common/services/grade.service';
     FUsersComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    CourseFlowComponent, //courseflow
   ],
   // Services we provide
   providers: [
@@ -460,6 +463,9 @@ import {GradeService} from './common/services/grade.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModuleNew,
+    RouterModule.forRoot([
+      { path: 'courseflow', component: CourseFlowComponent} //courseflow
+    ]),
   ],
 })
 

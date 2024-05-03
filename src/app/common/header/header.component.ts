@@ -8,6 +8,7 @@ import { UserService } from 'src/app/api/services/user.service';
 import { AuthenticationService, Project, Task, Unit, UnitRole, User } from 'src/app/api/models/doubtfire-model';
 import { Subscription } from 'rxjs';
 import { MediaObserver } from 'ng-flex-layout';
+import { Router } from '@angular/router'; //courseflow
 
 @Component({
   selector: 'app-header',
@@ -41,6 +42,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private authService: AuthenticationService,
     protected media: MediaObserver,
+    private router: Router, //courseflow
   ) {}
 
   ngOnInit(): void {
@@ -133,6 +135,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   openCalendar(): void {
     this.CalendarModal.show();
+  }
+
+  openCourseFlow(): void {
+    this.router.navigate(['/courseflow']);  // Method to navigate to the CourseFlow component
   }
 
   signOut(): void {
