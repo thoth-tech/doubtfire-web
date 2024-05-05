@@ -1,86 +1,79 @@
 /* eslint-disable @angular-eslint/component-selector */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import {Component, Input, OnInit, OnDestroy, Inject} from '@angular/core';
-import {Subscription, throwError} from 'rxjs';
-import {catchError, finalize} from 'rxjs/operators';
-import {HttpClient} from '@angular/common/http';
+import {Component, Inject, Input, OnInit} from '@angular/core';
+import {Group, GroupSet,} from 'src/app/api/models/doubtfire-model';
 import {alertService} from 'src/app/ajs-upgraded-providers';
-import {Group, GroupSet} from 'src/app/api/models/doubtfire-model';
+import {UserService} from 'src/app/api/services/user.service';
 import {GroupService} from 'src/app/api/services/group.service';
+import {Unit} from 'src/app/api/models/unit';
+import {UnitService} from 'src/app/api/services/unit.service';
 
 @Component({
   selector: 'group-selector',
   templateUrl: './group-selector.component.html',
   styleUrls: ['./group-selector.component.scss'],
 })
-export class GroupSelectorComponent implements OnInit, OnDestroy {
-  @Input() unit: any;
+export class GroupSelectorComponent implements OnInit {
+  @Input() unit: Unit;
   @Input() project: any;
   @Input() unitRole: any;
-  @Input() selectedGroupSet: any;
-  selectedGroup: any;
-  canCreateGroups: any;
+  @Input() selectedGroupSet: GroupSet;
+  @Input() selectedGroup: Group;
+  @Input() showGroupSetSelector: boolean;
+  @Input() onSelect: (group: Group) => void;
   shownGroups: any;
-  showGroupSetSelector: boolean = false;
-  loaded: boolean = false;
-  staffFilter: string;
-  newGroupName: string = '';
+  canCreateGroups: any;
+
+  filteredGroups: Group[] = [];
   pagination: any = {
     currentPage: 1,
     maxSize: 10,
     pageSize: 10,
     totalSize: null,
     show: false,
-    onChange: this.applyFilters.bind(this),
+    onChange: () => this.applyFilters(),
   };
   tableSort: any = {
     order: 'name',
     reverse: false,
   };
-  filteredGroups: Group[] = [];
-  listeners: Subscription[] = [];
+  staffFilter: string = '';
+  loaded: boolean;
+  selectGroup: any;
+  newGroupName: string;
 
   constructor(
-    private http: HttpClient,
-    @Inject(alertService) private alerts: any,
-    private groupService: GroupService,
+    @Inject(alertService) private AlertService: any,
+    @Inject(UserService) private userService: any,
+    @Inject(GroupService) private groupService: any,
+    @Inject(UnitService) private unitService: any,
   ) {}
 
   ngOnInit(): void {
-    this.listeners.push(this.listenTo());
-
     if ((!this.unitRole && !this.project) || (this.unitRole && this.project)) {
-      throw new Error('Group selector must have exactly one unit role or one project');
+      /*throw new Error('Group selector must have exactly one unit role or one project');*/
     }
 
-    // If unitRole is present, set the staff filter to 'all', otherwise set it to 'mine'
     this.setStaffFilter(this.unitRole ? 'all' : 'mine');
-
-    // Select the group set based on the provided selectedGroupSet or the first group set of the unit
-    if (this.selectedGroupSet) {
-      this.selectGroupSet(this.selectedGroupSet);
-    } else if (this.unit && this.unit.groupSets && this.unit.groupSets.length > 0) {
-      this.selectGroupSet(this.unit.groupSets[0]);
-    } else {
-      console.error('No group sets available for selection.');
-    }
-  }
-
-  listenTo(): Subscription {
-    return new Subscription();
+    this.selectGroupSet(this.selectedGroupSet);
   }
 
   applyFilters(): void {
-    let filteredGroups: Group[];
-    if (this.unitRole) {
-      filteredGroups = this.selectedGroupSet.groups.filter(
-        // Corrected property name
-        (group: Group) => group.tutorial.toString() === this.staffFilter,
-      );
-    } else {
-      filteredGroups = this.selectedGroupSet.groups;
+    let filteredGroups: Group[] = [];
+
+    // Check if selectedGroupSet.groups is iterable
+    if (
+      this.selectedGroupSet &&
+      this.selectedGroupSet.groups &&
+      Symbol.iterator in Object(this.selectedGroupSet.groups)
+    ) {
+      if (this.unitRole) {
+        filteredGroups = this.selectedGroupSet.groups.filter(
+          (group: Group) => group.tutorial.toString() === this.staffFilter,
+        );
+      }
     }
+
     this.filteredGroups = this.paginateAndSort(filteredGroups);
   }
 
@@ -111,26 +104,24 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  selectGroupSet(groupSet: GroupSet | undefined): void {
+  selectGroupSet(groupSet: GroupSet): void {
     if (!groupSet) return;
     this.startLoading();
-    this.selectedGroup = null;
-    this.newGroupName = '';
-    this.http
-      .get<any[]>(`/api/groups?unitId=${this.unit.id}&groupSetId=${groupSet.id}`)
-      .pipe(
-        catchError((error) => {
-          this.finishLoading();
-          this.alerts.add('danger', `Unable to get groups ${error.message}`, 6000);
-          return throwError(() => error);
-        }),
-        finalize(() => this.finishLoading()),
-      )
-      .subscribe(() => {
+
+    this.unit.getGroups(groupSet).subscribe({
+      next: () => {
         this.selectedGroupSet = groupSet;
-        this.applyFilters();
         this.finishLoading();
-      });
+        this.resetNewGroupForm();
+        this.applyFilters();
+      },
+      error: (error: any) => {
+        console.error('Error fetching groups:', error);
+        this.finishLoading();
+        const errorMessage = error && error.message ? error.message : 'Unknown error';
+        this.AlertService.add('danger', `Unable to get groups: ${errorMessage}`, 6000);
+      },
+    });
   }
 
   startLoading(): void {
@@ -141,14 +132,9 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.loaded = true;
       if (this.project) {
-        this.selectedGroup = this.project.groupForGroupSet(this.selectedGroupSet);
+        this.selectGroup(this.project.groupForGroupSet(this.selectedGroupSet));
       }
     }, 500);
-  }
-
-  selectGroup(group: Group): void {
-    if (this.project && !this.project.inGroup(group)) return;
-    this.selectedGroup = group;
   }
 
   resetNewGroupForm(): void {
@@ -157,32 +143,51 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
 
   addGroup(name: string): void {
     if (this.unit.tutorials.length === 0) {
-      this.alerts.add(
+      this.AlertService.add(
         'danger',
         'Please ensure there is at least one tutorial before groups are created',
         6000,
       );
       return;
     }
-    const tutorialId =
-      this.project?.tutorials[0]?.id ||
-      this.unit.tutorials.find((tute: any) => tute.tutor?.name === this.unitRole?.name)?.id ||
-      this.unit.tutorials[0].id;
-    this.http
-      .post<any>(`/api/groups`, {
-        unitId: this.unit.id,
-        groupSetId: this.selectedGroupSet.id,
-        name: name,
-        tutorialId: tutorialId,
-      })
-      .subscribe({
-        next: (group: Group) => {
-          this.resetNewGroupForm();
-          this.applyFilters();
-          this.selectedGroup = group;
+
+    let tutorialId: number | null = null;
+
+    if (this.project) {
+      tutorialId = this.project.tutorials[0]?.id || this.unit.tutorials[0]?.id;
+    } else {
+      const tutorName = this.unitRole?.name || this.userService.currentUser.name;
+      const tutorTutorial = this.unit.tutorials.find((tute: any) => tute.tutor?.name === tutorName);
+      tutorialId = tutorTutorial?.id || this.unit.tutorials[0]?.id;
+    }
+
+    if (!tutorialId) {
+      console.error('Failed to get tutorial ID for adding group.');
+      return;
+    }
+
+    const groupData = {
+      unitId: this.unit.id,
+      groupSetId: this.selectedGroupSet.id,
+      body: {
+        group: {
+          name: name,
+          tutorial_id: tutorialId,
         },
-        error: (error) => this.alerts.add('danger', error.message, 6000),
-      });
+      },
+    };
+
+    this.groupService.create(groupData).subscribe({
+      next: (group: Group) => {
+        this.resetNewGroupForm();
+        this.applyFilters();
+        this.selectedGroup = group;
+      },
+      error: (message: string) => {
+        console.error('Error creating group:', message);
+        this.AlertService.add('danger', message, 6000);
+      },
+    });
   }
 
   projectInGroup(group: Group): boolean {
@@ -193,9 +198,12 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
     if (!this.project) return;
     const partOfGroup = this.projectInGroup(group);
     if (partOfGroup) {
-      this.alerts.add('danger', 'You are already a member of this group');
+      this.AlertService.add('danger', 'You are already member of this group');
       return;
     }
+    group.addMember(this.project, () => {
+      this.selectedGroup = group;
+    });
   }
 
   updateGroup(data: any, group: Group): void {
@@ -205,35 +213,43 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
 
     this.groupService.update(group).subscribe({
       next: () => {
-        this.alerts.add('success', 'Updated group', 2000);
+        this.AlertService.add('success', 'Updated group', 2000);
         this.applyFilters();
       },
-      error: (message: string) =>
-        this.alerts.add('danger', `Failed to update group. ${message}`, 6000),
+      error: (message: string) => {
+        this.AlertService.add('danger', `Failed to update group. ${message}`, 6000);
+      },
     });
   }
 
   deleteGroup(group: Group): void {
     this.groupService.delete(group, {cache: this.selectedGroupSet.groupsCache}).subscribe({
       next: () => {
-        this.alerts.add('success', 'Deleted group', 2000);
-        if (group.id === this.selectedGroup?.id) this.selectedGroup = null;
+        this.AlertService.add('success', 'Deleted group', 2000);
+        if (group.id === this.selectedGroup?.id) {
+          this.selectedGroup = null;
+        }
         this.resetNewGroupForm();
         this.applyFilters();
       },
-      error: () => this.alerts.add('danger', 'Failed to delete group', 6000),
+      error: () => {
+        this.AlertService.add('danger', `Failed to delete group. ${onmessage}`, 6000);
+      },
     });
   }
 
   toggleLocked(group: Group): void {
     group.locked = !group.locked;
-    this.unit.updateGroup(group, (success: any) => {
-      group.locked = success.locked;
-      this.alerts.add('success', 'Group updated', 2000);
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.listeners.forEach((sub) => sub.unsubscribe());
+    this.updateGroup(group, group),
+      {
+        next: (success: any) => {
+          group.locked = success.locked;
+          this.AlertService.add('success', 'Group updated', 2000);
+        },
+        error: (error: any) => {
+          console.error('Error updating group:', error);
+          this.AlertService.add('danger', 'Failed to update group', 2000);
+        },
+      };
   }
 }
