@@ -1,0 +1,26 @@
+<mat-card *ngIf="selectedGroup" class="panel panel-primary">
+    <mat-card-header>
+        <mat-card-title>
+            Members of
+            <a mat-button [matEditable]="unitRole || selectedGroupSet.allowStudentsToManageGroups"
+                (matAfterSave)="updateGroup(selectedGroup)">{{selectedGroup.name}}</a>
+        </mat-card-title>
+        <mat-card-subtitle>
+            <mat-icon *ngIf="selectedGroup.locked" matSuffix matTooltip="This group is locked.">lock</mat-icon>
+        </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <form (ngSubmit)="addMember(selectedStudent)" class="input-group">
+            <mat-form-field class="example-full-width">
+                <input matInput type="search" placeholder="Enter student name or username..."
+                    [(ngModel)]="selectedStudent">
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit" [disabled]="!selectedStudent.id">
+                <mat-icon>add</mat-icon>
+                Add Member
+            </button>
+        </form>
+        <app-group-member-list [unit]="unit" [unitRole]="unitRole" [project]="project" [selectedGroup]="selectedGroup"
+            (onMembersLoaded)="groupMembersLoaded()"></app-group-member-list>
+    </mat-card-content>
+</mat-card>
