@@ -4,22 +4,26 @@
   </h4>
   <p class="list-group-item-text">
     @if (task.isGroupTask()) {
-    <i class="fa fa-users" matTooltip="Group Task" aria-hidden="true"></i>
-    } @if (!task.isGroupTask()) {
-    <i class="fa fa-user" matTooltip="Individual Task" aria-hidden="true"></i>
+      <i class="fa fa-users" matTooltip="Group Task" aria-hidden="true"></i>
     }
-    {{ task.definition.abbreviation }} - {{ gradeNames[task.definition.targetGrade] }} Task @if
-    (task.isBeforeStartDate() && !task.inSubmittedState()) {
-    <span class="due-time" matTooltip="Start task in {{ task.timeToStart() }}">
-      <i class="fa fa-hourglass-start"></i> {{ task.timeToStart() }}
-    </span>
-    } @if (!task.isBeforeStartDate() && !task.inSubmittedState()) {
-    <span
-      class="due-time"
-      matTooltip="{{ task.isOverdue() ? 'Task Overdue!' : 'Complete task in ' + task.timeToDue() }}"
-    >
-      <i class="fa fa-hourglass-end"></i> {{ task.timeToDue() }}
-    </span>
+    @if (!task.isGroupTask()) {
+      <i class="fa fa-user" matTooltip="Individual Task" aria-hidden="true"></i>
+    }
+    {{ task.definition.abbreviation }} - {{ gradeNames[task.definition.targetGrade] }} Task
+    @if (task.isBeforeStartDate() && !task.inSubmittedState()) {
+      <span class="due-time" matTooltip="Start task in {{ task.timeToStart() }}">
+        <i class="fa fa-hourglass-start"></i> {{ task.timeToStart() }}
+      </span>
+    }
+    @if (!task.isBeforeStartDate() && !task.inSubmittedState()) {
+      <span
+        class="due-time"
+        matTooltip="{{
+          task.isOverdue() ? 'Task Overdue!' : 'Complete task in ' + task.timeToDue()
+        }}"
+      >
+        <i class="fa fa-hourglass-end"></i> {{ task.timeToDue() }}
+      </span>
     }
   </p>
 </div>
@@ -31,7 +35,9 @@
     <span
       class="task-superscript-badge new-comments-badge"
       [hidden]="task.numNewComments <= 0"
-      matTooltip="{{ task.numNewComments }} new {{ task.numNewComments > 1 ? 'comments' : 'comment' }}"
+      matTooltip="{{ task.numNewComments }} new {{
+        task.numNewComments > 1 ? 'comments' : 'comment'
+      }}"
     >
       {{ task.numNewComments }}
     </span>
@@ -52,16 +58,24 @@
       <sup>{{ task.qualityPts }}</sup
       >&frasl;<sub>{{ task.definition.maxQualityPts }}</sub>
     </span>
-    <span class="task-subscript-badge soon-badge" [hidden]="!(task.isDueSoon() && !task.inFinalState())">
+    <span
+      class="task-subscript-badge soon-badge"
+      [hidden]="!(task.isDueSoon() && !task.inFinalState())"
+    >
       <i class="fa fa-clock-o"></i>
     </span>
     <span
       class="task-subscript-badge due-badge"
-      [hidden]="!(task.betweenDueDateAndDeadlineDate() && !task.isPastDeadline() && !task.inFinalState())"
+      [hidden]="
+        !(task.betweenDueDateAndDeadlineDate() && !task.isPastDeadline() && !task.inFinalState())
+      "
     >
       <i class="fa fa-clock-o"></i>
     </span>
-    <span class="task-subscript-badge due-badge" [hidden]="!(task.isPastDeadline() && !task.inFinalState())">
+    <span
+      class="task-subscript-badge due-badge"
+      [hidden]="!(task.isPastDeadline() && !task.inFinalState())"
+    >
       <i class="fa fa-clock-o"></i><strong>!</strong>
     </span>
   </div>

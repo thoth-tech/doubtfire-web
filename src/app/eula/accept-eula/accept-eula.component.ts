@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
-import _ from 'lodash';
-import { Observable, ReplaySubject, take } from 'rxjs';
-import { UserService } from 'src/app/api/models/doubtfire-model';
-import { TiiService } from 'src/app/api/services/tii.service';
-import { AlertService } from 'src/app/common/services/alert.service';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
+import {Component} from '@angular/core';
+import {StateService} from '@uirouter/core';
+import {Observable, ReplaySubject, take} from 'rxjs';
+import {UserService} from 'src/app/api/models/doubtfire-model';
+import {TiiService} from 'src/app/api/services/tii.service';
+import {AlertService} from 'src/app/common/services/alert.service';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
 
 @Component({
   selector: 'f-accept-eula',
@@ -23,7 +22,7 @@ export class AcceptEulaComponent {
     private tiiService: TiiService,
     private userService: UserService,
     private alertService: AlertService,
-    private state: StateService
+    private state: StateService,
   ) {
     this.constants.IsTiiEnabled.subscribe((enabled) => {
       if (enabled) {
@@ -39,7 +38,7 @@ export class AcceptEulaComponent {
   public getEulaHtml() {
     this.tiiService.getTiiEula().subscribe((eulaHtml) => {
       this.eulaHtml = eulaHtml;
-      this.yourFunctionForChangingHTML();
+      this.updateHtmlEulaInIFrame();
     });
   }
 
@@ -58,7 +57,7 @@ export class AcceptEulaComponent {
     return this.iframeDoc$.asObservable();
   }
 
-  yourFunctionForChangingHTML(): void {
+  updateHtmlEulaInIFrame(): void {
     this.getIframeDoc()
       .pipe(take(1))
       .subscribe((iframeDoc) => {

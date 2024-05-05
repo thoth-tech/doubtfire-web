@@ -43,7 +43,7 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
     });
 
     // Allow selection of units with active projects.
-    this.projectService.query(undefined, {params: {include_inactive: false}}).subscribe((projects) => {
+    this.projectService.query(undefined, {params: {include_in_active: false}}).subscribe((projects) => {
       this.projects = projects.filter((p) => p.unit.teachingPeriod?.active ?? true);
     });
   }

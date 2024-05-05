@@ -1,6 +1,4 @@
-angular.module('doubtfire.projects.states.dashboard.directives.task-dashboard', [
-  'doubtfire.projects.states.dashboard.directives.task-dashboard.directives'
-])
+angular.module('doubtfire.projects.states.dashboard.directives.task-dashboard', [])
 #
 # Dashboard of task-related info
 #

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <!-- Google tag (gtag.js) -->
@@ -13,7 +13,10 @@
       gtag('config', 'G-VJWZRWYE2C');
     </script>
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" />
     <title ng-bind="externalName.value">Loading...</title>
 
@@ -40,10 +43,14 @@
     <style id="holderjs-style" type="text/css"></style>
 
     <!-- bootstrap for ngx -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body ng-controller="AppCtrl" class="mat-typography">
     <app-header></app-header>
+    <splash-screen> </splash-screen>
     <div class="container-fluid" ui-view="main"></div>
     <alert-list> </alert-list>
     <noscript>Please enable JavaScript to continue using this application.</noscript>

@@ -1,5 +1,7 @@
-<div class="app-splash-screen">
-  <div class="app-splash-inner">
-    <ng-lottie width="70vw" [options]="options"></ng-lottie>
+@if (loading$ | async) {
+  <div class="app-splash-screen">
+    <div class="app-splash-inner">
+      <ng-lottie width="70vw" [options]="options"></ng-lottie>
+    </div>
   </div>
-</div>
+}

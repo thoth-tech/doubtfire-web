@@ -1,6 +1,9 @@
-<mat-card appearance="outlined">
+<mat-card appearance="">
   <mat-card-header>
-    <mat-card-title>{{ taskDef?.name }}</mat-card-title>
+    <div class="flex mb-4">
+      <f-task-badge [taskDef]="taskDef" class="mr-4"></f-task-badge>
+      <mat-card-title>{{ taskDef?.name }}</mat-card-title>
+    </div>
   </mat-card-header>
   <mat-card-content>
     <div class="markdown-to-pdf" [innerHTML]="taskDef?.description | marked"></div>
@@ -14,13 +17,19 @@
       <li>Due Date &mdash; Aim to complete by {{ dueDate() | date: 'EEE d MMM' }}.</li>
     </ul>
   </mat-card-content>
-  <mat-card-actions class="space-x-2" [hidden]="!(taskDef?.hasTaskSheet || taskDef?.hasTaskResources)">
+  <mat-card-actions
+    class="space-x-2"
+    [hidden]="!(taskDef?.hasTaskSheet || taskDef?.hasTaskResources)"
+  >
     <button mat-stroked-button [hidden]="!taskDef?.hasTaskSheet" (click)="downloadTaskSheet()">
-      <mat-icon style="width: 20px; height: 20px; font-size: 20px" aria-label="Download icon">download</mat-icon>
+      <mat-icon style="width: 20px; height: 20px; font-size: 20px" aria-label="Download icon"
+        >download</mat-icon
+      >
       Task Sheet
     </button>
     <button mat-stroked-button [hidden]="!taskDef?.hasTaskResources" (click)="downloadResources()">
-      <mat-icon style="width: 20px; height: 20px; font-size: 20px" inline aria-label="Download icon">download</mat-icon
+      <mat-icon style="width: 20px; height: 20px; font-size: 20px" inline aria-label="Download icon"
+        >download</mat-icon
       ><span>Resources</span>
     </button>
   </mat-card-actions>

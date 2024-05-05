@@ -10,6 +10,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 // Lottie animation module
 import {LottieModule, LottieCacheModule} from 'ngx-lottie';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import player from 'lottie-web';
 
 import {ClipboardModule} from '@angular/cdk/clipboard';
@@ -51,7 +52,7 @@ import {
   AboutDoubtfireModalContent,
 } from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
-
+import {FTaskBadgeComponent} from 'src/app/common/task-badge/task-badge.component';
 import {DoubtfireAngularJSModule} from 'src/app/doubtfire-angularjs.module';
 import {HttpAuthenticationInterceptor} from './common/services/http-authentication.interceptor';
 import {
@@ -70,7 +71,6 @@ import {
   rootScopeProvider,
   aboutDoubtfireModalProvider,
   calendarModalProvider,
-  uploadSubmissionModal,
   gradeTaskModalProvider,
   uploadSubmissionModalProvider,
   ConfirmationModalProvider,
@@ -209,7 +209,7 @@ import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-ro
 import {FileDropComponent} from './common/file-drop/file-drop.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
-
+import {GroupSetManagerComponent} from './groups/group-set-manager/group-set-manager.component';
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {CreateNewUnitModalContentComponent} from './admin/modals/create-new-unit-modal/create-new-unit-modal-content.component';
 // Note we need a separate function as it's required
@@ -256,6 +256,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     UnitTutorialsListComponent,
     UnitTutorialsManagerComponent,
     FileDropComponent,
+    GroupSetManagerComponent,
     UnitStudentsEditorComponent,
     UnitTaskEditorComponent,
     TaskDefinitionEditorComponent,
@@ -326,70 +327,8 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     FTaskSheetViewComponent,
     TasksViewerComponent,
     FUsersComponent,
+    FTaskBadgeComponent,
     FUnitsComponent,
-  ],
-  // Module Imports
-  imports: [
-    FlexLayoutModule,
-    BrowserModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    HttpClientModule,
-    ClipboardModule,
-    DragDropModule,
-    ScrollingModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatAutocompleteModule,
-    MatInputModule,
-    MatBadgeModule,
-    MatRadioModule,
-    MatListModule,
-    MatOptionModule,
-    MatStepperModule,
-    MatPaginatorModule,
-    MatSelectModule,
-    MatNativeDateModule,
-    MatButtonToggleModule,
-    MatTooltipModule,
-    MatSlideToggleModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatDividerModule,
-    MatDialogModule,
-    MatSortModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSliderModule,
-    MatDatepickerModule,
-    MatExpansionModule,
-    MatCardModule,
-    MatGridListModule,
-    MatSelectModule,
-    MatToolbarModule,
-    MatTabsModule,
-    UpgradeModule,
-    MatTableModule,
-    MatTabsModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    ReactiveFormsModule,
-    PickerModule,
-    EmojiModule,
-    PdfViewerModule,
-    LottieModule.forRoot({player: playerFactory}),
-    LottieCacheModule.forRoot(),
-    UIRouterUpgradeModule.forRoot({states: doubtfireStates}),
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-      registrationStrategy: () => interval(6000).pipe(take(1)),
-    }),
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatDialogModuleNew,
   ],
   // Services we provide
   providers: [
@@ -460,6 +399,68 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     TasksForInboxSearchPipe,
     IsActiveUnitRole,
     CreateNewUnitModal,
+  ],
+  imports: [
+    FlexLayoutModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    HttpClientModule,
+    ClipboardModule,
+    DragDropModule,
+    ScrollingModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    MatInputModule,
+    MatBadgeModule,
+    MatRadioModule,
+    MatListModule,
+    MatOptionModule,
+    MatStepperModule,
+    MatPaginatorModule,
+    MatSelectModule,
+    MatNativeDateModule,
+    MatButtonToggleModule,
+    MatTooltipModule,
+    MatSlideToggleModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatSortModule,
+    MatProgressBarModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSliderModule,
+    MatDatepickerModule,
+    MatExpansionModule,
+    MatCardModule,
+    MatGridListModule,
+    MatSelectModule,
+    MatToolbarModule,
+    MatTabsModule,
+    UpgradeModule,
+    MatTableModule,
+    MatTabsModule,
+    MatChipsModule,
+    MatSnackBarModule,
+    ReactiveFormsModule,
+    PickerModule,
+    EmojiModule,
+    PdfViewerModule,
+    LottieModule.forRoot({player: playerFactory}),
+    LottieCacheModule.forRoot(),
+    UIRouterUpgradeModule.forRoot({states: doubtfireStates}),
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      registrationStrategy: () => interval(6000).pipe(take(1)),
+    }),
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatDialogModuleNew,
   ],
 })
 

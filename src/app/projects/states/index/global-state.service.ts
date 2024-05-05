@@ -16,6 +16,7 @@ import {
   UserService,
 } from 'src/app/api/models/doubtfire-model';
 import { AuthenticationService } from 'src/app/api/services/authentication.service';
+import { LoadingService } from 'src/app/home/splash-screen/LoadingService.service';
 
 export class DoubtfireViewState {
   public EntityObject: any; // Unit | Project | undefined
@@ -61,7 +62,7 @@ export class GlobalStateService implements OnDestroy {
   /**
    * The loaded projects.
    */
-  private currentUserProjects: EntityCache<Project>;
+  public currentUserProjects: EntityCache<Project>;
 
   private _showFooter = false;
   private _showFooterWarning = false;
@@ -97,6 +98,7 @@ export class GlobalStateService implements OnDestroy {
     private projectService: ProjectService,
     private campusService: CampusService,
     private teachingPeriodService: TeachingPeriodService,
+    private loadingService: LoadingService,
     @Inject(UIRouter) private router: UIRouter,
     @Inject(alertService) private alerts: any,
     private mediaObserver: MediaObserver
@@ -112,6 +114,7 @@ export class GlobalStateService implements OnDestroy {
         this.loadGlobals();
       } else {
         this.router.stateService.go('sign_in');
+        this.isLoadingSubject.next(false);
       }
     }, 800);
 
@@ -200,6 +203,8 @@ export class GlobalStateService implements OnDestroy {
   }
 
   public loadGlobals(): void {
+    this.isLoadingSubject.next(true);
+    this.loadingService.loadingOn();
     const loadingObserver = new Observable((subscriber) => {
       // Loading campuses
       this.campusService.query().subscribe({
@@ -225,6 +230,8 @@ export class GlobalStateService implements OnDestroy {
     loadingObserver.pipe(skip(1), take(1)).subscribe({
       next: () => {
         this.loadUnitsAndProjects();
+        this.isLoadingSubject.next(false);
+        this.loadingService.loadingOff();
       },
     });
   }
@@ -233,11 +240,12 @@ export class GlobalStateService implements OnDestroy {
    * Query the API for the units taught and studied by the current user.
    */
   private loadUnitsAndProjects() {
+    this.isLoadingSubject.next(true);
     this.unitRoleService.query().subscribe({
       next: (unitRoles: UnitRole[]) => {
         // unit roles are now in the cache
 
-        this.projectService.query(undefined, { params: { include_inactive: false } }).subscribe({
+        this.projectService.query(undefined, { params: { include_in_active: false } }).subscribe({
           next: (projects: Project[]) => {
             // projects updated in cache
 

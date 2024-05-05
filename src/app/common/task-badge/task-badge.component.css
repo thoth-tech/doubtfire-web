@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  position: relative;
+}
+
+.mat-icon {
+  font-size: 50px;
+  height: 50px;
+  width: 50px;
+  margin-left: -6px;
+  color: rgba(0, 0, 0, 0.12);
+}
+
+.text-fit {
+  /* font-size: calc(1vw + 1vh) */
+}
