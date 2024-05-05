@@ -87,7 +87,7 @@ import 'build/src/app/projects/project-outcome-alignment/project-outcome-alignme
 import 'build/src/app/admin/modals/modals.js';
 import 'build/src/app/admin/modals/create-unit-modal/create-unit-modal.js';
 import 'build/src/app/groups/group-selector/group-selector.js';
-import 'build/src/app/groups/group-set-manager/group-set-manager.js';
+
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
@@ -180,6 +180,7 @@ import {TaskCommentsViewerComponent} from './tasks/task-comments-viewer/task-com
 import {UserIconComponent} from './common/user-icon/user-icon.component';
 import {fPdfViewerComponent} from './common/pdf-viewer/pdf-viewer.component';
 import {PdfViewerPanelComponent} from './common/pdf-viewer-panel/pdf-viewer-panel.component';
+
 import {StaffTaskListComponent} from './units/states/tasks/inbox/directives/staff-task-list/staff-task-list.component';
 import {StatusIconComponent} from './common/status-icon/status-icon.component';
 import {
@@ -225,7 +226,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
-
+import {GroupSetManagerComponent} from './groups/group-set-manager/group-set-manager.component';
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -258,6 +259,7 @@ DoubtfireAngularJSModule.factory(
   downgradeInjectable(AuthenticationService),
 );
 DoubtfireAngularJSModule.factory('newUserService', downgradeInjectable(UserService));
+DoubtfireAngularJSModule.factory('GroupSetManager', downgradeInjectable(GroupSetManagerComponent));
 DoubtfireAngularJSModule.factory('newUnitService', downgradeInjectable(UnitService));
 DoubtfireAngularJSModule.factory('newUnitRoleService', downgradeInjectable(UnitRoleService));
 DoubtfireAngularJSModule.factory('newTaskService', downgradeInjectable(TaskService));

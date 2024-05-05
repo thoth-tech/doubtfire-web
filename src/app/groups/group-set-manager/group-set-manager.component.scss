@@ -1,0 +1,42 @@
+/* Apply styles to the group-set-manager component */
+group-set-manager {
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+}
+
+/* Apply styles to the heading inside the group-set-manager component */
+group-set-manager h4 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+/* Apply styles to the panel body inside the group-set-manager component */
+group-set-manager .panel-body {
+  padding: 10px;
+}
+
+/* Apply styles to the lock button */
+.lockButton {
+  width: 70px;
+  background-color: #d9534f;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+}
+
+.lockButton:hover {
+  background-color: #c9302c;
+}
+
+/* Apply styles to the dropdown inside group-set-manager */
+.groupset-selector .dropdown {
+  cursor: pointer;
+}
