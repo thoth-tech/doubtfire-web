@@ -165,6 +165,7 @@ import {TaskAssessmentCommentComponent} from './tasks/task-comments-viewer/task-
 import {TaskAssessmentModalComponent} from './common/modals/task-assessment-modal/task-assessment-modal.component';
 
 import {TaskSubmissionHistoryComponent} from './tasks/task-submission-history/task-submission-history.component';
+import {GroupSetManagerComponent} from './groups/group-set-manager/group-set-manager.component';
 import {HomeComponent} from './home/states/home/home.component';
 import {IsActiveUnitRole} from './common/pipes/is-active-unit-role.pipe';
 import {HeaderComponent} from './common/header/header.component';
@@ -246,6 +247,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     ExtensionCommentComponent,
     PdfImageCommentComponent,
     CampusListComponent,
+    GroupSetManagerComponent,
     ActivityTypeListComponent,
     OverseerImageListComponent,
     ExtensionModalComponent,

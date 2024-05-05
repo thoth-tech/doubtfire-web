@@ -87,7 +87,7 @@ import 'build/src/app/projects/project-outcome-alignment/project-outcome-alignme
 import 'build/src/app/admin/modals/modals.js';
 import 'build/src/app/admin/modals/create-unit-modal/create-unit-modal.js';
 import 'build/src/app/groups/group-selector/group-selector.js';
-import 'build/src/app/groups/group-set-manager/group-set-manager.js';
+
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
@@ -225,6 +225,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import {GroupSetManagerComponent} from './groups/group-set-manager/group-set-manager.component';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
@@ -305,6 +306,8 @@ DoubtfireAngularJSModule.factory(
   downgradeInjectable(EditProfileDialogService),
 );
 DoubtfireAngularJSModule.factory('CreateNewUnitModal', downgradeInjectable(CreateNewUnitModal));
+DoubtfireAngularJSModule.factory('GroupSetManager', downgradeInjectable(GroupSetManagerComponent));
+
 
 // directive -> component
 DoubtfireAngularJSModule.directive(
