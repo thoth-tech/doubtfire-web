@@ -29,7 +29,7 @@ angular.module("doubtfire.common.modals.progress-modal", [])
 )
 
 #
-# Controller for progress modal
+# Controller for progress modals
 #
 .controller('ProgressModalCtrl', ($scope, $modalInstance, title, message) ->
   $scope.title = title
