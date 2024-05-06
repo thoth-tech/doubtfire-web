@@ -13,12 +13,4 @@ export class TaskAssessmentCardComponent {
 
   @Input() task: Task;
   gradeNames = this.gradeService.grades;
-
-  hasBeenGivenStars(task: Task): boolean {
-    return task?.qualityPts > 0 || this.taskService.gradeableStatuses.includes(task?.status);
-  }
-
-  hasBeenGraded(task: Task): boolean {
-    return typeof task?.grade === 'number';
-  }
 }

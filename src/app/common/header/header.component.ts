@@ -72,7 +72,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.globalState.projectsSubject.subscribe({
         next: (projects) => {
           if (projects == null) return;
-          this.projects = projects;
+          this.projects = projects.filter((project) => project.unit.myRole === 'Student');
         },
         error: (err) => {},
       }),

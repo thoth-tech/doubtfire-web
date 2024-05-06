@@ -24,8 +24,7 @@
         min="0"
         max="100"
         type="number"
-        [(value)]="taskDefinition.maxQualityPts"
-        [formControl]="scoreControl"
+        [(ngModel)]="taskDefinition.maxQualityPts"
       />
     </mat-form-field>
     <span class="basis-1/2">Provide a score alongside the task status. We recommend avoiding this practice.</span>

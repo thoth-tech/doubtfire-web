@@ -1,0 +1,8 @@
+<div class="aspect-square w-16 rounded-md flex items-center justify-center bg-gray-200">
+  <p
+    class="m-0 text-black text-fit"
+    [ngStyle]="{'font-size': calculateFontSize(taskDef.abbreviation.length)}"
+  >
+    {{ taskDef.abbreviation }}
+  </p>
+</div>

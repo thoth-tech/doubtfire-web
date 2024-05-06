@@ -10,6 +10,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 // Lottie animation module
 import {LottieModule, LottieCacheModule} from 'ngx-lottie';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import player from 'lottie-web';
 
 import {ClipboardModule} from '@angular/cdk/clipboard';
@@ -51,7 +52,7 @@ import {
   AboutDoubtfireModalContent,
 } from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
-
+import {FTaskBadgeComponent} from 'src/app/common/task-badge/task-badge.component';
 import {DoubtfireAngularJSModule} from 'src/app/doubtfire-angularjs.module';
 import {HttpAuthenticationInterceptor} from './common/services/http-authentication.interceptor';
 import {
@@ -70,7 +71,6 @@ import {
   rootScopeProvider,
   aboutDoubtfireModalProvider,
   calendarModalProvider,
-  uploadSubmissionModal,
   gradeTaskModalProvider,
   uploadSubmissionModalProvider,
   ConfirmationModalProvider,
@@ -166,6 +166,7 @@ import {TaskAssessmentModalComponent} from './common/modals/task-assessment-moda
 
 import {TaskSubmissionHistoryComponent} from './tasks/task-submission-history/task-submission-history.component';
 import {HomeComponent} from './home/states/home/home.component';
+import { GroupSetManagerComponent } from './groups/group-set-manager/group-set-manager.component';
 import {IsActiveUnitRole} from './common/pipes/is-active-unit-role.pipe';
 import {HeaderComponent} from './common/header/header.component';
 import {UnitDropdownComponent} from './common/header/unit-dropdown/unit-dropdown.component';
@@ -229,6 +230,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import { GroupSetManagerComponent } from './groups/group-set-manager/group-set-manager.component';
 
 @NgModule({
   // Components we declare
@@ -248,6 +250,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     CampusListComponent,
     ActivityTypeListComponent,
     OverseerImageListComponent,
+    GroupSetManagerComponent,
     ExtensionModalComponent,
     CalendarModalComponent,
     InstitutionSettingsComponent,
@@ -326,70 +329,8 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     FTaskSheetViewComponent,
     TasksViewerComponent,
     FUsersComponent,
+    FTaskBadgeComponent,
     FUnitsComponent,
-  ],
-  // Module Imports
-  imports: [
-    FlexLayoutModule,
-    BrowserModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    HttpClientModule,
-    ClipboardModule,
-    DragDropModule,
-    ScrollingModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatAutocompleteModule,
-    MatInputModule,
-    MatBadgeModule,
-    MatRadioModule,
-    MatListModule,
-    MatOptionModule,
-    MatStepperModule,
-    MatPaginatorModule,
-    MatSelectModule,
-    MatNativeDateModule,
-    MatButtonToggleModule,
-    MatTooltipModule,
-    MatSlideToggleModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatDividerModule,
-    MatDialogModule,
-    MatSortModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSliderModule,
-    MatDatepickerModule,
-    MatExpansionModule,
-    MatCardModule,
-    MatGridListModule,
-    MatSelectModule,
-    MatToolbarModule,
-    MatTabsModule,
-    UpgradeModule,
-    MatTableModule,
-    MatTabsModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    ReactiveFormsModule,
-    PickerModule,
-    EmojiModule,
-    PdfViewerModule,
-    LottieModule.forRoot({player: playerFactory}),
-    LottieCacheModule.forRoot(),
-    UIRouterUpgradeModule.forRoot({states: doubtfireStates}),
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-      registrationStrategy: () => interval(6000).pipe(take(1)),
-    }),
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatDialogModuleNew,
   ],
   // Services we provide
   providers: [
@@ -460,6 +401,68 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     TasksForInboxSearchPipe,
     IsActiveUnitRole,
     CreateNewUnitModal,
+  ],
+  imports: [
+    FlexLayoutModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    HttpClientModule,
+    ClipboardModule,
+    DragDropModule,
+    ScrollingModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    MatInputModule,
+    MatBadgeModule,
+    MatRadioModule,
+    MatListModule,
+    MatOptionModule,
+    MatStepperModule,
+    MatPaginatorModule,
+    MatSelectModule,
+    MatNativeDateModule,
+    MatButtonToggleModule,
+    MatTooltipModule,
+    MatSlideToggleModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatSortModule,
+    MatProgressBarModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSliderModule,
+    MatDatepickerModule,
+    MatExpansionModule,
+    MatCardModule,
+    MatGridListModule,
+    MatSelectModule,
+    MatToolbarModule,
+    MatTabsModule,
+    UpgradeModule,
+    MatTableModule,
+    MatTabsModule,
+    MatChipsModule,
+    MatSnackBarModule,
+    ReactiveFormsModule,
+    PickerModule,
+    EmojiModule,
+    PdfViewerModule,
+    LottieModule.forRoot({player: playerFactory}),
+    LottieCacheModule.forRoot(),
+    UIRouterUpgradeModule.forRoot({states: doubtfireStates}),
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      registrationStrategy: () => interval(6000).pipe(take(1)),
+    }),
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatDialogModuleNew,
   ],
 })
 

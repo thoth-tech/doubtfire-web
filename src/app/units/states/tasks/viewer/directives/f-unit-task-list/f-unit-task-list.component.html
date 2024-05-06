@@ -23,25 +23,38 @@
   <div class="tasks-viewport scrollable" itemSize="60">
     <mat-selection-list #tasks [multiple]="false">
       @if (filteredTasks.length === 0) {
-      <div class="text-center text-muted">No tasks to display</div>
-      } @for (task of filteredTasks; track task) {
-      <mat-list-item class="clearfix" style="padding: 0; height: 60px" [disableRipple]="true">
-        @if (task) {
-        <div
-          class="w-full item-content"
-          [ngClass]="{
-            selected: isSelectedTask(task)
-          }"
-        >
-          <div (click)="setSelectedTask(task)" class="task-entry flex items-center">
-            <div class="task-list-data" fxFlex>
-              <h4 class="task-title line-clamp-1">{{ task.name }}</h4>
-              <div class="task-details">{{ task.abbreviation }} - {{ gradeNames[task.targetGrade] }} Task</div>
+        <div class="text-center text-muted">No tasks to display</div>
+      }
+      @for (task of filteredTasks; track task) {
+        <mat-list-item class="clearfix p-0 h-[60px]" [disableRipple]="true">
+          @if (task) {
+            <div
+              class="flex w-full item-content items-center hover:bg-gray-50"
+              (click)="setSelectedTask(task)"
+              [ngClass]="{
+                selected: isSelectedTask(task)
+              }"
+            >
+              <div class="task-entry w-full flex items-center">
+                <div class="task-list-data flex items-center justify-center">
+                  <f-task-badge [taskDef]="task"></f-task-badge>
+                  <div class="flex-col ml-4">
+                    <h4 class="task-title line-clamp-1 mt-1">{{ task.name }}</h4>
+
+                    <span class="flex">
+                      @if (task.isGroupTask()) {
+                        <mat-icon class="text-gray-400 scale-75">group</mat-icon>
+                      }
+                      <div class="task-details">{{ gradeNames[task.targetGrade] }} Task</div>
+                    </span>
+
+                    <div></div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        }
-      </mat-list-item>
+          }
+        </mat-list-item>
       }
     </mat-selection-list>
   </div>

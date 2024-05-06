@@ -84,3 +84,8 @@
     margin-bottom: 0px;
   }
 }
+
+:host {
+  --mdc-linear-progress-track-height: 16px;
+  --mdc-linear-progress-active-indicator-height: 16px;
+}

@@ -1,113 +1,137 @@
-<div class="table-padding">
-  <div class="flex flex-row gap-8">
-    <div class="flex-grow flex flex-col gap-8 gap-y-0">
-      <div class="flex flex-row">
-        <div>
-          <h3>Units</h3>
-          <p>Modify units registered with OnTrack</p>
-        </div>
-        <div class="flex-grow"></div>
-        <div>
-          <mat-form-field appearance="outline">
-            <mat-label>Search</mat-label>
-            <input matInput (keyup)="applyFilter($event)" />
-          </mat-form-field>
-        </div>
+<div class="flex flex-row gap-8 md:px-28">
+  <div class="flex-grow flex flex-col gap-8 gap-y-0">
+    <div class="flex flex-col">
+      <div>
+        <h3>{{ title }}</h3>
       </div>
-      <table
-        class="flex-grow f-table selectable"
-        mat-table
-        [dataSource]="dataSource"
-        matSort
-        (matSortChange)="sortTableData($event)"
-      >
-        <!-- Unit Code Column -->
-        <ng-container matColumnDef="unit_code" sticky>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Unit Code</th>
-          <td mat-cell *matCellDef="let element" class="w-0 min-w-full">
-            <f-chip class="shrink">{{ element.code }}</f-chip>
-          </td>
-        </ng-container>
+      <div>
+        <mat-form-field appearance="outline" class="w-full max-w-[720px] min-w-[160px]">
+          <mat-label>Search</mat-label>
+          <input matInput (keyup)="applyFilter($event)" />
+          <mat-icon matPrefix> search </mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
+    <table
+      class="flex-grow f-table selectable"
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+      (matSortChange)="sortTableData($event)"
+    >
+      <!-- Unit Code Column -->
+      <ng-container matColumnDef="unit_code" sticky>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Unit Code</th>
+        <td mat-cell *matCellDef="let element" class="w-0 min-w-full">
+          <f-chip class="shrink">{{ element.unit_code }}</f-chip>
+        </td>
+      </ng-container>
 
-        <!-- Name Column -->
-        <ng-container matColumnDef="name" sticky>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-        </ng-container>
+      <!-- Name Column -->
+      <ng-container matColumnDef="name" sticky>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+      </ng-container>
 
-        <!-- Unit Role Column -->
-        <ng-container matColumnDef="unit_role" sticky>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Unit Role</th>
-          <td mat-cell *matCellDef="let element">{{ element.myRole }}</td>
-        </ng-container>
+      <!-- Unit Role Column -->
+      <ng-container matColumnDef="unit_role" sticky>
+        <th
+          mat-header-cell
+          [hidden]="!shouldShowUnitRoleColumn()"
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          Unit Role
+        </th>
+        <td mat-cell [hidden]="!shouldShowUnitRoleColumn()" *matCellDef="let element">
+          {{ element.unit_role }}
+        </td>
+      </ng-container>
 
-        <!-- Teaching Period Column -->
-        <ng-container matColumnDef="teaching_period" sticky>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Teaching Period</th>
-          <td mat-cell *matCellDef="let element">
-            @if (element.teachingPeriod) {
-              {{ element.teachingPeriod.name }}
-            } @else {
-              Custom
+      <!-- Teaching Period Column -->
+      <ng-container matColumnDef="teaching_period" sticky>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Teaching Period</th>
+        <td mat-cell *matCellDef="let element">
+          @if (element.teachingPeriod) {
+            {{ element.teachingPeriod.name }}
+          } @else {
+            Custom
+          }
+        </td>
+      </ng-container>
+
+      <!-- Start Date Column -->
+      <ng-container matColumnDef="start_date" sticky>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Start Date</th>
+        <td mat-cell *matCellDef="let element">{{ element.start_date | date: 'EEE d MMM y' }}</td>
+      </ng-container>
+
+      <!-- End Date Column -->
+      <ng-container matColumnDef="end_date" sticky>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>End Date</th>
+        <td mat-cell *matCellDef="let element">{{ element.start_date | date: 'EEE d MMM y' }}</td>
+      </ng-container>
+
+      <!-- Active Column -->
+      <ng-container matColumnDef="active" sticky>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Active</th>
+        <td mat-cell *matCellDef="let element">
+          <!-- If element.teachingPeriod exists -->
+          @if (element.teachingPeriod) {
+            @if (element.teachingPeriod.active && element.active) {
+              <mat-icon>done</mat-icon>
             }
-          </td>
-        </ng-container>
-
-        <!-- Start Date Column -->
-        <ng-container matColumnDef="start_date" sticky>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Start Time</th>
-          <td mat-cell *matCellDef="let element">{{ element.startDate | date: 'EEE d MMM y' }}</td>
-        </ng-container>
-
-        <!-- End Date Column -->
-        <ng-container matColumnDef="end_date" sticky>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>End Time</th>
-          <td mat-cell *matCellDef="let element">{{ element.endDate | date: 'EEE d MMM y' }}</td>
-        </ng-container>
-
-        <!-- Active Column -->
-        <ng-container matColumnDef="active" sticky>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Active</th>
-          <td mat-cell *matCellDef="let element">
-            <!-- If element.teachingPeriod exists -->
-            @if (element.teachingPeriod) {
-              @if (element.teachingPeriod.active && element.active) {
-                <i class="fa fa-check"></i>
-              }
-              @if (!element.teachingPeriod.active || !element.active) {
-                <i class="fa fa-times"></i>
-              }
-            } @else {
-              @if (element.active) {
-                <i class="fa fa-check"></i>
-              }
-              @if (!element.active) {
-                <i class="fa fa-times"></i>
-              }
+            @if (!element.teachingPeriod.active || !element.active) {
+              <mat-icon>close</mat-icon>
             }
+          } @else {
+            @if (element.active) {
+              <mat-icon>done</mat-icon>
+            }
+            @if (!element.active) {
+              <mat-icon>close</mat-icon>
+            }
+          }
 
-            <!-- If element.teachingPeriod does not exist -->
-          </td>
-        </ng-container>
+          <!-- If element.teachingPeriod does not exist -->
+        </td>
+      </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      @if (mode === 'tutor') {
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          uiSref="units/tasks/inbox"
+          [uiParams]="{unitId: row.id}"
+        ></tr>
+      }
+      @if (mode === 'admin') {
         <tr
           mat-row
           *matRowDef="let row; columns: displayedColumns"
           uiSref="units/admin"
           [uiParams]="{unitId: row.id}"
         ></tr>
-      </table>
-      <span class="flex items-center">
-        <mat-paginator class="mat-elevation-z0" [pageSizeOptions]="[10, 25, 100]"></mat-paginator>
-        <span class="flex-grow"></span>
+      }
+      @if (mode === 'student') {
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          uiSref="projects/dashboard"
+          [uiParams]="{projectId: row.id, taskAbbr: ''}"
+        ></tr>
+      }
+    </table>
+    <span class="flex items-center">
+      <mat-paginator class="mat-elevation-z0" [pageSizeOptions]="[10, 25, 100]"></mat-paginator>
+      <span class="flex-grow"></span>
+      @if (mode === 'admin') {
         <button mat-raised-button color="primary" (click)="createUnit()">
-          <mat-icon aria-hidden="false" aria-label="Example home icon" class="icon_display"
-            >add</mat-icon
-          >
+          <mat-icon class="icon_display">add</mat-icon>
           Create Unit
         </button>
-      </span>
-    </div>
+      }
+    </span>
   </div>
 </div>

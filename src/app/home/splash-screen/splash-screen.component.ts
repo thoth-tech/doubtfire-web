@@ -1,14 +1,26 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
-import { AnimationOptions } from 'ngx-lottie';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { GlobalStateService } from 'src/app/projects/states/index/global-state.service';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {Component, ContentChild, OnInit, TemplateRef} from '@angular/core';
+import {AnimationOptions} from 'ngx-lottie';
+import {Observable} from 'rxjs';
+import {GlobalStateService} from 'src/app/projects/states/index/global-state.service';
+import {LoadingService} from './LoadingService.service';
 @Component({
   selector: 'splash-screen',
   templateUrl: './splash-screen.component.html',
   styleUrls: ['./splash-screen.component.scss'],
 })
 export class SplashScreenComponent implements OnInit {
-  constructor(private host: ElementRef<HTMLElement>, private globalState: GlobalStateService) {}
+  constructor(
+    private globalState: GlobalStateService,
+    private loadingService: LoadingService,
+  ) {
+    this.loading$ = this.loadingService.loading$;
+  }
+
+  loading$: Observable<boolean>;
+
+  @ContentChild('loading')
+  customLoadingIndicator: TemplateRef<any> | null = null;
 
   options: AnimationOptions = {
     loop: true,
@@ -18,8 +30,11 @@ export class SplashScreenComponent implements OnInit {
 
   public ngOnInit(): void {
     this.globalState.isLoadingSubject.subscribe((isLoading) => {
+      if (isLoading) {
+        this.loadingService.loadingOn();
+      }
       if (!isLoading) {
-        this.host.nativeElement.remove();
+        this.loadingService.loadingOff();
       }
     });
   }

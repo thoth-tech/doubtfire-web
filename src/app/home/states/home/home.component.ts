@@ -1,10 +1,10 @@
-import { Component, Inject, OnDestroy, OnInit, Renderer2 } from '@angular/core';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { analyticsService, dateService } from 'src/app/ajs-upgraded-providers';
-import { UIRouter } from '@uirouter/angular';
-import { GlobalStateService, ViewType } from 'src/app/projects/states/index/global-state.service';
-import { Project, UnitRole, User, UserService } from 'src/app/api/models/doubtfire-model';
-import { Subscription } from 'rxjs';
+import {Component, Inject, OnDestroy, OnInit, Renderer2} from '@angular/core';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {analyticsService, dateService} from 'src/app/ajs-upgraded-providers';
+import {UIRouter} from '@uirouter/angular';
+import {GlobalStateService, ViewType} from 'src/app/projects/states/index/global-state.service';
+import {Project, UnitRole, User, UserService} from 'src/app/api/models/doubtfire-model';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'home',
@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private userService: UserService,
     @Inject(analyticsService) private AnalyticsService: any,
     @Inject(dateService) private DateService: any,
-    @Inject(UIRouter) private router: UIRouter
+    @Inject(UIRouter) private router: UIRouter,
   ) {
     // this.renderer.setStyle(document.body, 'background-color', '#f0f2f5');
     // projects and units are loaded as part of global state service at login
@@ -60,14 +60,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.globalState.unitRolesSubject.subscribe({
         next: (unitRoles) => this.unitRolesLoaded(unitRoles),
         error: (err) => {},
-      })
+      }),
     );
 
     this.subscriptions.push(
       this.globalState.projectsSubject.subscribe({
-        next: (projects) => this.projectsLoaded(projects),
+        next: (projects) => {
+          projects = projects.filter((project) => project.unit.myRole === 'Student');
+          this.projectsLoaded(projects);
+        },
         error: (err) => {},
-      })
+      }),
     );
 
     this.notEnrolled = this.checkEnrolled();
