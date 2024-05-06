@@ -88,6 +88,8 @@ import 'build/src/app/projects/states/portfolio/directives/portfolio-welcome-ste
 import 'build/src/app/projects/states/portfolio/directives/portfolio-tasks-step/portfolio-tasks-step.js';
 import 'build/src/app/projects/states/portfolio/directives/directives.js';
 import 'build/src/app/projects/states/portfolio/portfolio.js';
+import 'build/src/app/groups/tutor-group-manager/tutor-group-manager.js';
+
 import 'build/src/app/projects/states/index/index.js';
 import 'build/src/app/projects/states/tutorials/tutorials.js';
 import 'build/src/app/projects/project-outcome-alignment/project-outcome-alignment.js';
