@@ -11,6 +11,7 @@
   </h4>
 </div>
 <!--/panel-heading-->
+
 <div
   class="panel-body panel-toolbar"
   *ngIf="loaded && canCreateGroups && (unitRole || (project && project.tutorials.length > 0))"
@@ -37,6 +38,7 @@
       </div>
     </div>
     <!--/staff-filter-button-group-->
+
     <div class="input-group pull-right col-md-6">
       <input class="form-control" placeholder="Group Name" [(ngModel)]="newGroupName" />
       <span class="input-group-btn" *ngIf="canCreateGroups">
@@ -49,10 +51,12 @@
   </div>
 </div>
 <!--/creation-options-->
+
 <div class="panel-body panel-loading" *ngIf="!loaded">
   <i class="fa fa-spinner fa-pulse"></i> Loading Groups...
 </div>
 <!--/loading-spinner-->
+
 <div class="panel-body" *ngIf="loaded && shownGroups?.length === 0">
   <div class="callout callout-primary row">
     <h4>No Groups To Show</h4>
@@ -73,55 +77,13 @@
   </div>
 </div>
 <!--/no-groups-->
+
 <table
   *ngIf="loaded && shownGroups?.length > 0"
   class="table table-condensed table-hover table-pointer"
 >
   <thead>
-    <tr>
-      <th class="name">
-        <a (click)="sortTableBy('name')">
-          Name
-          <i
-            *ngIf="tableSort.order === 'name'"
-            class="fa fa-caret-{{ tableSort.reverse ? 'up' : 'down' }}"
-          ></i>
-        </a>
-      </th>
-      <th class="tutorial">
-        <a (click)="sortTableBy('tutorial.abbreviation')">
-          Tutorial
-          <i
-            *ngIf="tableSort.order === 'tutorial.abbreviation'"
-            class="fa fa-caret-{{ tableSort.reverse ? 'up' : 'down' }}"
-          ></i>
-        </a>
-      </th>
-      <th class="capacityAdjustment" *ngIf="unitRole">
-        <a (click)="sortTableBy('capacityAdjustment')">
-          Capacity Adjustment
-          <i
-            *ngIf="tableSort.order === 'capacityAdjustment'"
-            class="fa fa-caret-{{ tableSort.reverse ? 'up' : 'down' }}"
-          ></i>
-        </a>
-      </th>
-      <th class="capacity">
-        <a (click)="sortTableBy('hasSpace()')">
-          Capacity
-          <i
-            *ngIf="tableSort.order === 'hasSpace()'"
-            class="fa fa-caret-{{ tableSort.reverse ? 'up' : 'down' }}"
-          ></i>
-        </a>
-      </th>
-      <th
-        class="actions"
-        *ngIf="(project && selectedGroupSet?.allowStudentsToManageGroups) || unitRole"
-      >
-        Actions
-      </th>
-    </tr>
+    <tr></tr>
   </thead>
   <!--/header-->
   <tbody>
@@ -254,6 +216,6 @@
     Can't see the group you need to join? Groups shown are limited to those in your allocated
     tutorials. Use the
     <a [routerLink]="['/projects/tutorials', project.id]">Tutorial List</a> to check and update your
-    tutorial enrolment if needed.
+    tutorial enrollment if needed.
   </p>
 </div>

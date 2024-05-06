@@ -1,12 +1,13 @@
 /* eslint-disable @angular-eslint/component-selector */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {Component, Inject, Input, OnInit} from '@angular/core';
-import {Group, GroupSet,} from 'src/app/api/models/doubtfire-model';
+import {Group, GroupSet} from 'src/app/api/models/doubtfire-model';
 import {alertService} from 'src/app/ajs-upgraded-providers';
 import {UserService} from 'src/app/api/services/user.service';
 import {GroupService} from 'src/app/api/services/group.service';
 import {Unit} from 'src/app/api/models/unit';
 import {UnitService} from 'src/app/api/services/unit.service';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'group-selector',
@@ -22,9 +23,11 @@ export class GroupSelectorComponent implements OnInit {
   @Input() showGroupSetSelector: boolean;
   @Input() onSelect: (group: Group) => void;
   shownGroups: any;
-  canCreateGroups: any;
+  loaded: boolean;
 
+  staffFilter: string = '';
   filteredGroups: Group[] = [];
+  canCreateGroups: boolean;
   pagination: any = {
     currentPage: 1,
     maxSize: 10,
@@ -37,10 +40,6 @@ export class GroupSelectorComponent implements OnInit {
     order: 'name',
     reverse: false,
   };
-  staffFilter: string = '';
-  loaded: boolean;
-  selectGroup: any;
-  newGroupName: string;
 
   constructor(
     @Inject(alertService) private AlertService: any,
@@ -51,52 +50,28 @@ export class GroupSelectorComponent implements OnInit {
 
   ngOnInit(): void {
     if ((!this.unitRole && !this.project) || (this.unitRole && this.project)) {
-      /*throw new Error('Group selector must have exactly one unit role or one project');*/
+      throw new Error('Group selector must have exactly one unit role or one project');
+    } else if (this.unitRole) {
+      this.setStaffFilter('all');
+    } else if (this.project) {
+      this.setStaffFilter('mine');
     }
 
-    this.setStaffFilter(this.unitRole ? 'all' : 'mine');
     this.selectGroupSet(this.selectedGroupSet);
   }
 
   applyFilters(): void {
     let filteredGroups: Group[] = [];
 
-    // Check if selectedGroupSet.groups is iterable
-    if (
-      this.selectedGroupSet &&
-      this.selectedGroupSet.groups &&
-      Symbol.iterator in Object(this.selectedGroupSet.groups)
-    ) {
-      if (this.unitRole) {
-        filteredGroups = this.selectedGroupSet.groups.filter(
-          (group: Group) => group.tutorial.toString() === this.staffFilter,
-        );
-      }
+    if (this.unitRole) {
+      filteredGroups = this.selectedGroupSet.groups.filter((group: Group) =>
+        this.userService.groupsInTutorials(group, this.unitRole, this.staffFilter),
+      );
+    } else {
+      filteredGroups = [...this.selectedGroupSet.groups];
     }
 
-    this.filteredGroups = this.paginateAndSort(filteredGroups);
-  }
-
-  paginateAndSort(groups: Group[]): Group[] {
-    groups.sort((a, b) => {
-      if (this.tableSort.order === 'name') {
-        return this.tableSort.reverse ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
-      } else if (this.tableSort.order === 'tutorial.abbreviation') {
-        return this.tableSort.reverse
-          ? b.tutorial.abbreviation.localeCompare(a.tutorial.abbreviation)
-          : a.tutorial.abbreviation.localeCompare(b.tutorial.abbreviation);
-      } else if (this.tableSort.order === 'capacityAdjustment') {
-        return this.tableSort.reverse
-          ? b.capacityAdjustment - a.capacityAdjustment
-          : a.capacityAdjustment - b.capacityAdjustment;
-      } else if (this.tableSort.order === 'hasSpace()') {
-        return this.tableSort.reverse ? (b.hasSpace() ? -1 : 1) : a.hasSpace() ? -1 : 1;
-      }
-      return 0;
-    });
-    const startIndex = (this.pagination.currentPage - 1) * this.pagination.pageSize;
-    const endIndex = startIndex + this.pagination.pageSize;
-    return groups.slice(startIndex, endIndex);
+    this.filteredGroups = filteredGroups.filter((group) => group instanceof Group);
   }
 
   setStaffFilter(scope: string): void {
@@ -104,9 +79,33 @@ export class GroupSelectorComponent implements OnInit {
     this.applyFilters();
   }
 
+  sortTableBy(column: string): void {
+    this.tableSort.order = column;
+    this.tableSort.reverse = !this.tableSort.reverse;
+    this.applyFilters();
+  }
+
+  selectGroup(group: Group): void {
+    if (this.project && !this.project.inGroup(group)) {
+      return;
+    }
+    this.selectedGroup = group;
+    if (this.onSelect) {
+      this.onSelect(group);
+    }
+  }
+
+  resetNewGroupForm(): void {
+    this.selectedGroup = null;
+  }
+
   selectGroupSet(groupSet: GroupSet): void {
-    if (!groupSet) return;
+    if (!groupSet) {
+      return;
+    }
     this.startLoading();
+    this.selectedGroup = null;
+    this.canCreateGroups = this.unitRole || groupSet.allowStudentsToCreateGroups;
 
     this.unit.getGroups(groupSet).subscribe({
       next: () => {
@@ -115,30 +114,28 @@ export class GroupSelectorComponent implements OnInit {
         this.resetNewGroupForm();
         this.applyFilters();
       },
-      error: (error: any) => {
-        console.error('Error fetching groups:', error);
+      error: (message: any) => {
         this.finishLoading();
-        const errorMessage = error && error.message ? error.message : 'Unknown error';
-        this.AlertService.add('danger', `Unable to get groups: ${errorMessage}`, 6000);
+        this.AlertService.add('danger', `Unable to get groups ${message}`, 6000);
       },
     });
   }
 
   startLoading(): void {
-    this.loaded = false;
+    this.pagination.currentPage = 1;
+    this.pagination.totalSize = null;
+    this.pagination.show = false;
   }
 
   finishLoading(): void {
     setTimeout(() => {
-      this.loaded = true;
+      this.pagination.show = true;
+      this.pagination.totalSize = this.selectedGroupSet.groups.length;
+      this.applyFilters();
       if (this.project) {
         this.selectGroup(this.project.groupForGroupSet(this.selectedGroupSet));
       }
     }, 500);
-  }
-
-  resetNewGroupForm(): void {
-    this.newGroupName = '';
   }
 
   addGroup(name: string): void {
@@ -157,7 +154,10 @@ export class GroupSelectorComponent implements OnInit {
       tutorialId = this.project.tutorials[0]?.id || this.unit.tutorials[0]?.id;
     } else {
       const tutorName = this.unitRole?.name || this.userService.currentUser.name;
-      const tutorTutorial = this.unit.tutorials.find((tute: any) => tute.tutor?.name === tutorName);
+      const tutorTutorial = _.find(
+        this.unit.tutorials,
+        (tute: any) => tute.tutor?.name === tutorName,
+      );
       tutorialId = tutorTutorial?.id || this.unit.tutorials[0]?.id;
     }
 
@@ -195,7 +195,9 @@ export class GroupSelectorComponent implements OnInit {
   }
 
   joinGroup(group: Group): void {
-    if (!this.project) return;
+    if (!this.project) {
+      return;
+    }
     const partOfGroup = this.projectInGroup(group);
     if (partOfGroup) {
       this.AlertService.add('danger', 'You are already member of this group');
