@@ -7,12 +7,23 @@
     </div>
     <span class="flex-grow"></span>
     <mat-form-field appearance="outline">
-      <input matInput (keyup)="applyFilter($event.target.value)" placeholder="but for users" [(ngModel)]="filter" />
+      <input
+        matInput
+        (keyup)="applyFilter($event.target.value)"
+        placeholder="Search users"
+        [(ngModel)]="filter"
+      />
     </mat-form-field>
   </div>
 
   <!-- Table -->
-  <table class="f-table selectable" mat-table [dataSource]="dataSource" matSort (matSortChange)="sortData($event)">
+  <table
+    class="f-table selectable"
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    (matSortChange)="sortData($event)"
+  >
     <ng-container matColumnDef="avatar">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let user" (click)="showUserModal(user)">
@@ -74,7 +85,12 @@
         ></f-file-drop>
       </div>
       <div class="grow"></div>
-      <button mat-flat-button color="primary" (click)="downloadUsers()" aria-label="Download all users csv">
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="downloadUsers()"
+        aria-label="Download all users csv"
+      >
         Download all users CSV <mat-icon>download</mat-icon>
       </button>
     </div>
