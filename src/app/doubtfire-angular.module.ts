@@ -166,6 +166,7 @@ import {TaskAssessmentModalComponent} from './common/modals/task-assessment-moda
 
 import {TaskSubmissionHistoryComponent} from './tasks/task-submission-history/task-submission-history.component';
 import {HomeComponent} from './home/states/home/home.component';
+import { GroupSetManagerComponent } from './groups/group-set-manager/group-set-manager.component';
 import {IsActiveUnitRole} from './common/pipes/is-active-unit-role.pipe';
 import {HeaderComponent} from './common/header/header.component';
 import {UnitDropdownComponent} from './common/header/unit-dropdown/unit-dropdown.component';
@@ -229,6 +230,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import { GroupSetManagerComponent } from './groups/group-set-manager/group-set-manager.component';
 
 @NgModule({
   // Components we declare
@@ -248,6 +250,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     CampusListComponent,
     ActivityTypeListComponent,
     OverseerImageListComponent,
+    GroupSetManagerComponent,
     ExtensionModalComponent,
     CalendarModalComponent,
     InstitutionSettingsComponent,

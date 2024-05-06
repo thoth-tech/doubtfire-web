@@ -87,7 +87,7 @@ import 'build/src/app/projects/project-outcome-alignment/project-outcome-alignme
 import 'build/src/app/admin/modals/modals.js';
 import 'build/src/app/admin/modals/create-unit-modal/create-unit-modal.js';
 import 'build/src/app/groups/group-selector/group-selector.js';
-import 'build/src/app/groups/group-set-manager/group-set-manager.js';
+
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
@@ -204,6 +204,7 @@ import {GlobalStateService} from './projects/states/index/global-state.service';
 import {TransitionHooksService} from './sessions/transition-hooks.service';
 import {AuthenticationService} from './api/services/authentication.service';
 import {ProjectService} from './api/services/project.service';
+import {GroupSetManagerComponent} from './groups/group-set-manager/group-set-manager.component';
 import {ObjectSelectComponent} from './common/obect-select/object-select.component';
 import {TaskDefinitionService} from './api/services/task-definition.service';
 import {EditProfileDialogService} from './common/modals/edit-profile-dialog/edit-profile-dialog.service';
@@ -248,6 +249,7 @@ DoubtfireAngularJSModule.factory(
 );
 DoubtfireAngularJSModule.factory('DoubtfireConstants', downgradeInjectable(DoubtfireConstants));
 DoubtfireAngularJSModule.factory('ExtensionModal', downgradeInjectable(ExtensionModalService));
+DoubtfireAngularJSModule.factory('GroupSetManager', downgradeInjectable(GroupSetManagerComponent));
 DoubtfireAngularJSModule.factory('CalendarModal', downgradeInjectable(CalendarModalService));
 DoubtfireAngularJSModule.factory('TaskCommentService', downgradeInjectable(TaskCommentService));
 DoubtfireAngularJSModule.factory('tutorialService', downgradeInjectable(TutorialService));
