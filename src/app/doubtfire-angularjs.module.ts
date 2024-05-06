@@ -97,12 +97,11 @@ import 'build/src/app/admin/states/states.js';
 import 'build/src/app/admin/states/units/units.js';
 import 'build/src/app/admin/admin.js';
 import 'build/src/app/groups/group-selector/group-selector.js';
-import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
 import 'build/src/app/groups/group-set-selector/group-set-selector.js';
-import 'build/src/app/groups/tutor-group-manager/tutor-group-manager.js';
+
 import 'build/src/app/units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.js';
 import 'build/src/app/units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.js';
 import 'build/src/app/units/modals/modals.js';
@@ -209,6 +208,7 @@ import {
   UserService,
 } from './api/models/doubtfire-model';
 import { FileDownloaderService } from './common/file-downloader/file-downloader.service';
+import {GroupSetManagerComponent } from './groups/group-set-manager/group-set-manager.component';
 import { CheckForUpdateService } from './sessions/service-worker-updater/check-for-update.service';
 import { TaskSubmissionService } from './common/services/task-submission.service';
 import { TaskAssessmentModalService } from './common/modals/task-assessment-modal/task-assessment-modal.service';
@@ -262,6 +262,7 @@ DoubtfireAngularJSModule.factory(
   downgradeInjectable(TeachingPeriodUnitImportService),
 );
 DoubtfireAngularJSModule.factory('DoubtfireConstants', downgradeInjectable(DoubtfireConstants));
+DoubtfireAngularJSModule.factory('GroupSetManager', downgradeInjectable(GroupSetManagerComponent));
 DoubtfireAngularJSModule.factory('ExtensionModal', downgradeInjectable(ExtensionModalService));
 DoubtfireAngularJSModule.factory('CalendarModal', downgradeInjectable(CalendarModalService));
 DoubtfireAngularJSModule.factory('TaskCommentService', downgradeInjectable(TaskCommentService));
