@@ -192,7 +192,6 @@ import 'build/src/app/common/services/recorder-service.js';
 import 'build/src/app/common/services/project-service.js';
 import 'build/src/app/common/services/media-service.js';
 import 'build/src/app/common/services/analytics-service.js';
-import 'build/src/app/common/services/grade-service.js';
 import 'build/src/app/common/services/alert-service.js';
 import 'build/src/app/common/services/unit-service.js';
 import 'build/src/app/common/services/header-service.js';
@@ -289,6 +288,7 @@ import { TaskAssessmentModalService } from './common/modals/task-assessment-moda
 import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
+import { GradeService } from './common/services/grade.service';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -322,6 +322,7 @@ DoubtfireAngularJSModule.factory('checkForUpdateService', downgradeInjectable(Ch
 DoubtfireAngularJSModule.factory('TaskAssessmentModal', downgradeInjectable(TaskAssessmentModalService));
 DoubtfireAngularJSModule.factory('TaskSubmission', downgradeInjectable(TaskSubmissionService));
 DoubtfireAngularJSModule.factory('GlobalStateService', downgradeInjectable(GlobalStateService));
+DoubtfireAngularJSModule.factory('gradeService', downgradeInjectable(GradeService));
 
 // directive -> component
 DoubtfireAngularJSModule.directive(
