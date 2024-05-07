@@ -375,6 +375,16 @@ export class Project extends Entity {
     tutorialService.switchTutorial(this, tutorial, !this.isEnrolledIn(tutorial));
   }
 
+  public getProgressStats(): {} {
+    const stats = {};
+
+    this.taskStats.forEach((stat) => {
+      stats[stat.key] = stat.value;
+    });
+
+    return stats;
+  }
+
   public refreshBurndownChartData(): void {
     const result: { key: string; values: number[] }[] = [];
 

@@ -128,6 +128,7 @@ import {StudentTutorialSelectComponent} from './units/states/edit/directives/uni
 import {StudentCampusSelectComponent} from './units/states/edit/directives/unit-students-editor/student-campus-select/student-campus-select.component';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from 'src/environments/environment';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 import {PickerModule} from '@ctrl/ngx-emoji-mart';
 import {EmojiModule} from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import {EmojiService} from './common/services/emoji.service';
@@ -593,6 +594,7 @@ const MY_DATE_FORMAT = {
     ReactiveFormsModule,
     PickerModule,
     EmojiModule,
+    NgxChartsModule,
     PdfViewerModule,
     LottieComponent,
     UIRouterUpgradeModule.forRoot({states: doubtfireStates}),
