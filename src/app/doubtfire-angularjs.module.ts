@@ -177,7 +177,6 @@ import 'build/src/app/common/alert-list/alert-list.js';
 import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
-import 'build/src/app/common/modals/progress-modal/progress-modal.js';
 import 'build/src/app/common/modals/modals.js';
 import 'build/src/app/common/grade-icon/grade-icon.js';
 import 'build/src/app/common/file-uploader/file-uploader.js';
@@ -289,6 +288,7 @@ import { TaskAssessmentModalService } from './common/modals/task-assessment-moda
 import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
 import { HeaderComponent } from './common/header/header.component';
 import { GlobalStateService } from './projects/states/index/global-state.service';
+import { ProgressModalService } from './common/modals/progress-modal/progress-modal.service';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -322,6 +322,7 @@ DoubtfireAngularJSModule.factory('checkForUpdateService', downgradeInjectable(Ch
 DoubtfireAngularJSModule.factory('TaskAssessmentModal', downgradeInjectable(TaskAssessmentModalService));
 DoubtfireAngularJSModule.factory('TaskSubmission', downgradeInjectable(TaskSubmissionService));
 DoubtfireAngularJSModule.factory('GlobalStateService', downgradeInjectable(GlobalStateService));
+DoubtfireAngularJSModule.factory('ProgressModal', downgradeInjectable(ProgressModalService));
 
 // directive -> component
 DoubtfireAngularJSModule.directive(
