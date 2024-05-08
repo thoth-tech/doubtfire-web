@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {MatTable, MatTableDataSource} from '@angular/material/table';
-import {TaskDefinition, Stage, Option} from 'src/app/api/models/task-definition';
+import {TaskDefinition, Stage, StageOption} from 'src/app/api/models/task-definition';
 import {Unit} from 'src/app/api/models/unit';
 @Component({
   selector: 'f-task-definition-stages',
@@ -75,7 +75,7 @@ export class TaskDefinitionStagesComponent {
     return options.map((option) => `- ${option}`).join('\n');
   }
 
-  parseMarkdownToList(criterion: Option, markdownText: string): void {
+  parseMarkdownToList(criterion: StageOption, markdownText: string): void {
     const lines = markdownText.split('\n');
     criterion[1] = lines
       .map((line) => line.trim().replace(/^- /, ''))
