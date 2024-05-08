@@ -17,7 +17,14 @@ import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog
 import {EmojiSearch} from '@ctrl/ngx-emoji-mart';
 import {EmojiData} from '@ctrl/ngx-emoji-mart/ngx-emoji/';
 import {EmojiService} from 'src/app/common/services/emoji.service';
-import {Task, TaskComment, TaskCommentService} from 'src/app/api/models/doubtfire-model';
+import {
+  Stage,
+  StageOption,
+  Task,
+  TaskComment,
+  TaskCommentService,
+  TaskDefinition,
+} from 'src/app/api/models/doubtfire-model';
 import {TaskCommentsViewerComponent} from '../task-comments-viewer/task-comments-viewer.component';
 import {BehaviorSubject} from 'rxjs';
 
@@ -65,6 +72,36 @@ export class TaskCommentComposerComponent implements DoCheck {
   @Input() sharedData: TaskCommentComposerData;
 
   public $userIsTyping = new BehaviorSubject<boolean>(false);
+  stages: Stage[]; // Assume this is populated from the parent component or service
+  selectedStage: Stage | null = {
+    id: 1,
+    taskDefinitionId: 1,
+    title: 'Source Code: Structs and Enums',
+    preamble: '**Source Code: Structs and Enums**',
+    options: [
+      [
+        'Use of structs and enumerations',
+        [
+          'Effectively utilises structs and enumerations',
+          'Partially addresses use of structs and enums',
+          'Needs improvement in use of structs and enums (Resubmit)',
+          'Does not address use of structs and enums (Redo)',
+        ],
+      ],
+      [
+        'Code Quality',
+        [
+          'Well-organised code structure',
+          'Partially organised code structure',
+          'Appropriately commented code',
+          'Insufficient comments',
+          'Lack of comments',
+          'Room for optimisation or clarification',
+        ],
+      ],
+    ],
+  };
+  selectedFeedbackOption: StageOption[] | StageOption | null = null;
 
   comment = {
     text: '',
@@ -318,6 +355,23 @@ export class TaskCommentComposerComponent implements DoCheck {
         this.alerts.add('danger', error || error?.message, 2000);
       },
     );
+  }
+
+  onStageSelect(): void {
+    // Reset the selected feedback option when a new stage is selected
+    // this.selectedFeedbackOption;
+  }
+
+  insertFeedback(): void {
+    let feedbackText: string = `**${this.selectedFeedbackOption[0]}**`;
+    feedbackText += `\n- ${this.selectedFeedbackOption[1].join('\n  - ')}`;
+    this.input.first.nativeElement.innerText = feedbackText;
+    // // Reset selections
+    this.selectedStage = null;
+    this.selectedFeedbackOption = null;
+    setTimeout(() => {
+      this.input.first.nativeElement.focus();
+    });
   }
 }
 
