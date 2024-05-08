@@ -49,7 +49,8 @@ export class GroupSelectorComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if ((!this.unitRole && !this.project) || (this.unitRole && this.project)) {
+    if ((this.unitRole && this.project) || (!this.unitRole && !this.project)) {
+      console.log('Throwing error: Group selector must have exactly one unit role or one project');
       throw new Error('Group selector must have exactly one unit role or one project');
     } else if (this.unitRole) {
       this.setStaffFilter('all');
@@ -61,6 +62,8 @@ export class GroupSelectorComponent implements OnInit {
   }
 
   applyFilters(): void {
+    console.log('applyFilters');
+
     let filteredGroups: Group[] = [];
 
     if (this.unitRole) {
@@ -75,6 +78,9 @@ export class GroupSelectorComponent implements OnInit {
   }
 
   setStaffFilter(scope: string): void {
+    console.log('setStaffFilter');
+    console.log('scope:', scope);
+
     this.staffFilter = scope;
     this.applyFilters();
   }
