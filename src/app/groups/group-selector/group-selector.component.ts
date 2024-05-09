@@ -6,6 +6,8 @@ import {alertService} from 'src/app/ajs-upgraded-providers';
 import {UserService} from 'src/app/api/services/user.service';
 import {GroupService} from 'src/app/api/services/group.service';
 import {Unit} from 'src/app/api/models/unit';
+import {UnitRole} from 'src/app/api/models/unit-role';
+import {Project} from 'src/app/api/models/project';
 import {UnitService} from 'src/app/api/services/unit.service';
 import * as _ from 'lodash';
 
@@ -16,12 +18,13 @@ import * as _ from 'lodash';
 })
 export class GroupSelectorComponent implements OnInit {
   @Input() unit: Unit;
-  @Input() project: any;
-  @Input() unitRole: any;
-  @Input() selectedGroupSet: GroupSet;
+  @Input() project: Project;
+  @Input() UnitRole: boolean;
+  @Input() selectedGroupSet: any;
   @Input() selectedGroup: Group;
   @Input() showGroupSetSelector: boolean;
   @Input() onSelect: (group: Group) => void;
+
   shownGroups: any;
   loaded: boolean;
 
@@ -49,10 +52,12 @@ export class GroupSelectorComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if ((this.unitRole && this.project) || (!this.unitRole && !this.project)) {
+    console.log('Unit Role:', this.UnitRole);
+    console.log('Project:', this.project);
+    if ((this.UnitRole && this.project) || (!this.UnitRole && !this.project)) {
       console.log('Throwing error: Group selector must have exactly one unit role or one project');
       throw new Error('Group selector must have exactly one unit role or one project');
-    } else if (this.unitRole) {
+    } else if (this.UnitRole) {
       this.setStaffFilter('all');
     } else if (this.project) {
       this.setStaffFilter('mine');
@@ -63,12 +68,18 @@ export class GroupSelectorComponent implements OnInit {
 
   applyFilters(): void {
     console.log('applyFilters');
+    console.log('selectedGroupSet.groups:', this.selectedGroupSet.groups);
+
+    if (!this.selectedGroupSet || !this.selectedGroupSet.groups) {
+      console.warn('selectedGroupSet or selectedGroupSet.groups is undefined.');
+      return;
+    }
 
     let filteredGroups: Group[] = [];
 
-    if (this.unitRole) {
+    if (this.UnitRole) {
       filteredGroups = this.selectedGroupSet.groups.filter((group: Group) =>
-        this.userService.groupsInTutorials(group, this.unitRole, this.staffFilter),
+        this.userService.groupsInTutorials(group, this.UnitRole, this.staffFilter),
       );
     } else {
       filteredGroups = [...this.selectedGroupSet.groups];
@@ -111,7 +122,7 @@ export class GroupSelectorComponent implements OnInit {
     }
     this.startLoading();
     this.selectedGroup = null;
-    this.canCreateGroups = this.unitRole || groupSet.allowStudentsToCreateGroups;
+    this.canCreateGroups = this.UnitRole || groupSet.allowStudentsToCreateGroups;
 
     this.unit.getGroups(groupSet).subscribe({
       next: () => {
@@ -159,7 +170,7 @@ export class GroupSelectorComponent implements OnInit {
     if (this.project) {
       tutorialId = this.project.tutorials[0]?.id || this.unit.tutorials[0]?.id;
     } else {
-      const tutorName = this.unitRole?.name || this.userService.currentUser.name;
+      const tutorName = this.userService.name || this.userService.currentUser.name;
       const tutorTutorial = _.find(
         this.unit.tutorials,
         (tute: any) => tute.tutor?.name === tutorName,

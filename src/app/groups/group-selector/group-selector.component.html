@@ -14,7 +14,7 @@
 
 <div
   class="panel-body panel-toolbar"
-  *ngIf="loaded && canCreateGroups && (unitRole || (project && project.tutorials.length > 0))"
+  *ngIf="loaded && canCreateGroups && (UnitRole || (project && project.tutorials.length > 0))"
 >
   <div class="clearfix">
     <div class="input-group pull-left col-md-6 staff-filter" *ngIf="unitRole">
@@ -196,7 +196,7 @@
   class="panel-footer text-center"
   *ngIf="
     pagination.show ||
-    (selectedGroupSet?.keepGroupsInSameClass && shownGroups?.length > 0 && !unitRole)
+    (selectedGroupSet?.keepGroupsInSameClass && shownGroups?.length > 0 && !UnitRole)
   "
 >
   <pagination
