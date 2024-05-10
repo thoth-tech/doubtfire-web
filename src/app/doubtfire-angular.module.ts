@@ -111,6 +111,7 @@ import {UnitTutorialsManagerComponent} from './units/states/edit/directives/unit
 import {CommentBubbleActionComponent} from './tasks/task-comments-viewer/comment-bubble-action/comment-bubble-action.component';
 import {StudentTutorialSelectComponent} from './units/states/edit/directives/unit-students-editor/student-tutorial-select/student-tutorial-select.component';
 import {StudentCampusSelectComponent} from './units/states/edit/directives/unit-students-editor/student-campus-select/student-campus-select.component';
+import { UnitDetailsEditorComponent } from './units/states/edit/directives/unit-details-editor/unit-details-editor.component';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from 'src/environments/environment';
 import {PickerModule} from '@ctrl/ngx-emoji-mart';
@@ -327,6 +328,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     TasksViewerComponent,
     FUsersComponent,
     FUnitsComponent,
+    UnitDetailsEditorComponent,
   ],
   // Module Imports
   imports: [

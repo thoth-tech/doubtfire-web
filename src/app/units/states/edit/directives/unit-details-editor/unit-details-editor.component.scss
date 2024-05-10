@@ -1,0 +1,93 @@
+.unit-details-editor {
+    width: 100%;
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    width: 100%;
+    border: solid #4c89bc;
+    border-width: 0 2px 0 2px;
+}
+
+.form-field {
+    width: 100%;
+}
+
+.header {
+    background-color: #4c89bc;
+    border-radius: 5px 5px 0 0;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    padding: 10px;
+}
+
+.footer {
+    background-color: lightgrey;
+    display: flex;
+    flex-direction: row-reverse;
+    border: solid #4c89bc;
+    border-width: 0 2px 2px 2px;
+    border-radius: 0 0 5px 5px;
+    padding: 10px;
+}
+
+.description {
+    width: 15%;
+    text-align: end;    
+    margin-right: 5%;
+    left: 10px;
+}
+
+.date {
+    width: 40%;
+    display: flex;
+    flex-direction: row;
+    border-radius: 5px;
+    border: solid .5px lightgrey;
+    padding-left: 3px;
+}
+
+.action {
+    width: 80%;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    border: solid .5px lightgrey;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+.drop-down {
+    width: 80%;
+    display: flex;
+    flex-direction: row;
+    padding: 2px;
+}
+
+.row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+    justify-content: left;
+    padding: 3px;
+}
+
+.toggle {
+    width: 80%;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+}
+
+object-select {
+    width: 80%;
+}
+
+.footer-button {
+    margin: 3px;
+}

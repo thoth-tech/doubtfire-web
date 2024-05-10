@@ -1,0 +1,238 @@
+<div class="unit-details-editor">
+  <div>
+    <div class="header" >
+      <h3 *ngIf="unit.id == -1">Create Unit</h3>
+      <h5 *ngIf="unit.id == -1">Create a new unit with all overview unit details here.</h5>
+
+      <h3 *ngIf="unit.id != -1">Update Unit</h3>
+      <h5 *ngIf="unit.id != -1">Update overview details of the unit below.</h5>
+    </div>
+    <div class="body">
+      <div class="form-field">
+
+        <!-- code -->
+        <div class="row" >
+            <label class="description" for="code">Code</label>
+            <input class="action" matInput id="code" type="text" placeholder="COS1234567" [(ngModel)]="unit.code"/>
+        </div>
+        
+        <!-- name -->
+        <div class="row">
+          <label class="description" for="name">Name</label>
+          <input class="action" matInput id="name" type="text" [(ngModel)]="unit.name" placeholder="name"/>
+        </div>
+
+        <!-- description-->
+        <div class="row">
+          <label class="description" for="description">Description</label>
+          <textarea class="action" matInput id="description" [(ngModel)]="unit.description"></textarea>
+        </div>
+
+        <!--/teaching-period-->
+        <div class="row">
+          <label class="description" for="teachingPeriod">Teaching Period</label>
+          <div class="drop-down">
+            <object-select [source]="teachingPeriodValues" [target]="unit.teachingPeriod" (target-change)="teachingPeriodSelected($event)" label="Select Teaching Period"  />
+          </div>
+        </div>
+
+        <!-- draft learning summary -->
+        <div class="row">
+          <label class="description" for="">Draft Learning Summary</label>
+          <div class="drop-down" >
+            <object-select [source]="taskDefinitionValues" [target]="unit.draftTaskDefinition" (target-change)="draftTaskDefSelected($event)" label="Select Learning Summary Task" /> 
+          </div>
+        </div>
+
+        <!--start-date-->
+        <div class="row">
+          <label class="description" for="startDate">Start Date</label>
+          <div class="date">
+            <input 
+            matInput
+            [matDatepicker]="startDatePicker"
+            id="startDate"
+            type="text"
+            [(ngModel)]="unit.startDate"
+            ngRequired="false"
+            close-text="Close"
+            (click)="open($event, startDatePicker)"
+          >
+          <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #startDatePicker></mat-datepicker>
+          </div>
+        </div>
+
+        <!-- end-date -->
+        <div class="row">
+          <label class="description" for="endDate">End Date</label>
+          <div class="date">
+            <input 
+            matInput
+            [matDatepicker]="endDatePicker"
+            id="endDate"
+            type="text"
+            [(ngModel)]="unit.endDate"
+            ngRequired="false"
+            close-text="Close"
+            (click)="open($event, endDatePicker)"
+            >
+            <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #endDatePicker></mat-datepicker>
+          </div>
+        </div>
+
+        <!-- portfolio-auto-generation-date -->
+        <div class="row">
+          <label class="description" for="portfolioAutoGenerationDate">Portfolio auto-generation date</label>
+          <div class="date">
+            <input 
+            matInput
+            [matDatepicker]="autoGenDatePicker"
+            id="portfolioAutoGenerationDate"
+            type="text"
+            [(ngModel)]="unit.portfolioAutoGenerationDate"
+            ngRequired="false"
+            close-text="Close"
+            (click)="open($event, autoGenDatePicker)"
+            >
+            <mat-datepicker-toggle matIconSuffix [for]="autoGenDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #autoGenDatePicker></mat-datepicker>
+          </div>
+        </div>
+
+        <!--allowStudentExtensionRequests-->
+        <div class="row">
+          <label class="description">Allow Student Extensions</label>
+          <div class="toggle">
+            <mat-slide-toggle [(ngModel)]="unit.allowStudentExtensionRequests" (ngModelChange)="unit.allowStudentExtensionRequests">
+              {{ unit.allowStudentExtensionRequests ? 'Enabled' : 'Disabled' }}
+            </mat-slide-toggle>
+            <span class="help-block">
+              When false only staff can request extensions on behalf of students.
+            </span>
+          </div>
+        </div>
+
+        <!--extensionWeeksOnResubmitRequest-->
+        <div class="row">
+          <label class="description" for="code">Extension duration on resubmit</label>
+          <div class="toggle">
+            <input
+              id="code"
+              type="number"
+              placeholder="1"
+              [(ngModel)]="unit.extensionWeeksOnResubmitRequest"
+            />
+            <span class="help-block">
+              When tutors request resubmission of a task, this setting determines how many weeks the task will be
+              extended to allow students to fix and resubmit their work.
+            </span>
+          </div>
+        </div>
+
+        <!--auto apply extension-->
+        <div class="row">
+          <label class="description">Auto apply extensions</label>
+          <div class="toggle">
+            <mat-slide-toggle [(ngModel)]="unit.autoApplyExtensionBeforeDeadline" (ngModelChange)="unit.autoApplyExtensionBeforeDeadline">
+              {{ unit.autoApplyExtensionBeforeDeadline ? 'Enabled' : 'Disabled' }}
+            </mat-slide-toggle>
+            <span class="help-block">
+              When true, extensions will be automatically applied when they result in a date that is between the task's due date
+              and deadline.
+            </span>
+          </div>
+        </div>
+
+        <!--allowStudentChangeTutorial-->
+        <div class="row">
+          <label class="description">Allow students to change tutorial</label>
+          <div class="toggle">
+            <mat-slide-toggle [(ngModel)]="unit.allowStudentChangeTutorial" (ngModelChange)="unit.allowStudentChangeTutorial">
+              {{ unit.allowStudentChangeTutorial ? 'Enabled' : 'Disabled' }}
+            </mat-slide-toggle>
+            <span class="help-block">
+              When false only staff can change student tutorials.
+            </span>
+          </div>
+        </div>
+
+        <!--sendNotifications-->
+        <div class="row">
+          <label class="description">Send notification emails</label>
+          <div class="toggle">
+            <mat-slide-toggle [(ngModel)]="unit.sendNotifications" (ngModelChange)="unit.sendNotifications">
+              {{ unit.sendNotifications ? 'Enabled' : 'Disabled' }}
+            </mat-slide-toggle>
+            <span class="help-block">
+              When true, emails will be set to students each week to indicate progress and suggest future tasks for them
+              to work on.
+            </span>
+          </div>
+        </div>
+
+        <!--syncEnrolments-->
+        <div class="row">
+          <label class="description">Synchronise enrolments</label>
+          <div class="toggle">
+            <mat-slide-toggle [(ngModel)]="unit.enableSyncEnrolments" (ngModelChange)="unit.enableSyncEnrolments">
+              {{ unit.enableSyncEnrolments ? 'Enabled' : 'Disabled' }}
+            </mat-slide-toggle>
+            <span class="help-block">
+              When true student enrolments will be synchronised with other systems where this is possible.
+            </span>
+          </div>
+        </div>
+
+        <!--/syncTimetable-->
+        <div class="row">
+          <label class="description">Synchronise Timetable</label>
+          <div class="toggle">
+            <mat-slide-toggle [(ngModel)]="unit.enableSyncTimetable" (ngModelChange)="unit.enableSyncEnrolments">
+              {{ unit.enableSyncTimetable ? 'Enabled' : 'Disabled' }}
+            </mat-slide-toggle>
+            <span class="help-block">
+              When true timetable data will be synchronised with other systems where this is possible.
+            </span>
+          </div>
+        </div>
+
+        <!--/task-assessment-enabled-->
+        <div class="row">
+          <label class="description">Overseer Assessment</label>
+          <div class="toggle">
+            <mat-slide-toggle [(ngModel)]="unit.assessmentEnabled" (ngModelChange)="unit.enableSyncEnrolments">
+              {{ unit.assessmentEnabled ? 'Enabled' : 'Disabled' }}
+            </mat-slide-toggle>
+            <span class="help-block">
+              If true, unit tasks will be able to make use of Overseer automated checking.
+            </span>
+          </div>
+        </div>
+
+        <!--/active-->
+        <div class="row">
+          <label class="description">Active</label>
+          <div class="toggle">
+            <mat-slide-toggle [(ngModel)]="unit.active" (ngModelChange)="unit.enableSyncEnrolments">
+              {{ unit.active ? 'Enabled' : 'Disabled' }}
+            </mat-slide-toggle>
+            <span class="help-block">
+              Set to false to hide unit from students and tutors.
+            </span> 
+          </div>
+        </div>
+
+
+      </div>
+      
+    </div>
+    <div class="footer">
+      <a class="btn btn-success footer-button" ui-sref="units/rollover">
+        <header>Rollover</header>
+      </a>
+      <button (click)="saveUnit()">Update</button>
+    </div>
+  </div>
+</div>
