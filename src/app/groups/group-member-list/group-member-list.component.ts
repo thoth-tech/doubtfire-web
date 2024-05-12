@@ -1,63 +1,75 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Subject, throwError } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { alertService } from 'src/app/ajs-upgraded-providers';
+import { gradeService } from 'src/app/ajs-upgraded-providers';
+import { listenerService } from 'src/app/ajs-upgraded-providers';
 
-@Component({
-  selector: 'group-member-list',
-  templateUrl: 'group-member-list.component.html',
-  styleUrls: ['group-member-list.component.scss'],
-})
-export class GroupMemberListComponent implements OnInit {
+
+export class GroupMemberListComponent implements OnInit, OnDestroy {
   @Input() unit: any;
   @Input() project: any;
   @Input() unitRole: any;
   @Input() selectedGroup: any;
-  onMembersLoaded: Subject<any> = new Subject();
+  @Input() onMembersLoaded: () => void;
 
-  members: any[];
-  canRemoveMembers: boolean = false;
-  loaded: boolean = false;
+  public loaded: boolean = false;
+  public tableSort = { order: 'student_name', reverse: false };
+  public canRemoveMembers: boolean;
+  private subscriptions = new Subscription();
 
-  constructor(private gradeService: any,
-              private alertService: any,
-              private listenerService: any) {
-  }
+  constructor(
+    private alertService: AlertService,
+    private gradeService: GradeService,
+    private listenerService: ListenerService
+  ) {}
 
   ngOnInit(): void {
-    this.loadMembers();
+    this.listenerService.listenTo(this).subscribe({
+      next: (id) => this.loadMembers(id),
+      error: (err) => console.error('Error listening', err)
+    });
+    this.loadMembers(this.selectedGroup.id);
   }
 
-  loadMembers(): void {
-    if (!this.selectedGroup || !this.selectedGroup.id) {
-      return;
-    }
-    this.loaded = false;
-    this.selectedGroup.getMembers()
-      .pipe(
-        catchError((error: any) => {
-          this.alertService.add("danger", "Unauthorized to view members in this group", 3000);
-          return throwError(error);
-        }),
-        finalize(() => this.loaded = true)
-      )
-      .subscribe((members: any[]) => {
-        this.members = members;
-        this.onMembersLoaded.next(members);
-        this.canRemoveMembers = this.unitRole ||
-                                (this.selectedGroup.groupSet.allowStudentsToManageGroups &&
-                                 !this.selectedGroup.locked);
-      });
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  sortTableBy(column: string): void {
+    this.tableSort.order = column;
+    this.tableSort.reverse = !this.tableSort.reverse;
   }
 
   removeMember(member: any): void {
-    if (!this.canRemoveMembers) {
-      this.alertService.add("danger", "You do not have permission to remove members", 3000);
+    this.selectedGroup.removeMember(member);
+  }
+
+  private loadMembers(groupId: string): void {
+    if (!groupId) {
       return;
     }
-    this.selectedGroup.removeMember(member)
-      .subscribe(() => {
-        this.alertService.add("success", "Member removed successfully", 3000);
-        this.loadMembers();
-      });
+    this.startLoading();
+    this.canRemoveMembers = this.unitRole || (this.selectedGroup.groupSet.allowStudentsToManageGroups && !this.selectedGroup.locked);
+
+    this.selectedGroup.getMembers().subscribe({
+      next: (members) => this.finishLoading(),
+      error: (failure) => setTimeout(() => {
+        this.alertService.add("danger", "Unauthorized to view members in this group", 3000);
+        this.selectedGroup = null;
+      }, 1000)
+    });
+  }
+
+  private startLoading(): void {
+    this.loaded = false;
+  }
+
+  private finishLoading(): void {
+    setTimeout(() => {
+      this.loaded = true;
+      if (this.onMembersLoaded) {
+        this.onMembersLoaded();
+      }
+    }, 500);
   }
 }
