@@ -492,6 +492,12 @@ export class DoubtfireAngularModule implements DoBootstrap {
       'formatif-logo',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/images/logo.svg'),
     );
+
+    this.matIconRegistry.addSvgIcon(
+      'courseflow',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/courseflow-icon.svg')
+    );
+
   }
 
   ngDoBootstrap(): void {
