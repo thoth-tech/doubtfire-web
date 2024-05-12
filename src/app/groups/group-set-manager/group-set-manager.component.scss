@@ -1,0 +1,17 @@
+// Import mixins if they are in a separate file
+// @import 'mixins';
+
+// Define the panel-row mixin
+@mixin panel-row {
+  display: flex;
+  flex-direction: row;
+  // Add more styles as needed
+}
+
+// Your media query using the panel-row mixin
+@media (min-width: 1024px) { // Assuming $screen-lg is 1024px
+  group-set-manager {
+    display: block;
+    @include panel-row; // Use the panel-row mixin
+  }
+}
