@@ -30,51 +30,7 @@ export class TaskDashboardComponent implements OnInit, OnChanges {
   @Input() task: Task;
   @Input() pdfUrl: string;
 
-  private chartToolTipService: TooltipService;
   readonly viewContainerRef: ViewContainerRef;
-
-  data = [
-    {
-      'name': 'Pass',
-      'value': 100,
-      'label': '100%',
-    },
-    {
-      'name': 'Credit',
-      'value': 79,
-    },
-    {
-      'name': 'Distinction',
-      'value': 5,
-    },
-    {
-      'name': 'HD',
-      'value': 1,
-    },
-  ];
-  view = [400, 250];
-  legend: boolean = true;
-  legendPosition: string = 'below';
-
-  colorScheme = {
-    domain: ['#5AA454', '#E44D25', '#CFC0BB', '#7aa3e5', '#a8385d', '#aae3f5'],
-  };
-
-  // constructor() {
-  //   Object.assign(this, { single });
-  // }
-
-  onSelect(data): void {
-    console.log('Item clicked', JSON.parse(JSON.stringify(data)));
-  }
-
-  onActivate(data): void {
-    console.log('Activate', JSON.parse(JSON.stringify(data)));
-  }
-
-  onDeactivate(data): void {
-    console.log('Deactivate', JSON.parse(JSON.stringify(data)));
-  }
 
   public DashboardViews = DashboardViews;
 
@@ -90,7 +46,6 @@ export class TaskDashboardComponent implements OnInit, OnChanges {
   public currentView: DashboardViews;
 
   constructor(
-    private injectorObj: Injector,
     private doubtfire: DoubtfireConstants,
     private taskService: TaskService,
     private taskAssessmentModal: TaskAssessmentModalService,
@@ -98,12 +53,9 @@ export class TaskDashboardComponent implements OnInit, OnChanges {
     private router: UIRouter,
     public selectedTaskService: SelectedTaskService,
   ) {
-    this.chartToolTipService = this.injectorObj.get(TooltipService);
-    this.viewContainerRef = this.injectorObj.get(ViewContainerRef);
   }
 
   ngOnInit(): void {
-    this.chartToolTipService.injectionService.setRootViewContainer(this.viewContainerRef);
     this.selectedTaskService.currentView$.next(DashboardViews.submission);
     this.selectedTaskService.currentView$.subscribe((view) => {
       this.currentView = view;
