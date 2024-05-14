@@ -1,0 +1,21 @@
+<ul class="project-tasks-list">
+  <div *ngFor="let grouping of groupTasks" class="clearfix">
+    <h5 class="group-set-name" *ngIf="!hideGroupSetName">{{ grouping.name }}</h5>
+    <mat-chip-set>
+      <mat-chip
+        class="task-status chip"
+        *ngFor="
+          let task of project.tasks
+            | tasksForGroupset: grouping.groupSet
+            | orderBy: ['definition.targetGrade', 'definition.seq']
+        "
+        [ngClass]="newTaskService.statusClass(task.status)"
+        matTooltip="{{ task.definition.name }}: {{ task.statusLabel() }}"
+      >
+        <mat-icon svgIcon="visibility" *ngIf="task.similarityFlag"></mat-icon>
+
+        {{ taskText(task) }}</mat-chip
+      >
+    </mat-chip-set>
+  </div>
+</ul>
