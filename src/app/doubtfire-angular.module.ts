@@ -75,6 +75,7 @@ import {
   uploadSubmissionModalProvider,
   ConfirmationModalProvider,
 } from './ajs-upgraded-providers';
+import {ProjectTasksListComponent} from './tasks/project-tasks-list/project-tasks-list.component';
 import {
   TaskCommentComposerComponent,
   DiscussionComposerDialog,
@@ -135,6 +136,8 @@ import {TasksInTutorialsPipe} from './common/filters/tasks-in-tutorials.pipe';
 import {TasksForInboxSearchPipe} from './common/filters/tasks-for-inbox-search.pipe';
 import {StatusIconComponent} from './common/status-icon/status-icon.component';
 import {ScrollingModule} from '@angular/cdk/scrolling';
+import {TasksForGroupsetPipe} from './common/filters/tasks-for-group-set.pipe';
+import {OrderByPipe} from './common/filters/order-by.pipe';
 import {CheckForUpdateService} from './sessions/service-worker-updater/check-for-update.service';
 import {
   ActivityTypeService,
@@ -236,6 +239,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     AlertComponent,
     AboutDoubtfireModalContent,
     TeachingPeriodUnitImportDialogComponent,
+    ProjectTasksListComponent,
     TaskCommentComposerComponent,
     AudioCommentRecorderComponent,
     MicrophoneTesterComponent,
@@ -286,6 +290,8 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     PdfViewerPanelComponent,
     StaffTaskListComponent,
     TaskSimilarityViewComponent,
+    TasksForGroupsetPipe,
+    OrderByPipe,
     FiltersPipe,
     TasksOfTaskDefinitionPipe,
     TasksInTutorialsPipe,
