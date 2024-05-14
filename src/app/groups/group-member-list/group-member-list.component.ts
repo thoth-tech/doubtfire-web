@@ -3,10 +3,19 @@ import { GroupService } from 'src/app/api/services/group.service';
 import { alertService } from 'src/app/ajs-upgraded-providers';
 import { Unit, UnitRole, Project, GroupSet } from '../../api/models/doubtfire-model';
 
+interface Member {
+  student: {
+    username: string;
+    name: string;
+  };
+  targetGrade: string;
+  id: string;
+}
+
 @Component({
   selector: 'app-group-member-list',
   templateUrl: './group-member-list.component.html',
-  styleUrls: ['./group-member-list.component.css']
+  styleUrls: ['./group-member-list.component.scss']
 })
 export class GroupMemberListComponent implements OnInit, OnChanges {
   @Input() unit: Unit;
@@ -14,7 +23,7 @@ export class GroupMemberListComponent implements OnInit, OnChanges {
   @Input() project: Project;
   @Input() selectedGroupSet: GroupSet;
 
-  members: any[] = [];  // Assuming 'members' are stored in this array
+  members: Member[] = [];  // Updated from 'any[]' to 'Member[]'
   loaded: boolean = false;
   tableSort: { order: string, reverse: boolean } = { order: 'student_name', reverse: false };
 
@@ -35,6 +44,7 @@ export class GroupMemberListComponent implements OnInit, OnChanges {
 
   loadMembers(): void {
     this.startLoading();
+    // Implement the logic to actually load members here
   }
 
   startLoading(): void {
@@ -44,17 +54,18 @@ export class GroupMemberListComponent implements OnInit, OnChanges {
     }, 500);
   }
 
-  removeMember(member: any): void {
-    this.groupService.removeMember(member.id).subscribe({
-      next: (resp) => {
-        this.alertService.success('Member successfully removed');
-        this.members = this.members.filter(m => m.id !== member.id);  // Update the members list
-      },
-      error: (error) => {
-        this.alertService.error('Error removing member: ' + error.message);
-      }
-    });
-  }
+//  removeMember(member: Member): void {
+//    this.groupService.removeMember(member.id).subscribe({
+//      next: (resp) => {
+//        this.alertService.success('Member successfully removed');
+//        this.members = this.members.filter(m => m.id !== member.id);  // Update the members list
+//      },
+//      error: (error) => {
+//        this.alertService.error('Error removing member: ' + error.message);
+//      }
+//    });
+//  }
 }
+
 
 
