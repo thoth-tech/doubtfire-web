@@ -6,5 +6,5 @@ import { Component, Input, Inject } from '@angular/core';
   styleUrls: ['project-tasks-list.component.scss'],
 })
 export class ProjectTasksListComponent {
-  constructor() {}
+  constructor() { }
 }
