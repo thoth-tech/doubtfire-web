@@ -3,7 +3,7 @@ import { MediaObserver } from '@angular/flex-layout';
 import { UIRouter } from '@uirouter/angular';
 import { EntityCache } from 'ngx-entity-service';
 import { BehaviorSubject, Observable, Subject, skip, take } from 'rxjs';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import {
   CampusService,
   Project,
@@ -98,7 +98,7 @@ export class GlobalStateService implements OnDestroy {
     private campusService: CampusService,
     private teachingPeriodService: TeachingPeriodService,
     @Inject(UIRouter) private router: UIRouter,
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
     private mediaObserver: MediaObserver
   ) {
     this.loadedUnitRoles = this.unitRoleService.cache;

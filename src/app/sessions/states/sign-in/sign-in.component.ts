@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { StateService, Transition } from '@uirouter/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { AuthenticationService } from 'src/app/api/services/authentication.service';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
 import { GlobalStateService } from 'src/app/projects/states/index/global-state.service';
@@ -42,7 +42,7 @@ export class SignInComponent implements OnInit {
     private http: HttpClient,
     private transition: Transition,
     private globalState: GlobalStateService,
-    @Inject(alertService) private alerts: any
+    @Inject(AlertService) private alerts: any
   ) {}
 
   ngOnInit(): void {

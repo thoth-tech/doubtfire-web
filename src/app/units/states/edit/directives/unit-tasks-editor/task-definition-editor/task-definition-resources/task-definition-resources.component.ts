@@ -1,6 +1,6 @@
 import { Component, Inject, Input } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { TaskDefinition } from 'src/app/api/models/task-definition';
 import { Unit } from 'src/app/api/models/unit';
 import { TaskDefinitionService } from 'src/app/api/services/task-definition.service';
@@ -16,7 +16,7 @@ export class TaskDefinitionResourcesComponent {
 
   constructor(
     private fileDownloaderService: FileDownloaderService,
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
     private taskDefinitionService: TaskDefinitionService
   ) {}
 

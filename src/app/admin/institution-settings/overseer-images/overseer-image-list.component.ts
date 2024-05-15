@@ -1,7 +1,7 @@
 import { Component, Inject, ViewChild } from '@angular/core';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { OverseerImage, OverseerImageService } from 'src/app/api/models/doubtfire-model';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { EntityFormComponent } from 'src/app/common/entity-form/entity-form.component';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { MatSort, Sort } from '@angular/material/sort';
@@ -23,7 +23,7 @@ export class OverseerImageListComponent extends EntityFormComponent<OverseerImag
 
   // Calls the parent's constructor, passing in an object
   // that maps all of the form controls that this form consists of.
-  constructor(private overseerImageService: OverseerImageService, @Inject(alertService) private alerts: any) {
+  constructor(private overseerImageService: OverseerImageService, @Inject(AlertService) private alerts: any) {
     super({
       name: new UntypedFormControl('', [Validators.required]),
       tag: new UntypedFormControl('', [Validators.required]),

@@ -1,6 +1,7 @@
 import { Inject, Input, Component } from '@angular/core';
 import { BaseAudioRecorderComponent } from '../base-audio-recorder';
-import { audioRecorderService,  alertService } from 'src/app/ajs-upgraded-providers';
+import { audioRecorderService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { TaskComment, TaskCommentService, Task } from 'src/app/api/models/doubtfire-model';
 
 @Component({ selector: 'audio-comment-recorder', templateUrl: './audio-comment-recorder.html' })
@@ -12,7 +13,7 @@ export class AudioCommentRecorderComponent extends BaseAudioRecorderComponent {
 
   constructor(
     @Inject(audioRecorderService) mediaRecorderService: any,
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
     private ts: TaskCommentService,
   ) {
     super(mediaRecorderService);

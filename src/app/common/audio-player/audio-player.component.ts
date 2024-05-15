@@ -1,6 +1,6 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, Inject, Input, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { Project, Task, TaskComment } from 'src/app/api/models/doubtfire-model';
 import { FileDownloaderService } from '../file-downloader/file-downloader.service';
 
@@ -24,7 +24,7 @@ export class AudioPlayerComponent implements OnDestroy {
 
   constructor(
     @Inject(FileDownloaderService) private fileDownloader: FileDownloaderService,
-    @Inject(alertService) private alerts: any
+    @Inject(AlertService) private alerts: any
   ) {
     this.audio.ontimeupdate = () => {
       const percentagePlayed = this.audio.currentTime / this.audio.duration;

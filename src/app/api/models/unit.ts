@@ -1,6 +1,6 @@
 import { Entity, EntityCache, EntityMapping } from 'ngx-entity-service';
 import { Observable, tap } from 'rxjs';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { AppInjector } from 'src/app/app-injector';
 import { FileDownloaderService } from 'src/app/common/file-downloader/file-downloader.service';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
@@ -158,7 +158,7 @@ export class Unit extends Entity {
 
   public deleteTaskDefinition(taskDef: TaskDefinition) {
     const taskDefinitionService = AppInjector.get(TaskDefinitionService);
-    const alerts: any = AppInjector.get(alertService);
+    const alerts: any = AppInjector.get(AlertService);
 
     taskDefinitionService
       .delete({ unitId: this.id, id: taskDef.id }, { cache: this.taskDefinitionCache, entity: taskDef })
@@ -282,7 +282,7 @@ export class Unit extends Entity {
   }
 
   public refresh(): void {
-    const alerts: any = AppInjector.get(alertService);
+    const alerts: any = AppInjector.get(AlertService);
     AppInjector.get(UnitService)
       .fetch(this.id)
       .subscribe({

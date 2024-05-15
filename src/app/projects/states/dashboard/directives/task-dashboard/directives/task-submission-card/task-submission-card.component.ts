@@ -1,5 +1,7 @@
 import { Component, Inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { alertService, uploadSubmissionModal } from 'src/app/ajs-upgraded-providers';
+import { uploadSubmissionModal } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
+
 import { Task } from 'src/app/api/models/task';
 import { TaskService } from 'src/app/api/services/task.service';
 import { FileDownloaderService } from 'src/app/common/file-downloader/file-downloader.service';
@@ -19,7 +21,7 @@ export class TaskSubmissionCardComponent implements OnChanges, OnInit {
   constructor(
     private taskService: TaskService,
     @Inject(uploadSubmissionModal) private UploadSubmissionModal,
-    @Inject(alertService) private AlertService,
+    @Inject(AlertService) private AlertService,
     private fileDownloader: FileDownloaderService
   ) {}
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Inject } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { TaskSubmissionService, TaskAssessmentResult } from 'src/app/common/services/task-submission.service';
 import { TaskAssessmentModalService } from 'src/app/common/modals/task-assessment-modal/task-assessment-modal.service';
 import { Task } from 'src/app/api/models/doubtfire-model';
@@ -35,7 +35,7 @@ export class TaskAssessmentCommentComponent implements OnInit {
   @Input() comment: TaskAssessmentComment;
 
   constructor(
-    @Inject(alertService) private alerts,
+    @Inject(AlertService) private alerts,
     @Inject(TaskSubmissionService) private submissions: TaskSubmissionService,
     private modalService: TaskAssessmentModalService,
   ) {}

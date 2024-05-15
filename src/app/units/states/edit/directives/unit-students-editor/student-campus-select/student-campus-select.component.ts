@@ -1,7 +1,7 @@
 import { Component, Inject, Input, OnInit } from '@angular/core';
 import { Campus, CampusService, Project, Unit } from 'src/app/api/models/doubtfire-model';
 import { MatSelectChange } from '@angular/material/select';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'student-campus-select',
@@ -18,7 +18,7 @@ export class StudentCampusSelectComponent implements OnInit {
 
   constructor(
     private campusService: CampusService,
-    @Inject(alertService) private alertService: any
+    @Inject(AlertService) private alertService: any
   ) { }
 
   ngOnChanges() {

@@ -1,12 +1,12 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileDownloaderService {
-  constructor(private httpClient: HttpClient, @Inject(alertService) private alerts: any) {}
+  constructor(private httpClient: HttpClient, @Inject(AlertService) private alerts: any) {}
 
   public downloadBlob(
     url: string,

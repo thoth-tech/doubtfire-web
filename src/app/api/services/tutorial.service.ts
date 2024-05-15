@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
-import { alertService, analyticsService } from 'src/app/ajs-upgraded-providers';
+import { analyticsService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { HttpClient } from '@angular/common/http';
 import { CampusService, Project, Tutorial, Unit, UserService } from 'src/app/api/models/doubtfire-model';
 import { CachedEntityService, RequestOptions } from 'ngx-entity-service';
@@ -16,7 +17,7 @@ export class TutorialService extends CachedEntityService<Tutorial> {
     private campusService: CampusService,
     private userService: UserService,
     @Inject(analyticsService) private AnalyticsService: any,
-    @Inject(alertService) private alertService: any
+    @Inject(AlertService) private alertService: any
   ) {
     super(httpClient, API_URL);
 

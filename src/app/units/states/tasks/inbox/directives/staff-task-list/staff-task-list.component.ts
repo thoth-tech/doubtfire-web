@@ -11,7 +11,7 @@ import {
   ViewChild,
   TemplateRef,
 } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { TasksOfTaskDefinitionPipe } from 'src/app/common/filters/tasks-of-task-definition.pipe';
 import { TasksInTutorialsPipe } from 'src/app/common/filters/tasks-in-tutorials.pipe';
 import { TasksForInboxSearchPipe } from 'src/app/common/filters/tasks-for-inbox-search.pipe';
@@ -111,7 +111,7 @@ export class StaffTaskListComponent implements OnInit, OnChanges {
 
   constructor(
     private selectedTaskService: SelectedTaskService,
-    @Inject(alertService) private alertService,
+    @Inject(AlertService) private alertService,
     private fileDownloaderService: FileDownloaderService,
     public dialog: MatDialog,
     private userService: UserService
