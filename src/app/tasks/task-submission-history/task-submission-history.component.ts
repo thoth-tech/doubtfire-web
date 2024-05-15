@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, Input, ViewEncapsulation, Output, EventEmitter } from '@angular/core';
 import { TaskSubmissionService } from 'src/app/common/services/task-submission.service';
 import { map } from 'rxjs/operators';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { Subject } from 'rxjs';
 import { OverseerAssessmentService, Task } from 'src/app/api/models/doubtfire-model';
 import { OverseerAssessment } from 'src/app/api/models/doubtfire-model';
@@ -20,7 +20,7 @@ export class TaskSubmissionHistoryComponent implements OnInit {
   @Input() refreshTrigger: Subject<boolean>;
 
   constructor(
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
     private submissions: TaskSubmissionService,
     private overseerAssessmentService: OverseerAssessmentService
   ) { }

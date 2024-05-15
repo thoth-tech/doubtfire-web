@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Entity, EntityCache, EntityMapping } from 'ngx-entity-service';
 import { Observable, tap } from 'rxjs';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { AppInjector } from 'src/app/app-injector';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
 import { Unit, GroupSet, Project, Tutorial, ProjectService } from '../doubtfire-model';
@@ -69,7 +69,7 @@ export class Group extends Entity {
   }
 
   public addMember(member: Project, onSuccess?: () => void) {
-    const alerts: any = AppInjector.get(alertService);
+    const alerts: any = AppInjector.get(AlertService);
     if (! member) {
       alerts.add('danger', "The student you are trying to add to the group could not be found.", 6000)
       return
@@ -100,7 +100,7 @@ export class Group extends Entity {
   }
 
   public removeMember(member: Project) {
-    const alerts: any = AppInjector.get(alertService);
+    const alerts: any = AppInjector.get(AlertService);
     if (! member) {
       alerts.add('danger', "The student you are trying to add to the group could not be found.", 6000)
       return

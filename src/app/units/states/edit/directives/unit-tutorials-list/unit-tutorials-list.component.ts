@@ -1,5 +1,7 @@
 import { Component, Input, Inject, ViewChild, AfterViewInit } from '@angular/core';
-import { alertService, confirmationModal } from 'src/app/ajs-upgraded-providers';
+import { confirmationModal } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
+
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import {
@@ -46,7 +48,7 @@ export class UnitTutorialsListComponent extends EntityFormComponent<Tutorial> im
     private tutorialStreamService: TutorialStreamService,
     private campusService: CampusService,
     @Inject(confirmationModal) private confirmationModal: any,
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
   ) {
     super(
       {

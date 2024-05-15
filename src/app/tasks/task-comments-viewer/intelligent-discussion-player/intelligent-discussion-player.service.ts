@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { DiscussionComment, TaskCommentService } from 'src/app/api/models/doubtfire-model';
 
 @Injectable()
 export class IntelligentDiscussionPlayerService {
   constructor(
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
     private taskService: TaskCommentService
   ) { }
 

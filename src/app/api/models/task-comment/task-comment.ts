@@ -1,4 +1,4 @@
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { AppInjector } from 'src/app/app-injector';
 import { Entity } from 'ngx-entity-service';
 import { Project, Task, TaskCommentService, User } from 'src/app/api/models/doubtfire-model';
@@ -75,7 +75,7 @@ export class TaskComment extends Entity {
           this.task.refreshCommentData();
         },
         error: (error: any) => {
-          AppInjector.get<any>(alertService).add('danger', error?.message || error || 'Unknown error', 2000);
+          AppInjector.get<any>(AlertService).add('danger', error?.message || error || 'Unknown error', 2000);
         }
       }
       );

@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { Observable } from 'rxjs';
 import { Task, OverseerAssessment, OverseerAssessmentService, OverseerImage, OverseerImageService } from 'src/app/api/models/doubtfire-model';
 import { AppInjector } from 'src/app/app-injector';
@@ -39,7 +39,7 @@ export class TaskSubmissionService {
   private readonly overseerImagesEndpointFormat = 'admin/overseer_images';
 
   constructor(
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
     private http: HttpClient,
     private constants: DoubtfireConstants,
     private overseerImages: OverseerImageService,

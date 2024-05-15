@@ -12,7 +12,8 @@ import {
   DoCheck,
 } from '@angular/core';
 import {trigger, style, animate, transition} from '@angular/animations';
-import {analyticsService, alertService} from 'src/app/ajs-upgraded-providers';
+import {analyticsService} from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {EmojiSearch} from '@ctrl/ngx-emoji-mart';
 import {EmojiData} from '@ctrl/ngx-emoji-mart/ngx-emoji/';
@@ -91,7 +92,7 @@ export class TaskCommentComposerComponent implements DoCheck {
     private emojiService: EmojiService,
     private commentsViewer: TaskCommentsViewerComponent,
     @Inject(analyticsService) private analytics,
-    @Inject(alertService) private alerts,
+    @Inject(AlertService) private alerts,
     @Inject(TaskCommentService) private taskCommentService: TaskCommentService,
   ) {
     this.differ = this.differs.find({}).create();

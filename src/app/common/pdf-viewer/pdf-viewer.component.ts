@@ -1,7 +1,7 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, Input, Inject, OnDestroy, SimpleChanges, OnChanges, ViewChild } from '@angular/core';
 import { PdfViewerComponent } from 'ng2-pdf-viewer';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { FileDownloaderService } from '../file-downloader/file-downloader.service';
 
 @Component({
@@ -20,7 +20,7 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges {
 
   constructor(
     @Inject(FileDownloaderService) private fileDownloader: FileDownloaderService,
-    @Inject(alertService) private alerts: any
+    @Inject(AlertService) private alerts: any
   ) {}
 
   ngOnDestroy(): void {

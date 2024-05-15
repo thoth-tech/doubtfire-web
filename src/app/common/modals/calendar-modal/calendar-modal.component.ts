@@ -4,7 +4,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Project, ProjectService, Webcal, WebcalService } from 'src/app/api/models/doubtfire-model';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'calendar-modal',
@@ -29,7 +29,7 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
     private webcalService: WebcalService,
     private constants: DoubtfireConstants,
     private sanitizer: DomSanitizer,
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
     private projectService: ProjectService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Inject } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { TaskComment, Task } from 'src/app/api/models/doubtfire-model';
 import { ExtensionComment } from 'src/app/api/models/task-comment/extension-comment';
 
@@ -12,7 +12,7 @@ export class ExtensionCommentComponent implements OnInit {
   @Input() comment: ExtensionComment;
   @Input() task: Task;
 
-  constructor(@Inject(alertService) private alerts: any) {}
+  constructor(@Inject(AlertService) private alerts: any) {}
 
   private handleError(error: any) {
     this.alerts.add('danger', 'Error: ' + error.data.error, 6000);

@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Inject, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
-import { alertService, commentsModal } from 'src/app/ajs-upgraded-providers';
+import { commentsModal } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { Task, Project, TaskComment, TaskCommentService } from 'src/app/api/models/doubtfire-model';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
 import { TaskCommentComposerData } from '../task-comment-composer/task-comment-composer.component';
@@ -29,7 +30,7 @@ export class TaskCommentsViewerComponent implements OnChanges, OnInit {
     private taskCommentService: TaskCommentService,
     private constants: DoubtfireConstants,
     @Inject(commentsModal) private commentsModalRef: any,
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
   ) {
     const self = this;
     this.taskCommentService.commentAdded$.subscribe((tc: TaskComment) => {

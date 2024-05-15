@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, Inject, OnDestroy } from '@angular/core';
-import { alertService, commentsModal } from 'src/app/ajs-upgraded-providers';
+import { commentsModal } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
+
 import { Project, TaskComment, Task } from 'src/app/api/models/doubtfire-model';
 import { FileDownloaderService } from 'src/app/common/file-downloader/file-downloader.service';
 
@@ -16,7 +18,7 @@ export class PdfImageCommentComponent implements OnInit, OnDestroy {
   public resourceUrl: string = undefined;
 
   constructor(
-    @Inject(alertService) private alerts: any,
+    @Inject(AlertService) private alerts: any,
     @Inject(commentsModal) private commentsModalRef: any,
     private fileDownloaderService: FileDownloaderService,
   ) {}

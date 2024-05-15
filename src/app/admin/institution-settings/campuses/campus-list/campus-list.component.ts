@@ -1,5 +1,5 @@
 import { Component, Inject, ViewChild } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import { AlertService } from 'src/app/common/services/alert.service';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { UntypedFormControl, Validators } from '@angular/forms';
@@ -24,7 +24,7 @@ export class CampusListComponent extends EntityFormComponent<Campus> {
 
   // Calls the parent's constructor, passing in an object
   // that maps all of the form controls that this form consists of.
-  constructor(private campusService: CampusService, @Inject(alertService) private alerts: any) {
+  constructor(private campusService: CampusService, @Inject(AlertService) private alerts: any) {
     super({
       abbreviation: new UntypedFormControl('', [Validators.required]),
       name: new UntypedFormControl('', [Validators.required]),
