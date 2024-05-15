@@ -12,93 +12,102 @@
 
         <!-- code -->
         <div class="row" >
-            <label class="description" for="code">Code</label>
+          <label class="description" for="code">Code</label>
+          <mat-form-field>
             <input class="action" matInput id="code" type="text" placeholder="COS1234567" [(ngModel)]="unit.code"/>
+          </mat-form-field>
         </div>
         
         <!-- name -->
         <div class="row">
           <label class="description" for="name">Name</label>
-          <input class="action" matInput id="name" type="text" [(ngModel)]="unit.name" placeholder="name"/>
+          <mat-form-field>
+            <input class="action" matInput id="name" type="text" [(ngModel)]="unit.name" placeholder="name"/>
+          </mat-form-field>
         </div>
 
         <!-- description-->
         <div class="row">
           <label class="description" for="description">Description</label>
-          <textarea class="action" matInput id="description" [(ngModel)]="unit.description"></textarea>
+          <mat-form-field>
+            <textarea class="action" matInput id="description" [(ngModel)]="unit.description"></textarea>
+          </mat-form-field>
         </div>
 
-        <!--/teaching-period-->
+        <!-- teaching-period-->
         <div class="row">
           <label class="description" for="teachingPeriod">Teaching Period</label>
-          <div class="drop-down">
-            <object-select [source]="teachingPeriodValues" [target]="unit.teachingPeriod" (target-change)="teachingPeriodSelected($event)" label="Select Teaching Period"  />
-          </div>
+            <div class="drop-down">
+              <object-select [source]="teachingPeriodValues" [target]="unit.teachingPeriod" (target-change)="teachingPeriodSelected($event)" label="Select Teaching Period"  />
+            </div>
         </div>
 
         <!-- draft learning summary -->
         <div class="row">
           <label class="description" for="">Draft Learning Summary</label>
-          <div class="drop-down" >
-            <object-select [source]="taskDefinitionValues" [target]="unit.draftTaskDefinition" (target-change)="draftTaskDefSelected($event)" label="Select Learning Summary Task" /> 
-          </div>
+            <div class="drop-down" >
+              <object-select class="selector" [source]="taskDefinitionValues" [target]="unit.draftTaskDefinition" (target-change)="draftTaskDefSelected($event)" label="Select Learning Summary Task" /> 
+            </div>
         </div>
 
         <!--start-date-->
-        <div class="row">
-          <label class="description" for="startDate">Start Date</label>
-          <div class="date">
-            <input 
-            matInput
-            [matDatepicker]="startDatePicker"
-            id="startDate"
-            type="text"
-            [(ngModel)]="unit.startDate"
-            ngRequired="false"
-            close-text="Close"
-            (click)="open($event, startDatePicker)"
-          >
-          <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-          <mat-datepicker #startDatePicker></mat-datepicker>
-          </div>
+        <div class="date-row">
+          <label class="date-description" for="startDate">Start Date</label>
+              <mat-form-field appearance="outline" >
+                <input 
+                matInput
+                [matDatepicker]="startDatePicker"
+                id="startDate"
+                type="text"
+                [(ngModel)]="unit.startDate"
+                ngRequired="false"
+                close-text="Close"
+                (click)="open($event, startDatePicker)"
+                >
+                <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #startDatePicker></mat-datepicker>
+              </mat-form-field>
         </div>
 
         <!-- end-date -->
-        <div class="row">
-          <label class="description" for="endDate">End Date</label>
-          <div class="date">
-            <input 
-            matInput
-            [matDatepicker]="endDatePicker"
-            id="endDate"
-            type="text"
-            [(ngModel)]="unit.endDate"
-            ngRequired="false"
-            close-text="Close"
-            (click)="open($event, endDatePicker)"
-            >
-            <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-            <mat-datepicker #endDatePicker></mat-datepicker>
-          </div>
+        <div class="date-row">
+          <label class="date-description" for="endDate">End Date</label>
+              <mat-form-field appearance="outline">
+                <input 
+              matInput
+              [matDatepicker]="endDatePicker"
+              id="endDate"
+              type="text"
+              [(ngModel)]="unit.endDate"
+              ngRequired="false"
+              close-text="Close"
+              (click)="open($event, endDatePicker)"
+              >
+              <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #endDatePicker></mat-datepicker>
+              </mat-form-field>
         </div>
 
         <!-- portfolio-auto-generation-date -->
-        <div class="row">
-          <label class="description" for="portfolioAutoGenerationDate">Portfolio auto-generation date</label>
-          <div class="date">
-            <input 
-            matInput
-            [matDatepicker]="autoGenDatePicker"
-            id="portfolioAutoGenerationDate"
-            type="text"
-            [(ngModel)]="unit.portfolioAutoGenerationDate"
-            ngRequired="false"
-            close-text="Close"
-            (click)="open($event, autoGenDatePicker)"
-            >
-            <mat-datepicker-toggle matIconSuffix [for]="autoGenDatePicker"></mat-datepicker-toggle>
-            <mat-datepicker #autoGenDatePicker></mat-datepicker>
-          </div>
+        <div class="date-row">
+          <label class="date-description" for="portfolioAutoGenerationDate">Portfolio auto-generation date</label>
+              <mat-form-field appearance="outline" >
+                <input 
+              matInput
+              [matDatepicker]="autoGenDatePicker"
+              id="portfolioAutoGenerationDate"
+              type="text"
+              [(ngModel)]="unit.portfolioAutoGenerationDate"
+              ngRequired="false"
+              close-text="Close"
+              (click)="open($event, autoGenDatePicker)"
+              class="date-form-field"
+              >
+              
+              <mat-datepicker-toggle matIconSuffix [for]="autoGenDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #autoGenDatePicker></mat-datepicker>
+              </mat-form-field>
+    
         </div>
 
         <!--allowStudentExtensionRequests-->
@@ -118,12 +127,13 @@
         <div class="row">
           <label class="description" for="code">Extension duration on resubmit</label>
           <div class="toggle">
-            <input
+              <input
               id="code"
               type="number"
               placeholder="1"
               [(ngModel)]="unit.extensionWeeksOnResubmitRequest"
             />
+
             <span class="help-block">
               When tutors request resubmission of a task, this setting determines how many weeks the task will be
               extended to allow students to fix and resubmit their work.
@@ -229,10 +239,9 @@
       
     </div>
     <div class="footer">
-      <a class="btn btn-success footer-button" ui-sref="units/rollover">
-        <header>Rollover</header>
-      </a>
-      <button (click)="saveUnit()">Update</button>
+      <button class="btn btn-success footer-button" (click)="navigateToRolloverPage()">Rollover</button>
+
+      <button class="btn btn-success footer-button" (click)="saveUnit()">Update</button>
     </div>
   </div>
 </div>

@@ -33,7 +33,7 @@ angular.module('doubtfire.units.states.edit.directives.unit-details-editor', [])
     )
 
     $scope.teachingPeriodSelected = ($event) ->
-      $scope.unit.teachingPeriod = $event
+      $scope.unit.teachingPeriod = $eventp
 
     $scope.unit.taskDefinitionCache.values.subscribe(
       (taskDefs) ->

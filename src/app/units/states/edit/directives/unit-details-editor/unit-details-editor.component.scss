@@ -7,29 +7,39 @@
     flex-direction: column;
     align-content: center;
     width: 100%;
-    border: solid #4c89bc;
-    border-width: 0 2px 0 2px;
+    border: solid rgb(63, 119, 165);
+    border-width: 0 1px 0 1px;
 }
 
 .form-field {
     width: 100%;
+    margin: 20px;
 }
 
 .header {
-    background-color: #4c89bc;
+    background-color: rgb(63, 119, 165);
     border-radius: 5px 5px 0 0;
     display: flex;
     flex-direction: column;
     color: white;
-    padding: 10px;
+    padding: .8%;
+    height: auto;
+}
+
+h3 {
+    margin: 0;
+}
+
+h5 {
+    margin: 0;
 }
 
 .footer {
-    background-color: lightgrey;
+    background-color: rgba(237, 236, 236, 0.984);
     display: flex;
     flex-direction: row-reverse;
-    border: solid #4c89bc;
-    border-width: 0 2px 2px 2px;
+    border: solid rgb(63, 119, 165);
+    border-width: 0 1px 1px 1px;
     border-radius: 0 0 5px 5px;
     padding: 10px;
 }
@@ -47,17 +57,23 @@
     flex-direction: row;
     border-radius: 5px;
     border: solid .5px lightgrey;
-    padding-left: 3px;
+    padding-left: 20px;
+    height: auto;
 }
 
-.action {
-    width: 80%;
+.date-description {
+    width: 25%;
+    text-align: end;    
+    margin-right: 10%;
+    height: auto;
+}
+
+.text-input {
+    width: 100%;
     border-radius: 5px;
+    border: solid .5px rgb(162, 162, 162);
     display: flex;
-    flex-direction: row;
-    border: solid .5px lightgrey;
-    border-radius: 5px;
-    padding: 3px;
+    height: auto;
 }
 
 .drop-down {
@@ -65,6 +81,8 @@
     display: flex;
     flex-direction: row;
     padding: 2px;
+    align-items: center;
+    height: auto;
 }
 
 .row {
@@ -72,20 +90,54 @@
     display: flex;
     flex-direction: row;
     margin-bottom: 10px;
-    justify-content: left;
+    justify-content: flex-start;
+    align-items: center;
     padding: 3px;
+    height: auto;
 }
 
+.date-row {
+    width: 55%;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+    justify-content: flex-start;
+    padding: 3px;
+    margin-bottom: 1px;
+    height: auto;
+    align-items: center;
+}
+
+
 .toggle {
-    width: 80%;
+    width: 70%;
     border-radius: 5px;
     display: flex;
     flex-direction: column;
     justify-content: left;
 }
 
+.date-form-field {
+    width: 40%;
+    border: none;   
+    align-items: center;
+}
+
 object-select {
+    width: 100%;
+
+}
+
+.selector {
     width: 80%;
+}
+
+mat-form-field {
+    width: 60%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    font-size: 14px
 }
 
 .footer-button {

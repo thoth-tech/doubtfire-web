@@ -4,17 +4,11 @@ import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants
 import { TeachingPeriodService } from 'src/app/api/services/teaching-period.service';
 import { Unit } from 'src/app/api/models/unit';
 import { UnitService } from 'src/app/api/services/unit.service';
-import { TaskDefinition } from 'src/app/api/models/task-definition';
-import { Task } from 'src/app/api/models/task';
-import { CommonModule } from '@angular/common';  
 import { BrowserModule } from '@angular/platform-browser';
-import { MatSelect, MatFormField, MatSelectModule, } from '@angular/material/select';
 import { MatDatepicker } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { NgForm } from '@angular/forms';
 import { AlertService } from 'src/app/common/services/alert.service';
-
+import { UIRouter } from '@uirouter/angular';
 
 @Component({
   selector: 'unit-details-editor',
@@ -32,6 +26,14 @@ export class UnitDetailsEditorComponent {
       }
     });
   }
+  declarations: [
+    UnitDetailsEditorComponent
+  ]
+
+  imports: [
+    BrowserModule,
+  ]
+  
   
   private images: any;
   @Input() unit: Unit;
@@ -58,8 +60,7 @@ export class UnitDetailsEditorComponent {
     private doubtFireConstants: DoubtfireConstants,  
     private unitService: UnitService,
     private alertService: AlertService,
-
-
+    @Inject(UIRouter) private router: UIRouter
 
 
 
@@ -111,11 +112,15 @@ export class UnitDetailsEditorComponent {
   }
 
   saveUnit() {
-    this.unitService.update(this.unit).subscribe()
+    this.unitService.update(this.unit).subscribe();
+    console.log("update button pressed");
     this.alertService.success("Unit updated", 3000);
-    this.alertService.success("Failed to update unit.", 6000);
+    this.alertService.error("Unit failed to update", 5000);
   }
- 
- 
+
+  
+  navigateToRolloverPage() {
+    this.router.stateService.go('units/rollover');
+  }
 
 }
