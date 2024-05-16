@@ -265,6 +265,7 @@ DoubtfireAngularJSModule.factory('newUnitRoleService', downgradeInjectable(UnitR
 DoubtfireAngularJSModule.factory('newTaskService', downgradeInjectable(TaskService));
 DoubtfireAngularJSModule.factory(
   'newTaskDefinitionService',
+
   downgradeInjectable(TaskDefinitionService),
 );
 DoubtfireAngularJSModule.factory(

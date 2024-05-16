@@ -209,7 +209,7 @@ import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-ro
 import {FileDropComponent} from './common/file-drop/file-drop.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
-
+import {PortfolioModule} from './projects/states/portfolio';
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {CreateNewUnitModalContentComponent} from './admin/modals/create-new-unit-modal/create-new-unit-modal-content.component';
 // Note we need a separate function as it's required
