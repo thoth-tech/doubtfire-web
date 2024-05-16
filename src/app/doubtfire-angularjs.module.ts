@@ -227,6 +227,7 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
+import { UnitsIndexComponent } from './units/states/index';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -375,6 +376,8 @@ DoubtfireAngularJSModule.directive(
   'fTaskDueCard',
   downgradeComponent({component: TaskDueCardComponent}),
 );
+DoubtfireAngularJSModule.directive('fIndex', downgradeComponent({component: UnitsIndexComponent}));
+
 DoubtfireAngularJSModule.directive('fUsers', downgradeComponent({component: FUsersComponent}));
 DoubtfireAngularJSModule.directive(
   'fTaskAssessmentCard',
