@@ -45,9 +45,13 @@
         <!-- draft learning summary -->
         <div class="row">
           <label class="description" for="">Draft Learning Summary</label>
-            <div class="drop-down" >
+            <div class="toggle" >
               <object-select class="selector" [source]="taskDefinitionValues" [target]="unit.draftTaskDefinition" (target-change)="draftTaskDefSelected($event)" label="Select Learning Summary Task" /> 
+              <span class="help-block">
+                When a draft learning summary is selected, this will ensure a students uploaded draft is automatically added to the students portfolio.
+              </span>
             </div>
+            
         </div>
 
         <!--start-date-->
