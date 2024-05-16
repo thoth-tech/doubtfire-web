@@ -14,3 +14,12 @@
     }
   }
   
+  .mat-chip-clicked {
+    outline: -webkit-focus-ring-color auto 1px;
+  }
+  .task-status {
+    ::ng-deep .mdc-evolution-chip__cell {
+      justify-content: center !important;
+    }
+  }
+  

@@ -7,6 +7,10 @@ import {Task} from 'src/app/api/models/task';
 import {TaskService} from 'src/app/api/services/task.service';
 import {GradeService} from 'src/app/common/services/grade.service';
 
+//
+// Displays the tasks associated with a student's project under task list
+// on portfolio tab for tutor
+//
 @Component({
   selector: 'f-project-tasks-list',
   templateUrl: './project-tasks-list.component.html',
