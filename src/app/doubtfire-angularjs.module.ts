@@ -180,6 +180,8 @@ import {fPdfViewerComponent} from './common/pdf-viewer/pdf-viewer.component';
 import {PdfViewerPanelComponent} from './common/pdf-viewer-panel/pdf-viewer-panel.component';
 import {StaffTaskListComponent} from './units/states/tasks/inbox/directives/staff-task-list/staff-task-list.component';
 import {StatusIconComponent} from './common/status-icon/status-icon.component';
+import {AchievementCustomBarChart} from './visualisations/achievement-custom-bar-chart';
+
 import {
   GroupSetService,
   LearningOutcomeService,
@@ -440,6 +442,11 @@ DoubtfireAngularJSModule.directive(
   downgradeComponent({component: TaskSubmissionHistoryComponent}),
 );
 DoubtfireAngularJSModule.directive('fUnits', downgradeComponent({component: FUnitsComponent}));
+
+DoubtfireAngularJSModule.directive(
+  'AchievementCustomBarChart',
+  downgradeComponent({component: AchievementCustomBarChart}),
+);
 
 // Global configuration
 DoubtfireAngularJSModule.directive(

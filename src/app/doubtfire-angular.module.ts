@@ -208,7 +208,10 @@ import {TaskDefinitionOverseerComponent} from './units/states/edit/directives/un
 import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-route.component';
 import {FileDropComponent} from './common/file-drop/file-drop.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
+import {AchievementCustomBarChart} from './visualisations/achievement-custom-bar-chart';
+
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
+
 
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {CreateNewUnitModalContentComponent} from './admin/modals/create-new-unit-modal/create-new-unit-modal-content.component';
@@ -329,6 +332,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     FUsersComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    AchievementCustomBarChart,
   ],
   // Services we provide
   providers: [
