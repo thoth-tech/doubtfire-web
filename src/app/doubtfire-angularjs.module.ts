@@ -43,7 +43,6 @@ import 'build/src/app/visualisations/achievement-custom-bar-chart.js';
 import 'build/src/app/visualisations/alignment-bar-chart.js';
 import 'build/src/app/visualisations/achievement-box-plot.js';
 import 'build/src/app/tasks/modals/upload-submission-modal/upload-submission-modal.js';
-import 'build/src/app/tasks/modals/grade-task-modal/grade-task-modal.js';
 import 'build/src/app/tasks/modals/modals.js';
 import 'build/src/app/tasks/tasks.js';
 import 'build/src/app/tasks/project-tasks-list/project-tasks-list.js';
@@ -122,7 +121,6 @@ import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
 import 'build/src/app/common/modals/modals.js';
-import 'build/src/app/common/grade-icon/grade-icon.js';
 import 'build/src/app/common/file-uploader/file-uploader.js';
 import 'build/src/app/common/common.js';
 import 'build/src/app/common/services/listener-service.js';
@@ -225,8 +223,10 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
-import { MarkedPipe } from './common/pipes/marked.pipe';
-import { AlertService } from './common/services/alert.service';
+import {MarkedPipe} from './common/pipes/marked.pipe';
+import {AlertService} from './common/services/alert.service';
+import {GradeTaskModalComponent} from './tasks/modals/grade-task-modal/grade-task-modal.component';
+import {GradeIconComponent} from './common/grade-icon/grade-icon.component';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -329,6 +329,14 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'fTaskSubmissionCard',
   downgradeComponent({component: TaskSubmissionCardComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'fGradeTaskModal',
+  downgradeComponent({component: GradeTaskModalComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'fGradeIcon',
+  downgradeComponent({component: GradeIconComponent}),
 );
 
 DoubtfireAngularJSModule.directive('fFooter', downgradeComponent({component: FooterComponent}));
