@@ -1,10 +1,20 @@
-import { Component, Input, Inject } from '@angular/core';
-
+import {Component, Input} from '@angular/core';
+import {GradeService} from 'src/app/common/services/grade.service';
 @Component({
-  selector: 'grade-icon',
-  templateUrl: 'grade-icon.component.html',
-  styleUrls: ['grade-icon.component.scss'],
+  selector: 'f-grade-icon',
+  templateUrl: './grade-icon.component.html',
+  styleUrl: './grade-icon.component.scss',
 })
 export class GradeIconComponent {
-  constructor() {}
+  @Input() grade: string;
+
+  constructor(private readonly gradeService: GradeService) {}
+
+  get gradeText() {
+    return this.gradeService.grades[this.grade + 1] || 'Grade';
+  }
+
+  get gradeLetter() {
+    return this.gradeService.gradeAcronyms[this.grade] || 'G';
+  }
 }
