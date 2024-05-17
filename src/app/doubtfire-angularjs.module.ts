@@ -223,7 +223,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
-
+import {UnitGroupsStateComponent} from './units/states/groups/groups';
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import { MarkedPipe } from './common/pipes/marked.pipe';
 import { AlertService } from './common/services/alert.service';
@@ -259,6 +259,7 @@ DoubtfireAngularJSModule.factory(
   'authenticationService',
   downgradeInjectable(AuthenticationService),
 );
+DoubtfireAngularJSModule.factory('UnitGroupsStateComponent',downgradeInjectable(UnitGroupsStateComponent));
 DoubtfireAngularJSModule.factory('newUserService', downgradeInjectable(UserService));
 DoubtfireAngularJSModule.factory('newUnitService', downgradeInjectable(UnitService));
 DoubtfireAngularJSModule.factory('newUnitRoleService', downgradeInjectable(UnitRoleService));
