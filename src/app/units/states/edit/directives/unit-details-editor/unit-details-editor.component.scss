@@ -16,6 +16,7 @@
     margin: 20px;
 }
 
+
 .header {
     background-color: rgb(63, 119, 165);
     border-radius: 5px 5px 0 0;
@@ -68,12 +69,8 @@ h5 {
     height: auto;
 }
 
-.text-input {
-    width: 100%;
-    border-radius: 5px;
-    border: solid .5px rgb(162, 162, 162);
-    display: flex;
-    height: auto;
+.toggle-help-block {
+    margin-left: 20%;
 }
 
 .drop-down {
@@ -89,10 +86,9 @@ h5 {
     width: 100%;
     display: flex;
     flex-direction: row;
-    margin-bottom: 10px;
     justify-content: flex-start;
     align-items: center;
-    padding: 3px;
+    padding: 2px;
     height: auto;
 }
 
@@ -100,10 +96,7 @@ h5 {
     width: 55%;
     display: flex;
     flex-direction: row;
-    margin-bottom: 10px;
     justify-content: flex-start;
-    padding: 3px;
-    margin-bottom: 1px;
     height: auto;
     align-items: center;
 }
@@ -115,6 +108,7 @@ h5 {
     display: flex;
     flex-direction: column;
     justify-content: left;
+    margin: 0;
 }
 
 .date-form-field {
@@ -137,9 +131,24 @@ mat-form-field {
     height: auto;
     display: flex;
     align-items: center;
-    font-size: 14px
+    font-size: 14px;
+    margin-bottom: 0; 
 }
+
+mat-slide-toggle {
+    display: block;
+}
+
+mat-input {
+    padding-bottom: 0;
+  }
 
 .footer-button {
     margin: 3px;
+}
+
+label {
+    margin: 0;
+    padding: 0 5px; 
+    font-size: 14px;
 }

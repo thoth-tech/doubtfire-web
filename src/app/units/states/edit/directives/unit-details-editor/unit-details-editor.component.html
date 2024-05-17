@@ -47,11 +47,12 @@
           <label class="description" for="">Draft Learning Summary</label>
             <div class="toggle" >
               <object-select class="selector" [source]="taskDefinitionValues" [target]="unit.draftTaskDefinition" (target-change)="draftTaskDefSelected($event)" label="Select Learning Summary Task" /> 
-              <span class="help-block">
-                When a draft learning summary is selected, this will ensure a students uploaded draft is automatically added to the students portfolio.
-              </span>
             </div>
-            
+        </div>
+        <div class="row">
+          <span class="help-block">
+            When a draft learning summary is selected, this will ensure a students uploaded draft is automatically added to the students portfolio.
+          </span>
         </div>
 
         <!--start-date-->
@@ -118,10 +119,16 @@
         <div class="row">
           <label class="description">Allow Student Extensions</label>
           <div class="toggle">
-            <mat-slide-toggle [(ngModel)]="unit.allowStudentExtensionRequests" (ngModelChange)="unit.allowStudentExtensionRequests">
-              {{ unit.allowStudentExtensionRequests ? 'Enabled' : 'Disabled' }}
+            <mat-slide-toggle 
+              class="custom-toggle" 
+              [(ngModel)]="unit.allowStudentExtensionRequests" 
+              (ngModelChange)="unit.allowStudentExtensionRequests"
+              fxFlex
+              #webcalToggle
+              matTooltipPosition="above"
+              >
             </mat-slide-toggle>
-            <span class="help-block">
+            <span class="toggle-help-block">
               When false only staff can request extensions on behalf of students.
             </span>
           </div>
