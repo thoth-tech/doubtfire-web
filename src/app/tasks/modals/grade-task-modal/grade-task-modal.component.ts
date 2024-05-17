@@ -3,10 +3,6 @@ import {MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {GradeService} from 'src/app/common/services/grade.service';
 import {Task} from 'src/app/api/models/task';
 
-//
-// Open a grade task modal with the provided task
-//
-
 @Component({
   selector: 'f-grade-task-modal',
   templateUrl: './grade-task-modal.component.html',
@@ -38,7 +34,7 @@ export class GradeTaskModalComponent {
       desiredGrade: dialogData.task.grade,
       rating:
         !dialogData?.task?.qualityPts || dialogData.task.qualityPts < 0
-          ? 2
+          ? 0
           : dialogData.task.qualityPts,
       overStar: 0,
       confRating: 0,

@@ -10,7 +10,13 @@ mat-button-toggle-group {
   
   .rating {
     --br-gap: 8px !important;
-    --br-active-color: orange!important;
+    --br-active-color: orange !important;
     --br-inactive-color: #ccc !important;
+  
+    ::ng-deep .br-units {
+      --br-font-size: 32px !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+    }
   }
   
