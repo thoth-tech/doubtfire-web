@@ -12,6 +12,8 @@ import {BarRatingModule} from 'ngx-bar-rating';
 import {LottieModule, LottieCacheModule} from 'ngx-lottie';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import player from 'lottie-web';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {FaIconComponent} from '@fortawesome/angular-fontawesome';
 
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {DragDropModule} from '@angular/cdk/drag-drop';
@@ -408,6 +410,8 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
   imports: [
     BarRatingModule,
     FlexLayoutModule,
+    FontAwesomeModule,
+    FaIconComponent,
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,

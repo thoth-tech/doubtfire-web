@@ -226,10 +226,10 @@ export class TaskService extends CachedEntityService<Task> {
       .subscribe((result) => {
         if (result.matches) {
           if (result.breakpoints[Breakpoints.XLarge]) {
-            dialogConfig.width = '30vw';
+            dialogConfig.width = '36vw';
           }
           if (result.breakpoints[Breakpoints.Large]) {
-            dialogConfig.width = '48vw';
+            dialogConfig.width = '45vw';
           }
           if (result.breakpoints[Breakpoints.Medium]) {
             dialogConfig.width = '48vw';

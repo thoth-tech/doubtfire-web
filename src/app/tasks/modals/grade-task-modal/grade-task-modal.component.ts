@@ -1,7 +1,11 @@
-import {AfterViewInit, Component, Inject} from '@angular/core';
+import { Component, Inject} from '@angular/core';
 import {MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {GradeService} from 'src/app/common/services/grade.service';
 import {Task} from 'src/app/api/models/task';
+import {FaIconLibrary} from '@fortawesome/angular-fontawesome';
+
+import {faStar, faStarHalfAlt, faTimesCircle} from '@fortawesome/free-solid-svg-icons';
+import {faStar as farStar} from '@fortawesome/free-regular-svg-icons';
 
 @Component({
   selector: 'f-grade-task-modal',
@@ -9,7 +13,6 @@ import {Task} from 'src/app/api/models/task';
   styleUrl: './grade-task-modal.component.scss',
 })
 export class GradeTaskModalComponent {
-
   data: {
     desiredGrade: number;
     rating: number;
@@ -26,7 +29,9 @@ export class GradeTaskModalComponent {
     public dialogRef: MatDialogRef<GradeTaskModalComponent>,
     @Inject(MAT_DIALOG_DATA) public dialogData: {task: Task},
     private gradeService: GradeService,
+    library: FaIconLibrary
   ) {
+    library.addIcons(faStar, faStarHalfAlt, farStar, faTimesCircle);
 
     this.task = dialogData.task;
 
@@ -44,7 +49,6 @@ export class GradeTaskModalComponent {
     this.gradeValues = this.gradeService.allGradeValues;
     this.grades = this.gradeService.grades;
   }
-
 
   // Method to handle the dialog close with data
   close(): void {

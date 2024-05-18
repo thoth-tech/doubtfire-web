@@ -1,15 +1,25 @@
-<h3 class="border-b border-[#e5e5e5] pb-5 m-0 text-[16px]" mat-dialog-title>Assess Task Quality</h3>
+<h3 class="border-b border-[#e5e5e5] pb-9 m-0 text-[16px]" mat-dialog-title>Assess Task Quality</h3>
 <mat-dialog-content class="text-center p-6">
   <div *ngIf="task.definition.isGraded">
     <p class="mb-6 text-gray-950">
       Please provide a grade to change the student's status for task
-      <span class="label label-info">{{ task.definition.abbreviation }}</span>.
+      <span class="label label-info">{{ task.definition.abbreviation }}</span
+      >.
     </p>
-    <mat-button-toggle-group class="border-[#ccc] mb-6" toggleType="radio" [hideSingleSelectionIndicator]="true"
-      [(ngModel)]="data.desiredGrade">
-      <mat-button-toggle appTooltip="This student completed the task to a {{
+    <mat-button-toggle-group
+      class="border-[#ccc] mb-6"
+      toggleType="radio"
+      [hideSingleSelectionIndicator]="true"
+      [(ngModel)]="data.desiredGrade"
+    >
+      <mat-button-toggle
+        appTooltip="This student completed the task to a {{
           gradeService.grades[grade + 1] || 'Grade'
-        }} standard" *ngFor="let grade of gradeService.gradeValues" [value]="grade" class="p-0">
+        }} standard"
+        *ngFor="let grade of gradeService.gradeValues"
+        [value]="grade"
+        class="p-0"
+      >
         <f-grade-icon [grade]="grade"></f-grade-icon>
       </mat-button-toggle>
     </mat-button-toggle-group>
@@ -17,18 +27,46 @@
   <div class="mt-4" *ngIf="task.definition.maxQualityPts > 0">
     <p class="text-gray-950">
       Please provide a quality rating for task
-      <span class="label label-info">{{ task.definition.abbreviation }}</span>.
+      <span class="label label-info">{{ task.definition.abbreviation }}</span
+      >.
     </p>
     <div class="relative flex justify-center item-center">
-      <bar-rating class="rating" [(rate)]="data.rating" [max]="numStars"></bar-rating>
+      <bar-rating class="rating" [(rate)]="data.rating" [max]="numStars">
+        <fa-icon
+          *ratingInactive
+          [icon]="['fas', 'star']"
+          [fixedWidth]="true"
+          size="xl"
+          style="color: #ccc"
+        ></fa-icon>
+        <fa-icon
+          *ratingActive
+          [icon]="['fas', 'star']"
+          [fixedWidth]="true"
+          size="xl"
+          class="rating-fill"
+        ></fa-icon>
+      </bar-rating>
     </div>
   </div>
 </mat-dialog-content>
 <mat-dialog-actions class="justify-end border-t border-[#e5e5e5] p-6">
-  <button mat-stroked-button class="mr-4 min-w-max h-max px-[10px] py-[8px]" (click)="dialogRef.close()">
-    <mat-icon class="h-auto w-auto text-3xl m-0 font-semibold text-gray-700 leading-none">close</mat-icon>
+  <button
+    mat-stroked-button
+    class="mr-4 min-w-max h-max px-[10px] py-[8px]"
+    (click)="dialogRef.close()"
+  >
+    <mat-icon class="h-auto w-auto text-2xl m-0 font-semibold text-gray-700 leading-none"
+      >close</mat-icon
+    >
   </button>
-  <button mat-flat-button class="m-0 min-w-max h-max px-[10px] py-[8px] bg-[#3271AD]" (click)="close()">
-    <mat-icon class="h-auto w-auto text-3xl m-0 font-semibold text-white leading-none">check</mat-icon>
+  <button
+    mat-flat-button
+    class="m-0 min-w-max h-max px-[10px] py-[8px] bg-[#3271AD]"
+    (click)="close()"
+  >
+    <mat-icon class="h-auto w-auto text-2xl m-0 font-semibold text-white leading-none"
+      >check</mat-icon
+    >
   </button>
 </mat-dialog-actions>
