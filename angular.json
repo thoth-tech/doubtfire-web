@@ -1,165 +1,168 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "doubtfire": {
-      "root": "",
-      "sourceRoot": "src",
-      "projectType": "application",
-      "prefix": "f",
-      "schematics": {
-        "@schematics/angular:application": {
-          "strict": false
-        }
-      },
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:application",
-          "options": {
-            "outputPath": "dist",
-            "index": "build/index.html",
-            "browser": "src/main.ts",
-            "polyfills": ["src/polyfills.ts"],
-            "tsConfig": "src/tsconfig.app.json",
-            "assets": [
-              "src/assets",
-              "src/manifest.webmanifest"
-            ],
-            "styles": [
-              "src/theme.scss",
-              "src/styles.scss",
-              "./node_modules/bootstrap/dist/css/bootstrap.css",
-              "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
-              "./build/assets/doubtfire.css",
-              "./build/assets/node_modules/angular-xeditable/dist/css/xeditable.css",
-              "./build/assets/node_modules/codemirror/lib/codemirror.css",
-              "./build/assets/node_modules/codemirror/theme/xq-light.css",
-              "./build/assets/node_modules/nvd3/build/nv.d3.css",
-              "node_modules/@ctrl/ngx-emoji-mart/picker.css"
-            ],
-            "scripts": [
-              "node_modules/moment/moment.js",
-              "node_modules/d3/d3.js",
-              "node_modules/lodash/lodash.js",
-              "node_modules/underscore.string/dist/underscore.string.min.js",
-              "node_modules/nvd3/build/nv.d3.js",
-              "node_modules/es5-shim/es5-shim.js",
-              "node_modules/codemirror/lib/codemirror.js",
-              "node_modules/codemirror/addon/display/placeholder.js",
-              "node_modules/codemirror/mode/markdown/markdown.js",
-              "node_modules/canvas-confetti/dist/confetti.browser.js"
-            ],
-            "extractLicenses": false,
-            "sourceMap": true,
-            "optimization": false
-          },
-          "configurations": {
-            "production": {
-              "budgets": [
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
-                }
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "newProjectRoot": "projects",
+    "projects": {
+      "doubtfire": {
+        "root": "",
+        "sourceRoot": "src",
+        "projectType": "application",
+        "prefix": "f",
+        "schematics": {
+          "@schematics/angular:application": {
+            "strict": false
+          }
+        },
+        "architect": {
+          "build": {
+            "builder": "@angular-devkit/build-angular:application",
+            "options": {
+              "outputPath": "dist",
+              "index": "build/index.html",
+              "browser": "src/main.ts",
+              "polyfills": ["src/polyfills.ts"],
+              "tsConfig": "src/tsconfig.app.json",
+              "assets": [
+                "src/assets",
+                "src/manifest.webmanifest"
               ],
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
-                },
-                {
-                  "replace": "src/app/config/constants/apiURL.ts",
-                  "with": "src/app/config/constants/apiURL.prod.ts"
-                }
+              "styles": [
+                "src/theme.scss",
+                "src/styles.scss",
+                "./node_modules/bootstrap/dist/css/bootstrap.css",
+                "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
+                "./build/assets/doubtfire.css",
+                "./build/assets/node_modules/angular-xeditable/dist/css/xeditable.css",
+                "./build/assets/node_modules/codemirror/lib/codemirror.css",
+                "./build/assets/node_modules/codemirror/theme/xq-light.css",
+                "./build/assets/node_modules/nvd3/build/nv.d3.css",
+                "node_modules/@ctrl/ngx-emoji-mart/picker.css",
+                "node_modules/ngx-bar-rating/themes/br-default-theme.scss"
+  
               ],
-              "optimization": true,
-              "outputHashing": "bundles",
-              "sourceMap": false,
-              "extractLicenses": true,
-              "serviceWorker": "ngsw-config.json"
-            },
-            "development": {
-              "optimization": false,
+              "scripts": [
+                "node_modules/moment/moment.js",
+                "node_modules/d3/d3.js",
+                "node_modules/lodash/lodash.js",
+                "node_modules/underscore.string/dist/underscore.string.min.js",
+                "node_modules/nvd3/build/nv.d3.js",
+                "node_modules/es5-shim/es5-shim.js",
+                "node_modules/codemirror/lib/codemirror.js",
+                "node_modules/codemirror/addon/display/placeholder.js",
+                "node_modules/codemirror/mode/markdown/markdown.js",
+                "node_modules/canvas-confetti/dist/confetti.browser.js"
+              ],
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "optimization": false
+            },
+            "configurations": {
+              "production": {
+                "budgets": [
+                  {
+                    "type": "anyComponentStyle",
+                    "maximumWarning": "6kb"
+                  }
+                ],
+                "fileReplacements": [
+                  {
+                    "replace": "src/environments/environment.ts",
+                    "with": "src/environments/environment.prod.ts"
+                  },
+                  {
+                    "replace": "src/app/config/constants/apiURL.ts",
+                    "with": "src/app/config/constants/apiURL.prod.ts"
+                  }
+                ],
+                "optimization": true,
+                "outputHashing": "bundles",
+                "sourceMap": false,
+                "extractLicenses": true,
+                "serviceWorker": "ngsw-config.json"
+              },
+              "development": {
+                "optimization": false,
+                "extractLicenses": false,
+                "sourceMap": true
+              }
             }
-          }
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "buildTarget": "doubtfire:build"
           },
-          "configurations": {
-            "production": {
-              "buildTarget": "doubtfire:build:production"
+          "serve": {
+            "builder": "@angular-devkit/build-angular:dev-server",
+            "options": {
+              "buildTarget": "doubtfire:build"
+            },
+            "configurations": {
+              "production": {
+                "buildTarget": "doubtfire:build:production"
+              }
             }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "buildTarget": "doubtfire:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "src/tsconfig.spec.json",
-            "karmaConfig": "src/karma.conf.js",
-            "styles": [
-              "./node_modules/bootstrap/dist/css/bootstrap.css",
-              "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css"
-            ],
-            "scripts": [],
-            "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              "src/manifest.webmanifest"
-            ]
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.component.html"
-            ]
-          }
-        },
-        "eslint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.component.html"
-            ]
+          },
+          "extract-i18n": {
+            "builder": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+              "buildTarget": "doubtfire:build"
+            }
+          },
+          "test": {
+            "builder": "@angular-devkit/build-angular:karma",
+            "options": {
+              "main": "src/test.ts",
+              "polyfills": "src/polyfills.ts",
+              "tsConfig": "src/tsconfig.spec.json",
+              "karmaConfig": "src/karma.conf.js",
+              "styles": [
+                "./node_modules/bootstrap/dist/css/bootstrap.css",
+                "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css"
+              ],
+              "scripts": [],
+              "assets": [
+                "src/favicon.ico",
+                "src/assets",
+                "src/manifest.webmanifest"
+              ]
+            }
+          },
+          "lint": {
+            "builder": "@angular-eslint/builder:lint",
+            "options": {
+              "lintFilePatterns": [
+                "src/**/*.ts",
+                "src/**/*.component.html"
+              ]
+            }
+          },
+          "eslint": {
+            "builder": "@angular-eslint/builder:lint",
+            "options": {
+              "lintFilePatterns": [
+                "src/**/*.ts",
+                "src/**/*.component.html"
+              ]
+            }
           }
         }
       }
+    },
+    "schematics": {
+      "@schematics/angular:component": {
+        "style": "scss"
+      },
+      "@angular-eslint/schematics:application": {
+        "setParserOptionsProject": true
+      },
+      "@angular-eslint/schematics:library": {
+        "setParserOptionsProject": true
+      }
+    },
+    "cli": {
+      "analytics": "d9f70e12-eb87-48a0-a953-29ebd31202d7",
+      "cache": {
+        "enabled": true
+      },
+      "schematicCollections": [
+        "@angular-eslint/schematics"
+      ]
     }
-  },
-  "schematics": {
-    "@schematics/angular:component": {
-      "style": "scss"
-    },
-    "@angular-eslint/schematics:application": {
-      "setParserOptionsProject": true
-    },
-    "@angular-eslint/schematics:library": {
-      "setParserOptionsProject": true
-    }
-  },
-  "cli": {
-    "analytics": "d9f70e12-eb87-48a0-a953-29ebd31202d7",
-    "cache": {
-      "enabled": true
-    },
-    "schematicCollections": [
-      "@angular-eslint/schematics"
-    ]
   }
-}
+  

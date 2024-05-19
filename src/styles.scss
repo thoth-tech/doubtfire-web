@@ -3,11 +3,11 @@
 
 @include mat.core();
 
-@import './theme.scss';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import '../node_modules/ngx-bar-rating/themes/br-stars-theme';
 
 .mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field
   .mdc-notched-outline__notch {
@@ -34,4 +34,35 @@
       cursor: pointer;
     }
   }
+}
+
+/* tooltip-container.component.css */
+.tooltip-container {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip-container::after {
+  content: '';
+  position: absolute;
+  bottom: 100%; /* at the top of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #616161 transparent;
+}
+
+.tooltip-container.show {
+  opacity: 1;
 }

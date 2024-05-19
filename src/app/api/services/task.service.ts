@@ -7,12 +7,15 @@ import {
   TaskStatusUiData,
   Unit,
 } from 'src/app/api/models/doubtfire-model';
-import { Injectable } from '@angular/core';
-import { CachedEntityService, EntityCache, RequestOptions } from 'ngx-entity-service';
-import { HttpClient } from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {CachedEntityService, EntityCache, RequestOptions} from 'ngx-entity-service';
+import {HttpClient} from '@angular/common/http';
 import API_URL from 'src/app/config/constants/apiURL';
-import { MappingFunctions } from './mapping-fn';
-import { Observable, map, tap } from 'rxjs';
+import {MappingFunctions} from './mapping-fn';
+import {Observable, map, tap} from 'rxjs';
+import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
+import {GradeTaskModalComponent} from 'src/app/tasks/modals/grade-task-modal/grade-task-modal.component';
+import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 
 @Injectable()
 export class TaskService extends CachedEntityService<Task> {
@@ -22,7 +25,11 @@ export class TaskService extends CachedEntityService<Task> {
   private readonly taskExplorerEndpoint = '/units/:id:/task_definitions/:task_def_id:/tasks';
   private readonly refreshTaskEndpoint = 'projects/:projectId:/refresh_tasks/:taskDefinitionId:';
 
-  constructor(httpClient: HttpClient) {
+  constructor(
+    httpClient: HttpClient,
+    private dialog: MatDialog,
+    private breakpointObserver: BreakpointObserver,
+  ) {
     super(httpClient, API_URL);
 
     this.mapping.addKeys(
@@ -85,7 +92,7 @@ export class TaskService extends CachedEntityService<Task> {
             }
           });
         },
-      }
+      },
     );
 
     this.mapping.addJsonKey('qualityPts', 'grade', 'includeInPortfolio', 'trigger');
@@ -106,15 +113,18 @@ export class TaskService extends CachedEntityService<Task> {
         endpointFormat: this.taskInboxEndpoint,
         cache: cache,
         constructorParams: unit,
-      }
+      },
     ).pipe(
       tap((tasks: Task[]) => {
         unit.incorporateTasks(tasks);
-      })
+      }),
     );
   }
 
-  public queryTasksForTaskExplorer(unit: Unit, taskDef?: TaskDefinition | number): Observable<Task[]> {
+  public queryTasksForTaskExplorer(
+    unit: Unit,
+    taskDef?: TaskDefinition | number,
+  ): Observable<Task[]> {
     const cache: EntityCache<Task> = new EntityCache<Task>();
     return this.query(
       {
@@ -125,12 +135,12 @@ export class TaskService extends CachedEntityService<Task> {
         endpointFormat: this.taskExplorerEndpoint,
         cache: cache,
         constructorParams: unit,
-      }
+      },
     ).pipe(
       map((tasks: Task[]) => {
         unit.incorporateTasks(tasks);
         return unit.fillWithUnStartedTasks(tasks, taskDef);
-      })
+      }),
     );
   }
 
@@ -180,7 +190,7 @@ export class TaskService extends CachedEntityService<Task> {
     return TaskStatus.STATUS_LABELS.get(status);
   }
 
-  public helpDescription(status: TaskStatusEnum): { detail: string; reason: string; action: string } {
+  public helpDescription(status: TaskStatusEnum): {detail: string; reason: string; action: string} {
     return TaskStatus.HELP_DESCRIPTIONS.get(status);
   }
 
@@ -188,7 +198,7 @@ export class TaskService extends CachedEntityService<Task> {
     return TaskStatus.statusData(data);
   }
 
-  public taskKeyFromString(taskKeyString: string): { studentId: string; taskDefAbbr: string } {
+  public taskKeyFromString(taskKeyString: string): {studentId: string; taskDefAbbr: string} {
     const taskKeyComponents = taskKeyString?.split('/');
     if (taskKeyComponents) {
       const studentId = taskKeyComponents[0];
@@ -200,5 +210,37 @@ export class TaskService extends CachedEntityService<Task> {
     }
 
     return null;
+  }
+
+  show(task: Task): MatDialogRef<GradeTaskModalComponent, any> {
+    let dialogConfig = new MatDialogConfig();
+
+    this.breakpointObserver
+      .observe([
+        Breakpoints.XSmall,
+        Breakpoints.Small,
+        Breakpoints.Medium,
+        Breakpoints.Large,
+        Breakpoints.XLarge,
+      ])
+      .subscribe((result) => {
+        if (result.matches) {
+          if (result.breakpoints[Breakpoints.XLarge]) {
+            dialogConfig.width = '36vw';
+          }
+          if (result.breakpoints[Breakpoints.Large]) {
+            dialogConfig.width = '45vw';
+          }
+          if (result.breakpoints[Breakpoints.Medium]) {
+            dialogConfig.width = '48vw';
+          }
+        }
+      });
+
+    dialogConfig.data = {task};
+
+    const dialogRef = this.dialog.open(GradeTaskModalComponent, dialogConfig);
+
+    return dialogRef;
   }
 }

@@ -7,11 +7,13 @@ import {UpgradeModule} from '@angular/upgrade/static';
 import {AppInjector, setAppInjector} from './app-injector';
 import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-
+import {BarRatingModule} from 'ngx-bar-rating';
 // Lottie animation module
 import {LottieModule, LottieCacheModule} from 'ngx-lottie';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import player from 'lottie-web';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {FaIconComponent} from '@fortawesome/angular-fontawesome';
 
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {DragDropModule} from '@angular/cdk/drag-drop';
@@ -44,6 +46,7 @@ import {UIRouterUpgradeModule} from '@uirouter/angular-hybrid';
 import {MatDialogModule as MatDialogModuleNew} from '@angular/material/dialog';
 import {AlertService} from 'src/app/common/services/alert.service';
 import {AlertComponent} from 'src/app/common/services/alert.service';
+import {TooltipDirective} from './common/tooltip/tooltip.directive';
 
 import {setTheme} from 'ngx-bootstrap/utils';
 
@@ -95,6 +98,8 @@ import {ExtensionCommentComponent} from './tasks/task-comments-viewer/extension-
 import {CampusListComponent} from './admin/institution-settings/campuses/campus-list/campus-list.component';
 import {ExtensionModalComponent} from './common/modals/extension-modal/extension-modal.component';
 import {CalendarModalComponent} from './common/modals/calendar-modal/calendar-modal.component';
+import {GradeTaskModalComponent} from './tasks/modals/grade-task-modal/grade-task-modal.component';
+import {GradeIconComponent} from './common/grade-icon/grade-icon.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MAT_DATE_LOCALE, MatOptionModule} from '@angular/material/core';
@@ -281,6 +286,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     HumanizedDatePipe,
     IsActiveUnitRole,
     DragDropDirective,
+    TooltipDirective,
     fPdfViewerComponent,
     SafePipe,
     PdfViewerPanelComponent,
@@ -315,6 +321,8 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     InboxComponent,
     ProjectProgressBarComponent,
     TeachingPeriodListComponent,
+    GradeTaskModalComponent,
+    GradeIconComponent,
     CreateNewUnitModal,
     CreateNewUnitModalContentComponent,
     TiiActionLogComponent,
@@ -402,7 +410,10 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     CreateNewUnitModal,
   ],
   imports: [
+    BarRatingModule,
     FlexLayoutModule,
+    FontAwesomeModule,
+    FaIconComponent,
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,

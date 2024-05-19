@@ -571,7 +571,7 @@ export class Task extends Entity {
         }
         const alerts: any = AppInjector.get(AlertService);
         alerts.message('Submission cancelled. Status was reverted.', 6000);
-      }
+      },
     );
   }
 
@@ -591,11 +591,17 @@ export class Task extends Entity {
   }
 
   public updateTaskStatus(status: TaskStatusEnum) {
+    console.log(
+      'Update Task',
+      this.definition.isGraded,
+      this.definition.maxQualityPts,
+      TaskStatus.GRADEABLE_STATUSES.includes(status),
+    );
     const oldStatus = this.status;
     const alerts: AlertService = AppInjector.get(AlertService);
+    const taskService: TaskService = AppInjector.get(TaskService);
 
     const updateFunc = () => {
-      const taskService: TaskService = AppInjector.get(TaskService);
       const options: RequestOptions<Task> = {
         entity: this,
         cache: this.project.taskCache,
@@ -616,7 +622,7 @@ export class Task extends Entity {
           options,
         )
         .subscribe({
-          next: (response) => {
+          next: () => {
             if (!hasId && this.id > 0) {
               this.project.taskCache.delete(this.definition.abbreviation);
               this.project.taskCache.add(this);
@@ -635,23 +641,36 @@ export class Task extends Entity {
       (this.definition.isGraded || this.definition.maxQualityPts > 0) &&
       TaskStatus.GRADEABLE_STATUSES.includes(status)
     ) {
-      const gradeModal: any = AppInjector.get(gradeTaskModal);
-      const modal = gradeModal.show(this);
-      if (modal) {
-        modal.result.then(
-          // Grade was selected (modal closed with result)
-          (response) => {
-            this.grade = response.selectedGrade;
-            this.qualityPts = response.qualityPts;
-            updateFunc();
-          },
-          // Grade was not selected (modal was dismissed)
-          () => {
-            this.status = oldStatus;
-            alerts.message('Status reverted, as no grade was specified', 6000);
-          },
-        );
-      }
+      const modal = taskService.show(this);
+
+      modal.afterClosed().subscribe((data: any) => {
+        if (data) {
+          this.grade = data.selectedGrade;
+          this.qualityPts = data.qualityPts;
+          updateFunc();
+        } else {
+          this.status = oldStatus;
+          alerts.message('Status reverted, as no grade was specified', 6000);
+        }
+      });
+
+      // const gradeModal: any = AppInjector.get(gradeTaskModal);
+      // const modal = gradeModal.show(this);
+      // if (modal) {
+      //   modal.result.then(
+      //     // Grade was selected (modal closed with result)
+      //     (response) => {
+      //       this.grade = response.selectedGrade;
+      //       this.qualityPts = response.qualityPts;
+      //       // updateFunc();
+      //     },
+      //     // Grade was not selected (modal was dismissed)
+      //     () => {
+      //       this.status = oldStatus;
+      //       alerts.message('Status reverted, as no grade was specified', 6000);
+      //     },
+      //   );
+      // }
     } else {
       updateFunc();
     }

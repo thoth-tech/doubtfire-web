@@ -1,0 +1,24 @@
+mat-button-toggle-group {
+  ::ng-deep .mat-button-toggle-button {
+    padding: 6px 12px !important;
+  }
+
+  ::ng-deep .mat-button-toggle-label-content {
+    padding: 0px !important;
+  }
+}
+
+.rating {
+  --br-gap: 3px !important;
+
+  ::ng-deep .br-units {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+}
+
+.rating-fill {
+  color: #fff78d;
+  stroke: #f0ad4e;
+    stroke-width: 32px;
+}
