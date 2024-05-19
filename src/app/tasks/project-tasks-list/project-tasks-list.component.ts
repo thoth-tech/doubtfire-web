@@ -7,10 +7,6 @@ import {Task} from 'src/app/api/models/task';
 import {TaskService} from 'src/app/api/services/task.service';
 import {GradeService} from 'src/app/common/services/grade.service';
 
-//
-// Displays the tasks associated with a student's project under task list
-// on portfolio tab for tutor
-//
 @Component({
   selector: 'f-project-tasks-list',
   templateUrl: './project-tasks-list.component.html',
@@ -20,13 +16,14 @@ export class ProjectTasksListComponent implements OnInit {
   @Input() unit?: Unit;
   @Input() project?: Project;
   @Output() selectTask = new EventEmitter();
+  selectedChip: number | null = null;
 
   groupTasks = [];
 
   constructor(
     private newTaskService: TaskService,
     @Inject(analyticsService) private AnalyticsService,
-    private gradeService: GradeService,
+    public gradeService: GradeService,
   ) {}
 
   ngOnInit(): void {
@@ -69,5 +66,10 @@ export class ProjectTasksListComponent implements OnInit {
       }
     }
     return result;
+  }
+
+
+  selectChip(index: number): void {
+    this.selectedChip = index;
   }
 }
