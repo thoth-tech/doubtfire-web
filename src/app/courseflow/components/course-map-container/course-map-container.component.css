@@ -1,0 +1,23 @@
+.course-map-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.year-container {
+  margin-top: 20px;
+}
+
+.trimester-container {
+  margin-top: 20px;
+}
+
+.unit-slot-container {
+  margin-top: 20px;
+}
+
+.unit-slot {
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: white;
+}
