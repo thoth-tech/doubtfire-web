@@ -2,10 +2,10 @@
   <div>
     <div class="header" >
       <h3 *ngIf="unit.id == -1">Create Unit</h3>
-      <h5 *ngIf="unit.id == -1">Create a new unit with all overview unit details here.</h5>
+      <h4 *ngIf="unit.id == -1">Create a new unit with all overview unit details here.</h4>
 
       <h3 *ngIf="unit.id != -1">Update Unit</h3>
-      <h5 *ngIf="unit.id != -1">Update overview details of the unit below.</h5>
+      <h4 *ngIf="unit.id != -1">Update overview details of the unit below.</h4>
     </div>
     <div class="body">
       <div class="form-field">
@@ -49,11 +49,13 @@
               <object-select class="selector" [source]="taskDefinitionValues" [target]="unit.draftTaskDefinition" (target-change)="draftTaskDefSelected($event)" label="Select Learning Summary Task" /> 
             </div>
         </div>
-        <div class="row">
-          <span class="help-block">
+        <div class="toggle-help-block">
+          <span>
             When a draft learning summary is selected, this will ensure a students uploaded draft is automatically added to the students portfolio.
           </span>
         </div>
+          
+        
 
         <!--start-date-->
         <div class="date-row">
@@ -128,7 +130,7 @@
               matTooltipPosition="above"
               >
             </mat-slide-toggle>
-            <span class="toggle-help-block">
+            <span class="help-block">
               When false only staff can request extensions on behalf of students.
             </span>
           </div>
@@ -137,21 +139,18 @@
         <!--extensionWeeksOnResubmitRequest-->
         <div class="row">
           <label class="description" for="code">Extension duration on resubmit</label>
-          <div class="toggle">
-              <input
-              id="code"
-              type="number"
-              placeholder="1"
-              [(ngModel)]="unit.extensionWeeksOnResubmitRequest"
-            />
-
-            <span class="help-block">
-              When tutors request resubmission of a task, this setting determines how many weeks the task will be
-              extended to allow students to fix and resubmit their work.
-            </span>
-          </div>
+            <mat-form-field>
+              <input class="action" matInput id="code" type="number" placeholder="1" [(ngModel)]="unit.extensionWeeksOnResubmitRequest"/>
+            </mat-form-field>
         </div>
-
+        <div class="toggle-help-block">
+          <span>
+            When tutors request resubmission of a task, this setting determines how many weeks the task will be
+            extended to allow students to fix and resubmit their work.
+          </span>
+        </div>
+          
+        
         <!--auto apply extension-->
         <div class="row">
           <label class="description">Auto apply extensions</label>
@@ -250,9 +249,9 @@
       
     </div>
     <div class="footer">
-      <button class="btn btn-success footer-button" (click)="navigateToRolloverPage()">Rollover</button>
+      <button mat-flat-button class="footer-button" color="primary" (click)="navigateToRolloverPage()">Rollover</button>
+      <button mat-flat-button class="footer-button" color="primary" (click)="saveUnit()">Rollover</button>
 
-      <button class="btn btn-success footer-button" (click)="saveUnit()">Update</button>
     </div>
   </div>
 </div>
