@@ -10,7 +10,9 @@ import {TasksViewerService} from '../../../tasks-viewer.service';
   styleUrls: ['./f-unit-task-list.component.scss'],
 })
 export class FUnitTaskListComponent implements OnInit {
-  @Input() unitTasks: TaskDefinition[];
+  @Input() mode: 'project' | 'all-tasks';
+  @Input() tasks: TaskDefinition[];
+
   filteredTasks: TaskDefinition[]; // list of tasks which match the taskSearch term
   taskSearch: string = ''; // task search term from user input
   taskDefinitionNamePipe = new TaskDefinitionNamePipe();
@@ -21,7 +23,7 @@ export class FUnitTaskListComponent implements OnInit {
   constructor(private taskViewerService: TasksViewerService) {}
 
   applyFilters() {
-    this.filteredTasks = this.taskDefinitionNamePipe.transform(this.unitTasks, this.taskSearch);
+    this.filteredTasks = this.taskDefinitionNamePipe.transform(this.tasks, this.taskSearch);
   }
 
   ngOnInit(): void {
@@ -30,7 +32,7 @@ export class FUnitTaskListComponent implements OnInit {
     this.taskViewerService.selectedTaskDef.subscribe((taskDef) => {
       this.selectedTaskDef = taskDef;
     });
-    this.taskViewerService.selectedTaskDef.next(this.unitTasks[0]);
+    this.taskViewerService.selectedTaskDef.next(this.tasks[0]);
 
     this.taskViewerService.taskSelected.subscribe((taskSelected) => {
       this.taskSelected = taskSelected;
