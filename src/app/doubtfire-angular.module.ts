@@ -328,6 +328,7 @@ import { GroupMemberListComponent} from './groups/group-member-list/group-member
     TasksViewerComponent,
     FUsersComponent,
     FUnitsComponent,
+    GroupMemberListComponent,
   ],
   // Module Imports
   imports: [

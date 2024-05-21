@@ -23,13 +23,13 @@ export class GroupMemberListComponent implements OnInit, OnChanges {
   @Input() project: Project;
   @Input() selectedGroupSet: GroupSet;
 
-  members: Member[] = [];  // Updated from 'any[]' to 'Member[]'
+  members: Member[] = [];
   loaded: boolean = false;
   tableSort: { order: string, reverse: boolean } = { order: 'student_name', reverse: false };
 
   constructor(
     private groupService: GroupService,
-    @Inject('alertService') private alertService: any  // Use AngularJS service in Angular
+    @Inject('alertService') private alertService: any  
   ) { }
 
   ngOnInit(): void {
@@ -54,17 +54,17 @@ export class GroupMemberListComponent implements OnInit, OnChanges {
     }, 500);
   }
 
-//  removeMember(member: Member): void {
-//    this.groupService.removeMember(member.id).subscribe({
-//      next: (resp) => {
-//        this.alertService.success('Member successfully removed');
-//        this.members = this.members.filter(m => m.id !== member.id);  // Update the members list
-//      },
-//      error: (error) => {
-//        this.alertService.error('Error removing member: ' + error.message);
-//      }
-//    });
-//  }
+  removeMember(member: Member): void {
+    this.groupService.removeMember(member.id).subscribe({
+      next: (resp) => {
+        this.alertService.success('Member successfully removed');
+        this.members = this.members.filter(m => m.id !== member.id);  // Update the members list
+      },
+      error: (error) => {
+        this.alertService.error('Error removing member: ' + error.message);
+      }
+    });
+  }
 }
 
 
