@@ -7,11 +7,10 @@ import { Component } from '@angular/core';
 })
 export class TutorGroupManagerComponent {
   unit = {
-    groupSets: [] // Assuming this structure, you'll need to populate this appropriately
+    groupSets: [] 
   };
 
   constructor() {
-    // Add any necessary constructor code here
 
   }
 }
