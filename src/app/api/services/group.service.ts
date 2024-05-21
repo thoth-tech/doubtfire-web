@@ -3,6 +3,7 @@ import { Group, Unit } from 'src/app/api/models/doubtfire-model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import API_URL from 'src/app/config/constants/apiURL';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class GroupService extends CachedEntityService<Group> {
@@ -15,7 +16,7 @@ export class GroupService extends CachedEntityService<Group> {
       'id',
       'name',
       {
-        keys: ['groupSet','group_set_id'],
+        keys: ['groupSet', 'group_set_id'],
         toEntityFn: (data: object, jsonKey: string, grp: Group) => {
           return grp.unit.groupSetsCache.get(data[jsonKey]);
         }
@@ -24,7 +25,7 @@ export class GroupService extends CachedEntityService<Group> {
       'locked',
       'studentCount',
       {
-        keys: ['tutorial','tutorial_id'],
+        keys: ['tutorial', 'tutorial_id'],
         toEntityFn: (data: object, jsonKey: string, grp: Group) => {
           return grp.unit.tutorialsCache.get(data[jsonKey]);
         },
@@ -39,5 +40,20 @@ export class GroupService extends CachedEntityService<Group> {
 
   public createInstanceFrom(json: object, other?: any): Group {
     return new Group(other as Unit);
+  }
+
+  public removeMember(group: Group, memberId: number): Observable<any> {
+    const member = group.members.find(m => m.id === memberId);
+    if (member) {
+      return new Observable(observer => {
+        group.removeMember(member);
+        observer.next();
+        observer.complete();
+      });
+    } else {
+      return new Observable(observer => {
+        observer.error(new Error('Member not found'));
+      });
+    }
   }
 }
