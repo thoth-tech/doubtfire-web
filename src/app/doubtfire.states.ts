@@ -267,7 +267,7 @@ const AdministerUnits: NgHybridStateDeclaration = {
   data: {
     pageTitle: 'Administer units',
     roleWhiteList: ['Admin'],
-  }
+  },
 };
 
 const CourseFlowState: NgHybridStateDeclaration = {

@@ -1,7 +1,6 @@
 import {interval} from 'rxjs';
 import {take} from 'rxjs/operators';
 
-import {RouterModule} from '@angular/router'; //courseflow
 import {NgModule, Injector, DoBootstrap} from '@angular/core';
 import {BrowserModule, DomSanitizer, Title} from '@angular/platform-browser';
 import {UpgradeModule} from '@angular/upgrade/static';
@@ -463,9 +462,6 @@ import {CourseFlowComponent} from './courseflow/courseflow.component';
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModuleNew,
-    RouterModule.forRoot([
-      { path: 'courseflow', component: CourseFlowComponent} //courseflow
-    ]),
   ],
 })
 

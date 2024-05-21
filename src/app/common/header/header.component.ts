@@ -137,10 +137,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.CalendarModal.show();
   }
 
-  openCourseFlow(): void {
-    this.router.navigate(['/courseflow']);  // Method to navigate to the CourseFlow component
-  }
-
   signOut(): void {
     this.authService.signOut();
   }
