@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>Stage Selection</h2>
+<mat-dialog-content>
+  <div class="stage-selection-container">
+    <div class="stage-selection-header">
+      <p>Select Stages to insert</p>
+      <p>Select the relevant feedback options.</p>
+    </div>
+    <mat-selection-list>
+      <mat-list-option *ngFor="let stage of stages" (click)="toggleStageSelection(stage)">
+        {{ stage.title }}
+      </mat-list-option>
+    </mat-selection-list>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" class="cancel-button">Cancel</button>
+  <button mat-button mat-raised-button color="primary" (click)="insertStages()" class="insert-button">Insert Stages</button>
+</mat-dialog-actions>

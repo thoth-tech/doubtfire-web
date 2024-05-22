@@ -1,6 +1,6 @@
 import { CdkDragEnd, CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { MediaObserver } from '@angular/flex-layout';
+import { MediaObserver } from 'ng-flex-layout';
 import { UIRouter } from '@uirouter/angular';
 import { auditTime, merge, Observable, of, Subject, tap, withLatestFrom } from 'rxjs';
 import { Task } from 'src/app/api/models/task';

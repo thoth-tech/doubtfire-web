@@ -1,0 +1,50 @@
+.stage-selection-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.stage-selection-header {
+  margin-bottom: 15px;
+}
+
+.stage-selection-header p:first-child {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.stage-selection-header p:last-child {
+  font-size: 14px;
+  color: #666;
+}
+
+mat-selection-list {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+mat-list-option {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+mat-list-option:last-child {
+  border-bottom: none;
+}
+
+mat-dialog-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.insert-button {
+  background-color: #3f51b5;
+  color: white;
+}

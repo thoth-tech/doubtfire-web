@@ -17,9 +17,11 @@ import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog
 import {EmojiSearch} from '@ctrl/ngx-emoji-mart';
 import {EmojiData} from '@ctrl/ngx-emoji-mart/ngx-emoji/';
 import {EmojiService} from 'src/app/common/services/emoji.service';
-import {Task, TaskComment, TaskCommentService} from 'src/app/api/models/doubtfire-model';
+import {Stage, Task, TaskComment, TaskCommentService} from 'src/app/api/models/doubtfire-model';
 import {TaskCommentsViewerComponent} from '../task-comments-viewer/task-comments-viewer.component';
 import {BehaviorSubject} from 'rxjs';
+import {StageService} from 'src/app/api/services/stage.service';
+
 
 /**
  * The task comment viewer needs to share data with the Task Comment Composer. The data needed
@@ -65,6 +67,8 @@ export class TaskCommentComposerComponent implements DoCheck {
   @Input() sharedData: TaskCommentComposerData;
 
   public $userIsTyping = new BehaviorSubject<boolean>(false);
+  stages: Stage[];
+  selectedStage: Stage | null;
 
   comment = {
     text: '',
@@ -93,6 +97,7 @@ export class TaskCommentComposerComponent implements DoCheck {
     @Inject(analyticsService) private analytics,
     @Inject(alertService) private alerts,
     @Inject(TaskCommentService) private taskCommentService: TaskCommentService,
+    @Inject(StageService) private stageService: StageService,
   ) {
     this.differ = this.differs.find({}).create();
   }
@@ -319,6 +324,35 @@ export class TaskCommentComposerComponent implements DoCheck {
       },
     );
   }
+
+  openFeedbackStageComposer() {
+    const dialogRef = this.dialog.open(FeedbackStageComposerDialog, {
+      data: {
+        task: this.task,
+      },
+      maxWidth: '800px',
+      disableClose: false,
+      minWidth: '500px',
+      minHeight: '300px',
+    });
+
+    // dialogRef.afterOpened().subscribe((result: any) => {
+    // });
+
+    dialogRef.afterClosed().subscribe((feedbackText) => {
+      if (feedbackText) {
+        this.insertFeedback(feedbackText);
+      }
+    });
+  }
+
+  insertFeedback(feedbackText: string): void {
+    const studentName = ``;
+    this.input.first.nativeElement.innerText = `Hello ${studentName},\n\nI have reviewed your submission and have the following feedback:\n\n${feedbackText}`;
+    setTimeout(() => {
+      this.input.first.nativeElement.focus();
+    });
+  }
 }
 
 // The discussion prompt composer dialog Component
@@ -335,4 +369,51 @@ export class DiscussionComposerDialog implements OnInit {
   ) {}
 
   ngOnInit() {}
+}
+
+// eslint-disable-next-line max-classes-per-file
+@Component({
+  selector: 'feedback-stage-composer-dialog.html',
+  templateUrl: 'feedback-stage-composer-dialog.html',
+  styleUrls: ['feedback-stage-composer-dialog.scss'],
+})
+export class FeedbackStageComposerDialog implements OnInit {
+  public stages: Stage[] = [];
+  public selectedStages: Stage[] = [];
+  constructor(
+    public dialogRef: MatDialogRef<FeedbackStageComposerDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(TaskCommentService) private taskCommentService: TaskCommentService,
+    @Inject(StageService) private stageService: StageService,
+  ) {}
+
+  ngOnInit() {
+    this.stageService.getStagesByTaskDefinition(this.data.task.definition.id).subscribe(
+      (response) => {
+        this.stages = response;
+      },
+      (error) => {
+        console.log('Failed to fetch stages for task definition', error);
+      },
+    );
+  }
+
+  toggleStageSelection(stage: Stage) {
+    const index = this.selectedStages.findIndex((selected) => selected.id === stage.id);
+    if (index >= 0) {
+      this.selectedStages.splice(index, 1);
+    } else {
+      this.selectedStages.push(stage);
+    }
+  }
+
+  insertStages() {
+    const feedbackText = this.selectedStages.map((stage) => `- **${stage.title}**`).join('\n\n');
+    console.log('Insert Stages clicked', feedbackText);
+    this.dialogRef.close(feedbackText);
+  }
+
+  cancel() {
+    this.dialogRef.close();
+  }
 }

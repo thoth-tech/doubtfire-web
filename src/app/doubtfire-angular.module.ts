@@ -78,6 +78,7 @@ import {
 import {
   TaskCommentComposerComponent,
   DiscussionComposerDialog,
+  FeedbackStageComposerDialog,
 } from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
@@ -90,7 +91,7 @@ import {
 } from './tasks/task-comments-viewer/intelligent-discussion-player/intelligent-discussion-player.component';
 import {MicrophoneTesterComponent} from './common/audio-recorder/audio/microphone-tester/microphone-tester.component';
 import {IntelligentDiscussionRecorderComponent} from './tasks/task-comments-viewer/intelligent-discussion-player/intelligent-discussion-recorder/intelligent-discussion-recorder.component';
-import {FlexLayoutModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {ExtensionCommentComponent} from './tasks/task-comments-viewer/extension-comment/extension-comment.component';
 import {CampusListComponent} from './admin/institution-settings/campuses/campus-list/campus-list.component';
 import {ExtensionModalComponent} from './common/modals/extension-modal/extension-modal.component';
@@ -243,6 +244,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     IntelligentDiscussionPlayerComponent,
     IntelligentDiscussionDialog,
     DiscussionComposerDialog,
+    FeedbackStageComposerDialog,
     IntelligentDiscussionRecorderComponent,
     ExtensionCommentComponent,
     PdfImageCommentComponent,
@@ -332,9 +334,9 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
   ],
   // Module Imports
   imports: [
+    FlexLayoutModule,
     BrowserModule,
     BrowserAnimationsModule,
-    FlexLayoutModule,
     FormsModule,
     HttpClientModule,
     ClipboardModule,

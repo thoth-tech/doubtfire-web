@@ -100,6 +100,20 @@
           >
             <mat-icon class="message-inbox-icon">mark_chat_read</mat-icon>
           </button>
+
+          <!-- Button to launch Feedback Stage Modal  -->
+          <button
+            [hidden]="$userIsTyping | async"
+            matTooltip="Open Feedback Stages for Task"
+            matTooltipShowDelay="400"
+            mat-icon-button
+            class="btn-no-outline"
+            type="button"
+            aria-label="launch feedback stage tool"
+            (click)="openFeedbackStageComposer()"
+          >
+            <mat-icon class="message-inbox-icon">playlist_add_check</mat-icon>
+          </button>
         }
 
         <button
