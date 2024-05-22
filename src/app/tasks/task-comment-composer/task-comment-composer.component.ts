@@ -332,6 +332,8 @@ export class TaskCommentComposerComponent implements DoCheck {
       },
       maxWidth: '800px',
       disableClose: false,
+      minWidth: '500px',
+      minHeight: '300px',
     });
 
     // dialogRef.afterOpened().subscribe((result: any) => {
@@ -345,8 +347,7 @@ export class TaskCommentComposerComponent implements DoCheck {
   }
 
   insertFeedback(feedbackText: string): void {
-    const studentName = `name`;
-
+    const studentName = ``;
     this.input.first.nativeElement.innerText = `Hello ${studentName},\n\nI have reviewed your submission and have the following feedback:\n\n${feedbackText}`;
     setTimeout(() => {
       this.input.first.nativeElement.focus();
@@ -379,7 +380,6 @@ export class DiscussionComposerDialog implements OnInit {
 export class FeedbackStageComposerDialog implements OnInit {
   public stages: Stage[] = [];
   public selectedStages: Stage[] = [];
-  public studentName: string;
   constructor(
     public dialogRef: MatDialogRef<FeedbackStageComposerDialog>,
     @Inject(MAT_DIALOG_DATA) public data: any,
