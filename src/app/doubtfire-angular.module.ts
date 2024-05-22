@@ -75,6 +75,7 @@ import {
   uploadSubmissionModalProvider,
   ConfirmationModalProvider,
 } from './ajs-upgraded-providers';
+import {ProjectTasksListComponent} from './tasks/project-tasks-list/project-tasks-list.component';
 import {
   TaskCommentComposerComponent,
   DiscussionComposerDialog,
@@ -135,6 +136,8 @@ import {TasksInTutorialsPipe} from './common/filters/tasks-in-tutorials.pipe';
 import {TasksForInboxSearchPipe} from './common/filters/tasks-for-inbox-search.pipe';
 import {StatusIconComponent} from './common/status-icon/status-icon.component';
 import {ScrollingModule} from '@angular/cdk/scrolling';
+import {TasksForGroupsetPipe} from './common/filters/tasks-for-group-set.pipe';
+import {OrderByPipe} from './common/filters/order-by.pipe';
 import {CheckForUpdateService} from './sessions/service-worker-updater/check-for-update.service';
 import {
   ActivityTypeService,
@@ -209,6 +212,7 @@ import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-ro
 import {FileDropComponent} from './common/file-drop/file-drop.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
+import {TooltipDirective} from './common/directives/tooltip.directive';
 
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {CreateNewUnitModalContentComponent} from './admin/modals/create-new-unit-modal/create-new-unit-modal-content.component';
@@ -237,6 +241,7 @@ import {UnitCodeComponent} from './common/unit-code/unit-code.component';
     AlertComponent,
     AboutDoubtfireModalContent,
     TeachingPeriodUnitImportDialogComponent,
+    ProjectTasksListComponent,
     TaskCommentComposerComponent,
     AudioCommentRecorderComponent,
     MicrophoneTesterComponent,
@@ -279,6 +284,7 @@ import {UnitCodeComponent} from './common/unit-code/unit-code.component';
     UserIconComponent,
     AudioPlayerComponent,
     MarkedPipe,
+    TooltipDirective,
     HumanizedDatePipe,
     IsActiveUnitRole,
     DragDropDirective,
@@ -287,6 +293,8 @@ import {UnitCodeComponent} from './common/unit-code/unit-code.component';
     PdfViewerPanelComponent,
     StaffTaskListComponent,
     TaskSimilarityViewComponent,
+    TasksForGroupsetPipe,
+    OrderByPipe,
     FiltersPipe,
     TasksOfTaskDefinitionPipe,
     TasksInTutorialsPipe,

@@ -46,7 +46,6 @@ import 'build/src/app/tasks/modals/upload-submission-modal/upload-submission-mod
 import 'build/src/app/tasks/modals/grade-task-modal/grade-task-modal.js';
 import 'build/src/app/tasks/modals/modals.js';
 import 'build/src/app/tasks/tasks.js';
-import 'build/src/app/tasks/project-tasks-list/project-tasks-list.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-rater/task-ilo-alignment-rater.js';
 import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment.js';
@@ -150,6 +149,7 @@ import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
 
 import {AboutDoubtfireModal} from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
+import {ProjectTasksListComponent} from './tasks/project-tasks-list/project-tasks-list.component';
 import {TaskCommentComposerComponent} from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
 import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
 import {IntelligentDiscussionPlayerComponent} from './tasks/task-comments-viewer/intelligent-discussion-player/intelligent-discussion-player.component';
@@ -225,8 +225,8 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
-import { MarkedPipe } from './common/pipes/marked.pipe';
-import { AlertService } from './common/services/alert.service';
+import {MarkedPipe} from './common/pipes/marked.pipe';
+import {AlertService} from './common/services/alert.service';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -309,6 +309,10 @@ DoubtfireAngularJSModule.factory(
 DoubtfireAngularJSModule.factory('CreateNewUnitModal', downgradeInjectable(CreateNewUnitModal));
 
 // directive -> component
+DoubtfireAngularJSModule.directive(
+  'fProjectTasksList',
+  downgradeComponent({component: ProjectTasksListComponent}),
+);
 DoubtfireAngularJSModule.directive(
   'taskCommentComposer',
   downgradeComponent({component: TaskCommentComposerComponent}),
