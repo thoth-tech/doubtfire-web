@@ -141,18 +141,19 @@ mat-form-field {
     align-items: center;
     font-size: 14px;
     margin-bottom: 0; 
+    padding: 8px;
+    border-radius: 4px;
 }
+
 
 mat-slide-toggle {
     display: block;
 }
 
-mat-input {
-    padding-bottom: 0;
-  }
-
 .footer-button {
     margin: 3px;
+    background-color: rgb(36, 181, 36);
+    color: white;
 }
 
 label {

@@ -13,7 +13,7 @@
         <!-- code -->
         <div class="row" >
           <label class="description" for="code">Code</label>
-          <mat-form-field>
+          <mat-form-field class="custom-border">
             <input class="action" matInput id="code" type="text" placeholder="COS1234567" [(ngModel)]="unit.code"/>
           </mat-form-field>
         </div>
@@ -21,7 +21,7 @@
         <!-- name -->
         <div class="row">
           <label class="description" for="name">Name</label>
-          <mat-form-field>
+          <mat-form-field class="custom-border">
             <input class="action" matInput id="name" type="text" [(ngModel)]="unit.name" placeholder="name"/>
           </mat-form-field>
         </div>
@@ -29,7 +29,7 @@
         <!-- description-->
         <div class="row">
           <label class="description" for="description">Description</label>
-          <mat-form-field>
+          <mat-form-field class="custom-border">
             <textarea class="action" matInput id="description" [(ngModel)]="unit.description"></textarea>
           </mat-form-field>
         </div>
@@ -249,8 +249,8 @@
       
     </div>
     <div class="footer">
-      <button mat-flat-button class="footer-button" color="primary" (click)="navigateToRolloverPage()">Rollover</button>
-      <button mat-flat-button class="footer-button" color="primary" (click)="saveUnit()">Rollover</button>
+      <button mat-flat-button class="footer-button" (click)="navigateToRolloverPage()">Rollover</button>
+      <button mat-flat-button class="footer-button"  (click)="saveUnit()">Update</button>
 
     </div>
   </div>
