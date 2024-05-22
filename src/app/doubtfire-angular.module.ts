@@ -78,6 +78,7 @@ import {
 import {
   TaskCommentComposerComponent,
   DiscussionComposerDialog,
+  FeedbackStageComposerDialog,
 } from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
@@ -243,6 +244,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
     IntelligentDiscussionPlayerComponent,
     IntelligentDiscussionDialog,
     DiscussionComposerDialog,
+    FeedbackStageComposerDialog,
     IntelligentDiscussionRecorderComponent,
     ExtensionCommentComponent,
     PdfImageCommentComponent,

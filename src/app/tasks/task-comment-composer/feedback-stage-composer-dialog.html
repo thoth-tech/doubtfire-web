@@ -1,0 +1,37 @@
+<button id="dialogCloseButton" mat-icon-button mat-dialog-close aria-label="Close dialog button">
+  <mat-icon aria-label="Quit cross icon">close</mat-icon>
+</button>
+
+<mat-horizontal-stepper id="stagePromptStepper" [linear]="true" #stepper>
+  <mat-step>
+    <ng-template matStepLabel>Select Stages</ng-template>
+    @if (stages.length > 0) {
+    <div class="introduction-text">
+      <h2 mat-dialog-title>Stage Selection</h2>
+
+      <mat-dialog-content>
+        <p>Select Stages to insert:</p>
+        <mat-selection-list>
+          <mat-list-option *ngFor="let stage of stages" (click)="toggleStageSelection(stage)">
+            {{ stage.title }}
+          </mat-list-option>
+        </mat-selection-list>
+      </mat-dialog-content>
+    </div>
+    } @else{
+    <div class="introduction-text">
+      <h2 mat-dialog-title>Stage Selection</h2>
+
+      <mat-dialog-content>
+        <p>No stages available to insert.</p>
+      </mat-dialog-content>
+    </div>
+    }
+    <div>
+      <mat-dialog-actions align="end">
+        <button mat-button (click)="cancel()">Cancel</button>
+        <button mat-button color="primary" (click)="insertStages()">Insert Stages</button>
+      </mat-dialog-actions>
+    </div>
+  </mat-step>
+</mat-horizontal-stepper>

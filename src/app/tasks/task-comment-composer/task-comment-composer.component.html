@@ -101,97 +101,19 @@
             <mat-icon class="message-inbox-icon">mark_chat_read</mat-icon>
           </button>
 
-          <!-- Stage Selection Dropdown -->
-          <mat-form-field appearance="fill" *ngIf="this.task.definition.stages">
-            <mat-label>Select Stage</mat-label>
-            <mat-select [(value)]="selectedStage" (selectionChange)="onStageSelect()">
-              <select [(ngModel)]="selectedStage">
-                <option *ngFor="let stage of task.definition.stages" [value]="stage.id">
-                  {{ stage.title }}
-                </option>
-              </select>
-            </mat-select>
-          </mat-form-field>
-
-          <!-- Feedback Option Selection Dropdown, shown only if a stage is selected -->
-          <mat-form-field appearance="fill" *ngIf="selectedStage">
-            <mat-label>Select Feedback</mat-label>
-            <mat-select [(value)]="selectedFeedbackOption">
-              <mat-option *ngFor="let option of selectedStage.options" [value]="option">
-                - {{ option[0] }} {{ option[1].join('\n\t- ') }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <!-- Feedback Option Selection Dropdown, shown only if a stage is selected -->
-          <mat-form-field appearance="fill" *ngIf="selectedStage">
-            <mat-label>Select Option</mat-label>
-            <mat-select [(value)]="selectedFeedbackOption">
-              <mat-option *ngFor="let option of selectedStage.options" [value]="option">
-                {{ option[1].join('\n') }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <!-- Button to insert selected feedback into the comment -->
+          <!-- Button to launch Feedback Stage Modal  -->
           <button
-            mat-raised-button
-            color="primary"
-            (click)="insertFeedback()"
-            *ngIf="selectedFeedbackOption"
-          >
-            Insert Feedback
-            <mat-icon>assignment_turned_in</mat-icon>
-          </button>
-
-          <!-- Icon button to open stage selection dialog -->
-          <!-- <button
             [hidden]="$userIsTyping | async"
-            matTooltip="Feedback Options"
+            matTooltip="Open Feedback Stages for Task"
             matTooltipShowDelay="400"
             mat-icon-button
             class="btn-no-outline"
             type="button"
-            aria-label="launch "
-            (click)="openDiscussionComposer()"
+            aria-label="launch feedback stage tool"
+            (click)="openFeedbackStageComposer()"
           >
-
-            <mat-icon>assignment_turned_in</mat-icon>
-          </button> -->
-
-          <!-- Stage selection dialog -->
-          <ng-template #stageDialog>
-            <mat-dialog-content>
-              <mat-form-field appearance="fill">
-                <mat-label>Select Stage</mat-label>
-                <mat-select [(value)]="selectedStage" (selectionChange)="onStageSelect()">
-                  <mat-option *ngFor="let stage of stages" [value]="stage">
-                    {{ stage.title }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-
-              <!-- Feedback Option Selection Dropdown -->
-              <mat-form-field appearance="fill">
-                <mat-label>Select Feedback</mat-label>
-                <mat-select [(value)]="selectedFeedbackOption">
-                  <mat-option *ngFor="let option of selectedStage.options" [value]="option">
-                    {{ option }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-
-              <!-- Button to insert selected feedback into the comment -->
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="insertFeedback()"
-                *ngIf="selectedFeedbackOption"
-              >
-                Insert Feedback
-              </button>
-            </mat-dialog-content>
-          </ng-template>
+            <mat-icon class="message-inbox-icon">playlist_add_check</mat-icon>
+          </button>
         }
 
         <button
