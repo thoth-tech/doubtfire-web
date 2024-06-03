@@ -3,7 +3,7 @@
 @import 'src/theme.scss';
 @import 'src/styles/mixins/scrollable.scss';
 
-$my-palette: mat.define-palette($md-formatif);
+$my-palette: mat.m2-define-palette($md-formatif);
 
 :host {
   --background-gray: rgba(0, 0, 0, 0.04);
