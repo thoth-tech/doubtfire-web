@@ -5,7 +5,7 @@ import {NgModule, Injector, DoBootstrap} from '@angular/core';
 import {BrowserModule, DomSanitizer, Title} from '@angular/platform-browser';
 import {UpgradeModule} from '@angular/upgrade/static';
 import {AppInjector, setAppInjector} from './app-injector';
-import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 // Lottie animation module
@@ -246,7 +246,6 @@ import {FTaskDetailsViewComponent} from './units/task-viewer/directives/task-det
 import {FTaskSheetViewComponent} from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
-
 
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import {ScormAdapterService} from './api/services/scorm-adapter.service';
@@ -557,14 +556,14 @@ import {ProjectProgressDashboardComponent} from './projects/project-progress-das
     LtiService,
     TaskPrerequisiteService,
     MarkingSessionService,
-    UnauthorisedComponent
+    UnauthorisedComponent,
+    provideHttpClient(withInterceptorsFromDi())
   ],
   imports: [
     FlexLayoutModule,
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
-    HttpClientModule,
     ClipboardModule,
     DragDropModule,
     ScrollingModule,
