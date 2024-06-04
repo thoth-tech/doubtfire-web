@@ -1,14 +1,21 @@
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
+@use './styles/m3-theme.scss';
 
 @include mat.core();
 
-@import './theme.scss';
 @import '../node_modules/angular-calendar/css/angular-calendar.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+html {
+  // Apply the light theme by default
+  @include mat.core-theme(m3-theme.$light-theme);
+  @include mat.button-theme(m3-theme.$light-theme);
+}
 
 .mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field
   .mdc-notched-outline__notch {
