@@ -25,11 +25,13 @@
   <ng-container matColumnDef="tii-check" sticky>
     <th style="width: 20%" mat-header-cell *matHeaderCellDef>Check Similarity</th>
     <td style="width: 20%" mat-cell *matCellDef="let upreq">
+      
       @if (upreq.type === 'document' && tiiEnabled()) {
         <mat-checkbox [(ngModel)]="upreq.tiiCheck">TurnItIn</mat-checkbox>
       }
       @if (upreq.type === 'code') {
         <mat-checkbox [(ngModel)]="upreq.tiiCheck">Jplag</mat-checkbox>
+
       }
     </td>
   </ng-container>
@@ -80,6 +82,7 @@
   <tr mat-row *matRowDef="let row; columns: columns" class="table-row"></tr>
   <tr mat-footer-row *matFooterRowDef="['actions']"></tr>
 </table>
+
 
 @if (taskDefinition.needsJplag) {
   <div class="flex-grow flex flex-row gap-4">

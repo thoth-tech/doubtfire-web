@@ -318,7 +318,7 @@ DoubtfireAngularJSModule.factory(
   downgradeInjectable(TaskAssessmentModalService),
 );
 DoubtfireAngularJSModule.factory('TaskSubmission', downgradeInjectable(TaskSubmissionService));
-DoubtfireAngularJSModule.factory('GlobalStateService', downgradeInjectable(GlobalStateService));
+DoubtfireAngularJSModule.factory('globalStateService', downgradeInjectable(GlobalStateService));
 DoubtfireAngularJSModule.factory(
   'TransitionHooksService',
   downgradeInjectable(TransitionHooksService),

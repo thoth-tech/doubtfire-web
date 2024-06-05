@@ -1,6 +1,11 @@
-<div fxLayout="column" fxFill fxHide fxShow.gt-sm>
+<div fxLayout="column" fxFill fxHide fxShow.gt-sm *ngIf="project$ | async as project">
   <div fxLayout="row" fxLayoutAlign="center stretch" fxFill>
-    <f-unit-task-list *ngIf="leftComponent" #leftomponent></f-unit-task-list>
+    {{ project.activeTasks() | json }}
+    <f-unit-task-list
+      [mode]="'project'"
+      [tasks]="project.taskCache.cache"
+      #leftomponent
+    ></f-unit-task-list>
     @if (subs$ | async) {
       <div
         id="leftResizerEl"

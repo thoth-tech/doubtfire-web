@@ -1,25 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {CdkDragEnd, CdkDragMove, CdkDragStart} from '@angular/cdk/drag-drop';
-import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, Component, Input, type OnInit} from '@angular/core';
+import {Component, Input, type OnInit} from '@angular/core';
 import {Observable, Subject, auditTime, merge, of, tap, withLatestFrom} from 'rxjs';
 import {ProjectService} from 'src/app/api/services/project.service';
 import {GlobalStateService} from '../../index/global-state.service';
 import {UserService} from 'src/app/api/services/user.service';
+import {Project} from 'src/app/api/models/project';
 
 @Component({
   selector: 'f-project-dashboard',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './project-dashboard.component.html',
   styleUrl: './project-dashboard.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectDashboardComponent implements OnInit {
-  @Input() leftComponent: any;
-  @Input() centerComponent: any;
-  @Input() rightComponent: any;
-  @Input() footerComponent: any;
+  @Input() public project$: Observable<Project>;
 
   subs$: Observable<unknown>;
 
@@ -34,7 +28,6 @@ export class ProjectDashboardComponent implements OnInit {
     private projectService: ProjectService,
     private globalStateService: GlobalStateService,
   ) {
-    console.log('test');
   }
 
   startedDragging(event: CdkDragStart, div: HTMLDivElement) {
@@ -54,8 +47,10 @@ export class ProjectDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('test');
     // projectTasks = this.projectService.loadProject
+    this.project$.subscribe((project) => {
+      console.log(project);
+    });
 
     this.dragMoveAudited$ = this.dragMove$.pipe(
       withLatestFrom(this.leftComponentStartSize$),
