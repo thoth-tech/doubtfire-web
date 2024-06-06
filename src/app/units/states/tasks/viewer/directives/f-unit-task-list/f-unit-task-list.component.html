@@ -21,7 +21,7 @@
 
   <!-- Scrollable Unit Task List -->
   <div class="tasks-viewport scrollable" itemSize="60">
-    <mat-selection-list #tasks [multiple]="false">
+    <mat-selection-list #taskDefinitions [multiple]="false">
       @if (filteredTasks.length === 0) {
         <div class="text-center text-muted">No tasks to display</div>
       }

@@ -1,9 +1,11 @@
 <div fxLayout="column" fxFill fxHide fxShow.gt-sm *ngIf="project$ | async as project">
   <div fxLayout="row" fxLayoutAlign="center stretch" fxFill>
-    {{ project.activeTasks() | json }}
+    {{ project.activeTasks().length }}
+    {{ project.unit.taskDefinitions.length }}
     <f-unit-task-list
+      *ngIf="project.unit.taskDefinitions.length > 0"
       [mode]="'project'"
-      [tasks]="project.taskCache.cache"
+      [taskDefinitions]="project.unit.taskDefinitions"
       #leftomponent
     ></f-unit-task-list>
     @if (subs$ | async) {
