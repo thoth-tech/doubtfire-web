@@ -30,9 +30,9 @@
           @if (task) {
             <div
               class="flex w-full item-content items-center hover:bg-gray-50"
-              (click)="setSelectedTask(task)"
+              (click)="setSelectedTaskDefinition(task)"
               [ngClass]="{
-                selected: isSelectedTask(task)
+                selected: isSelectedTaskDefinition(task)
               }"
             >
               <div class="task-entry w-full flex items-center">
@@ -46,6 +46,7 @@
                         <mat-icon class="text-gray-400 scale-75">group</mat-icon>
                       }
                       <div class="task-details">{{ gradeNames[task.targetGrade] }} Task</div>
+                      <p *ngIf="hasTasks">{{ taskForTaskDef(task).status }}</p>
                     </span>
 
                     <div></div>

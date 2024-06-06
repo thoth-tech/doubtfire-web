@@ -1,6 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, output} from '@angular/core';
 import {Grade} from 'src/app/api/models/grade';
-import {TaskDefinition} from 'src/app/api/models/doubtfire-model';
+import {TaskDefinition, Task} from 'src/app/api/models/doubtfire-model';
 import {TaskDefinitionNamePipe} from 'src/app/common/filters/task-definition-name.pipe';
 import {TasksViewerService} from '../../../tasks-viewer.service';
 
@@ -12,6 +12,11 @@ import {TasksViewerService} from '../../../tasks-viewer.service';
 export class FUnitTaskListComponent implements OnInit {
   @Input() mode: 'project' | 'all-tasks';
   @Input() taskDefinitions: TaskDefinition[];
+  @Input() tasks: Task[];
+
+  selectedTaskDefinition = output<TaskDefinition>();
+
+  // @Output() selectedTask: EventEmitter<Task> = new EventEmitter<Task>();
 
   filteredTasks: TaskDefinition[]; // list of tasks which match the taskSearch term
   taskSearch: string = ''; // task search term from user input
@@ -29,24 +34,44 @@ export class FUnitTaskListComponent implements OnInit {
     );
   }
 
+  public get hasTasks(): boolean {
+    return this.tasks && this.tasks.length > 0;
+  }
+
+  public taskForTaskDef(taskDef: TaskDefinition): Task {
+    return this.tasks.find((task) => task.definition.id === taskDef.id);
+  }
+
   ngOnInit(): void {
     this.applyFilters();
 
+    // TODO: Remove the service
     this.taskViewerService.selectedTaskDef.subscribe((taskDef) => {
       this.selectedTaskDef = taskDef;
     });
-    this.taskViewerService.selectedTaskDef.next(this.taskDefinitions[0]);
 
     this.taskViewerService.taskSelected.subscribe((taskSelected) => {
       this.taskSelected = taskSelected;
     });
+
+    // Select the first task definition by default
+    if (this.taskDefinitions.length > 0) {
+      this.setSelectedTaskDefinition(this.taskDefinitions[0]);
+    }
   }
 
-  setSelectedTask(task: TaskDefinition) {
-    this.taskViewerService.setSelectedTaskDef(task);
+  setSelectedTaskDefinition(taskDef: TaskDefinition) {
+    this.selectedTaskDefinition.emit(taskDef);
+    // const selectedTask = this.taskForTaskDef(taskDef);
+    // if (selectedTask) {
+    //   this.selectedTask$.next(selectedTask);
+    // }
+
+    //TODO: remove
+    this.taskViewerService.setSelectedTaskDef(taskDef);
   }
 
-  isSelectedTask(task: TaskDefinition) {
+  isSelectedTaskDefinition(task: TaskDefinition) {
     return this.selectedTaskDef.id == task.id;
   }
 }

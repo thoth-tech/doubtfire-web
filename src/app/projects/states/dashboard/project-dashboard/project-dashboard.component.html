@@ -2,11 +2,16 @@
   <div fxLayout="row" fxLayoutAlign="center stretch" fxFill>
     {{ project.activeTasks().length }}
     {{ project.unit.taskDefinitions.length }}
+    <div *ngIf="selectedTaskDefinition$ | async as selectedTaskDefinition">
+      <p>Selected task definition: {{ selectedTaskDefinition.abbreviation }}</p>
+    </div>
     <f-unit-task-list
       *ngIf="project.unit.taskDefinitions.length > 0"
       [mode]="'project'"
       [taskDefinitions]="project.unit.taskDefinitions"
-      #leftomponent
+      [tasks]="project.tasks"
+      (selectedTaskDefinition)="(selectedTaskDefinition$)"
+      #unitTaskList
     ></f-unit-task-list>
     @if (subs$ | async) {
       <div
