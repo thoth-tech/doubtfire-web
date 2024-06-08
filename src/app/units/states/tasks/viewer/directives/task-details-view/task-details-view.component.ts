@@ -4,8 +4,8 @@ import {Unit} from 'src/app/api/models/unit';
 
 @Component({
   selector: 'f-task-details-view',
-  templateUrl: './f-task-details-view.component.html',
-  styleUrls: ['./f-task-details-view.component.scss'],
+  templateUrl: './task-details-view.component.html',
+  styleUrls: ['./task-details-view.component.scss'],
 })
 export class FTaskDetailsViewComponent {
   @Input() taskDef: TaskDefinition;

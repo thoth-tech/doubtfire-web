@@ -30,8 +30,8 @@ type IUnitOrProject = {
 
 @Component({
   selector: 'f-units',
-  templateUrl: './f-units.component.html',
-  styleUrls: ['./f-units.component.scss'],
+  templateUrl: './units.component.html',
+  styleUrls: ['./units.component.scss'],
 })
 export class FUnitsComponent implements OnInit, AfterViewInit {
   @ViewChild(MatTable, {static: false}) table: MatTable<Unit>;

@@ -7,6 +7,7 @@ import {SignInComponent} from './sessions/states/sign-in/sign-in.component';
 import {EditProfileComponent} from './account/edit-profile/edit-profile.component';
 import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
+
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 

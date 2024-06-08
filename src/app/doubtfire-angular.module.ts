@@ -213,7 +213,7 @@ import {TaskDashboardComponent} from './projects/states/dashboard/directives/tas
 import {InboxComponent} from './units/states/tasks/inbox/inbox.component';
 import {ProjectProgressBarComponent} from './common/project-progress-bar/project-progress-bar.component';
 import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
-import {FChipComponent} from './common/f-chip/f-chip.component';
+import {FChipComponent} from './common/f-chip/chip.component';
 import {TaskSimilarityViewComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-similarity-view/task-similarity-view.component';
 import {FileViewerComponent} from './common/file-viewer/file-viewer.component';
 import {TaskDefinitionEditorComponent} from './units/states/edit/directives/unit-tasks-editor/task-definition-editor/task-definition-editor.component';
@@ -228,7 +228,7 @@ import {TaskDefinitionScormComponent} from './units/states/edit/directives/unit-
 import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-route.component';
 import {FileDropComponent} from './common/file-drop/file-drop.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
-import {FUsersComponent} from './admin/states/f-users/f-users.component';
+import {FUsersComponent} from './admin/states/users/users.component';
 import {ProjectProgressComponent} from './common/project-progress/project-progress.component';
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {CreateNewUnitModalContentComponent} from './admin/modals/create-new-unit-modal/create-new-unit-modal-content.component';
@@ -239,7 +239,7 @@ import {
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
 import {TiiActionLogComponent} from './admin/tii-action-log/tii-action-log.component';
 import {TiiActionService} from './api/services/tii-action.service';
-import {FUnitsComponent} from './admin/states/f-units/f-units.component';
+import {FUnitsComponent} from './admin/states/units/units.component';
 import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/unit-task-list/unit-task-list.component';
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/task-details-view/task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/task-sheet-view/task-sheet-view.component';

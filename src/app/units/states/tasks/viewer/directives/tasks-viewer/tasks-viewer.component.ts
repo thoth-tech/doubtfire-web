@@ -5,8 +5,8 @@ import {BehaviorSubject} from 'rxjs';
 
 @Component({
   selector: 'f-tasks-viewer',
-  templateUrl: './f-tasks-viewer.component.html',
-  styleUrls: ['./f-tasks-viewer.component.scss'],
+  templateUrl: './tasks-viewer.component.html',
+  styleUrls: ['./tasks-viewer.component.scss'],
 })
 export class TasksViewerComponent {
   @Input() taskDefs: TaskDefinition[];

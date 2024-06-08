@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FChipComponent } from './f-chip.component';
+import { FChipComponent } from './chip.component';
 
 describe('FChipComponent', () => {
   let component: FChipComponent;

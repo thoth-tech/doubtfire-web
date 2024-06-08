@@ -12,8 +12,8 @@ import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'f-users',
-  templateUrl: './f-users.component.html',
-  styleUrls: ['./f-users.component.scss'],
+  templateUrl: './users.component.html',
+  styleUrls: ['./users.component.scss'],
 })
 export class FUsersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatTable, { static: false }) table: MatTable<User>;

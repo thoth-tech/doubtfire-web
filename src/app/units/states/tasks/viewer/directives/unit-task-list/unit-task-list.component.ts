@@ -6,8 +6,8 @@ import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'f-unit-task-list',
-  templateUrl: './f-unit-task-list.component.html',
-  styleUrls: ['./f-unit-task-list.component.scss'],
+  templateUrl: './unit-task-list.component.html',
+  styleUrls: ['./unit-task-list.component.scss'],
 })
 export class FUnitTaskListComponent implements OnInit {
   @Input() mode: 'project' | 'all-tasks';
