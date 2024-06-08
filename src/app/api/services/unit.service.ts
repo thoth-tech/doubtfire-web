@@ -64,7 +64,7 @@ export class UnitService extends CachedEntityService<Unit> {
         },
       },
       {
-        keys: 'staff',
+        keys: 'unitRoles',
         toEntityOp: (data, key, entity) => {
           const unitRoleService = AppInjector.get(UnitRoleService);
           // Add staff
