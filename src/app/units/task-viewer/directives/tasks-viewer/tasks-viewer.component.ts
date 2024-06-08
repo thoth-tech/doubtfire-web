@@ -9,7 +9,6 @@ import {BehaviorSubject} from 'rxjs';
   styleUrls: ['./tasks-viewer.component.scss'],
 })
 export class TasksViewerComponent {
-  @Input() taskDefs: TaskDefinition[];
   @Input() unit: Unit;
 
   /**

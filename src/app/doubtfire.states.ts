@@ -32,6 +32,8 @@ import {ProjectService} from './api/services/project.service';
 import {Observable, first} from 'rxjs';
 import {GlobalStateService} from './projects/states/index/global-state.service';
 import {Project} from './api/models/project';
+import {UnitRootState} from './units/unit-root-state.component';
+import { TaskViewerState } from './units/task-viewer/task-viewer-state.component';
 
 /*
  * Use this file to store any states that are sourced by angular components.
@@ -322,7 +324,7 @@ const AbstractProjectState: NgHybridStateDeclaration = {
       const projectService = AppInjector.get(ProjectService);
       const globalState = AppInjector.get(GlobalStateService);
 
-      return new Observable((observer) => {
+      return new Observable<Project>((observer) => {
         globalState.onLoad(() => {
           projectService
             .get({id: $stateParams.projectId}, {cacheBehaviourOnGet: 'cacheQuery'})
@@ -686,4 +688,6 @@ export const doubtfireStates = [
   TutorAttendance,
   AbstractProjectState,
   ProjectDashboardState,
+  UnitRootState,
+  TaskViewerState,
 ];

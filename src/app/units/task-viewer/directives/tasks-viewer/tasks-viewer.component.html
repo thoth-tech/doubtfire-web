@@ -29,7 +29,7 @@
   <div class="vertical-panel mobile" [hidden]="selectedTaskDefinition$ | async">
     <f-unit-task-list
       [mode]="'all-tasks'"
-      [taskDefinitions]="taskDefs"
+      [taskDefinitions]="unit.taskDefinitions"
       [selectedTaskDefinition$]="selectedTaskDefinition$"
     ></f-unit-task-list>
   </div>

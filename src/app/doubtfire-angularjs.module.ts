@@ -92,8 +92,6 @@ import 'build/src/app/units/modals/modals.js';
 import 'build/src/app/units/units.js';
 import 'build/src/app/units/states/tasks/inbox/inbox.js';
 import 'build/src/app/units/states/tasks/tasks.js';
-import 'build/src/app/units/states/tasks/viewer/directives/directives.js';
-import 'build/src/app/units/states/tasks/viewer/viewer.js';
 import 'build/src/app/units/states/tasks/definition/definition.js';
 import 'build/src/app/units/states/portfolios/portfolios.js';
 import 'build/src/app/units/states/groups/groups.js';
@@ -211,10 +209,12 @@ import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-ro
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {FUsersComponent} from './admin/states/users/users.component';
+
 import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/unit-task-list/unit-task-list.component';
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/task-sheet-view/task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/viewer/directives/tasks-viewer/tasks-viewer.component';
+
 
 import {TaskIlosCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-ilos-card/task-ilos-card.component';
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
