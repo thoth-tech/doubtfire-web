@@ -1,13 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {CdkDragEnd, CdkDragMove, CdkDragStart} from '@angular/cdk/drag-drop';
-import {Component, Input, ViewChild, type OnInit} from '@angular/core';
-import {Observable, Subject, auditTime, merge, of, tap, withLatestFrom} from 'rxjs';
+import {Component, Input, OnInit} from '@angular/core';
+import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  auditTime,
+  merge,
+  of,
+  tap,
+  withLatestFrom,
+} from 'rxjs';
 import {ProjectService} from 'src/app/api/services/project.service';
 import {GlobalStateService} from '../../index/global-state.service';
 import {UserService} from 'src/app/api/services/user.service';
 import {Project, TaskDefinition} from 'src/app/api/models/doubtfire-model';
-import { FUnitTaskListComponent } from 'src/app/units/states/tasks/viewer/directives/f-unit-task-list/f-unit-task-list.component';
-import { outputToObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'f-project-dashboard',
@@ -18,35 +25,17 @@ export class ProjectDashboardComponent implements OnInit {
   @Input() public project$: Observable<Project>;
 
   /**
-   * Reference to the unit task list component so that we can create an
-   * observer of the selected task definition.
-   */
-  private unitTaskListPlaceholder: FUnitTaskListComponent;
-
-  @ViewChild('unitTaskList') set unitTaskList(content: FUnitTaskListComponent) {
-    if (content) {
-      // initially setter gets called with undefined
-      this.unitTaskListPlaceholder = content;
-      this.selectedTaskDefinition$ = outputToObservable(this.unitTaskListPlaceholder.selectedTaskDefinition);
-
-      // Triger event for first selected task? -- not a behaviour subject? How can we avoid this?
-      setTimeout(() => {
-        this.unitTaskListPlaceholder.selectedTaskDefinition.emit(this.unitTaskListPlaceholder.selectedTaskDef);
-      });
-    }
-  }
-
-  /**
    * The currently selected task definition - selected in the unit task list.
+   * This is crated here, and passed to children to interact with and share across context.
    */
-  public selectedTaskDefinition$: Observable<TaskDefinition>;
+  public selectedTaskDefinition$: BehaviorSubject<TaskDefinition> =
+    new BehaviorSubject<TaskDefinition>(null);
 
   subs$: Observable<unknown>;
 
   private leftComponentStartSize$ = new Subject<number>();
   private dragMove$ = new Subject<{event: CdkDragMove; div: HTMLDivElement}>();
   private dragMoveAudited$;
-
 
   projectTasks = [];
 

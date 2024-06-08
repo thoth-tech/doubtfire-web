@@ -124,7 +124,9 @@ import 'build/src/app/common/services/date-service.js';
 import 'build/src/app/sessions/auth/http-auth-injector.js';
 import 'build/src/app/sessions/sessions.js';
 import 'build/src/app/errors/errors.js';
+
 import 'build/src/app/errors/states/unauthorised/unauthorised.js';
+
 
 import 'build/src/app/errors/states/not-found/not-found.js';
 import 'build/src/app/errors/states/timeout/timeout.js';
@@ -209,10 +211,10 @@ import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-ro
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
-import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-unit-task-list/f-unit-task-list.component';
+import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/unit-task-list/unit-task-list.component';
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
-import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
-import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/task-sheet-view/task-sheet-view.component';
+import {TasksViewerComponent} from './units/states/tasks/viewer/directives/tasks-viewer/tasks-viewer.component';
 import {TaskIlosCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-ilos-card/task-ilos-card.component';
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
@@ -318,7 +320,7 @@ DoubtfireAngularJSModule.factory(
   downgradeInjectable(TaskAssessmentModalService),
 );
 DoubtfireAngularJSModule.factory('TaskSubmission', downgradeInjectable(TaskSubmissionService));
-DoubtfireAngularJSModule.factory('globalStateService', downgradeInjectable(GlobalStateService));
+DoubtfireAngularJSModule.factory('GlobalStateService', downgradeInjectable(GlobalStateService));
 DoubtfireAngularJSModule.factory(
   'TransitionHooksService',
   downgradeInjectable(TransitionHooksService),
