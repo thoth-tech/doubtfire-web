@@ -210,10 +210,9 @@ import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {FUsersComponent} from './admin/states/users/users.component';
 
-import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/unit-task-list/unit-task-list.component';
-import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
-import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/task-sheet-view/task-sheet-view.component';
-import {TasksViewerComponent} from './units/states/tasks/viewer/directives/tasks-viewer/tasks-viewer.component';
+import {FUnitTaskListComponent} from './units/task-viewer/directives/unit-task-list/unit-task-list.component';
+import {FTaskDetailsViewComponent} from './units/task-viewer/directives/task-details-view/task-details-view.component';
+import {FTaskSheetViewComponent} from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
 
 
 import {TaskIlosCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-ilos-card/task-ilos-card.component';
@@ -411,10 +410,6 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'fTaskStatusCard',
   downgradeComponent({component: TaskStatusCardComponent}),
-);
-DoubtfireAngularJSModule.directive(
-  'fTasksViewer',
-  downgradeComponent({component: TasksViewerComponent}),
 );
 DoubtfireAngularJSModule.directive('fInbox', downgradeComponent({component: InboxComponent}));
 DoubtfireAngularJSModule.directive(

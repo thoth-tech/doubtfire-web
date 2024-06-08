@@ -1,23 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {CdkDragEnd, CdkDragMove, CdkDragStart} from '@angular/cdk/drag-drop';
-import {Component, Input, OnInit} from '@angular/core';
-import {
-  BehaviorSubject,
-  Observable,
-  Subject,
-  auditTime,
-  first,
-  merge,
-  of,
-  tap,
-  withLatestFrom,
-} from 'rxjs';
-import {TaskDefinition, Unit, UnitService, UserService} from 'src/app/api/models/doubtfire-model';
-import { AppInjector } from '../../app-injector';
-import { NgHybridStateDeclaration } from '@uirouter/angular-hybrid';
-import { GlobalStateService, ViewType } from '../../projects/states/index/global-state.service';
-import { StateService } from '@uirouter/core';
-import { AlertService } from '../../common/services/alert.service';
+import {Component, Input} from '@angular/core';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {TaskDefinition, Unit} from 'src/app/api/models/doubtfire-model';
+import {NgHybridStateDeclaration} from '@uirouter/angular-hybrid';
 
 @Component({
   selector: 'f-task-viewer-state',
@@ -26,6 +11,26 @@ import { AlertService } from '../../common/services/alert.service';
 })
 export class TaskViewerStateComponent {
   @Input() public unit$: Observable<Unit>;
+
+  /**
+ * Monitor and publish the selected task definition for child components.
+ * We monitor the task definition list for changes in selected task definition.
+ */
+  selectedTaskDefinition$: BehaviorSubject<TaskDefinition> = new BehaviorSubject<TaskDefinition>(
+    null,
+  );
+
+  public get taskSelected(): boolean {
+    return this.selectedTaskDef !== null;
+  }
+
+  public get selectedTaskDef(): TaskDefinition {
+    return this.selectedTaskDefinition$.value;
+  }
+
+  public clearTaskSelection(): void {
+    this.selectedTaskDefinition$.next(null);
+  }
 }
 
 export const TaskViewerState: NgHybridStateDeclaration = {

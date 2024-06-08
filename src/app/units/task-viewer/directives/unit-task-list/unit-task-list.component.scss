@@ -1,6 +1,6 @@
 @use '@angular/material' as mat;
 
-@import '../../../../../../../theme.scss';
+@import '/src/theme.scss';
 @import '../../../../../../../styles/mixins/scrollable.scss';
 
 $my-palette: mat.define-palette($md-formatif);
