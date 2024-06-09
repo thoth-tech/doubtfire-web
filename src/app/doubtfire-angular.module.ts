@@ -315,6 +315,7 @@ const MY_DATE_FORMAT = {
 
 import { UnitRootStateComponent } from './units/unit-root-state.component';
 import { TaskViewerStateComponent } from './units/task-viewer/task-viewer-state.component';
+import { ProjectRootStateComponent } from './projects/states/project-root-state.component';
 
 
 @NgModule({
@@ -424,6 +425,7 @@ import { TaskViewerStateComponent } from './units/task-viewer/task-viewer-state.
     FTaskDetailsViewComponent,
     FTaskSheetViewComponent,
     UnitRootStateComponent,
+    ProjectRootStateComponent,
     TaskViewerStateComponent,
     FUsersComponent,
     ProjectProgressComponent,
