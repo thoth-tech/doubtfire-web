@@ -1,12 +1,19 @@
 <mat-toolbar class="footer flex-col w-full h-full justify-center p-0">
   @if (selectedTask?.similaritiesDetected) {
-    <div class="bg-red-500 grow w-full rounded-xl h-8 mb-5 mt-4 text-white text-lg font-bold">
+    <div class="bg-red-500 grow w-full rounded-xl h-8 mb-5 mt-4 text-white text-lg">
+      <div
+        #arrow
+        class="shrink border-t-red-500"
+        [ngStyle]="{'left.px': leftOffset, 'top.px': topOffset}"
+        style="position: absolute; border: 10px solid transparent; transform: translateX(-50%)"
+      ></div>
       <p
         style="position: relative"
         #warningText
-        class="mat-caption inline-block select-none text-center w-full"
+        [ngStyle]="{'left.px': warningTextLeftOffset}"
+        class="mat-caption inline-block select-none"
       >
-        Similarities flagged for {{ selectedTask?.project?.student.name }}
+        Similarities flagged for {{ selectedTask?.project.student.name }}
       </p>
     </div>
   }
@@ -109,6 +116,7 @@
 
     <div fxFlex fxFlexAlign="end start" fxLayout="row" fxLayoutAlign="end center">
       @if (selectedTask?.similaritiesDetected) {
+<<<<<<< HEAD
         <div class="relative inline-block">
           <div
             class="absolute -top-[1.3rem] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[15px] border-x-transparent border-t-[20px] border-t-red-500"
@@ -126,6 +134,19 @@
             <mat-icon class="small-icon">crisis_alert</mat-icon>
           </button>
         </div>
+=======
+        <button
+          #similaritiesButton
+          mat-icon-button
+          matTooltip="High confidence of similarities detected for this task"
+          matTooltipPosition="above"
+          aria-label="View detected similarities"
+          class="button small-button"
+          (click)="viewSimilarity()"
+        >
+          <mat-icon class="small-icon">crisis_alert</mat-icon>
+        </button>
+>>>>>>> c97509f7 (refactor: (wip) add  new student experience skeleton)
       }
       @if (selectedTask?.project) {
         <div class="relative inline-block">
@@ -243,6 +264,7 @@
         <mat-icon class="small-icon">file_download</mat-icon>
       </button>
       <f-project-progress-bar
+<<<<<<< HEAD
         [matTooltip]="
           selectedTask?.project?.taskStats?.length > 4
             ? selectedTask.project.taskStats[4].value +
@@ -250,12 +272,21 @@
               selectedTask.project.targetGradeWord
             : 'Progress unavailable'
         "
+=======
+        matTooltip="{{ selectedTask?.project.taskStats[4]?.value }}% progress towards {{
+          selectedTask?.project.targetGradeWord
+        }}"
+>>>>>>> c97509f7 (refactor: (wip) add  new student experience skeleton)
         [matTooltipDisabled]="selectedTask === undefined"
         [progress]="selectedTask?.project?.taskStats ?? 0"
       ></f-project-progress-bar>
       <mat-chip-listbox aria-label="Target Grade Symbol" class="pointer-events-none">
         <mat-chip-option style="min-width: 33px">{{
+<<<<<<< HEAD
           selectedTask?.project?.targetGradeAcronym
+=======
+          selectedTask?.project.targetGradeAcronym
+>>>>>>> c97509f7 (refactor: (wip) add  new student experience skeleton)
         }}</mat-chip-option>
       </mat-chip-listbox>
     </div>

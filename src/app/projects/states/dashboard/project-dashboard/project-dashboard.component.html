@@ -1,17 +1,14 @@
-<div fxLayout="column" fxFill fxHide fxShow.gt-sm *ngIf="project$ | async as project">
-  <div fxLayout="row" fxLayoutAlign="center stretch" fxFill>
-    {{ project.activeTasks().length }}
-    {{ project.unit.taskDefinitions.length }}
-    <div *ngIf="selectedTaskDefinition$ | async as selectedTaskDefinition">
-      <p>Selected task definition: {{ selectedTaskDefinition.abbreviation }}</p>
-    </div>
+<div class="w-full h-full" *ngIf="project$ | async as project">
+  <div class="flex flex-row">
     <f-unit-task-list
+      class="min-w-[300px] w-1/2"
       *ngIf="project.unit.taskDefinitions.length > 0"
       [mode]="'project'"
       [taskDefinitions]="project.unit.taskDefinitions"
       [tasks]="project.tasks"
       [selectedTaskDefinition$]="selectedTaskDefinition$"
     ></f-unit-task-list>
+
     @if (subs$ | async) {
       <div
         id="leftResizerEl"
@@ -25,35 +22,21 @@
       ></div>
     }
 
-    <div class="panel panel-center">
-      <ng-container *ngIf="centerComponent">
-        <ng-container *ngComponentOutlet="centerComponent"></ng-container>
-      </ng-container>
-    </div>
-
-    <div
-      id="rightResizerEl"
-      #rightResizerEl
-      class="resizer"
-      cdkDragLockAxis="x"
-      cdkDrag
-      (cdkDragMoved)="dragging($event, rightComponent)"
-      (cdkDragEnded)="stoppedDragging($event, rightComponent)"
-      (cdkDragStarted)="startedDragging($event, rightComponent)"
-    ></div>
-
-    <div class="panel panel-right">
-      <ng-container *ngIf="rightComponent">
-        <ng-container *ngComponentOutlet="rightComponent"></ng-container>
-      </ng-container>
-    </div>
-  </div>
-  <div class="panel-footer">
-    <ng-container *ngIf="footerComponent">
-      <ng-container *ngComponentOutlet="footerComponent"></ng-container>
-    </ng-container>
+    <f-project-progress-dashboard
+      class="w-full"
+      [project$]="project$"
+      [selectedTaskDefinition$]="selectedTaskDefinition$"
+    ></f-project-progress-dashboard>
   </div>
 </div>
+
+<!--
+<div class="panel-footer">
+  <ng-container *ngIf="footerComponent">
+    <ng-container *ngComponentOutlet="footerComponent"></ng-container>
+  </ng-container>
+</div> -->
+
 <!--
 <div #mobile fxLayout="row" fxFill fxHide fxShow.lt-md>
   <div id="inboxpanel" #inboxpanel class="inbox-panel mobile" [hidden]="taskSelected">

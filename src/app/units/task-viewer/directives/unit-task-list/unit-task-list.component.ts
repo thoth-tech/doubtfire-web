@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Grade} from 'src/app/api/models/grade';
 import {TaskDefinition, Task} from 'src/app/api/models/doubtfire-model';
 import {TaskDefinitionNamePipe} from 'src/app/common/filters/task-definition-name.pipe';
-import { BehaviorSubject } from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
   selector: 'f-unit-task-list',
@@ -84,8 +84,7 @@ export class FUnitTaskListComponent implements OnInit {
     // this.taskViewerService.setSelectedTaskDef(taskDef);
   }
 
-  public isSelectedTaskDefinition(taskDef: TaskDefinition) : boolean {
-    console.log(taskDef?.abbreviation);
+  public isSelectedTaskDefinition(taskDef: TaskDefinition): boolean {
     return this.selectedTaskDef?.id === taskDef?.id;
   }
 }

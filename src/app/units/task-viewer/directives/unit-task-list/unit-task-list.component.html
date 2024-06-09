@@ -21,7 +21,7 @@
 
   <!-- Scrollable Unit Task List -->
   <div class="tasks-viewport scrollable" itemSize="60">
-    <mat-selection-list #taskDefinitions [multiple]="false">
+    <mat-nav-list #taskDefinitions>
       @if (filteredTaskDefinitions.length === 0) {
         <div class="text-center text-muted">No tasks to display</div>
       }
@@ -37,7 +37,6 @@
             >
               <div class="task-entry w-full flex items-center">
                 <div class="task-list-data flex items-center justify-center">
-                  Selected: {{taskDef.abbreviation}} {{isSelectedTaskDefinition(taskDef)}}
                   <f-task-badge [taskDef]="taskDef"></f-task-badge>
                   <div class="flex-col ml-4">
                     <h4 class="task-title line-clamp-1 mt-1">{{ taskDef.name }}</h4>
@@ -60,6 +59,6 @@
           }
         </mat-list-item>
       }
-    </mat-selection-list>
+    </mat-nav-list>
   </div>
 </div>

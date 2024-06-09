@@ -10,7 +10,10 @@
       "prefix": "f",
       "schematics": {
         "@schematics/angular:application": {
-          "strict": false
+          "strict": false,
+          "standalone": false,
+          "style": "scss",
+          "skipTests": true
         }
       },
       "architect": {
@@ -162,9 +165,6 @@
     }
   },
   "schematics": {
-    "@schematics/angular:component": {
-      "style": "scss"
-    },
     "@angular-eslint/schematics:application": {
       "setParserOptionsProject": true
     },

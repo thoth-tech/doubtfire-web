@@ -1,6 +1,6 @@
 @use '@angular/material' as mat;
 
-@import '/src/theme.scssr';
+@import '/src/theme.scss';
 
 $my-palette: mat.define-palette($md-formatif);
 

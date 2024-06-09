@@ -203,6 +203,7 @@
       @if (filteredTasks.length) {
         <div class="w-full text-gray-400 text-center mt-4">{{ filteredTasks.length }} Tasks</div>
       }
+
       <mat-list class="m-0 p-0">
         <mat-list-item
           class="clearfix"
@@ -215,7 +216,7 @@
               id="{{ task.taskKeyToIdString() }}"
               [ngClass]="{
                 selected: isSelectedTask(task),
-                'item-content': task.statusClass()
+                'item-content': task.statusClass(),
               }"
             >
               <div
@@ -229,7 +230,7 @@
                   class="notification"
                   [ngClass]="{
                     active: task.numNewComments > 0 || task.similaritiesDetected,
-                    similarities: task.similaritiesDetected
+                    similarities: task.similaritiesDetected,
                   }"
                 ></span>
                 <user-icon class="self-center" [user]="task.project.student" [size]="30">

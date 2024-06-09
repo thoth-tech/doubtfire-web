@@ -1,10 +1,10 @@
-import { HttpClient } from '@angular/common/http';
-import { Entity, EntityCache, RequestOptions } from 'ngx-entity-service';
-import { Observable, tap } from 'rxjs';
-import { visualisations } from 'src/app/ajs-upgraded-providers';
-import { AppInjector } from 'src/app/app-injector';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { MappingFunctions } from '../services/mapping-fn';
+import {HttpClient} from '@angular/common/http';
+import {Entity, EntityCache, RequestOptions} from 'ngx-entity-service';
+import {Observable, tap} from 'rxjs';
+import {visualisations} from 'src/app/ajs-upgraded-providers';
+import {AppInjector} from 'src/app/app-injector';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {MappingFunctions} from '../services/mapping-fn';
 import {
   Campus,
   Grade,
@@ -21,6 +21,7 @@ import {
   Unit,
   User,
 } from './doubtfire-model';
+
 import { TaskOutcomeAlignment } from './task-outcome-alignment';
 import { AlertService } from 'src/app/common/services/alert.service';
 import { StaffNote } from './staff-note';
@@ -43,7 +44,7 @@ export class Project extends Entity {
 
   public hasPortfolio: boolean;
   public portfolioStatus: number;
-  public portfolioFiles: { kind: string; name: string; idx: number }[];
+  public portfolioFiles: {kind: string; name: string; idx: number}[];
 
   public taskStats: {
     key: TaskStatusEnum;
@@ -51,7 +52,7 @@ export class Project extends Entity {
   }[];
   public orderScale: number;
 
-  public burndownChartData: { key: string; values: number[] }[];
+  public burndownChartData: {key: string; values: number[]}[];
   public readonly taskCache: EntityCache<Task> = new EntityCache<Task>();
   public readonly staffNoteCache: EntityCache<StaffNote> = new EntityCache<StaffNote>();
   public readonly tutorialEnrolmentsCache: EntityCache<Tutorial> = new EntityCache<Tutorial>();
@@ -178,7 +179,9 @@ export class Project extends Entity {
   }
 
   public activeTasks(): Task[] {
-    return this.taskCache.currentValues.filter((task) => task.definition.targetGrade <= this.targetGrade);
+    return this.taskCache.currentValues.filter(
+      (task) => task.definition.targetGrade <= this.targetGrade,
+    );
   }
 
   public calcTopTasks() {
@@ -281,16 +284,19 @@ export class Project extends Entity {
     return httpClient.delete<void>(this.portfolioUrl(false));
   }
 
-  public deleteFileFromPortfolio(file: { idx: any; kind: any; name: any }) {
+  public deleteFileFromPortfolio(file: {idx: any; kind: any; name: any}) {
     const httpClient = AppInjector.get(HttpClient);
     return httpClient
-      .delete<void>(`${AppInjector.get(DoubtfireConstants).API_URL}/submission/project/${this.id}/portfolio`, {
-        body: {
-          idx: file.idx,
-          kind: file.kind,
-          name: file.name,
+      .delete<void>(
+        `${AppInjector.get(DoubtfireConstants).API_URL}/submission/project/${this.id}/portfolio`,
+        {
+          body: {
+            idx: file.idx,
+            kind: file.kind,
+            name: file.name,
+          },
         },
-      })
+      )
       .pipe(
         tap(() => {
           this.portfolioFiles = this.portfolioFiles.filter((value) => value != file);
@@ -375,7 +381,7 @@ export class Project extends Entity {
     tutorialService.switchTutorial(this, tutorial, !this.isEnrolledIn(tutorial));
   }
 
-  public getProgressStats(): {} {
+  public get progressStats() {
     const stats = {};
 
     this.taskStats.forEach((stat) => {
@@ -386,15 +392,15 @@ export class Project extends Entity {
   }
 
   public refreshBurndownChartData(): void {
-    const result: { key: string; values: number[] }[] = [];
+    const result: {key: string; values: number[]}[] = [];
 
     // Setup the dictionaries to contain the keys and values
     // key = series name
     // values = array of [ x, y ] values
-    const projectedResults = { key: 'Projected', values: [] };
-    const targetTaskResults = { key: 'Target', values: [] };
-    const doneTaskResults = { key: 'To Submit', values: [] };
-    const completeTaskResults = { key: 'To Complete', values: [] };
+    const projectedResults = {key: 'Projected', values: []};
+    const targetTaskResults = {key: 'Target', values: []};
+    const doneTaskResults = {key: 'To Submit', values: []};
+    const completeTaskResults = {key: 'To Complete', values: []};
 
     result.push(targetTaskResults);
     result.push(projectedResults);
@@ -404,15 +410,19 @@ export class Project extends Entity {
     // Get the weeks between start and end date as an array
     // dates = unit.start_date.to_date.step(unit.end_date.to_date + 1.week, step=7).to_a
     const endDateValue = this.unit.endDate.getTime() + MappingFunctions.weeksMs(3);
-    const dates = MappingFunctions.step(this.unit.startDate.getTime(), endDateValue, MappingFunctions.weeksMs(1)).map(
-      (val) => new Date(val),
-    );
+    const dates = MappingFunctions.step(
+      this.unit.startDate.getTime(),
+      endDateValue,
+      MappingFunctions.weeksMs(1),
+    ).map((val) => new Date(val));
 
     // Get the target task from the unit's task definitions
     const targetTasks = this.unit.taskDefinitionsForGrade(this.targetGrade);
 
     // get total value of all tasks assigned to this project
-    const total = targetTasks.map((td) => td.weighting).reduce((prev, current, idx, array) => prev + current, 0);
+    const total = targetTasks
+      .map((td) => td.weighting)
+      .reduce((prev, current, idx, array) => prev + current, 0);
 
     // exit if no tasks or no weights
     if (targetTasks.length === 0 || total === 0) {
@@ -431,7 +441,10 @@ export class Project extends Entity {
 
     // Get the tasks currently marked as done (or ready to mark)
     const doneTasks = tasks.filter(
-      (t) => !['working_on_it', 'not_started', 'fix_and_resubmit', 'redo', 'need_help'].includes(t.status),
+      (t) =>
+        !['working_on_it', 'not_started', 'fix_and_resubmit', 'redo', 'need_help'].includes(
+          t.status,
+        ),
     );
 
     // last done task date)
@@ -444,7 +457,8 @@ export class Project extends Entity {
     }
 
     // today is used to determine when to stop adding done tasks
-    const today = new Date().getTime() > this.unit.endDate.getTime() ? this.unit.endDate : new Date();
+    const today =
+      new Date().getTime() > this.unit.endDate.getTime() ? this.unit.endDate : new Date();
 
     // use weekly completion rate to determine projected progress
     let completionRate: number = 0;
