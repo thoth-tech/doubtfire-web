@@ -16,17 +16,17 @@ export class FUnitTaskListComponent implements OnInit {
 
   // What is the selected task definition
   @Input() selectedTaskDefinition$: BehaviorSubject<TaskDefinition>;
+  selectedTaskDef: TaskDefinition;
 
   // @Output() selectedTask: EventEmitter<Task> = new EventEmitter<Task>();
 
-  filteredTasks: TaskDefinition[]; // list of tasks which match the taskSearch term
+  filteredTaskDefinitions: TaskDefinition[]; // list of tasks which match the taskSearch term
   searchText: string = ''; // task search term from user input
   taskDefinitionNamePipe = new TaskDefinitionNamePipe();
   protected gradeNames: string[] = Grade.GRADES;
-  selectedTaskDef: TaskDefinition;
 
   applyFilters() {
-    this.filteredTasks = this.taskDefinitionNamePipe.transform(
+    this.filteredTaskDefinitions = this.taskDefinitionNamePipe.transform(
       this.taskDefinitions,
       this.searchText,
     );
@@ -37,7 +37,11 @@ export class FUnitTaskListComponent implements OnInit {
   }
 
   public taskForTaskDef(taskDef: TaskDefinition): Task {
-    return this.tasks.find((task) => task.definition.id === taskDef.id);
+    if (!this.hasTasks || !taskDef) {
+      return null;
+    }
+
+    return this.tasks.find((task) => task.definition.id === taskDef?.id);
   }
 
   ngOnInit(): void {
@@ -80,7 +84,8 @@ export class FUnitTaskListComponent implements OnInit {
     // this.taskViewerService.setSelectedTaskDef(taskDef);
   }
 
-  public isSelectedTaskDefinition(taskDef: TaskDefinition) {
-    return  this.selectedTaskDef?.id === taskDef?.id;
+  public isSelectedTaskDefinition(taskDef: TaskDefinition) : boolean {
+    console.log(taskDef?.abbreviation);
+    return this.selectedTaskDef?.id === taskDef?.id;
   }
 }

@@ -22,31 +22,34 @@
   <!-- Scrollable Unit Task List -->
   <div class="tasks-viewport scrollable" itemSize="60">
     <mat-selection-list #taskDefinitions [multiple]="false">
-      @if (filteredTasks.length === 0) {
+      @if (filteredTaskDefinitions.length === 0) {
         <div class="text-center text-muted">No tasks to display</div>
       }
-      @for (task of filteredTasks; track task) {
+      @for (taskDef of filteredTaskDefinitions; track taskDef) {
         <mat-list-item class="clearfix p-0 h-[60px]" [disableRipple]="true">
-          @if (task) {
+          @if (taskDef) {
             <div
               class="flex w-full item-content items-center hover:bg-gray-50"
-              (click)="setSelectedTaskDefinition(task)"
+              (click)="setSelectedTaskDefinition(taskDef)"
               [ngClass]="{
-                selected: isSelectedTaskDefinition(task)
+                selected: isSelectedTaskDefinition(taskDef),
               }"
             >
               <div class="task-entry w-full flex items-center">
                 <div class="task-list-data flex items-center justify-center">
-                  <f-task-badge [taskDef]="task"></f-task-badge>
+                  Selected: {{taskDef.abbreviation}} {{isSelectedTaskDefinition(taskDef)}}
+                  <f-task-badge [taskDef]="taskDef"></f-task-badge>
                   <div class="flex-col ml-4">
-                    <h4 class="task-title line-clamp-1 mt-1">{{ task.name }}</h4>
+                    <h4 class="task-title line-clamp-1 mt-1">{{ taskDef.name }}</h4>
 
                     <span class="flex">
-                      @if (task.isGroupTask()) {
+                      @if (taskDef.isGroupTask()) {
                         <mat-icon class="text-gray-400 scale-75">group</mat-icon>
                       }
-                      <div class="task-details">{{ gradeNames[task.targetGrade] }} Task</div>
-                      <p *ngIf="hasTasks">{{ taskForTaskDef(task).status }}</p>
+                      <div class="task-details">{{ gradeNames[taskDef.targetGrade] }} Task</div>
+                      @if (hasTasks && taskForTaskDef(taskDef)) {
+                        <p style="background-color: red">{{ taskForTaskDef(taskDef).status }}</p>
+                      }
                     </span>
 
                     <div></div>
