@@ -4,7 +4,9 @@
     <mat-card class="w-full h-[250px] py-24 px-12">
       <mat-card-content>
         <!-- <f-unit-code class="w-48" [unit_code]="project.unit.code"></f-unit-code> -->
-        <h1 class="mb-2 text-5xl">{{ project.unit.name }}</h1>
+        <h1 class="mb-2 text-5xl">
+          {{ project.student.nickname || project.student.firstName }}'s {{ project.unit.name }}
+        </h1>
         <p class="text-2xl">{{ project.unit.description }}</p>
       </mat-card-content>
     </mat-card>
@@ -38,9 +40,10 @@
   <!-- Column -->
   <div class="col-span-12 md:col-span-12 xl:col-span-12">
     <mat-card class="w-full h-full">
+      <mat-card-header>
+        <mat-card-title>Your progress</mat-card-title>
+      </mat-card-header>
       <mat-card-content>
-        <h1 class="mb-8 text-3xl">Your progress</h1>
-
         <div class="w-full h-full flex items-center justify-center">
           <f-project-progress-gauge [project]="project"></f-project-progress-gauge>
         </div>
