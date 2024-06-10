@@ -10,12 +10,17 @@
 @tailwind components;
 @tailwind utilities;
 
+$main-view-top-padding: 30px;
+$main-view-bottom-padding: $main-view-top-padding;
+
+$main-view-max-height: calc((var(--vh, 1vh) * (100)) - 85px);
 
 html {
   // Apply the light theme by default
   @include mat.core-theme(m3-theme.$light-theme);
   @include mat.button-theme(m3-theme.$light-theme);
 }
+
 
 .mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field
   .mdc-notched-outline__notch {
