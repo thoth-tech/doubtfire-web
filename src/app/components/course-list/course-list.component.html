@@ -1,0 +1,12 @@
+<div class="course-list">
+    <div class="course-item" *ngFor="let course of courses">
+      <div class="course-info">
+        <h3>{{ course.name }}</h3>
+        <p>Course Code: {{ course.code }}</p>
+        <p>Credit Points: {{ course.creditPoints }}</p>
+      </div>
+      <div class="course-progress">
+        <p>Progress: {{ course.progress }}%</p>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,27 @@
+.course-map {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+  
+    nav {
+      margin-bottom: 20px;
+  
+      a {
+        margin-right: 10px;
+        text-decoration: none;
+  
+        &.active {
+          font-weight: bold;
+        }
+      }
+    }
+  
+    app-course-list, app-unit-list, app-course-details-sidebar {
+      margin-bottom: 20px;
+    }
+  }
