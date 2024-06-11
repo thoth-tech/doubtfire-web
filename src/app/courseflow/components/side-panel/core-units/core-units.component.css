@@ -1,0 +1,11 @@
+.core-units {
+  margin-top: 20px;
+}
+
+.unit {
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  background-color: white;
+  cursor: move;
+}

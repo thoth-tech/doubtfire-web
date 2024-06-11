@@ -1,0 +1,13 @@
+<div class="course-map-container">
+  <div *ngFor="let year of years" class="year-container">
+    <h3>{{ year.name }}</h3>
+    <div *ngFor="let trimester of year.trimesters" class="trimester-container">
+      <h4>{{ trimester.name }}</h4>
+      <div class="unit-slot-container" *ngFor="let unit of trimester.units">
+        <div class="unit-slot">
+          <div class="unit">{{ unit.name }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
