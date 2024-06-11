@@ -161,6 +161,7 @@ import {OverseerImageListComponent} from './admin/institution-settings/overseer-
 
 import {TaskAssessmentCommentComponent} from './tasks/task-comments-viewer/task-assessment-comment/task-assessment-comment.component';
 import {TaskAssessmentModalComponent} from './common/modals/task-assessment-modal/task-assessment-modal.component';
+import {TaskIloAlignmentRaterComponent} from '../app/tasks/task-ilo-alignment/task-ilo-alignment-rater';
 
 import {TaskSubmissionHistoryComponent} from './tasks/task-submission-history/task-submission-history.component';
 import {HomeComponent} from './home/states/home/home.component';
@@ -295,6 +296,7 @@ import {GradeService} from './common/services/grade.service';
     SplashScreenComponent,
     ObjectSelectComponent,
     WelcomeComponent,
+
     AcceptEulaComponent,
     HeroSidebarComponent,
     SignInComponent,

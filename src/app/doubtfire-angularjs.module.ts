@@ -48,7 +48,7 @@ import 'build/src/app/tasks/modals/modals.js';
 import 'build/src/app/tasks/tasks.js';
 import 'build/src/app/tasks/project-tasks-list/project-tasks-list.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment.js';
-import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-rater/task-ilo-alignment-rater.js';
+//import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-rater/task-ilo-alignment-rater.js';
 import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment.js';
 import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/task-ilo-alignment-modal.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-editor/task-ilo-alignment-editor.js';
@@ -220,6 +220,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import {TaskIloAlignmentRaterComponent} from '../app/tasks/task-ilo-alignment/task-ilo-alignment-rater';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
@@ -371,6 +372,12 @@ DoubtfireAngularJSModule.directive(
   'fTasksViewer',
   downgradeComponent({component: TasksViewerComponent}),
 );
+DoubtfireAngularJSModule.directive(
+  'TaskIloalignent_rater',
+  downgradeComponent({component: TaskIloAlignmentRaterComponent}),
+);
+
+
 DoubtfireAngularJSModule.directive('fInbox', downgradeComponent({component: InboxComponent}));
 DoubtfireAngularJSModule.directive(
   'fTaskDueCard',
