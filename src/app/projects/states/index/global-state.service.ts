@@ -307,7 +307,7 @@ export class GlobalStateService implements OnDestroy {
       },
       error: (_response) => {
         this.alerts.error('Unable to access your units.', 6000);
-      },
+      }
     });
   }
 
