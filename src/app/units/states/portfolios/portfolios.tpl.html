@@ -320,7 +320,35 @@
       </div>
       <div class="panel-body alignment-rater">
         <div class="col-sm-12 rationale-wrapper">
-          <textarea id="gradeRationale" style="height: 160px" class="form-control" ng-model="project.gradeRationale"></textarea>
+          <div
+            tooltip="Click to edit rationale"
+            tooltip-placement="left"
+            tooltip-append-to-body="false"
+            tooltip-popup-delay="300"
+            tooltip-enable="project.gradeRationale != null"
+            ng-click="toggleEditRationale()"
+            class="rationale"
+            ng-class="{'no-rationale': project.gradeRationale == null}"
+            ng-hide="editingRationale"
+          >
+            <label class="text-muted" ng-show="project.gradeRationale != null">
+              Provided Rationale
+            </label>
+            <div
+              ng-bind-html="(project.gradeRationale || 'No rationale provided') | markdown | to_trusted"
+            ></div>
+            <div class="small" ng-hide="project.gradeRationale">Click to add one</div>
+          </div>
+          <div ng-if="editingRationale" class="clearfix">
+            <div
+              contenteditable
+              ng-model="project.gradeRationale"
+              placeholder="Edit rationale here..."
+              style="border-style: solid; border-width: thin; height: 200px"
+            ></div>
+            <a ng-click="toggleEditRationale(alignment)" class="pull-right">Done Editing</a>
+          </div>
+          {{project.gradeRationale}}
         </div>
 
         <div ng-repeat="results in gradeResults">
