@@ -51,7 +51,7 @@
               <span
                 class="grade-icon"
                 tooltip="Show all portfolios"
-                class="text-{{$index == filterOptions.selectedGrade ? 'primary' : 'muted'}}"
+                class="text-{{$index === filterOptions.selectedGrade ? 'primary' : 'muted'}}"
                 >All</span
               >
             </label>
@@ -303,11 +303,7 @@
         <p>No Portfolio Submitted</p>
       </div>
       <div class="panel-body flex flex-col h-screen" ng-if="project.portfolioAvailable">
-        <f-pdf-viewer
-          class="flex flex-grow"
-          [pdf-url]="project.preloadedUrl"
-        >
-        </f-pdf-viewer>
+        <f-pdf-viewer class="flex flex-grow" [pdf-url]="project.preloadedUrl"> </f-pdf-viewer>
       </div>
     </div>
 
