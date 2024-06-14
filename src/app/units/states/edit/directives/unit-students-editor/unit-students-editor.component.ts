@@ -3,16 +3,16 @@ import {
   csvResultModalService,
   unitStudentEnrolmentModal,
 } from './../../../../../ajs-upgraded-providers';
-import { ViewChild, Component, Input, Inject, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
+import { ViewChild, Component, Input, Inject, AfterViewInit, OnDestroy } from '@angular/core';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
-import { alertService } from 'src/app/ajs-upgraded-providers';
 import { MatPaginator } from '@angular/material/paginator';
 import { HttpClient } from '@angular/common/http';
 import { FileDownloaderService } from 'src/app/common/file-downloader/file-downloader.service';
 import { Project, ProjectService, Unit } from 'src/app/api/models/doubtfire-model';
 import { UIRouter } from '@uirouter/angular';
 import { Subscription } from 'rxjs';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'unit-students-editor',
@@ -36,7 +36,7 @@ export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
   constructor(
     private httpClient: HttpClient,
     @Inject(unitStudentEnrolmentModal) private enrolModal: any,
-    @Inject(alertService) private alerts: any,
+    private alerts: AlertService,
     @Inject(csvUploadModalService) private csvUploadModal: any,
     @Inject(csvResultModalService) private csvResultModal: any,
     private fileDownloader: FileDownloaderService,
@@ -60,7 +60,6 @@ export class UnitStudentsEditorComponent implements AfterViewInit, OnDestroy {
     this.subscriptions.push(
       this.projectService.loadStudents(this.unit, true).subscribe(() => {
         // projects included in unit...
-        console.log('loaded withdrawn students');
       })
     );
   }

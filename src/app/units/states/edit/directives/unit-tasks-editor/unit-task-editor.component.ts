@@ -63,7 +63,10 @@ export class UnitTaskEditorComponent implements AfterViewInit {
     } else {
       this.selectedTaskDefinition = taskDefinition;
 
-      this.selectedTaskDefinition.setOriginalSaveData(this.taskDefinitionService.mapping);
+      // Record original save data if none present
+      if (!this.selectedTaskDefinition.hasOriginalSaveData) {
+        this.selectedTaskDefinition.setOriginalSaveData(this.taskDefinitionService.mapping);
+      }
     }
   }
 
@@ -182,7 +185,6 @@ export class UnitTaskEditorComponent implements AfterViewInit {
     task.startDate = new Date();
     task.targetDate = new Date();
     task.uploadRequirements = [];
-    task.plagiarismChecks = [];
     task.weighting = 4;
     task.targetGrade = 0;
     task.restrictStatusUpdates = false;

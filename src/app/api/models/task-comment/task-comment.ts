@@ -1,10 +1,10 @@
-import { alertService } from 'src/app/ajs-upgraded-providers';
 import { AppInjector } from 'src/app/app-injector';
 import { Entity } from 'ngx-entity-service';
 import { Project, Task, TaskCommentService, User } from 'src/app/api/models/doubtfire-model';
 import { UserService } from '../../services/user.service';
 import API_URL from 'src/app/config/constants/apiURL';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 export class TaskComment extends Entity {
   // Linked objects
@@ -75,7 +75,7 @@ export class TaskComment extends Entity {
           this.task.refreshCommentData();
         },
         error: (error: any) => {
-          AppInjector.get<any>(alertService).add('danger', error?.message || error || 'Unknown error', 2000);
+          AppInjector.get(AlertService).error(error?.message || error || 'Unknown error', 2000);
         }
       }
       );

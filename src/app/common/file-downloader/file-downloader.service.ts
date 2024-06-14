@@ -1,29 +1,34 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {AlertService} from '../services/alert.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileDownloaderService {
-  constructor(private httpClient: HttpClient, @Inject(alertService) private alerts: any) {}
+  constructor(
+    private httpClient: HttpClient,
+    private alerts: AlertService,
+  ) {}
 
   public downloadBlob(
     url: string,
     success: (url: string, response: HttpResponse<Blob>) => void,
-    failure: (error: any) => void
+    failure: (error: any) => void,
   ) {
-    this.httpClient.get(url, { responseType: 'blob', observe: 'response' }).subscribe({
+    this.httpClient.get(url, {responseType: 'blob', observe: 'response'}).subscribe({
       next: (response) => {
         const binaryData = [];
         binaryData.push(response.body);
         // response.headers.get('content-type')
-        const resourceUrl: string = window.URL.createObjectURL(new Blob(binaryData, { type: response.body.type }));
+        const resourceUrl: string = window.URL.createObjectURL(
+          new Blob(binaryData, {type: response.body.type}),
+        );
         success(resourceUrl, response);
       },
       error: (error) => {
         if (failure) failure(error);
-      }
+      },
     });
   }
 
@@ -53,8 +58,8 @@ export class FileDownloaderService {
         downloadLink.parentNode.removeChild(downloadLink);
       },
       (error: any) => {
-        this.alerts.add('danger', `Error downloading file - ${error}`);
-      }
+        this.alerts.error(`Error downloading file - ${error}`);
+      },
     );
   }
 }

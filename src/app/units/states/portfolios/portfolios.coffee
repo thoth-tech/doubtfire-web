@@ -11,10 +11,10 @@ angular.module('doubtfire.units.states.portfolios', [])
     data:
       task: "Student Portfolios"
       pageTitle: "_Home_"
-      roleWhitelist: ['Tutor', 'Convenor', 'Admin']
+      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor']
    }
 )
-.controller("UnitPortfoliosStateCtrl", ($scope, analyticsService, gradeService, newProjectService, Visualisation, newTaskService, fileDownloaderService, newUserService, alertService) ->
+.controller("UnitPortfoliosStateCtrl", ($scope, alertService, analyticsService, gradeService, newProjectService, Visualisation, newTaskService, fileDownloaderService, newUserService) ->
   # TODO: (@alexcu) Break this down into smaller directives/substates
 
   $scope.downloadGrades = -> fileDownloaderService.downloadFile($scope.unit.gradesUrl, "#{$scope.unit.code}-grades.csv")
@@ -64,8 +64,6 @@ angular.module('doubtfire.units.states.portfolios', [])
 
   $scope.setActiveTab($scope.tabs.selectStudent)
 
-  $scope.grades = gradeService.grades
-
   $scope.tutor = newUserService.currentUser
 
   $scope.search = ""
@@ -76,6 +74,7 @@ angular.module('doubtfire.units.states.portfolios', [])
   $scope.pageSize = 10
 
   $scope.filterOptions = {selectedGrade: -1}
+  $scope.gradeValues = gradeService.gradeValues
   $scope.grades = gradeService.grades
   $scope.gradeAcronyms = gradeService.gradeAcronyms
 
@@ -123,6 +122,6 @@ angular.module('doubtfire.units.states.portfolios', [])
     $scope.project = null
     newProjectService.loadProject(student, $scope.unit).subscribe({
       next: (project) -> $scope.project = project
-      error: (message) -> alertService.add('danger', message, 6000)
+      error: (message) -> alertService.error( message, 6000)
     })
 )

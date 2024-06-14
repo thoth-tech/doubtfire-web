@@ -1,25 +1,46 @@
 <h3 mat-dialog-title>Extension request</h3>
-<div mat-dialog-content>
-  <p>
-    Please explain why you require an extension for this task, <br />
-    The teaching team will assess the request shortly.
+<div mat-dialog-content [formGroup]="extensionData">
+  <p class="w-full">
+    Please explain why you require an extension for this task, the teaching team will assess the
+    request shortly.
   </p>
 
-  <mat-form-field style="width: 100%">
-    <input required matInput maxlength="256" placeholder="Reason" [(ngModel)]="reason" />
-    <mat-hint align="end">{{ reason.length }} / 256</mat-hint>
+  <mat-form-field style="width: 100%" appearance="outline">
+    <mat-label>Reason</mat-label>
+    <textarea
+      type="text"
+      matInput
+      [formControl]="extensionData.controls.extensionReason"
+      [errorStateMatcher]="matcher"
+      placeholder="Reason"
+    ></textarea>
+    <mat-hint align="end"
+      >{{ extensionData.controls.extensionReason.value.length }} / {{ reasonMaxLength }}</mat-hint
+    >
+    @if (extensionData.controls.extensionReason.hasError('required')) {
+      <mat-error>You must enter a reason</mat-error>
+    }
+    @if (extensionData.controls.extensionReason.hasError('minlength')) {
+      <mat-error>The reason must be at least {{ reasonMinLength }} characters long</mat-error>
+    }
+    @if (extensionData.controls.extensionReason.hasError('maxlength')) {
+      <mat-error>The reason must be less than {{ reasonMaxLength }} characters long</mat-error>
+    }
   </mat-form-field>
 
-  <p>Requesting extension to: {{ newDueDate }}</p>
-  <mat-slider
-    id="requestWeekSlider"
-    thumbLabel
-    [min]="minWeeksCanExtend"
-    [max]="maxWeeksCanExtend"
-    step="1"
-    [(ngModel)]="weeksRequested"
-    ><input matSliderThumb /><input matSliderThumb />
-  </mat-slider>
+  <mat-form-field appearance="outline">
+    <mat-label>Choose a date</mat-label>
+    <input
+      matInput
+      [min]="minDate"
+      [max]="maxDate"
+      [matDatepicker]="extensionDatePicker"
+      (dateInput)="addEvent('input', $event)"
+      placeholder="Choose a date"
+    />
+    <mat-datepicker-toggle matSuffix [for]="extensionDatePicker"></mat-datepicker-toggle>
+    <mat-datepicker #extensionDatePicker></mat-datepicker>
+  </mat-form-field>
 </div>
 
 <div mat-dialog-actions style="float: right">
@@ -30,9 +51,15 @@
     mat-stroked-button
     color="primary"
     mat-button
-    [disabled]="weeksRequested === 0 || reason.length < 15"
+    [disabled]="!extensionData.valid"
     (click)="submitApplication()"
   >
-    Request {{ weeksRequested }} {{ weeksRequested === 1 ? 'week' : 'weeks' }}
+    Request extension to
+    {{
+      extensionDate.toLocaleDateString(currentLocale, {
+        month: 'long',
+        day: 'numeric'
+      })
+    }}
   </button>
 </div>

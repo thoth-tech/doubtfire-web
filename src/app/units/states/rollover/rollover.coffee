@@ -14,7 +14,7 @@ angular.module('doubtfire.units.states.rollover', [
       roleWhitelist: ['Convenor', 'Admin']
    }
 )
-.controller("RolloverUnitState", ($scope, $state, $stateParams, newUnitService, alertService, GlobalStateService) ->
+.controller("RolloverUnitState", ($scope, $state, $stateParams, newUserService, alertService, newUnitService, GlobalStateService) ->
   unitId = +$stateParams.unitId
   return $state.go('home') unless unitId
 
@@ -33,7 +33,7 @@ angular.module('doubtfire.units.states.rollover', [
     newUnitService.get(unitId).subscribe({
       next: (unit)-> $scope.unit = unit
       error: (err)->
-        alertService.add("danger", "Error loading unit: " + err, 8000)
+        alertService.error( "Error loading unit: " + err, 8000)
         setTimeout((()-> $state.go('home')), 5000)
     })
 

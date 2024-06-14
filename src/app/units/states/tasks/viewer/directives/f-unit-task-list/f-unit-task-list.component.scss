@@ -24,7 +24,6 @@ $my-palette: mat.define-palette($md-formatif);
 }
 
 .omnisearch {
-  background-color: var(--background-gray);
   font-size: 15px;
   padding-right: 10px;
   text-align: left;
@@ -50,7 +49,7 @@ $my-palette: mat.define-palette($md-formatif);
 
 .task-list-data {
   margin-top: 0px;
-  padding-left: 30px;
+  padding-left: 6px;
 
   .task-title {
     font-size: 15px;
@@ -66,7 +65,7 @@ $my-palette: mat.define-palette($md-formatif);
 
 .mat-mdc-list-item .item-content {
   height: 60px;
-  border-radius: 20px;
+  border-radius: 6px;
 }
 
 .mat-mdc-list-item .item-content:hover {

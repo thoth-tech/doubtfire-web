@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
-import { TaskComment, Task } from 'src/app/api/models/doubtfire-model';
-import { ExtensionComment } from 'src/app/api/models/task-comment/extension-comment';
+import {Component, OnInit, Input, Inject} from '@angular/core';
+import {TaskComment, Task} from 'src/app/api/models/doubtfire-model';
+import {ExtensionComment} from 'src/app/api/models/task-comment/extension-comment';
+import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'extension-comment',
@@ -12,10 +12,10 @@ export class ExtensionCommentComponent implements OnInit {
   @Input() comment: ExtensionComment;
   @Input() task: Task;
 
-  constructor(@Inject(alertService) private alerts: any) {}
+  constructor(private alerts: AlertService) {}
 
   private handleError(error: any) {
-    this.alerts.add('danger', 'Error: ' + error.data.error, 6000);
+    this.alerts.error('Error: ' + error.data.error, 6000);
   }
 
   ngOnInit() {}
@@ -41,16 +41,24 @@ export class ExtensionCommentComponent implements OnInit {
   }
 
   denyExtension() {
-    this.comment.deny().subscribe(
-      (tc: TaskComment) => this.alerts.add('success', 'Extension updated', 2000),
-      (response) => this.handleError(response)
-    );
+    this.comment.deny().subscribe({
+      next: (tc: TaskComment) => {
+        this.alerts.success('Extension updated', 2000);
+      },
+      error: (response) => {
+        this.handleError(response);
+      },
+    });
   }
 
   grantExtension() {
-    this.comment.grant().subscribe(
-      (tc: TaskComment) => this.alerts.add('success', 'Extension updated', 2000),
-      (response) => this.handleError(response)
-    );
+    this.comment.grant().subscribe({
+      next: (tc: TaskComment) => {
+        this.alerts.success('Extension updated', 2000);
+      },
+      error: (response) => {
+        this.handleError(response);
+      },
+    });
   }
 }

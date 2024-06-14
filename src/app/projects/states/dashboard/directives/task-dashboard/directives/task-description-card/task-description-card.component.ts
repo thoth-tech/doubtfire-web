@@ -1,7 +1,8 @@
-import { Component, Input, Inject } from '@angular/core';
-import { gradeService } from 'src/app/ajs-upgraded-providers';
-import { Task, TaskDefinition, Unit } from 'src/app/api/models/doubtfire-model';
-import { FileDownloaderService } from 'src/app/common/file-downloader/file-downloader.service';
+import {Component, Input, Inject} from '@angular/core';
+
+import {Task, TaskDefinition, Unit} from 'src/app/api/models/doubtfire-model';
+import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {GradeService} from 'src/app/common/services/grade.service';
 
 @Component({
   selector: 'f-task-description-card',
@@ -13,10 +14,10 @@ export class TaskDescriptionCardComponent {
   @Input() taskDef: TaskDefinition;
   @Input() unit: Unit;
 
-  public grades: { names: any; acronyms: any };
+  public grades: {names: any; acronyms: any};
 
   constructor(
-    @Inject(gradeService) private GradeService: any,
+    private GradeService: GradeService,
     @Inject(FileDownloaderService) private fileDownloader: FileDownloaderService,
   ) {
     this.grades = {

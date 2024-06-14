@@ -1,5 +1,5 @@
 ### STAGE 1: Build ###
-FROM lmsdoubtfire/doubtfire-web:6.0.x-dev AS build
+FROM node:20 AS build
 
 USER node
 
@@ -7,7 +7,7 @@ USER node
 # Copy in doubtfire-web code
 WORKDIR /doubtfire-web
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --force --include=optional
 
 COPY --chown=node:node . .
 RUN chmod 777 src
@@ -25,7 +25,7 @@ RUN rm -v /etc/nginx/nginx.conf
 # Copy a configuration file from the current directory
 ADD nginx.conf /etc/nginx/
 
-COPY --from=build /doubtfire-web/dist /usr/share/nginx/html
+COPY --from=build /doubtfire-web/dist/browser /usr/share/nginx/html
 
 # Expose ports
 EXPOSE 80

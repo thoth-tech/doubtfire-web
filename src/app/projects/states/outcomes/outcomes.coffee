@@ -12,11 +12,11 @@ angular.module('doubtfire.projects.states.outcomes', [])
     data:
       task: "Learning Outcomes"
       pageTitle: "_Home_"
-      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Student']
+      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Student', 'Auditor']
    }
 )
 
-.controller("LearningOutcomesStateCtrl", ($scope, $rootScope, $timeout, outcomeService, newUnitService, alertService, Visualisation) ->
+.controller("LearningOutcomesStateCtrl", ($scope, $rootScope, $timeout, alertService, outcomeService, newUnitService, Visualisation) ->
   $scope.poaView = {
     activeTab: 'list'
   }
@@ -35,7 +35,7 @@ angular.module('doubtfire.projects.states.outcomes', [])
         newUnitService.loadLearningProgressClassStats($scope.unit).subscribe({
           next: (response) -> $scope.classStats = response
           error: (response) ->
-            alertService.add("danger", response, 6000)
+            alertService.error( response, 6000)
             $scope.classStats = {}
         })
     $scope.poaView.activeTab = tab

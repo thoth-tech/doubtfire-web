@@ -3,8 +3,8 @@
     <div *ngIf="stream; else noStream">
       <div *ngIf="!editingStream; else doStreamEdit">
         <h4>{{ stream.name }} - {{ stream.abbreviation }}</h4>
-        <button mat-icon-button>
-          <mat-icon color="primary" (click)="setEditStream(true)">edit</mat-icon>
+        <button mat-icon-button (click)="setEditStream(true)">
+          <mat-icon>edit</mat-icon>
         </button>
       </div>
 
@@ -19,11 +19,11 @@
           <input matInput [(ngModel)]="stream.abbreviation" />
         </mat-form-field>
 
-        <button mat-icon-button doStreamEdit>
-          <mat-icon color="warn" (click)="setEditStream(false)">cancel</mat-icon>
+        <button mat-icon-button doStreamEdit (click)="setEditStream(false)">
+          <mat-icon color="warn">cancel</mat-icon>
         </button>
-        <button mat-icon-button #doStreamEditt>
-          <mat-icon color="warn" (click)="saveStream()">save</mat-icon>
+        <button mat-icon-button #doStreamEditt (click)="saveStream()">
+          <mat-icon color="warn">save</mat-icon>
         </button>
         <button mat-icon-button color="warn" (click)="deleteStream()" #doStreamEdit>
           <mat-icon>delete</mat-icon>
@@ -36,7 +36,13 @@
     </ng-template>
   </div>
 
-  <table mat-table [dataSource]="dataSource" matSort (matSortChange)="sortTableData($event)" class="f-table">
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    (matSortChange)="sortTableData($event)"
+    class="f-table"
+  >
     <!-- Abbreviation Column -->
     <ng-container [formGroup]="formData" matColumnDef="abbreviation" sticky>
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Abbreviation</th>
@@ -45,7 +51,7 @@
           {{ tutorial.abbreviation }}
         </div>
         <ng-template #edit>
-          <mat-form-field appearance="outline" class="data-entry" >
+          <mat-form-field appearance="outline" class="data-entry">
             <input matInput required formControlName="abbreviation" placeholder="Abbreviation" />
           </mat-form-field>
         </ng-template>
@@ -221,7 +227,7 @@
       <td mat-cell *matCellDef="let tutorial">
         <div class="right" *ngIf="!editing(tutorial); else edit">
           <button mat-icon-button (click)="flagEdit(tutorial)">
-            <mat-icon color="primary">edit</mat-icon>
+            <mat-icon>edit</mat-icon>
           </button>
         </div>
         <ng-template #edit>

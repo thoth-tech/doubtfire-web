@@ -1,15 +1,16 @@
 <div class="flex items-center">
   @if (unit) {
-    <div
-      class="bg-formatif-blue text-white rounded-full cursor-pointer pl-6 pr-6 min-h-12 h-12 flex items-center"
-      style="font-size: 14px"
+    <f-unit-code
+      [isDropdown]="true"
+      [shiftBetweenBadges]="false"
+      [width]="80"
+      [unit_code]="unit?.code"
       matTooltip="{{ unit.name }}"
       [matMenuTriggerFor]="menu"
       #menuState="matMenuTrigger"
     >
-      <span class="text-md">{{ unit?.code }}</span>
       <mat-icon>{{ menuState.menuOpen ? 'arrow_drop_up' : 'arrow_drop_down' }} </mat-icon>
-    </div>
+    </f-unit-code>
   }
   @if (!unit) {
     <button mat-button [matMenuTriggerFor]="menu" #menuState="matMenuTrigger">
@@ -39,7 +40,7 @@
     <mat-divider></mat-divider>
   }
 
-  <div mat-subheader [hidden]="unitRoles?.length === 0">Units you teach</div>
+  <h2 mat-subheader [hidden]="unitRoles?.length === 0" class="my-3 ml-6">Units you teach</h2>
   @for (unitRole of unitRoles; track unitRole) {
     @if (!unitRole.unit.teachingPeriod || unitRole.unit.teachingPeriod?.active) {
       <div
@@ -49,18 +50,16 @@
         class="w-full"
       >
         <div class="flex items-center w-full">
-          <div class="flex-none unitName">{{ unitRole.unit.name }}</div>
+          <div class="flex-none unitName truncate max-w-[220px]">{{ unitRole.unit.name }}</div>
           <div class="grow"></div>
-          <f-chip>
-            {{ unitRole.unit.code }}
-          </f-chip>
+          <f-unit-code [width]="80" [unit_code]="unitRole.unit.code"></f-unit-code>
         </div>
       </div>
     }
   }
 
   <mat-divider [hidden]="unitRoles?.length === 0 || projects?.length === 0"></mat-divider>
-  <div mat-subheader [hidden]="projects?.length === 0">Units You Study</div>
+  <h2 mat-subheader [hidden]="projects?.length === 0" class="my-3 ml-6">Units you study</h2>
   @for (project of projects; track project) {
     @if (!project.unit.teachingPeriod || project.unit.teachingPeriod.active) {
       <button
@@ -72,9 +71,7 @@
         <span class="flex flex-row border-box">
           <div class="unitName">{{ project.unit.name }}</div>
           <span class="flex-1 border-box"></span>
-          <f-chip>
-            {{ project.unit.code }}
-          </f-chip>
+          <f-unit-code [width]="80" [unit_code]="project.unit.code"></f-unit-code>
         </span>
       </button>
     }

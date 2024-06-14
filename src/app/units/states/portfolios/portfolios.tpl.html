@@ -50,14 +50,15 @@
           </div>
           <div class="btn-group btn-group-sm select-portfolio-grade">
             <label
-              ng-repeat="grade in grades"
+              ng-repeat="grade in gradeValues"
+              ng-if="$index != 4"
               class="btn btn-default col-sm-3 text-center"
               ng-model="filterOptions.selectedGrade"
               btn-radio="{{$index}}"
             >
               <grade-icon
                 grade="grade"
-                tooltip="Select to show student's aiming for {{grade}}"
+                tooltip="Select to show student's aiming for {{grades[grade]}}"
                 tooltip-append-to-body="true"
                 class="text-{{$index == filterOptions.selectedGrade ? 'primary' : 'muted'}}"
               ></grade-icon>
@@ -236,7 +237,7 @@
         <i class="fa fa-book"></i>
         <p>No Portfolio Submitted</p>
       </div>
-      <f-pdf-viewer-panel ng-if="project.portfolioAvailable" [pdf-url]="project.portfolioUrl()"> </pdf-viewer-panel>
+      <pdf-viewer-panel ng-if="activeTab == tabs.viewPortfolio && project.portfolioAvailable" [pdf-url]="project.portfolioUrl()"></pdf-viewer-panel>
     </div>
 
     <div class="panel panel-primary" ng-show="activeTab == tabs.assessPortfolio">
@@ -248,31 +249,7 @@
       </div>
       <div class="panel-body alignment-rater">
         <div class="col-sm-12 rationale-wrapper">
-          <div
-            tooltip="Click to edit rationale"
-            tooltip-placement="left"
-            tooltip-append-to-body="false"
-            tooltip-popup-delay="300"
-            tooltip-enable="project.gradeRationale != null"
-            ng-click="toggleEditRationale()"
-            class="rationale"
-            ng-class="{'no-rationale': project.gradeRationale == null}"
-            ng-hide="editingRationale"
-          >
-            <label class="text-muted" ng-show="project.gradeRationale != null"> Provided Rationale </label>
-            <div ng-bind-html="(project.gradeRationale || 'No rationale provided') | markdown | to_trusted"></div>
-            <div class="small" ng-hide="project.gradeRationale">Click to add one</div>
-          </div>
-          <div ng-if="editingRationale" class="clearfix">
-            <div
-              contenteditable
-              ng-model="project.gradeRationale"
-              placeholder="Edit rationale here..."
-              style="border-style: solid; border-width: thin; height: 200px"
-            ></div>
-            <a ng-click="toggleEditRationale(alignment)" class="pull-right">Done Editing</a>
-          </div>
-          {{project.gradeRationale}}
+          <textarea id="gradeRationale" style="height: 160px" class="form-control" ng-model="project.gradeRationale"></textarea>
         </div>
 
         <div ng-repeat="results in gradeResults">
@@ -281,11 +258,15 @@
             <label
               ng-repeat="resultScore in results.scores"
               ng-click="project.assignGrade(resultScore, project.gradeRationale)"
+              ng-disabled="!project.gradeRationale"
               class="btn col-sm-2 text-center {{project.grade == resultScore ? 'btn-primary' : 'btn-default'}}"
             >
               {{resultScore}}
             </label>
           </p>
+        </div>
+        <div>
+          <button class="btn btn-primary pull-right col-md-3" ng-click="project.assignGrade(project.grade, project.gradeRationale)" ng-disabled="!project.gradeRationale">Save</button>
         </div>
       </div>
     </div>

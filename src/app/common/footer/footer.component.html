@@ -109,9 +109,9 @@
           View similarities
         </button>
         <mat-divider></mat-divider>
-        <button mat-menu-item (click)="selectedTask?.updateTaskStatus('time_exceeded')">
-          <mat-icon matListItemIcon aria-label="Switch to Time Exceeded">running_with_errors</mat-icon>
-          Mark as time exceeded
+        <button mat-menu-item (click)="selectedTask?.updateTaskStatus('feedback_exceeded')">
+          <mat-icon matListItemIcon aria-label="Switch to Feedback Exceeded">running_with_errors</mat-icon>
+          Mark as feedback exceeded
         </button>
         <button mat-menu-item (click)="selectedTask?.updateTaskStatus('fail')" [disabled]="selectedTask === undefined">
           <mat-icon matListItemIcon aria-label="Fail icon" fontIcon="cancel"></mat-icon>
@@ -141,7 +141,7 @@
         <mat-icon class="small-icon">file_download</mat-icon>
       </button>
       <f-project-progress-bar
-        matTooltip="Progress towards {{ selectedTask?.project.targetGradeWord }}"
+        matTooltip="{{selectedTask?.project.taskStats[4]?.value}}% progress towards {{ selectedTask?.project.targetGradeWord }}"
         [matTooltipDisabled]="selectedTask === undefined"
         [progress]="selectedTask?.project.taskStats"
       ></f-project-progress-bar>

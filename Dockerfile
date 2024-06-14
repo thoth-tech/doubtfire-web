@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:20
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV USER=node
@@ -22,7 +22,7 @@ WORKDIR /doubtfire-web
 COPY --chown="${USER}":root . .
 
 # Setup within container
-RUN npm install
+RUN npm ci --force --include=optional
 
 EXPOSE 9876
 

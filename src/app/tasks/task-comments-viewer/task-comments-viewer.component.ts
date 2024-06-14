@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, Inject, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
-import { alertService, commentsModal } from 'src/app/ajs-upgraded-providers';
+import { commentsModal } from 'src/app/ajs-upgraded-providers';
 import { Task, Project, TaskComment, TaskCommentService } from 'src/app/api/models/doubtfire-model';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
 import { TaskCommentComposerData } from '../task-comment-composer/task-comment-composer.component';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'task-comments-viewer',
@@ -29,7 +30,7 @@ export class TaskCommentsViewerComponent implements OnChanges, OnInit {
     private taskCommentService: TaskCommentService,
     private constants: DoubtfireConstants,
     @Inject(commentsModal) private commentsModalRef: any,
-    @Inject(alertService) private alerts: any,
+    private alerts: AlertService,
   ) {
     const self = this;
     this.taskCommentService.commentAdded$.subscribe((tc: TaskComment) => {
@@ -120,7 +121,7 @@ export class TaskCommentsViewerComponent implements OnChanges, OnInit {
       ) {
         this.postAttachmentComment(file);
       } else {
-        this.alerts.add('danger', 'I cannot upload that file - only images, audio, and PDFs.', 4000);
+        this.alerts.error('I cannot upload that file - only images, audio, and PDFs.', 4000);
       }
     });
     console.log('implement - check map comments');
@@ -134,7 +135,7 @@ export class TaskCommentsViewerComponent implements OnChanges, OnInit {
     this.taskCommentService.addComment(this.task, file, 'file', null).subscribe(
       (tc: TaskComment) => {},
       (error: any) => {
-        this.alerts.add('danger', error || error?.message, 2000);
+        this.alerts.error(error || error?.message, 2000);
       },
     );
   }

@@ -1,7 +1,8 @@
 import { Inject, Input, Component } from '@angular/core';
 import { BaseAudioRecorderComponent } from '../base-audio-recorder';
-import { audioRecorderService,  alertService } from 'src/app/ajs-upgraded-providers';
+import { audioRecorderService } from 'src/app/ajs-upgraded-providers';
 import { TaskComment, TaskCommentService, Task } from 'src/app/api/models/doubtfire-model';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({ selector: 'audio-comment-recorder', templateUrl: './audio-comment-recorder.html' })
 export class AudioCommentRecorderComponent extends BaseAudioRecorderComponent {
@@ -12,7 +13,7 @@ export class AudioCommentRecorderComponent extends BaseAudioRecorderComponent {
 
   constructor(
     @Inject(audioRecorderService) mediaRecorderService: any,
-    @Inject(alertService) private alerts: any,
+    private alerts: AlertService,
     private ts: TaskCommentService,
   ) {
     super(mediaRecorderService);
@@ -39,7 +40,7 @@ export class AudioCommentRecorderComponent extends BaseAudioRecorderComponent {
           this.scrollCommentsDown();
         },
         error: (failure: { data: { error: any } }) => {
-          this.alerts.add('danger', `Failed to post audio. ${failure.data != null ? failure.data.error : undefined}`);
+          this.alerts.error(`Failed to post audio. ${failure.data != null ? failure.data.error : undefined}`);
           this.isSending = false;
         }
       });

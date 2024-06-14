@@ -3,8 +3,8 @@
     <mat-label>Grade where task appears</mat-label>
     <mat-select [(ngModel)]="taskDefinition.targetGrade" required>
       @for (grade of grades; track grade) {
-  <mat-option [value]="grade.value">{{ grade.viewValue }}</mat-option>
-}
+        <mat-option [value]="grade.value">{{ grade.viewValue }}</mat-option>
+      }
     </mat-select>
   </mat-form-field>
 
@@ -22,4 +22,9 @@
 <mat-form-field appearance="outline" class="flex flex-grow">
   <mat-label>Descriptive task name</mat-label>
   <input matInput [(ngModel)]="taskDefinition.name" required />
+</mat-form-field>
+
+<mat-form-field appearance="outline" class="flex flex-grow">
+  <mat-label>Task description</mat-label>
+  <textarea matInput [(ngModel)]="taskDefinition.description" required> </textarea>
 </mat-form-field>

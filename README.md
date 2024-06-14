@@ -218,8 +218,6 @@ TODO:
 - [ ] ./src/app/common/services/analytics-service.coffee
 - [ ] ./src/app/common/services/services.coffee
 - [ ] ./src/app/sessions/auth/http-auth-injector.coffee
-- [ ] ./src/app/sessions/auth/roles/roles.coffee
-- [ ] ./src/app/sessions/auth/roles/if-role.coffee
 - [ ] ./src/app/sessions/sessions.coffee
 - [ ] ./src/app/errors/errors.coffee
 - [ ] ./src/app/errors/states/states.coffee

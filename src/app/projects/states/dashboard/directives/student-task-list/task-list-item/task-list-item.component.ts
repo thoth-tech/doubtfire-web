@@ -1,6 +1,6 @@
-import { Component, Input, OnInit, Inject } from '@angular/core';
-import { gradeService } from 'src/app/ajs-upgraded-providers';
-import { Task } from 'src/app/api/models/doubtfire-model';
+import {Component, Input, OnInit} from '@angular/core';
+import {Task} from 'src/app/api/models/doubtfire-model';
+import {GradeService} from 'src/app/common/services/grade.service';
 
 @Component({
   selector: 'task-list-item',
@@ -12,13 +12,12 @@ export class TaskListItemComponent implements OnInit {
   @Input() setSelectedTask: any;
   @Input() isSelectedTask: any;
 
-  public gradeNames: string[];
+  public gradeNames: {};
 
-  constructor(@Inject(gradeService) private gs: any) {}
+  constructor(private gs: GradeService) {}
 
   ngOnInit() {
     // Expose grade service names
     this.gradeNames = this.gs.grades;
-
   }
 }

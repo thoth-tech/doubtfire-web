@@ -9,10 +9,10 @@ import { EditProfileFormComponent } from '../../edit-profile-form/edit-profile-f
 export class EditProfileDialogService {
   constructor(public dialog: MatDialog) {}
 
-  openDialog(user: User): void {
+  openDialog(user: User, mode: 'edit' | 'create' | 'new'): void {
     this.dialog.open(EditProfileFormComponent, {
       width: '800px',
-      data: { user, mode: 'edit' },
+      data: {user, mode: mode},
     });
   }
 }

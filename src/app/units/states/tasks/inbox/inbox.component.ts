@@ -1,23 +1,34 @@
-import { CdkDragEnd, CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { MediaObserver } from '@angular/flex-layout';
-import { UIRouter } from '@uirouter/angular';
-import { auditTime, merge, Observable, of, Subject, tap, withLatestFrom } from 'rxjs';
-import { Task } from 'src/app/api/models/task';
-import { Unit } from 'src/app/api/models/unit';
-import { UnitRole } from 'src/app/api/models/unit-role';
-import { FileDownloaderService } from 'src/app/common/file-downloader/file-downloader.service';
-import { SelectedTaskService } from 'src/app/projects/states/dashboard/selected-task.service';
+import {CdkDragEnd, CdkDragStart, CdkDragMove} from '@angular/cdk/drag-drop';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import {MediaObserver} from 'ng-flex-layout';
+import {UIRouter} from '@uirouter/angular';
+import {auditTime, merge, Observable, of, Subject, tap, withLatestFrom} from 'rxjs';
+import {Task} from 'src/app/api/models/task';
+import {Unit} from 'src/app/api/models/unit';
+import {UnitRole} from 'src/app/api/models/unit-role';
+import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {SelectedTaskService} from 'src/app/projects/states/dashboard/selected-task.service';
+import {HotkeysService, HotkeysHelpComponent} from '@ngneat/hotkeys';
+import {MatDialog} from '@angular/material/dialog';
+import {UserService} from 'src/app/api/services/user.service';
 
 @Component({
   selector: 'f-inbox',
   templateUrl: './inbox.component.html',
   styleUrls: ['./inbox.component.scss'],
 })
-export class InboxComponent implements OnInit {
+export class InboxComponent implements OnInit, AfterViewInit {
   @Input() unit: Unit;
   @Input() unitRole: UnitRole;
-  @Input() taskData: { selectedTask: Task; any };
+  @Input() taskData: {selectedTask: Task; any};
 
   @ViewChild('inboxpanel') inboxPanel: ElementRef;
   @ViewChild('commentspanel') commentspanel: ElementRef;
@@ -25,7 +36,7 @@ export class InboxComponent implements OnInit {
   subs$: Observable<unknown>;
 
   private inboxStartSize$ = new Subject<number>();
-  private dragMove$ = new Subject<{ event: CdkDragMove; div: HTMLDivElement }>();
+  private dragMove$ = new Subject<{event: CdkDragMove; div: HTMLDivElement}>();
   private dragMoveAudited$;
 
   protected filters;
@@ -40,10 +51,13 @@ export class InboxComponent implements OnInit {
   }
 
   constructor(
+    private hotkeys: HotkeysService,
     private selectedTask: SelectedTaskService,
     public mediaObserver: MediaObserver,
     public fileDownloader: FileDownloaderService,
     private router: UIRouter,
+    public dialog: MatDialog,
+    private userService: UserService,
   ) {
     this.selectedTask.currentPdfUrl$.subscribe((url) => {
       this.visiblePdfUrl = url;
@@ -53,8 +67,36 @@ export class InboxComponent implements OnInit {
       this.taskSelected = task != null;
     });
   }
+  ngAfterViewInit(): void {
+    console.log('ngAfterViewInit');
+    const markers = ['Admin', 'Convenor', 'Tutor', 'Student'];
+
+    if (markers.includes(this.userService.currentUser?.role)) {
+      this.hotkeys.registerHelpModal(() => {
+        const ref = this.dialog.open(HotkeysHelpComponent, {
+          // width: '250px',
+        });
+        ref.componentInstance.title = 'Formatif Marking Shortcuts';
+        ref.componentInstance.dismiss.subscribe(() => ref.close());
+      });
+    }
+  }
 
   ngOnInit(): void {
+    // this.hotkeys
+    //   .addShortcut({
+    //     keys: 'control.c',
+    //     description: 'Mark selected task as complete',
+    //   })
+    //   .subscribe(() => this.selectedTask.selectedTask?.updateTaskStatus('complete'));
+
+    // this.hotkeys
+    //   .addShortcut({
+    //     keys: 'control.f',
+    //     description: 'Mark selected task as fix',
+    //   })
+    //   .subscribe(() => this.selectedTask.selectedTask?.updateTaskStatus('fix_and_resubmit'));
+
     this.dragMoveAudited$ = this.dragMove$.pipe(
       withLatestFrom(this.inboxStartSize$),
       auditTime(30),
@@ -93,7 +135,7 @@ export class InboxComponent implements OnInit {
   }
 
   dragging(event: CdkDragMove, div: HTMLDivElement) {
-    this.dragMove$.next({ event, div });
+    this.dragMove$.next({event, div});
     event.source.reset();
   }
 
@@ -112,7 +154,10 @@ export class InboxComponent implements OnInit {
 
   openPdfInNewTab(): void {
     if (this.taskData.selectedTask.hasPdf) {
-      this.fileDownloader.downloadFile(this.visiblePdfUrl, `${this.taskData.selectedTask.definition.abbreviation}.pdf`);
+      this.fileDownloader.downloadFile(
+        this.visiblePdfUrl,
+        `${this.taskData.selectedTask.definition.abbreviation}.pdf`,
+      );
     }
   }
 }

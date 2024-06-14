@@ -1,8 +1,8 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, Inject, Input, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
 import { Project, Task, TaskComment } from 'src/app/api/models/doubtfire-model';
 import { FileDownloaderService } from '../file-downloader/file-downloader.service';
+import { AlertService } from '../services/alert.service';
 
 @Component({
   selector: 'audio-player',
@@ -24,7 +24,7 @@ export class AudioPlayerComponent implements OnDestroy {
 
   constructor(
     @Inject(FileDownloaderService) private fileDownloader: FileDownloaderService,
-    @Inject(alertService) private alerts: any
+    private alerts: AlertService,
   ) {
     this.audio.ontimeupdate = () => {
       const percentagePlayed = this.audio.currentTime / this.audio.duration;
@@ -97,7 +97,7 @@ export class AudioPlayerComponent implements OnDestroy {
           }
         }).bind(this),
         ((error: any) => {
-          this.alerts.add('danger', `Error loading audio. ${error}`, 6000);
+          this.alerts.error(`Error loading audio. ${error}`, 6000);
         }).bind(this)
       );
     }

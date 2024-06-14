@@ -11,7 +11,7 @@ angular.module('doubtfire.tasks.modals.upload-submission-modal', [])
   UploadSubmissionModal.show = (task, reuploadEvidence, isTestSubmission = false) ->
     # Refuse to open modal if group task and not in a group
     if !isTestSubmission && task.isGroupTask() && !task.group
-      alertService.add('danger', "This is a group task. Join a #{task.definition.groupSet.name} group to submit this task.", 8000)
+      alertService.error( "This is a group task. Join a #{task.definition.groupSet.name} group to submit this task.", 8000)
       return null
 
     if isTestSubmission
@@ -32,7 +32,7 @@ angular.module('doubtfire.tasks.modals.upload-submission-modal', [])
 
   UploadSubmissionModal
 )
-.controller('UploadSubmissionModalCtrl', ($scope, $rootScope, $timeout, $modalInstance, newTaskService, newProjectService, task, reuploadEvidence, alertService, outcomeService, PrivacyPolicy) ->
+.controller('UploadSubmissionModalCtrl', ($scope, $rootScope, $timeout, $modalInstance, newTaskService, newProjectService, task, reuploadEvidence, outcomeService, PrivacyPolicy) ->
   $scope.privacyPolicy = PrivacyPolicy
   # Expose task to scope
   $scope.task = task

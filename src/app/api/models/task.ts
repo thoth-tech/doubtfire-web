@@ -1,7 +1,7 @@
-import { Entity, EntityCache, RequestOptions } from 'ngx-entity-service';
-import { AppInjector } from 'src/app/app-injector';
-import { formatDate } from '@angular/common';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
+import {Entity, EntityCache, RequestOptions} from 'ngx-entity-service';
+import {AppInjector} from 'src/app/app-injector';
+import {formatDate} from '@angular/common';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
 import {
   TaskDefinition,
   Project,
@@ -16,13 +16,13 @@ import {
   TaskSimilarity,
   TaskSimilarityService,
 } from './doubtfire-model';
-import { Grade } from './grade';
-import { LOCALE_ID } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import { gradeTaskModal, uploadSubmissionModal } from 'src/app/ajs-upgraded-providers';
-import { AlertService } from 'src/app/common/services/alert.service';
-import { MappingFunctions } from '../services/mapping-fn';
+import {Grade} from './grade';
+import {LOCALE_ID} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable, map} from 'rxjs';
+import {gradeTaskModal, uploadSubmissionModal} from 'src/app/ajs-upgraded-providers';
+import {AlertService} from 'src/app/common/services/alert.service';
+import {MappingFunctions} from '../services/mapping-fn';
 
 export class Task extends Entity {
   id: number;
@@ -74,7 +74,7 @@ export class Task extends Entity {
 
   /**
    * Provide the task definition id to allow mapping in service.
-  */
+   */
   public get taskDefId(): number {
     return this.definition.id;
   }
@@ -116,7 +116,7 @@ export class Task extends Entity {
     );
   }
 
-  public hasTaskKey(key: { studentId: number; taskDefAbbr: string }): boolean {
+  public hasTaskKey(key: {studentId: number; taskDefAbbr: string}): boolean {
     return this.taskKey() === key;
   }
 
@@ -137,11 +137,26 @@ export class Task extends Entity {
   }
 
   public hasGrade(): boolean {
-    return this.grade !== undefined && this.grade !== null && TaskStatus.GRADEABLE_STATUSES.includes(this.status);
+    return (
+      this.grade !== undefined &&
+      this.grade !== null &&
+      TaskStatus.GRADEABLE_STATUSES.includes(this.status)
+    );
   }
 
   public hasQualityPoints(): boolean {
     return this.definition.maxQualityPts > 0 && TaskStatus.GRADEABLE_STATUSES.includes(this.status);
+  }
+
+  public hasBeenGraded(): boolean {
+    if (this.hasGrade()) {
+      return typeof this.grade === 'number';
+    }
+    return false;
+  }
+
+  public hasBeenGivenQualityPoints(): boolean {
+    return this.qualityPts > 0 || TaskStatus.GRADEABLE_STATUSES.includes(this.status);
   }
 
   public localDueDate(): Date {
@@ -235,11 +250,11 @@ export class Task extends Entity {
 
   private timeToDescription(earlyTime: Date, laterTime: Date) {
     const times = [
-      { period: 'weeks', value: 7 * 24 * 60 * 60 * 1000.0 },
-      { period: 'days', value: 24 * 60 * 60 * 1000.0 },
-      { period: 'hours', value: 60 * 60 * 1000.0 },
-      { period: 'minutes', value: 60 * 1000.0 },
-      { period: 'seconds', value: 1000.0 },
+      {period: 'weeks', value: 7 * 24 * 60 * 60 * 1000.0},
+      {period: 'days', value: 24 * 60 * 60 * 1000.0},
+      {period: 'hours', value: 60 * 60 * 1000.0},
+      {period: 'minutes', value: 60 * 1000.0},
+      {period: 'seconds', value: 1000.0},
     ];
 
     const timeDiff = laterTime.getTime() - earlyTime.getTime();
@@ -260,7 +275,9 @@ export class Task extends Entity {
         // Always show in days, Hours, Minutes and Seconds.
         return `${diff} ${data.period.charAt(0).toUpperCase() + data.period.substring(1)}`;
       } else if (diff === 1 && data.period !== 'weeks') {
-        return `1 ${data.period.charAt(0).toUpperCase() + data.period.substring(1, data.period.length - 2)}`;
+        return `1 ${
+          data.period.charAt(0).toUpperCase() + data.period.substring(1, data.period.length - 2)
+        }`;
       }
     }
 
@@ -301,7 +318,9 @@ export class Task extends Entity {
 
   // Are we approaching the deadline?
   public isDeadlineSoon() {
-    return this.daysUntilDeadlineDate() <= 14 && this.timePastDeadlineDate() < 0 && !this.inFinalState();
+    return (
+      this.daysUntilDeadlineDate() <= 14 && this.timePastDeadlineDate() < 0 && !this.inFinalState()
+    );
   }
 
   public betweenDueDateAndDeadlineDate(): boolean {
@@ -350,7 +369,8 @@ export class Task extends Entity {
       }
 
       // if the comment is preceeded by a non-content comment, mark it as start of series.
-      comments[i].firstInSeries = comments[i].isBubbleComment && (i === 0 || !comments[i - 1].isBubbleComment);
+      comments[i].firstInSeries =
+        comments[i].isBubbleComment && (i === 0 || !comments[i - 1].isBubbleComment);
 
       // if the comment is proceeded by a non-conent comment, mark it as end of series.
       if (comments[i].isBubbleComment && !comments[i + 1]?.isBubbleComment) {
@@ -367,7 +387,7 @@ export class Task extends Entity {
     comments;
   }
 
-  public taskKey(): { studentId: number; taskDefAbbr: string } {
+  public taskKey(): {studentId: number; taskDefAbbr: string} {
     return {
       studentId: this.project.student.id,
       taskDefAbbr: this.definition.abbreviation,
@@ -385,15 +405,20 @@ export class Task extends Entity {
 
   public getSimilarityData(match: number): Observable<unknown> {
     const httpClient = AppInjector.get(HttpClient);
-    return httpClient.get(`${AppInjector.get(DoubtfireConstants).API_URL}/tasks/${this.id}/similarity/${match}`);
+    return httpClient.get(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/tasks/${this.id}/similarity/${match}`,
+    );
   }
 
   public updateSimilarity(match: number, other: any, dismissed: boolean): Observable<any> {
     const httpClient = AppInjector.get(HttpClient);
-    return httpClient.put(`${AppInjector.get(DoubtfireConstants).API_URL}/tasks/${this.id}/similarity/${match}`, {
-      dismissed: dismissed,
-      other: other,
-    });
+    return httpClient.put(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/tasks/${this.id}/similarity/${match}`,
+      {
+        dismissed: dismissed,
+        other: other,
+      },
+    );
   }
 
   public inFinalState(): boolean {
@@ -440,7 +465,7 @@ export class Task extends Entity {
     return TaskStatus.statusClass(this.status);
   }
 
-  public statusHelp(): { detail: string; reason: string; action: string } {
+  public statusHelp(): {detail: string; reason: string; action: string} {
     return TaskStatus.HELP_DESCRIPTIONS.get(this.status);
   }
 
@@ -462,7 +487,7 @@ export class Task extends Entity {
       .get(
         `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${this.project.id}/task_def_id/${
           this.definition.id
-        }/submission_details`
+        }/submission_details`,
       )
       .pipe(
         map((response: object) => {
@@ -470,20 +495,22 @@ export class Task extends Entity {
           this.processingPdf = response['processing_pdf'];
           this.submissionDate = MappingFunctions.mapDate(response, 'submission_date', this);
           return this;
-        })
+        }),
       );
   }
 
   public get overseerEnabled(): boolean {
     return (
-      this.unit.overseerEnabled && this.definition.assessmentEnabled && this.definition.hasTaskAssessmentResources
+      this.unit.overseerEnabled &&
+      this.definition.assessmentEnabled &&
+      this.definition.hasTaskAssessmentResources
     );
   }
 
   public submissionUrl(asAttachment: boolean = false): string {
-    return `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${this.project.id}/task_def_id/${
-      this.definition.id
-    }/submission${asAttachment ? '?as_attachment=true' : ''}`;
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${
+      this.project.id
+    }/task_def_id/${this.definition.id}/submission${asAttachment ? '?as_attachment=true' : ''}`;
   }
 
   public testSubmissionUrl(): string {
@@ -493,16 +520,18 @@ export class Task extends Entity {
   }
 
   public submittedFilesUrl(asAttachment: boolean = false): string {
-    return `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${this.project.id}/task_def_id/${
-      this.definition.id
-    }/submission_files${asAttachment ? '?as_attachment=true' : ''}`;
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${
+      this.project.id
+    }/task_def_id/${this.definition.id}/submission_files${
+      asAttachment ? '?as_attachment=true' : ''
+    }`;
   }
 
   public recreateSubmissionPdf(): Observable<object> {
     const httpClient: HttpClient = AppInjector.get(HttpClient);
-    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${this.project.id}/task_def_id/${
-      this.definition.id
-    }/submission`;
+    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${
+      this.project.id
+    }/task_def_id/${this.definition.id}/submission`;
 
     return httpClient.put(url, {});
   }
@@ -514,7 +543,7 @@ export class Task extends Entity {
   public presentTaskSubmissionModal(
     status: TaskStatusEnum,
     reuploadEvidence: boolean = false,
-    isTestSubmission: boolean = false
+    isTestSubmission: boolean = false,
   ) {
     const oldStatus = this.status;
 
@@ -541,7 +570,7 @@ export class Task extends Entity {
           this.status = oldStatus;
         }
         const alerts: any = AppInjector.get(AlertService);
-        alerts.add('info', 'Submission cancelled. Status was reverted.', 6000);
+        alerts.message('Submission cancelled. Status was reverted.', 6000);
       }
     );
   }
@@ -550,7 +579,7 @@ export class Task extends Entity {
     if (this.inTimeExceeded() && !this.isPastDeadline()) {
       alerts.message(
         'You have submitted after the deadline for feedback. Your task will not be reviewed by a tutor. It is now your responsibility to ensure this task meets the required standard.',
-        8000
+        8000,
       );
     }
 
@@ -584,7 +613,7 @@ export class Task extends Entity {
             projectId: this.project.id,
             taskDefId: this.definition.id,
           },
-          options
+          options,
         )
         .subscribe({
           next: (response) => {
@@ -620,7 +649,7 @@ export class Task extends Entity {
           () => {
             this.status = oldStatus;
             alerts.message('Status reverted, as no grade was specified', 6000);
-          }
+          },
         );
       }
     } else {
@@ -631,7 +660,8 @@ export class Task extends Entity {
   public triggerTransition(status: TaskStatusEnum): void {
     if (this.status === status) return;
 
-    const requiresFileUpload = ['ready_for_feedback', 'need_help'].includes(status) && this.requiresFileUpload();
+    const requiresFileUpload =
+      ['ready_for_feedback', 'need_help'].includes(status) && this.requiresFileUpload();
 
     if (requiresFileUpload) {
       this.presentTaskSubmissionModal(status);
@@ -674,14 +704,16 @@ export class Task extends Entity {
   public unpin(): void {
     const http = AppInjector.get(HttpClient);
 
-    http.delete(`${AppInjector.get(DoubtfireConstants).API_URL}/tasks/${this.id}/pin`, {}).subscribe({
-      next: (_data) => {
-        this.pinned = false;
-      },
-      error: (message) => {
-        (AppInjector.get(AlertService) as AlertService).error(message, 6000);
-      },
-    });
+    http
+      .delete(`${AppInjector.get(DoubtfireConstants).API_URL}/tasks/${this.id}/pin`, {})
+      .subscribe({
+        next: (_data) => {
+          this.pinned = false;
+        },
+        error: (message) => {
+          (AppInjector.get(AlertService) as AlertService).error(message, 6000);
+        },
+      });
   }
 
   public canApplyForExtension(): boolean {
@@ -694,11 +726,16 @@ export class Task extends Entity {
   }
 
   public wasSubmittedOnTime() {
-    return this.submissionDate && this.submissionDate.getTime() <= this.definition.finalDeadlineDate().getTime();
+    return (
+      this.submissionDate &&
+      this.submissionDate.getTime() <= this.definition.finalDeadlineDate().getTime()
+    );
   }
 
   public maxWeeksCanExtend(): number {
-    return Math.ceil(this.daysBetween(this.localDueDate(), this.definition.localDeadlineDate()) / 7);
+    return Math.ceil(
+      this.daysBetween(this.localDueDate(), this.definition.localDeadlineDate()) / 7,
+    );
   }
 
   /**
@@ -720,11 +757,11 @@ export class Task extends Entity {
   public fetchSimilarities(): Observable<TaskSimilarity[]> {
     const taskSimilarityService: TaskSimilarityService = AppInjector.get(TaskSimilarityService);
     return taskSimilarityService.query(
-      { taskId: this.id },
+      {taskId: this.id},
       {
         cache: this.similarityCache,
         constructorParams: this,
-      }
+      },
     );
   }
 }

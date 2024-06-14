@@ -138,14 +138,14 @@ export abstract class EntityFormComponent<T extends Entity> implements AfterView
         response = service.create(data, this.optionsOnRequest('create'));
       } else {
         // Nothing has changed if the selected value, so we want to inform the user
-        alertService.add('danger', `${this.entityName} was not changed`, 6000);
+        alertService.error( `${this.entityName} was not changed`, 6000);
         return;
       }
 
       // Handle the response
       response.subscribe({
         next: (result: T) => {
-          alertService.add('success', `${this.entityName} saved`, 2000);
+          alertService.success( `${this.entityName} saved`, 2000);
           // Success is implemented on all inheriting instances and is used
           // to handle the response appropriately for the context of the form
           success(result, this.selected ? false : true);
@@ -163,7 +163,7 @@ export abstract class EntityFormComponent<T extends Entity> implements AfterView
           if (this.selected) {
             this.restoreFromBackup();
           }
-          alertService.add('danger', `${this.entityName} save failed: ${error}`, 6000);
+          alertService.error( `${this.entityName} save failed: ${error}`, 6000);
         },
       });
     } else {

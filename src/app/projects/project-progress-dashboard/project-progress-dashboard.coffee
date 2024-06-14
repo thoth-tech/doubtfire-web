@@ -17,7 +17,6 @@ angular.module('doubtfire.projects.project-progress-dashboard',[])
       $scope.studentProjectId = $scope.project.id
 
     $scope.grades = gradeService.grades
-    $scope.gradeAcronyms = gradeService.gradeAcronyms
 
     $scope.currentVisualisation = 'burndown'
 
@@ -25,7 +24,7 @@ angular.module('doubtfire.projects.project-progress-dashboard',[])
       $scope.project.targetGrade = idx
       newProjectService.update($scope.project).subscribe(
         (response) ->
-          alertService.add("success", "Target updated")
+          alertService.success( "Target updated")
       )
       updateTaskCompletionStats()
 

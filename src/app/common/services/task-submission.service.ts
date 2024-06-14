@@ -1,10 +1,15 @@
-import { Injectable, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { alertService } from 'src/app/ajs-upgraded-providers';
-import { Observable } from 'rxjs';
-import { Task, OverseerAssessment, OverseerAssessmentService, OverseerImage, OverseerImageService } from 'src/app/api/models/doubtfire-model';
-import { AppInjector } from 'src/app/app-injector';
+import {Injectable, Inject} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {Observable} from 'rxjs';
+import {
+  Task,
+  OverseerAssessment,
+  OverseerAssessmentService,
+  OverseerImage,
+  OverseerImageService,
+} from 'src/app/api/models/doubtfire-model';
+import {AppInjector} from 'src/app/app-injector';
 
 export interface TaskAssessmentResult {
   id?: number;
@@ -31,7 +36,7 @@ export interface DockerImageInfo {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TaskSubmissionService {
   private readonly _API_URL = this.constants.API_URL;
@@ -39,15 +44,16 @@ export class TaskSubmissionService {
   private readonly overseerImagesEndpointFormat = 'admin/overseer_images';
 
   constructor(
-    @Inject(alertService) private alerts: any,
     private http: HttpClient,
     private constants: DoubtfireConstants,
     private overseerImages: OverseerImageService,
-    private overseerAssessmentService: OverseerAssessmentService
-    ) { }
+    private overseerAssessmentService: OverseerAssessmentService,
+  ) {}
 
   public getLatestTaskAssessment(taskInfo: Task): Observable<any> {
-    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${taskInfo.project.id}/task_def_id/${taskInfo.definition.id}/submissions/latest`;
+    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${
+      taskInfo.project.id
+    }/task_def_id/${taskInfo.definition.id}/submissions/latest`;
     return this.http.get<any>(url);
   }
 
@@ -56,7 +62,9 @@ export class TaskSubmissionService {
   }
 
   public getSubmissionByTimestamp(taskInfo: Task, timestamp: string): Observable<any> {
-    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${taskInfo.project.id}/task_def_id/${taskInfo.definition.id}/submissions/timestamps/${timestamp}`;
+    const url = `${AppInjector.get(DoubtfireConstants).API_URL}/projects/${
+      taskInfo.project.id
+    }/task_def_id/${taskInfo.definition.id}/submissions/timestamps/${timestamp}`;
     return this.http.get<any>(url);
   }
 
@@ -65,7 +73,6 @@ export class TaskSubmissionService {
   }
 
   public getDockerImagesAsPromise() {
-    return this.getDockerImages()
-       .toPromise();
+    return this.getDockerImages().toPromise();
   }
 }

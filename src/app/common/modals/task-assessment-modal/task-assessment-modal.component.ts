@@ -1,8 +1,7 @@
-import { Component, OnInit, Inject, Input, ViewChild } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {Component, OnInit, Inject, Input} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Subject} from 'rxjs';
-import { Task } from 'src/app/api/models/doubtfire-model';
+import {Task} from 'src/app/api/models/doubtfire-model';
 
 @Component({
   selector: 'task-assessment-modal',
@@ -17,7 +16,7 @@ export class TaskAssessmentModalComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<TaskAssessmentModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    @Inject(alertService) private alerts: any, ) { }
+  ) {}
 
   ngOnInit() {
     this.task = this.data;
@@ -27,7 +26,7 @@ export class TaskAssessmentModalComponent implements OnInit {
     this.noDataFlag = $event;
   }
 
-  resfreshChildComponent(){
+  resfreshChildComponent() {
     this.refreshTrigger.next(true);
   }
 }

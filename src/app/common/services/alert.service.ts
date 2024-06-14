@@ -1,13 +1,16 @@
-import { Component, Inject, Injectable, inject } from '@angular/core';
-import { MAT_SNACK_BAR_DATA, MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import {Component, Inject, Injectable, inject} from '@angular/core';
+import {MAT_SNACK_BAR_DATA, MatSnackBar, MatSnackBarRef} from '@angular/material/snack-bar';
 
-import { ConfettiService } from './confetti.service';
+import {ConfettiService} from './confetti.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AlertService {
-  constructor(private snackBar: MatSnackBar, private confetti: ConfettiService) {}
+  constructor(
+    private snackBar: MatSnackBar,
+    private confetti: ConfettiService,
+  ) {}
 
   private _openSnackBar(message: string, icon: string, duration: number = 3000): void {
     this.snackBar.openFromComponent(AlertComponent, {

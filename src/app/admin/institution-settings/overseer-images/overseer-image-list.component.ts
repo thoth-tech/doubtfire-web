@@ -1,10 +1,10 @@
-import { Component, Inject, ViewChild } from '@angular/core';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { OverseerImage, OverseerImageService } from 'src/app/api/models/doubtfire-model';
-import { alertService } from 'src/app/ajs-upgraded-providers';
-import { EntityFormComponent } from 'src/app/common/entity-form/entity-form.component';
-import { UntypedFormControl, Validators } from '@angular/forms';
-import { MatSort, Sort } from '@angular/material/sort';
+import {Component, ViewChild} from '@angular/core';
+import {MatTableDataSource, MatTable} from '@angular/material/table';
+import {OverseerImage, OverseerImageService} from 'src/app/api/models/doubtfire-model';
+import {EntityFormComponent} from 'src/app/common/entity-form/entity-form.component';
+import {UntypedFormControl, Validators} from '@angular/forms';
+import {MatSort, Sort} from '@angular/material/sort';
+import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'overseer-image-list',
@@ -12,8 +12,8 @@ import { MatSort, Sort } from '@angular/material/sort';
   styleUrls: ['overseer-image-list.component.scss'],
 })
 export class OverseerImageListComponent extends EntityFormComponent<OverseerImage> {
-  @ViewChild(MatTable, { static: true }) table: MatTable<any>;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatTable, {static: true}) table: MatTable<any>;
+  @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   // Set up the table
   columns: string[] = ['name', 'tag', 'pull', 'last-pulled', 'status', 'options'];
@@ -23,11 +23,17 @@ export class OverseerImageListComponent extends EntityFormComponent<OverseerImag
 
   // Calls the parent's constructor, passing in an object
   // that maps all of the form controls that this form consists of.
-  constructor(private overseerImageService: OverseerImageService, @Inject(alertService) private alerts: any) {
-    super({
-      name: new UntypedFormControl('', [Validators.required]),
-      tag: new UntypedFormControl('', [Validators.required]),
-    }, "Overseer Image");
+  constructor(
+    private overseerImageService: OverseerImageService,
+    private alerts: AlertService,
+  ) {
+    super(
+      {
+        name: new UntypedFormControl('', [Validators.required]),
+        tag: new UntypedFormControl('', [Validators.required]),
+      },
+      'Overseer Image',
+    );
   }
 
   ngAfterViewInit() {
@@ -62,18 +68,20 @@ export class OverseerImageListComponent extends EntityFormComponent<OverseerImag
   // This method is called when pull button is clicked to pull overseer image.
   pullOverseerImage(image: OverseerImage) {
     this.loading = true;
-    image.pulledImageStatus = "loading";
+    image.pulledImageStatus = 'loading';
     this.overseerImageService.pullDockerImage(image).subscribe((response) => {
       this.loading = false;
-    })
+    });
   }
 
   deleteOverseerImage(image: OverseerImage) {
-    this.overseerImageService.delete(image).subscribe( ((response) => {
-      this.cancelEdit();
-      this.overseerImages.splice(this.overseerImages.indexOf(image), 1);
-      this.dataSource.data = this.overseerImages;
-    }).bind(this));
+    this.overseerImageService.delete(image).subscribe(
+      ((response) => {
+        this.cancelEdit();
+        this.overseerImages.splice(this.overseerImages.indexOf(image), 1);
+        this.dataSource.data = this.overseerImages;
+      }).bind(this),
+    );
   }
 
   // Sorting function to sort data when sort

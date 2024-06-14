@@ -14,7 +14,7 @@ angular.module('doubtfire.units.states.edit', [
     data:
       task: 'Unit Administration'
       pageTitle: "_Unit Administration_"
-      roleWhitelist: ['Convenor', 'Admin']
+      roleWhitelist: ['Convenor', 'Admin', 'Auditor']
    }
 )
 .controller('EditUnitStateCtrl', ($scope, $state, $stateParams, alertService, analyticsService, newUnitService, newUserService, GlobalStateService) ->

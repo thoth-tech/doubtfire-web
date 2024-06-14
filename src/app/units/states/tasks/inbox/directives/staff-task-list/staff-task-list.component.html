@@ -8,7 +8,7 @@
 
       <div class="grow">
         <input
-          class="search"
+          class="search w-full"
           autocomplete="off"
           spellcheck="false"
           type="text"
@@ -171,7 +171,7 @@
   <!--/search-options-->
   @if (filteredTasks) {
   <cdk-virtual-scroll-viewport class="tasks-viewport scrollable" itemSize="60">
-    <mat-list>
+    <mat-list class="m-0 p-0">
       <mat-list-item
         class="clearfix"
         *cdkVirtualFor="let task of filteredTasks; templateCacheSize: 0"

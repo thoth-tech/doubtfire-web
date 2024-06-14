@@ -1,0 +1,26 @@
+<f-chip>
+  <div
+
+    [style.minWidth.px]="width"
+    [ngClass]="{'justify-between': isDropdown, 'justify-center': !isDropdown}"
+    class="flex flex-row items-center"
+  >
+    @if (isDualBadge && shiftBetweenBadges) {
+      @for (part of unitCodeParts; track part; let i = $index) {
+        @if (i === currentIndex) {
+          <span [@flip]="showState">{{ part }}</span>
+        }
+      }
+    } @else {
+      {{ unitCodeParts }}
+    }
+
+    <ng-container *ngTemplateOutlet="contentProjection"></ng-container>
+  </div>
+</f-chip>
+
+<ng-template #contentProjection>
+  @if (isDropdown) {
+    <ng-content></ng-content>
+  }
+</ng-template>

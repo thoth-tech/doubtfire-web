@@ -82,6 +82,10 @@ export class TaskDefinition extends Entity {
 
   private originalSaveData: string;
 
+  public get hasOriginalSaveData(): boolean {
+    return this.originalSaveData !== undefined && this.originalSaveData !== null;
+  }
+
   /**
    * To check if things have changed, we need to get the initial save data... as it
    * isn't empty by default. We can then use
@@ -90,9 +94,7 @@ export class TaskDefinition extends Entity {
    * @param mapping the mapping to get changes
    */
   public setOriginalSaveData(mapping: EntityMapping<TaskDefinition>) {
-    if (!this.originalSaveData) {
-      this.originalSaveData = JSON.stringify(this.toJson(mapping));
-    }
+    this.originalSaveData = JSON.stringify(this.toJson(mapping));
   }
 
   public hasChanges<T extends Entity>(mapping: EntityMapping<T>): boolean {

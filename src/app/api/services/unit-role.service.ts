@@ -1,4 +1,4 @@
-import { TeachingPeriodService, UnitRole, UnitService, UserService } from 'src/app/api/models/doubtfire-model';
+import { TeachingPeriodService, Unit, UnitRole, UnitService, UserService } from 'src/app/api/models/doubtfire-model';
 import { CachedEntityService } from 'ngx-entity-service';
 import { Inject, Injectable } from '@angular/core';
 import { analyticsService } from 'src/app/ajs-upgraded-providers';
@@ -24,7 +24,13 @@ export class UnitRoleService extends CachedEntityService<UnitRole> {
         keys: 'unit',
         toEntityFn: (data, key, entity) => {
           const unitData = data['unit'];
-          return this.unitService.cache.getOrCreate(unitData.id, unitService, unitData);
+          const result: Unit = this.unitService.cache.getOrCreate(
+            unitData.id,
+            unitService,
+            unitData,
+          );
+          result.updateFromJson(unitData, this.unitService.mapping);
+          return result;
         },
         toJsonFn: (entity: UnitRole, key: string) => {
           return entity.unit?.id;

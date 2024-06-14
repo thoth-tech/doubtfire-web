@@ -11,7 +11,7 @@ angular.module('doubtfire.units.states.groups', [])
     data:
       task: "Student Groups"
       pageTitle: "_Home_"
-      roleWhitelist: ['Tutor', 'Convenor', 'Admin']
+      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor']
    }
 )
 .controller("UnitGroupsStateCtrl", ($scope) ->

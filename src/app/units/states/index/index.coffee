@@ -13,7 +13,7 @@ angular.module('doubtfire.units.states.index', [])
         templateUrl: "units/states/index/index.tpl.html"
     data:
       pageTitle: "_Home_"
-      roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin']
+      roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor']
   }
 )
 
@@ -26,8 +26,8 @@ angular.module('doubtfire.units.states.index', [])
     # Load assessing unit role
     $scope.unitRole = GlobalStateService.loadedUnitRoles.currentValues.find((unitRole) -> unitRole.unit.id == unitId)
 
-    if (! $scope.unitRole?) && ( newUserService.currentUser.role == "Admin" )
-      $scope.unitRole = newUserService.adminRoleFor(unitId, newUserService.currentUser)
+    if (! $scope.unitRole?) && ( newUserService.currentUser.role == "Admin" || newUserService.currentUser.role == "Auditor" )
+      $scope.unitRole = newUserService.adminOrAuditorRoleFor(newUserService.currentUser.role, unitId, newUserService.currentUser)
 
     # Go home if no unit role was found
     return $state.go('home') unless $scope.unitRole?
@@ -40,11 +40,11 @@ angular.module('doubtfire.units.states.index', [])
           next: (students)->
             $scope.unit = unit
           error: (err)->
-            alertService.add("danger", "Error loading students: " + err, 8000)
+            alertService.error( "Error loading students: " + err, 8000)
             setTimeout((()-> $state.go('home')), 5000)
         })
       error: (err)->
-        alertService.add("danger", "Error loading unit: " + err, 8000)
+        alertService.error( "Error loading unit: " + err, 8000)
         setTimeout((()-> $state.go('home')), 5000)
     })
 )

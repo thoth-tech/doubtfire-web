@@ -17,16 +17,16 @@ angular.module('doubtfire.units.states.edit.directives.unit-staff-editor', [])
     $scope.changeRole = (unitRole, role_id) ->
       unitRole.roleId = role_id
       newUnitRoleService.update(unitRole).subscribe({
-        next: (response)  -> alertService.add("success", "Role changed", 2000)
-        error: (response) -> alertService.add("danger", response, 6000)
+        next: (response)  -> alertService.success( "Role changed", 2000)
+        error: (response) -> alertService.error( response, 6000)
       })
 
     $scope.changeMainConvenor = (staff) ->
       $scope.unit.changeMainConvenor(staff).subscribe({
         next: (response) ->
-          alertService.add("success", "Main convenor changed", 2000)
+          alertService.success( "Main convenor changed", 2000)
         error: (response) ->
-          alertService.add("danger", response, 6000)
+          alertService.error( response, 6000)
       })
 
     $scope.addSelectedStaff = ->
@@ -36,11 +36,11 @@ angular.module('doubtfire.units.states.edit.directives.unit-staff-editor', [])
 
       if staff.id?
         $scope.unit.addStaff(staff).subscribe({
-          next:  (response) -> alertService.add('success', "Staff member added", 2000)
-          error: (response) -> alertService.add('danger', response, 6000)
+          next:  (response) -> alertService.success( "Staff member added", 2000)
+          error: (response) -> alertService.error( response, 6000)
         })
       else
-        alertService.add('danger', "Unable to add staff member. Ensure they have a tutor or convenor account in User admin first.", 6000)
+        alertService.error( "Unable to add staff member. Ensure they have a tutor or convenor account in User admin first.", 6000)
 
     # Used in the typeahead to filter staff already in unit
     $scope.filterStaff = (staff) ->
@@ -48,8 +48,8 @@ angular.module('doubtfire.units.states.edit.directives.unit-staff-editor', [])
 
     $scope.removeStaff = (staff) ->
       newUnitRoleService.delete(staff, {cache: $scope.unit.staffCache}).subscribe({
-        next:  (response) -> alertService.add('success', "Staff member removed", 2000)
-        error: (response) -> alertService.add('danger', response, 6000)
+        next:  (response) -> alertService.success( "Staff member removed", 2000)
+        error: (response) -> alertService.error( response, 6000)
       })
 
     $scope.groupSetName = (id) ->

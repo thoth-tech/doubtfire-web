@@ -16,7 +16,7 @@ angular.module('doubtfire.projects.states.dashboard', [
     data:
       task: "Dashboard"
       pageTitle: "_Home_"
-      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Student']
+      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Student', 'Auditor']
    }
 )
 

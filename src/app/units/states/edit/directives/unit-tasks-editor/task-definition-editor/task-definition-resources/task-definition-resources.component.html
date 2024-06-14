@@ -19,7 +19,7 @@
     <f-file-drop
       mode="event"
       (filesDropped)="uploadTaskResources($event)"
-      accept="application/pdf"
+      accept="application/zip"
       [desiredFileName]="'Task ' + taskDefinition.abbreviation + ' zip'"
     />
     @if (taskDefinition.hasTaskResources) {

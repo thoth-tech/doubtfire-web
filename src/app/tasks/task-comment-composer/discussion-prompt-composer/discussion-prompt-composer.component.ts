@@ -1,7 +1,8 @@
-import { Component, Inject, Input, ViewChild, ElementRef } from '@angular/core';
-import { BaseAudioRecorderComponent } from 'src/app/common/audio-recorder/audio/base-audio-recorder';
-import { audioRecorderService, alertService } from 'src/app/ajs-upgraded-providers';
-import { TaskComment, TaskCommentService, Task } from 'src/app/api/models/doubtfire-model';
+import {Component, Inject, Input, ViewChild, ElementRef} from '@angular/core';
+import {BaseAudioRecorderComponent} from 'src/app/common/audio-recorder/audio/base-audio-recorder';
+import {audioRecorderService} from 'src/app/ajs-upgraded-providers';
+import {TaskComment, TaskCommentService, Task} from 'src/app/api/models/doubtfire-model';
+import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'discussion-prompt-composer',
@@ -11,8 +12,8 @@ import { TaskComment, TaskCommentService, Task } from 'src/app/api/models/doubtf
 export class DiscussionPromptComposerComponent extends BaseAudioRecorderComponent {
   @Input() task: Task;
 
-  @ViewChild('discussionPromptComposerCanvas', { static: true }) canvasRef: ElementRef;
-  @ViewChild('discussionPromptComposerAudio', { static: true }) audioRef: ElementRef;
+  @ViewChild('discussionPromptComposerCanvas', {static: true}) canvasRef: ElementRef;
+  @ViewChild('discussionPromptComposerAudio', {static: true}) audioRef: ElementRef;
   recordings: Blob[] = new Array<Blob>();
   canvas: HTMLCanvasElement;
   canvasCtx: CanvasRenderingContext2D;
@@ -29,7 +30,7 @@ export class DiscussionPromptComposerComponent extends BaseAudioRecorderComponen
   constructor(
     @Inject(audioRecorderService) mediaRecorderService: any,
     @Inject(TaskCommentService) private taskCommentService: TaskCommentService,
-    @Inject(alertService) private alerts: any
+    private alerts: AlertService,
   ) {
     super(mediaRecorderService);
   }
@@ -70,18 +71,21 @@ export class DiscussionPromptComposerComponent extends BaseAudioRecorderComponen
   }
 
   sendRecording(): void {
-    this.taskCommentService.addComment(this.task, undefined, 'discussion', undefined, this.recordings).subscribe(
-      (tc: TaskComment) => {
-        this.isSending = false;
-      },
-      (failure: any) => {
-        this.alerts.add(
-          'danger',
-          `Failed to create discussion comment. ${failure.data != null ? failure.data.error : failure}`
-        );
-        this.isSending = false;
-      }
-    );
+    this.taskCommentService
+      .addComment(this.task, undefined, 'discussion', undefined, this.recordings)
+      .subscribe(
+        (tc: TaskComment) => {
+          this.isSending = false;
+        },
+        (failure: any) => {
+          this.alerts.error(
+            `Failed to create discussion comment. ${
+              failure.data != null ? failure.data.error : failure
+            }`,
+          );
+          this.isSending = false;
+        },
+      );
     this.blob = {} as Blob;
     this.recordingAvailable = false;
   }

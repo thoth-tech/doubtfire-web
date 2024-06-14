@@ -21,6 +21,11 @@ module.exports = {
     docker: {
       // API URL should use the DF_DOCKER_MACHINE_IP set
       API_URL: 'http://' + process.env.DF_DOCKER_MACHINE_IP + ':3000/api'
+    },
+
+    devcontainer: {
+      // API URL should use the DF_DOCKER_MACHINE_IP set
+      API_URL: 'http://' + process.env.DF_DOCKER_MACHINE_IP + ':4200/api'
     }
   }
 }

@@ -12,7 +12,7 @@ import {
   DoCheck,
 } from '@angular/core';
 import {trigger, style, animate, transition} from '@angular/animations';
-import {analyticsService, alertService} from 'src/app/ajs-upgraded-providers';
+import {analyticsService} from 'src/app/ajs-upgraded-providers';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {EmojiSearch} from '@ctrl/ngx-emoji-mart';
 import {EmojiData} from '@ctrl/ngx-emoji-mart/ngx-emoji/';
@@ -20,6 +20,7 @@ import {EmojiService} from 'src/app/common/services/emoji.service';
 import {Task, TaskComment, TaskCommentService} from 'src/app/api/models/doubtfire-model';
 import {TaskCommentsViewerComponent} from '../task-comments-viewer/task-comments-viewer.component';
 import {BehaviorSubject} from 'rxjs';
+import {AlertService} from 'src/app/common/services/alert.service';
 
 /**
  * The task comment viewer needs to share data with the Task Comment Composer. The data needed
@@ -91,7 +92,7 @@ export class TaskCommentComposerComponent implements DoCheck {
     private emojiService: EmojiService,
     private commentsViewer: TaskCommentsViewerComponent,
     @Inject(analyticsService) private analytics,
-    @Inject(alertService) private alerts,
+    private alerts: AlertService,
     @Inject(TaskCommentService) private taskCommentService: TaskCommentService,
   ) {
     this.differ = this.differs.find({}).create();
@@ -269,7 +270,7 @@ export class TaskCommentComposerComponent implements DoCheck {
         this.input.first.nativeElement.innerText = '';
       },
       (error: any) => {
-        this.alerts.add('danger', error || error?.message, 2000);
+        this.alerts.error(error || error?.message, 2000);
       },
     );
   }
@@ -282,7 +283,7 @@ export class TaskCommentComposerComponent implements DoCheck {
         console.log('implement - check map comments');
         //this.task.comments = this.ts.mapComments(this.task.comments);
       },
-      error: (message: string) => this.alerts.add('danger', message, 6000),
+      error: (message: string) => this.alerts.error(message, 6000),
     });
   }
 
@@ -299,11 +300,7 @@ export class TaskCommentComposerComponent implements DoCheck {
       ) {
         this.postAttachmentComment(file);
       } else {
-        this.alerts.add(
-          'danger',
-          'I cannot upload that file - only images, audio, and PDFs.',
-          4000,
-        );
+        this.alerts.error('Cannot upload that file - only images, audio, and PDFs.', 4000);
       }
     });
   }
@@ -315,7 +312,7 @@ export class TaskCommentComposerComponent implements DoCheck {
         this.commentsViewer.scrollDown();
       },
       (error: any) => {
-        this.alerts.add('danger', error || error?.message, 2000);
+        this.alerts.error(error || error?.message, 2000);
       },
     );
   }

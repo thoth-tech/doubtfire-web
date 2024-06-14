@@ -1,12 +1,14 @@
-import { NgHybridStateDeclaration } from '@uirouter/angular-hybrid';
-import { InstitutionSettingsComponent } from './admin/institution-settings/institution-settings.component';
-import { HomeComponent } from './home/states/home/home.component';
-import { WelcomeComponent } from './welcome/welcome.component';
-import { SignInComponent } from './sessions/states/sign-in/sign-in.component';
-import { EditProfileComponent } from './account/edit-profile/edit-profile.component';
-import { TeachingPeriodListComponent } from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
-import { AcceptEulaComponent } from './eula/accept-eula/accept-eula.component';
-import { FUsersComponent } from './admin/states/f-users/f-users.component';
+import {NgHybridStateDeclaration} from '@uirouter/angular-hybrid';
+import {InstitutionSettingsComponent} from './admin/institution-settings/institution-settings.component';
+import {HomeComponent} from './home/states/home/home.component';
+import {WelcomeComponent} from './welcome/welcome.component';
+import {SignInComponent} from './sessions/states/sign-in/sign-in.component';
+import {EditProfileComponent} from './account/edit-profile/edit-profile.component';
+import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
+import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
+import {FUsersComponent} from './admin/states/f-users/f-users.component';
+import {FUnitsComponent} from './admin/states/f-units/f-units.component';
+import {CourseFlowComponent} from './courseflow/courseflow.component';
 
 /*
  * Use this file to store any states that are sourced by angular components.
@@ -58,7 +60,7 @@ const HomeState: NgHybridStateDeclaration = {
   },
   data: {
     pageTitle: 'Home Page',
-    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin'],
+    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
   },
 };
 
@@ -164,7 +166,7 @@ const WelcomeState: NgHybridStateDeclaration = {
   },
   data: {
     pageTitle: 'Welcome',
-    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin'],
+    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
   },
 };
 
@@ -181,7 +183,6 @@ const SignInState: NgHybridStateDeclaration = {
   },
   data: {
     pageTitle: 'Sign In',
-    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin'],
   },
 };
 
@@ -198,7 +199,7 @@ const EditProfileState: NgHybridStateDeclaration = {
   },
   data: {
     pageTitle: 'Edit Profile',
-    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin'],
+    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
   },
 };
 
@@ -230,6 +231,82 @@ const EulaState: NgHybridStateDeclaration = {
   },
 };
 
+const ViewAllProjectsState: NgHybridStateDeclaration = {
+  name: 'view-all-projects',
+  url: '/view-all-projects',
+  resolve: {
+    'mode': function () {
+      return 'student';
+    },
+  },
+  views: {
+    main: {
+      component: FUnitsComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Teaching Periods',
+    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin'],
+  },
+};
+
+const AdministerUnits: NgHybridStateDeclaration = {
+  name: 'admin/units', // This is the name of the state to jump to - so ui-sref="users" to jump here
+  url: '/admin/units', // You get here with this url
+  resolve: {
+    'mode': function () {
+      return 'admin';
+    },
+  },
+  views: {
+    main: {
+      // Main body links to angular component
+      component: FUnitsComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Administer units',
+    roleWhiteList: ['Admin'],
+  },
+};
+
+const CourseFlowState: NgHybridStateDeclaration = {
+  name: 'courseflow',
+  url: '/courseflow',
+  views: {
+    main: {
+      component: CourseFlowComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Course Flow',
+    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin']
+  },
+}
+
+
+const ViewAllUnits: NgHybridStateDeclaration = {
+  name: 'view-all-units',
+  url: '/view-all-units',
+
+  // passes 'mode' as @Input to the component
+  resolve: {
+    'mode': function () {
+      return 'tutor';
+    },
+  },
+  views: {
+    main: {
+      component: FUnitsComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Teaching Periods',
+    mode: 'tutor',
+    roleWhitelist: ['Tutor', 'Convenor', 'Admin'],
+  },
+};
+
 /**
  * Export the list of states we have created in angular
  */
@@ -242,4 +319,8 @@ export const doubtfireStates = [
   EditProfileState,
   EulaState,
   usersState,
+  ViewAllProjectsState,
+  ViewAllUnits,
+  AdministerUnits,
+  CourseFlowState, //cf
 ];

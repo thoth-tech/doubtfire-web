@@ -1,10 +1,10 @@
-import { Component, Inject, ViewChild } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
-import { MatSort, Sort } from '@angular/material/sort';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { UntypedFormControl, Validators } from '@angular/forms';
-import { Campus, CampusService } from 'src/app/api/models/doubtfire-model';
-import { EntityFormComponent } from 'src/app/common/entity-form/entity-form.component';
+import {Component, ViewChild} from '@angular/core';
+import {MatSort, Sort} from '@angular/material/sort';
+import {MatTableDataSource, MatTable} from '@angular/material/table';
+import {UntypedFormControl, Validators} from '@angular/forms';
+import {Campus, CampusService} from 'src/app/api/models/doubtfire-model';
+import {EntityFormComponent} from 'src/app/common/entity-form/entity-form.component';
+import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'campus-list',
@@ -12,8 +12,8 @@ import { EntityFormComponent } from 'src/app/common/entity-form/entity-form.comp
   styleUrls: ['campus-list.component.scss'],
 })
 export class CampusListComponent extends EntityFormComponent<Campus> {
-  @ViewChild(MatTable, { static: true }) table: MatTable<Campus>;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatTable, {static: true}) table: MatTable<Campus>;
+  @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   syncModes = ['timetable', 'automatic', 'manual'];
 
@@ -24,13 +24,19 @@ export class CampusListComponent extends EntityFormComponent<Campus> {
 
   // Calls the parent's constructor, passing in an object
   // that maps all of the form controls that this form consists of.
-  constructor(private campusService: CampusService, @Inject(alertService) private alerts: any) {
-    super({
-      abbreviation: new UntypedFormControl('', [Validators.required]),
-      name: new UntypedFormControl('', [Validators.required]),
-      mode: new UntypedFormControl('', [Validators.required]),
-      active: new UntypedFormControl(false),
-    }, "Campus");
+  constructor(
+    private campusService: CampusService,
+    private alerts: AlertService,
+  ) {
+    super(
+      {
+        abbreviation: new UntypedFormControl('', [Validators.required]),
+        name: new UntypedFormControl('', [Validators.required]),
+        mode: new UntypedFormControl('', [Validators.required]),
+        active: new UntypedFormControl(false),
+      },
+      'Campus',
+    );
   }
 
   ngAfterViewInit() {
@@ -65,14 +71,14 @@ export class CampusListComponent extends EntityFormComponent<Campus> {
 
   // This method is called when the delete button is clicked
   deleteCampus(campus: Campus) {
-    this.delete(campus, this.campuses, this.campusService).subscribe(
-      {
-        next: () => {
-          this.alerts.add('success', `${campus.name} has been deleted.`, 2000);
-        },
-        error: (response) => {this.alerts.add( 'danger', response.error?.error || "Unable to delete campus.");}
-      }
-    );
+    this.delete(campus, this.campuses, this.campusService).subscribe({
+      next: () => {
+        this.alerts.success(`${campus.name} has been deleted.`, 2000);
+      },
+      error: (response) => {
+        this.alerts.error(response.error?.error || 'Unable to delete campus.');
+      },
+    });
   }
 
   // Sorting function to sort data when sort

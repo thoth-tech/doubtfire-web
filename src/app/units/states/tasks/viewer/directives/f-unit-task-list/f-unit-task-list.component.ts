@@ -1,8 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Grade } from 'src/app/api/models/grade';
-import { TaskDefinition } from 'src/app/api/models/doubtfire-model';
-import { TaskDefinitionNamePipe } from 'src/app/common/filters/task-definition-name.pipe';
-import { TasksViewerService } from '../../../tasks-viewer.service';
+import {Component, Input, OnInit} from '@angular/core';
+import {Grade} from 'src/app/api/models/grade';
+import {TaskDefinition} from 'src/app/api/models/doubtfire-model';
+import {TaskDefinitionNamePipe} from 'src/app/common/filters/task-definition-name.pipe';
+import {TasksViewerService} from '../../../tasks-viewer.service';
 
 @Component({
   selector: 'f-unit-task-list',

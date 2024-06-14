@@ -11,7 +11,7 @@ angular.module('doubtfire.units.states.analytics', [])
     data:
       task: "Unit Analytics"
       pageTitle: "_Home_"
-      roleWhitelist: ['Tutor', 'Convenor', 'Admin']
+      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor']
    }
 )
 .controller("UnitAnalyticsStateCtrl", ($scope) ->

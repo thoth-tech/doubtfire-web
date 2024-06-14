@@ -18,6 +18,18 @@
         "jasmine": true
       },
       "rules": {
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "args": "all",
+            "argsIgnorePattern": "^_",
+            "caughtErrors": "all",
+            "caughtErrorsIgnorePattern": "^_",
+            "destructuredArrayIgnorePattern": "^_",
+            "varsIgnorePattern": "^_",
+            "ignoreRestSiblings": true
+          }
+        ],
         "@angular-eslint/no-empty-lifecycle-method": "warn",
         "@angular-eslint/component-class-suffix": "warn",
         "@angular-eslint/no-output-on-prefix": "warn",

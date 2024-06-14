@@ -12,7 +12,7 @@ angular.module('doubtfire.projects.states.tutorials', [])
     data:
       task: "Tutorial List"
       pageTitle: "_Home_"
-      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Student']
+      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Student', 'Auditor']
    }
 )
 

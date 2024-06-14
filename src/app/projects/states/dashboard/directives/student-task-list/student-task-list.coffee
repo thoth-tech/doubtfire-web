@@ -44,11 +44,11 @@ angular.module('doubtfire.projects.states.dashboard.directives.student-task-list
       $scope.taskData.onSelectedTaskChange?(task)
       scrollToTaskInList(task) if task?
     scrollToTaskInList = (task) ->
-      taskEl = document.querySelector("student-task-list ##{task.taskKeyToIdString()}")
+      taskEl = document.querySelector("student-task-list-#{task.taskKeyToIdString()}")
       return unless taskEl?
       funcName = if taskEl.scrollIntoViewIfNeeded? then 'scrollIntoViewIfNeeded' else if taskEl.scrollIntoView? then 'scrollIntoView'
       return unless funcName?
-      taskEl[funcName]({behavior: 'smooth', block: 'top'})
+      taskEl[funcName]({behavior: 'smooth'})
     $timeout ->
       scrollToTaskInList($scope.taskData.selectedTask) if $scope.taskData.selectedTask?
     $scope.isSelectedTask = (task) ->

@@ -1,9 +1,9 @@
 <div id="pdfContainer">
   <div id="pdfActions" [hidden]="!loaded">
-    <form #loginForm="ngForm" (ngSubmit)="searchPdf(pdfSearchString)">
+    <form #loginForm="ngForm">
       <mat-form-field floatLabel="never" appearance="outline" class="pdf-form-field" ngSubmit>
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput type="text" placeholder="Search PDF" [(ngModel)]="pdfSearchString" name="pdfSearchString" />
+        <input matInput type="text" placeholder="Search PDF" [(ngModel)]="pdfSearchString" (ngModelChange)="searchPdf(pdfSearchString)" name="pdfSearchString" />
 
         <button matSuffix mat-icon-button type="button" (click)="zoomOut()" aria-label="Zoom in PDF button">
           <mat-icon>zoom_out</mat-icon>

@@ -7,7 +7,8 @@ import { IsActiveUnitRole } from '../pipes/is-active-unit-role.pipe';
 import { UserService } from 'src/app/api/services/user.service';
 import { AuthenticationService, Project, Task, Unit, UnitRole, User } from 'src/app/api/models/doubtfire-model';
 import { Subscription } from 'rxjs';
-import { MediaObserver } from '@angular/flex-layout';
+import { MediaObserver } from 'ng-flex-layout';
+import { Router } from '@angular/router'; //courseflow
 
 @Component({
   selector: 'app-header',
@@ -41,6 +42,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private authService: AuthenticationService,
     protected media: MediaObserver,
+    private router: Router, //courseflow
   ) {}
 
   ngOnInit(): void {
@@ -72,7 +74,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.globalState.projectsSubject.subscribe({
         next: (projects) => {
           if (projects == null) return;
-          this.projects = projects;
+          this.projects = projects.filter((project) => project.unit.myRole === 'Student');
         },
         error: (err) => {},
       }),

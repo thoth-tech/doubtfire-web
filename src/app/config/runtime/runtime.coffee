@@ -3,7 +3,7 @@
 #
 angular.module('doubtfire.config.runtime', [])
 
-.run(($rootScope, $state, $filter, $location, authenticationService, editableOptions, editableThemes) ->
+.run(($rootScope, $state, $filter, $location, authenticationService, editableOptions, editableThemes, $transitions) ->
   # Angular xeditable
   editableOptions.theme = 'bs3'
   editableThemes.bs3.inputClass = 'input-sm'
@@ -20,28 +20,33 @@ angular.module('doubtfire.config.runtime', [])
 
     str.join("&")
 
-  handleUnauthorisedDest = (toState, toParams) ->
+  handleUnauthorisedDest = (toState) ->
     if authenticationService.isAuthenticated()
       $state.go "unauthorised"
     else if $state.current.name isnt "sign_in"
-      $state.go "sign_in", { dest: toState.name, params: serialize(toParams) }
+      $state.go "sign_in", { dest: toState.name }
 
   handleTokenTimeout = ->
     if $state.current.name isnt "timeout"
       $state.go "timeout", { dest: $state.current.name, params: serialize($state.params) }
 
   handleUnauthorised = ->
-    handleUnauthorisedDest($state.current, $state.params)
+    handleUnauthorisedDest($state.current)
 
   # Don't let the user see pages not intended for their role
-  $rootScope.$on "$stateChangeStart", (evt, toState, toParams) ->
-    unless authenticationService.isAuthorised toState.data.roleWhitelist
-      evt.preventDefault()
-      handleUnauthorisedDest(toState, toParams)
 
   # Redirect the user if they make an unauthorised API request
   $rootScope.$on "unauthorisedRequestIntercepted", handleUnauthorised
-  # Redirect the user if their token expires
-  $rootScope.$on "tokenTimeout", handleTokenTimeout
 
+  # Redirect the user if their token expires
+  $rootScope.$on("tokenTimeout", handleTokenTimeout)
+
+  # Watch for state transition and check role whitelist
+  $transitions.onStart {}, (trans) ->
+    toState = trans.to()
+    return true unless toState.data.roleWhitelist
+
+    unless authenticationService.isAuthorised toState.data.roleWhitelist
+      handleUnauthorisedDest(toState)
+      return false
 )

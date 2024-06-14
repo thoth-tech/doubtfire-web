@@ -37,8 +37,8 @@ angular.module('doubtfire.groups.group-set-manager', [])
         entity: data
       }).subscribe({
         next: (response) ->
-          alertService.add("success", "Group changed", 2000)
+          alertService.success( "Group changed", 2000)
         error: (response) ->
-          alertService.add("danger", response, 6000)
+          alertService.error( response, 6000)
       })
 )

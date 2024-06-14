@@ -1,13 +1,12 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { UIRouter } from '@uirouter/core';
-import * as _ from 'lodash';
-import { Task } from 'src/app/api/models/task';
-import { TaskService } from 'src/app/api/services/task.service';
-import { FileDownloaderService } from 'src/app/common/file-downloader/file-downloader.service';
-import { TaskAssessmentModalService } from 'src/app/common/modals/task-assessment-modal/task-assessment-modal.service';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { SelectedTaskService } from '../../selected-task.service';
-import { DashboardViews } from '../../selected-task.service';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {UIRouter} from '@uirouter/core';
+import {Task} from 'src/app/api/models/task';
+import {TaskService} from 'src/app/api/services/task.service';
+import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {TaskAssessmentModalService} from 'src/app/common/modals/task-assessment-modal/task-assessment-modal.service';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {SelectedTaskService} from '../../selected-task.service';
+import {DashboardViews} from '../../selected-task.service';
 
 @Component({
   selector: 'f-task-dashboard',
@@ -47,7 +46,9 @@ export class TaskDashboardComponent implements OnInit, OnChanges {
     });
 
     this.taskStatusData = {
-      keys: _.sortBy(this.taskService.markedStatuses, (s) => this.taskService.statusSeq.get(s)),
+      keys: this.taskService.markedStatuses.slice().sort((a, b) => {
+        return this.taskService.statusSeq.get(a) - this.taskService.statusSeq.get(b);
+      }),
       help: this.taskService.helpDescriptions,
       icons: this.taskService.statusIcons,
       labels: this.taskService.statusLabels,

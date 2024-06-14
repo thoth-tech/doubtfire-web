@@ -9,8 +9,8 @@ angular.module('doubtfire.common.grade-icon', [])
     colorful: '=?'
   controller: ($scope, gradeService) ->
     $scope.$watch 'inputGrade', (newGrade) ->
-      $scope.grade = if _.isString($scope.inputGrade) then gradeService.grades.indexOf($scope.inputGrade) else $scope.inputGrade
+      $scope.grade = if _.isString($scope.inputGrade) then gradeService.stringToGrade($scope.inputGrade) else $scope.inputGrade
       $scope.gradeText = (grade) ->
-        if $scope.grade? then gradeService.grades[$scope.grade] or "Grade"
+        if grade? then gradeService.grades[grade] or "Grade"
       $scope.gradeLetter = (grade) ->
-        gradeService.gradeAcronyms[$scope.gradeText(grade)] or 'G'
+        gradeService.gradeAcronyms[grade] or 'G'

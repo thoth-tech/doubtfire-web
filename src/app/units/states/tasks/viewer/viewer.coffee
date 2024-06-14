@@ -14,7 +14,7 @@ angular.module('doubtfire.units.states.tasks.viewer', [
     data:
       task: "Task List"
       pageTitle: "_Home_"
-      roleWhitelist: ['Tutor', 'Convenor', 'Admin']
+      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor']
    }
 )
 

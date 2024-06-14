@@ -1,23 +1,23 @@
-import { User, UserService } from 'src/app/api/models/doubtfire-model';
-import { Inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { StateService, UIRouter, UIRouterGlobals } from '@uirouter/angular';
-import { alertService } from 'src/app/ajs-upgraded-providers';
-import { GlobalStateService, ViewType } from 'src/app/projects/states/index/global-state.service';
-import { AppInjector } from 'src/app/app-injector';
-import { map, Observable } from 'rxjs';
+import {User, UserService} from 'src/app/api/models/doubtfire-model';
+import {Inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {StateService, UIRouter, UIRouterGlobals} from '@uirouter/angular';
+import {GlobalStateService, ViewType} from 'src/app/projects/states/index/global-state.service';
+import {AppInjector} from 'src/app/app-injector';
+import {map, Observable} from 'rxjs';
+import {AlertService} from 'src/app/common/services/alert.service';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     private httpClient: HttpClient,
     private userService: UserService,
-    @Inject(alertService) private alertService: any,
+    private alertService: AlertService,
     private state: StateService,
     private doubtfireConstants: DoubtfireConstants,
     private router: UIRouter,
-    private uiRouterGlobals: UIRouterGlobals
+    private uiRouterGlobals: UIRouterGlobals,
   ) {
     this.AUTH_URL = `${this.doubtfireConstants.API_URL}/auth`;
   }
@@ -32,7 +32,9 @@ export class AuthenticationService {
       this.userService.cache.add(user);
       this.userService.currentUser = user;
 
-      const resetTime = new Date(Number.parseInt(localStorage.getItem(this.DOUBTFIRE_LOGIN_TIME)) + 60 * 60 * 1000);
+      const resetTime = new Date(
+        Number.parseInt(localStorage.getItem(this.DOUBTFIRE_LOGIN_TIME)) + 60 * 60 * 1000,
+      );
       const waitTime = resetTime.valueOf() - new Date().valueOf();
 
       setTimeout(() => this.updateAuth(), waitTime);
@@ -41,11 +43,12 @@ export class AuthenticationService {
 
   private readonly AUTH_URL: string;
   public readonly USERNAME_KEY: string = 'doubtfire_user';
-  public readonly REMEMBER_DOUBTFIRE_CREDENTIALS_TOKEN: string = 'remember_doubtfire_credentials_token';
+  public readonly REMEMBER_DOUBTFIRE_CREDENTIALS_TOKEN: string =
+    'remember_doubtfire_credentials_token';
   public readonly DOUBTFIRE_LOGIN_TIME: string = 'doubtfire_login_time';
 
   public saveCurrentUser(
-    remember: boolean = localStorage.getItem(this.REMEMBER_DOUBTFIRE_CREDENTIALS_TOKEN) === 'true'
+    remember: boolean = localStorage.getItem(this.REMEMBER_DOUBTFIRE_CREDENTIALS_TOKEN) === 'true',
   ): void {
     if (remember && this.userService.currentUser.id) {
       localStorage.setItem(this.USERNAME_KEY, JSON.stringify(this.userService.currentUser));
@@ -67,7 +70,8 @@ export class AuthenticationService {
       return;
     }
 
-    const remember: boolean = localStorage.getItem(this.REMEMBER_DOUBTFIRE_CREDENTIALS_TOKEN) === 'true';
+    const remember: boolean =
+      localStorage.getItem(this.REMEMBER_DOUBTFIRE_CREDENTIALS_TOKEN) === 'true';
     localStorage.setItem(this.DOUBTFIRE_LOGIN_TIME, JSON.stringify(new Date().getTime()));
 
     this.httpClient
@@ -101,7 +105,7 @@ export class AuthenticationService {
     }
   }
 
-  private readonly validRoles: string[] = ['anon', 'Student', 'Tutor', 'Convenor', 'Admin'];
+  private readonly validRoles: string[] = ['anon', 'Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'];
 
   private isValidRoleWhitelist(roleWhitelist: string[]) {
     return roleWhitelist.filter((role: string) => this.validRoles.includes(role)).length !== 0;
@@ -112,7 +116,11 @@ export class AuthenticationService {
       role = this.userService.currentUser.role;
     }
 
-    return roleWhitelist.length > 0 && this.isValidRoleWhitelist(roleWhitelist) && roleWhitelist.includes(role);
+    return (
+      roleWhitelist.length > 0 &&
+      this.isValidRoleWhitelist(roleWhitelist) &&
+      roleWhitelist.includes(role)
+    );
   }
 
   public signIn(
@@ -126,7 +134,7 @@ export class AuthenticationService {
           auth_token: string;
           username: string;
           remember: boolean;
-        }
+        },
   ): Observable<any> {
     return this.httpClient.post(this.AUTH_URL, userCredentials).pipe(
       map((response: any) => {
@@ -134,7 +142,7 @@ export class AuthenticationService {
         const user: User = this.userService.cache.getOrCreate(
           response['user']['id'],
           this.userService,
-          response['user']
+          response['user'],
         );
 
         user.authenticationToken = response['auth_token'];
@@ -147,7 +155,7 @@ export class AuthenticationService {
 
         // Update token in one hour
         setTimeout(() => this.updateAuth(), 1000 * 60 * 60);
-      })
+      }),
     );
   }
 
@@ -169,7 +177,8 @@ export class AuthenticationService {
 
     if (this.userService.currentUser.authenticationToken) {
       this.httpClient.delete(this.AUTH_URL).subscribe({
-        next: (response) => doSignOut(),
+        next: (_response) => doSignOut(),
+        error: (_response) => doSignOut(),
       });
     } else {
       doSignOut();
@@ -178,7 +187,7 @@ export class AuthenticationService {
 
   public timeoutAuthentication(): void {
     if (this.uiRouterGlobals.current.name !== 'timeout') {
-      this.alertService.add('danger', 'Authentication timed out', 6000);
+      this.alertService.error('Authentication timed out', 6000);
       setTimeout(() => this.router.stateService.go('timeout'), 500);
     }
   }

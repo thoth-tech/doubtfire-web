@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { Task } from 'src/app/api/models/task';
-import { TaskService } from 'src/app/api/services/task.service';
-import { GlobalStateService } from '../index/global-state.service';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Subject} from 'rxjs';
+import {Task} from 'src/app/api/models/task';
+import {TaskService} from 'src/app/api/services/task.service';
+import {GlobalStateService} from '../index/global-state.service';
 
 export enum DashboardViews {
   submission,
@@ -14,7 +14,10 @@ export enum DashboardViews {
   providedIn: 'root',
 })
 export class SelectedTaskService {
-  constructor(private taskService: TaskService, private globalState: GlobalStateService) {}
+  constructor(
+    private taskService: TaskService,
+    private globalState: GlobalStateService,
+  ) {}
 
   private task$ = new BehaviorSubject<Task>(null);
   public currentPdfUrl$ = new BehaviorSubject<string>(null);
@@ -66,5 +69,9 @@ export class SelectedTaskService {
 
   public get selectedTask$(): Subject<Task> {
     return this.task$;
+  }
+
+  public get selectedTask(): Task {
+    return this.task$.value;
   }
 }

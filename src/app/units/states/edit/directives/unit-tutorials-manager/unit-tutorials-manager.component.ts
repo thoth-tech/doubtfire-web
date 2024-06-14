@@ -1,6 +1,11 @@
-import { Component, Inject, Input, SimpleChanges } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
-import { ActivityType, ActivityTypeService, TutorialStream, Unit } from 'src/app/api/models/doubtfire-model';
+import {Component, Inject, Input} from '@angular/core';
+import {
+  ActivityType,
+  ActivityTypeService,
+  TutorialStream,
+  Unit,
+} from 'src/app/api/models/doubtfire-model';
+import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'unit-tutorials-manager',
@@ -15,7 +20,7 @@ export class UnitTutorialsManagerComponent {
 
   constructor(
     private activityTypeService: ActivityTypeService,
-    @Inject(alertService) private alertService: any
+    private alertService: AlertService,
   ) {}
 
   ngOnInit() {
@@ -28,11 +33,11 @@ export class UnitTutorialsManagerComponent {
   onClickNewActivity(activity: ActivityType) {
     this.unit.nextStream(activity.abbreviation).subscribe({
       next: (value: TutorialStream) => {
-        this.alertService.add("success", `Added tutorial stream ${value.abbreviation}`, 2000);
+        this.alertService.success(`Added tutorial stream ${value.abbreviation}`, 2000);
       },
       error: (message) => {
-        this.alertService.add("danger", `Error creating tutorial stream: ${message}`, 8000);
-      }
+        this.alertService.error(`Error creating tutorial stream: ${message}`, 8000);
+      },
     });
   }
 }

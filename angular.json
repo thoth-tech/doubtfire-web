@@ -48,7 +48,6 @@
               "node_modules/codemirror/lib/codemirror.js",
               "node_modules/codemirror/addon/display/placeholder.js",
               "node_modules/codemirror/mode/markdown/markdown.js",
-              "node_modules/showdown/dist/showdown.js",
               "node_modules/canvas-confetti/dist/confetti.browser.js"
             ],
             "extractLicenses": false,
@@ -83,17 +82,41 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "devcontainer": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/app/config/constants/apiURL.ts",
+                  "with": "src/app/config/constants/apiURL.devcontainer.ts"
+                }
+              ]
             }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "doubtfire:build"
+            "buildTarget": "doubtfire:build",
+            "port": 4200,
+            "host": "0.0.0.0"
           },
           "configurations": {
+            "development": {
+              "buildTarget": "doubtfire:build:development"
+            },
             "production": {
               "buildTarget": "doubtfire:build:production"
+            },
+            "docker": {
+              "buildTarget": "doubtfire:build:development"
+            },
+            "devcontainer": {
+              "buildTarget": "doubtfire:build:devcontainer",
+              "port": 4201,
+              "host": "localhost"
             }
           }
         },

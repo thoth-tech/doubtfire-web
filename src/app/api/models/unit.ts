@@ -1,12 +1,11 @@
-import { Entity, EntityCache, EntityMapping } from 'ngx-entity-service';
-import { Observable, tap } from 'rxjs';
-import { alertService } from 'src/app/ajs-upgraded-providers';
-import { AppInjector } from 'src/app/app-injector';
-import { FileDownloaderService } from 'src/app/common/file-downloader/file-downloader.service';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { GroupService } from '../services/group.service';
-import { ProjectService } from '../services/project.service';
-import { TaskDefinitionService } from '../services/task-definition.service';
+import {Entity, EntityCache, EntityMapping} from 'ngx-entity-service';
+import {Observable, tap} from 'rxjs';
+import {AppInjector} from 'src/app/app-injector';
+import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {GroupService} from '../services/group.service';
+import {ProjectService} from '../services/project.service';
+import {TaskDefinitionService} from '../services/task-definition.service';
 import {
   User,
   UnitRole,
@@ -24,7 +23,8 @@ import {
   TutorialStreamService,
   UnitRoleService,
 } from './doubtfire-model';
-import { LearningOutcome } from './learning-outcome';
+import {LearningOutcome} from './learning-outcome';
+import {AlertService} from 'src/app/common/services/alert.service';
 
 export class Unit extends Entity {
   id: number;
@@ -63,11 +63,14 @@ export class Unit extends Entity {
   extensionWeeksOnResubmitRequest: number;
   allowStudentChangeTutorial: boolean;
 
-  public readonly learningOutcomesCache: EntityCache<LearningOutcome> = new EntityCache<LearningOutcome>();
-  public readonly tutorialStreamsCache: EntityCache<TutorialStream> = new EntityCache<TutorialStream>();
+  public readonly learningOutcomesCache: EntityCache<LearningOutcome> =
+    new EntityCache<LearningOutcome>();
+  public readonly tutorialStreamsCache: EntityCache<TutorialStream> =
+    new EntityCache<TutorialStream>();
   public readonly tutorialsCache: EntityCache<Tutorial> = new EntityCache<Tutorial>();
   // readonly tutorialEnrolments: EntityCache<TutorialEnrolment>;
-  public readonly taskDefinitionCache: EntityCache<TaskDefinition> = new EntityCache<TaskDefinition>();
+  public readonly taskDefinitionCache: EntityCache<TaskDefinition> =
+    new EntityCache<TaskDefinition>();
   public readonly taskOutcomeAlignmentsCache: EntityCache<TaskOutcomeAlignment> =
     new EntityCache<TaskOutcomeAlignment>();
 
@@ -81,18 +84,25 @@ export class Unit extends Entity {
 
   analytics: {} = {};
 
-  public override toJson<T extends Entity>(mappingData: EntityMapping<T>, ignoreKeys?: string[]): object {
+  public override toJson<T extends Entity>(
+    mappingData: EntityMapping<T>,
+    ignoreKeys?: string[],
+  ): object {
     return {
       unit: super.toJson(mappingData, ignoreKeys),
     };
   }
 
   public get nameAndPeriod(): string {
-    return `${this.name} (${this.teachingPeriod ? this.teachingPeriod.name : this.startDate.toLocaleDateString()})`;
+    return `${this.name} (${
+      this.teachingPeriod ? this.teachingPeriod.name : this.startDate.toLocaleDateString()
+    })`;
   }
 
   public get codeAndPeriod(): string {
-    return `${this.code} (${this.teachingPeriod ? this.teachingPeriod.name : this.startDate.toLocaleDateString()})`;
+    return `${this.code} (${
+      this.teachingPeriod ? this.teachingPeriod.name : this.startDate.toLocaleDateString()
+    })`;
   }
 
   public get isActive(): boolean {
@@ -121,7 +131,7 @@ export class Unit extends Entity {
     const unitService = AppInjector.get(UnitService);
     const oldConvenor = this.mainConvenor;
     this.mainConvenor = unitRole;
-    return unitService.update(this).pipe(tap({ error: () => (this.mainConvenor = oldConvenor) }));
+    return unitService.update(this).pipe(tap({error: () => (this.mainConvenor = oldConvenor)}));
   }
 
   public get staff(): readonly UnitRole[] {
@@ -144,8 +154,8 @@ export class Unit extends Entity {
     return this.myRole !== 'Student';
   }
 
-  public get currentUserIsConvenor(): boolean {
-    return this.myRole === 'Convenor' || this.myRole === 'Admin';
+  public get currentUserCanViewUnitAdmin(): boolean {
+    return this.myRole === 'Convenor' || this.myRole === 'Admin' || this.myRole === 'Auditor';
   }
 
   public get taskDefinitions(): readonly TaskDefinition[] {
@@ -158,15 +168,15 @@ export class Unit extends Entity {
 
   public deleteTaskDefinition(taskDef: TaskDefinition) {
     const taskDefinitionService = AppInjector.get(TaskDefinitionService);
-    const alerts: any = AppInjector.get(alertService);
+    const alerts = AppInjector.get(AlertService);
 
     taskDefinitionService
-      .delete({ unitId: this.id, id: taskDef.id }, { cache: this.taskDefinitionCache, entity: taskDef })
+      .delete({unitId: this.id, id: taskDef.id}, {cache: this.taskDefinitionCache, entity: taskDef})
       .subscribe({
         next: (response) => {
-          alerts.add('success', 'Task Deleted', 2000);
+          alerts.success('Task Deleted', 2000);
         },
-        error: (message) => alerts.add('danger', message, 6000),
+        error: (message) => alerts.error(message, 6000),
       });
   }
 
@@ -221,8 +231,8 @@ export class Unit extends Entity {
     return Math.round((startToNow / totalDuration) * 100);
   }
 
-  public rolloverTo(body: { start_date: Date; end_date: Date }): Observable<Unit>;
-  public rolloverTo(body: { teaching_period_id: number }): Observable<Unit>;
+  public rolloverTo(body: {start_date: Date; end_date: Date}): Observable<Unit>;
+  public rolloverTo(body: {teaching_period_id: number}): Observable<Unit>;
   public rolloverTo(body: any): Observable<Unit> {
     const unitService = AppInjector.get(UnitService);
 
@@ -282,12 +292,14 @@ export class Unit extends Entity {
   }
 
   public refresh(): void {
-    const alerts: any = AppInjector.get(alertService);
+    const alerts = AppInjector.get(AlertService);
     AppInjector.get(UnitService)
       .fetch(this.id)
       .subscribe({
-        next: (unit) => {},
-        error: (message) => alerts.add('danger', message, 6000),
+        next: (unit) => {
+          console.log(unit.teachingPeriod?.name);
+        },
+        error: (message) => alerts.error(message, 6000),
       });
   }
 
@@ -319,7 +331,7 @@ export class Unit extends Entity {
     //     # Save the result as the unit's groups
     //     unit.groups = success
     //   (failure) ->
-    //     alertService.add("danger", "Error refreshing unit groups: " + (failure.data?.error || "Unknown cause"), 6000)
+    //     alertService.error( "Error refreshing unit groups: " + (failure.data?.error || "Unknown cause"), 6000)
     // )
 
     console.log('implement refresh groups');
@@ -363,7 +375,9 @@ export class Unit extends Entity {
   }
 
   public get taskAlignmentCSVUploadUrl(): string {
-    return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${this.id}/learning_alignments/csv.json`;
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${
+      this.id
+    }/learning_alignments/csv.json`;
   }
 
   public taskStatusFactor(td: TaskDefinition): number {
@@ -382,8 +396,8 @@ export class Unit extends Entity {
     const tutorialStreamService = AppInjector.get(TutorialStreamService);
 
     return tutorialStreamService.create(
-      { unit_id: this.id, activity_type_abbr: activityTypeAbbreviation, abbreviation: undefined },
-      { cache: this.tutorialStreamsCache },
+      {unit_id: this.id, activity_type_abbr: activityTypeAbbreviation, abbreviation: undefined},
+      {cache: this.tutorialStreamsCache},
     );
   }
 
@@ -391,7 +405,10 @@ export class Unit extends Entity {
     const tutorialStreamService = AppInjector.get(TutorialStreamService);
 
     return tutorialStreamService
-      .delete<boolean>({ unit_id: this.id, abbreviation: stream.abbreviation }, { cache: this.tutorialStreamsCache })
+      .delete<boolean>(
+        {unit_id: this.id, abbreviation: stream.abbreviation},
+        {cache: this.tutorialStreamsCache},
+      )
       .pipe(
         tap((response: boolean) => {
           if (response) {
@@ -474,7 +491,9 @@ export class Unit extends Entity {
   }
 
   public get taskUploadUrl(): string {
-    return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${this.id}/task_definitions/task_pdfs`;
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${
+      this.id
+    }/task_definitions/task_pdfs`;
   }
 
   /**
@@ -506,7 +525,9 @@ export class Unit extends Entity {
   }
 
   public getTaskMarkingUrl(): string {
-    return `${AppInjector.get(DoubtfireConstants).API_URL}/submission/assess.json?unit_id=${this.id}`;
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/submission/assess.json?unit_id=${
+      this.id
+    }`;
   }
 
   public getTaskDefinitionBatchUploadUrl(): string {

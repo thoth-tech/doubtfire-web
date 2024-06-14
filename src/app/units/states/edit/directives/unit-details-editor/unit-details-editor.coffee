@@ -72,9 +72,9 @@ angular.module('doubtfire.units.states.edit.directives.unit-details-editor', [])
     $scope.saveUnit = ->
       newUnitService.update($scope.unit).subscribe({
         next: (unit) ->
-          alertService.add("success", "Unit updated.", 2000)
+          alertService.success( "Unit updated.", 2000)
         error: (response) ->
-          alertService.add("danger", "Failed to update unit. #{response}", 6000)
+          alertService.error( "Failed to update unit. #{response}", 6000)
     })
 
 )

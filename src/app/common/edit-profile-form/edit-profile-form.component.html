@@ -14,6 +14,24 @@
       </div>
 
       <div fxLayout="row" fxFlexFill>
+        <!-- <mat-form-field fxFlex="25" fxFlexAlign="start" appearance="outline">
+          <mat-label>Pronouns</mat-label>
+          <mat-select [(ngModel)]="formPronouns.pronouns" name="pronouns">
+            <mat-option value="">Do not show</mat-option>
+            <mat-option value="He/Him">He/Him</mat-option>
+            <mat-option value="She/Her">She/Her</mat-option>
+            <mat-option value="They/Them">They/Them</mat-option>
+            <mat-option value="__customPronouns">Custom</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div fxFlex="3"></div> -->
+        <mat-form-field fxFlexFill appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput [(ngModel)]="user.username" name="username" [disabled]="!newUser"/>
+        </mat-form-field>
+      </div>
+
+      <div fxLayout="row" fxFlexFill>
         <mat-form-field fxFlex="48" appearance="outline" fxFlexAlign="start">
           <mat-label>First Name</mat-label>
           <input matInput class="outline-none" [(ngModel)]="user.firstName" name="first" required />
@@ -77,6 +95,7 @@
           <mat-option value="Convenor">Convenor</mat-option>
           <mat-option value="Tutor">Tutor</mat-option>
           <mat-option value="Student">Student</mat-option>
+          <mat-option value="Auditor">Auditor</mat-option>
         </mat-select>
       </mat-form-field>
       }
@@ -100,8 +119,15 @@
         </mat-checkbox>
       </section>
 
+      @if(tiiEnabled){
+      <section fxLayout="row" fxFlexFill fxLayoutAlign="start center">
+        <mat-checkbox color="primary" [(ngModel)]="user.acceptedTiiEula" [disableRipple]="true" (click)="$event.preventDefault()" name="acceptedTiiEula" disabled
+          >Acceptted TurnItIn EULA
+        </mat-checkbox>
+      </section>
+      }
       <div fxLayout="row" fxFlexFill style="padding-top: 12px">
-        <button [hidden]="mode === 'edit'" fxFlexAlign="start" type="button" mat-stroked-button (click)="signOut()">
+        <button [hidden]="mode === 'edit' || mode === 'new'" fxFlexAlign="start" type="button" mat-stroked-button (click)="signOut()">
           Sign Out
         </button>
         <div fxFlex></div>

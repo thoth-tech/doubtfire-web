@@ -28,6 +28,7 @@
         <div class="btn-group">
           <label
             ng-repeat="grade in grades"
+            ng-if="$index != 4"
             ng-click="chooseGrade($index); status.isopen=false"
             class="btn btn-default col-sm-3"
             ng-model="project.submittedGrade"

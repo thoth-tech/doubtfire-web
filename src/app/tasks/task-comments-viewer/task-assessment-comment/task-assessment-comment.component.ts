@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Inject } from '@angular/core';
-import { alertService } from 'src/app/ajs-upgraded-providers';
 import { TaskSubmissionService, TaskAssessmentResult } from 'src/app/common/services/task-submission.service';
 import { TaskAssessmentModalService } from 'src/app/common/modals/task-assessment-modal/task-assessment-modal.service';
 import { Task } from 'src/app/api/models/doubtfire-model';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 export interface User {
   id: number;
@@ -35,14 +35,14 @@ export class TaskAssessmentCommentComponent implements OnInit {
   @Input() comment: TaskAssessmentComment;
 
   constructor(
-    @Inject(alertService) private alerts,
+    private alerts: AlertService,
     @Inject(TaskSubmissionService) private submissions: TaskSubmissionService,
     private modalService: TaskAssessmentModalService,
   ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handleError(error: any) {
-    this.alerts.add('danger', 'Error: ' + error, 6000);
+    this.alerts.error('Error: ' + error, 6000);
   }
 
   ngOnInit() {

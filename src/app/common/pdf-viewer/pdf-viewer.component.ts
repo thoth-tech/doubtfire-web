@@ -1,8 +1,16 @@
-import { HttpResponse } from '@angular/common/http';
-import { Component, Input, Inject, OnDestroy, SimpleChanges, OnChanges, ViewChild } from '@angular/core';
-import { PdfViewerComponent } from 'ng2-pdf-viewer';
-import { alertService } from 'src/app/ajs-upgraded-providers';
-import { FileDownloaderService } from '../file-downloader/file-downloader.service';
+import {HttpResponse} from '@angular/common/http';
+import {
+  Component,
+  Input,
+  Inject,
+  OnDestroy,
+  SimpleChanges,
+  OnChanges,
+  ViewChild,
+} from '@angular/core';
+import {PdfViewerComponent} from 'ng2-pdf-viewer';
+import {FileDownloaderService} from '../file-downloader/file-downloader.service';
+import {AlertService} from '../services/alert.service';
 
 @Component({
   selector: 'f-pdf-viewer',
@@ -20,7 +28,7 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges {
 
   constructor(
     @Inject(FileDownloaderService) private fileDownloader: FileDownloaderService,
-    @Inject(alertService) private alerts: any
+    private alerts: AlertService,
   ) {}
 
   ngOnDestroy(): void {
@@ -78,8 +86,8 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges {
         this.pdfBlobUrl = url;
       },
       (error: any) => {
-        this.alerts.add('danger', `Error downloading PDF. ${error}`, 6000);
-      }
+        this.alerts.error(`Error downloading PDF. ${error}`, 6000);
+      },
     );
   }
 
