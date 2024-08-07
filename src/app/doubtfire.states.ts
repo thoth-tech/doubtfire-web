@@ -6,6 +6,9 @@ import {SignInComponent} from './sessions/states/sign-in/sign-in.component';
 import {EditProfileComponent} from './account/edit-profile/edit-profile.component';
 import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
+
+import { CoursemapComponent } from './courseflow/coursemap/coursemap.component';
+
 import {FUsersComponent} from './admin/states/users/users.component';
 import {FUnitsComponent} from './admin/states/units/units.component';
 import {ProjectDashboardComponent} from './projects/states/dashboard/project-dashboard/project-dashboard.component';
@@ -315,6 +318,20 @@ const ViewAllUnits: NgHybridStateDeclaration = {
   },
 };
 
+const CoursemapState: NgHybridStateDeclaration = {
+  name: 'coursemap',
+  url: '/coursemap',
+  views: {
+    main: {
+      component: CoursemapComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Coursemap',
+    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
+  },
+};
+
 /**
  * Export the list of states we have created in angular
  */
@@ -330,8 +347,14 @@ export const doubtfireStates = [
   ViewAllProjectsState,
   ViewAllUnits,
   AdministerUnits,
+
+  CoursemapState,
+
   ProjectRootState,
   ProjectDashboardState,
   UnitRootState,
   TaskViewerState,
+
 ];
+
+

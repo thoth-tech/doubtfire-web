@@ -209,6 +209,8 @@ import {TaskDefinitionOverseerComponent} from './units/states/edit/directives/un
 import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-route.component';
 import {FileDropComponent} from './common/file-drop/file-drop.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
+import { CoursemapComponent } from './courseflow/coursemap/coursemap.component';
+
 import {FUsersComponent} from './admin/states/users/users.component';
 import {ProjectProgressGaugeComponent} from './common/project-progress/project-progress-gauge.component';
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
