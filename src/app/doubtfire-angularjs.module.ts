@@ -120,7 +120,7 @@ import 'build/src/app/common/filters/filters.js';
 import 'build/src/app/common/content-editable/content-editable.js';
 import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
-import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
+//import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
 import 'build/src/app/common/modals/modals.js';
 import 'build/src/app/common/grade-icon/grade-icon.js';
 import 'build/src/app/common/file-uploader/file-uploader.js';
@@ -221,10 +221,16 @@ import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 
+import {CsvResultModalComponent} from 'src/app/common/modals/csv-result-modal/csv-result-modal.component';
+import {CsvResultModalService} from 'src/app/common/modals/csv-result-modal/csv-result-modal.service';
+import {CsvUploadModalComponent} from 'src/app/common/modals/csv-result-modal/csv-upload-modal.component';
+import {CsvUploadModalService} from 'src/app/common/modals/csv-result-modal/csv-upload-modal.service';
+
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
 import {AlertService} from './common/services/alert.service';
 import {GradeService} from './common/services/grade.service';
+import {FileUploaderComponent} from './common/file-uploader/file-uploader.component';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -463,6 +469,28 @@ DoubtfireAngularJSModule.directive(
   downgradeComponent({component: StatusIconComponent}),
 );
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
+
+DoubtfireAngularJSModule.directive(
+  'FileUploaderComponent',
+  downgradeComponent({component: FileUploaderComponent}),
+);
+
+DoubtfireAngularJSModule.directive(
+  'csvResultModal',
+  downgradeComponent({component: CsvResultModalComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'csvUploadModal',
+  downgradeComponent({component: CsvUploadModalComponent}),
+);
+DoubtfireAngularJSModule.factory(
+  'CsvResultModalService',
+  downgradeInjectable(CsvResultModalService),
+);
+DoubtfireAngularJSModule.factory(
+  'CsvUploadModalService',
+  downgradeInjectable(CsvUploadModalService),
+);
 
 // Global configuration
 

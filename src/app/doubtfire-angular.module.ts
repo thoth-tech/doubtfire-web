@@ -225,6 +225,13 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
 
+import {CsvResultModalComponent} from 'src/app/common/modals/csv-result-modal/csv-result-modal.component';
+import {CsvUploadModalComponent} from 'src/app/common/modals/csv-result-modal/csv-upload-modal.component';
+import {CsvResultModalService} from 'src/app/common/modals/csv-result-modal/csv-result-modal.service';
+import {CsvUploadModalService} from 'src/app/common/modals/csv-result-modal/csv-upload-modal.service';
+
+import {FileUploaderComponent} from 'src/app/common/file-uploader/file-uploader.component';
+
 @NgModule({
   // Components we declare
   declarations: [
@@ -325,9 +332,14 @@ import {GradeService} from './common/services/grade.service';
     FUsersComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    CsvResultModalComponent,
+    CsvUploadModalComponent,
+    FileUploaderComponent,
   ],
   // Services we provide
   providers: [
+    CsvResultModalService,
+    CsvUploadModalService,
     AlertService,
     MarkedPipe,
     CampusService,

@@ -1,0 +1,126 @@
+<div class="file-uploader" [ngClass]="{'is-uploading': isUploading}">
+  <div *ngIf="!showUploader">
+    <button class="btn btn-success form-control" (click)="showUploader = true">
+      <i class="fa fa-upload"></i> Begin Upload
+    </button>
+  </div>
+
+  <div *ngIf="showUploader && !uploadingInfo" class="file-drop-area">
+    <div *ngFor="let upload of shownUploadZones; let i = index">
+      <h5 class="text-muted" *ngIf="!singleDropZone && showName">
+        {{ uploadZones.length === 1 ? '' : i + 1 + ' -' }} {{ upload.display.name }}
+      </h5>
+      <h5 class="text-muted" *ngIf="singleDropZone && showName">
+        Select {{ upload.display.name }}
+      </h5>
+
+      <div
+        class="drop well"
+        [class.file-rejected]="upload.display.error"
+        (ngModelChange)="modelChanged($event, upload)"
+        [ngModel]="upload.model"
+        [ngfDropAccept]="upload.accept"
+        [ngfDropAvailable]="dropSupported"
+      >
+        <p class="fa" [ngClass]="upload.display.icon"></p>
+        <p *ngIf="upload.display.error">
+          Invalid file provided
+          <small>
+            Accepted files: <code>{{ upload.accept.split(',').join(', ') }}</code>
+          </small>
+        </p>
+        <p *ngIf="dropSupported && !upload.display.error">
+          Drop {{ upload.display.type }} file here <small> or click to select one </small>
+        </p>
+        <p *ngIf="!dropSupported && !upload.display.error">
+          Click to select {{ upload.display.type }} file
+        </p>
+      </div>
+
+      <div
+        *ngIf="!singleDropZone && upload.model && upload.model.length > 0"
+        class="selected-files"
+      >
+        <span class="selected-file">
+          <i class="file-type fa" [ngClass]="upload.display.icon"></i> {{ upload.model[0].name }}
+        </span>
+        <a class="clear-upload text-muted" (click)="clearEnqueuedUpload(upload)"
+          ><i class="fa fa-times"></i
+        ></a>
+      </div>
+    </div>
+
+    <div *ngIf="singleDropZone">
+      <h5 class="text-muted">Upload Summary</h5>
+      <div class="selected-files list-group">
+        <div
+          *ngFor="let upload of uploadZones"
+          class="selected-file list-group-item clearfix"
+          [ngClass]="{'highlight': upload.model && upload.model.length > 0}"
+        >
+          <div class="pull-left">
+            <i class="file-type fa" [ngClass]="upload.display.icon"></i
+            ><strong>{{ upload.display.name }}</strong>
+          </div>
+          <div class="pull-right text-right">
+            <em *ngIf="upload.model && upload.model.length > 0">{{ upload.model[0].name }}</em
+            ><em *ngIf="!upload.model || upload.model.length === 0" class="text-muted"
+              >File Pending</em
+            >
+            <a
+              class="clear-upload text-muted"
+              *ngIf="upload.model && upload.model.length > 0"
+              (click)="clearEnqueuedUpload(upload)"
+              ><i class="fa fa-times"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showUploader && !isUploading" class="upload-commit-actions">
+    <button
+      *ngIf="showUploadButton && readyToUpload() && !uploadingInfo"
+      (click)="initiateUpload()"
+      class="btn btn-primary btn-upload"
+    >
+      <i class="fa fa-upload"></i> Start Upload
+    </button>
+    <button *ngIf="asButton" (click)="resetUploader()" class="btn btn-danger btn-cancel">
+      <i class="fa fa-times"></i> Cancel Upload
+    </button>
+  </div>
+
+  <div *ngIf="showUploader && readyToUpload()" class="upload-area text-center clearfix">
+    <div *ngIf="uploadingInfo && !uploadingInfo.complete" class="progress-area">
+      <div class="icons">
+        <i *ngFor="let upload of uploadZones" class="fa" [ngClass]="upload.display.icon"></i>
+        <i class="fa fa-arrow-right"></i>
+        <i class="logo"></i>
+      </div>
+      <progressbar class="progress-striped active" value="uploadingInfo.progress"></progressbar>
+    </div>
+    <div *ngIf="uploadingInfo && uploadingInfo.complete" class="result-area">
+      <p class="result-text">
+        <i
+          class="fa"
+          [ngClass]="
+            uploadingInfo.success === true
+              ? 'fa-check-circle text-success'
+              : 'fa-times-circle text-danger'
+          "
+        ></i
+        ><strong>File Upload {{ uploadingInfo.success === true ? 'Successful' : 'Failed' }}</strong>
+      </p>
+      <div *ngIf="!uploadingInfo.success" class="error-message-area">
+        <hr />
+        <p><strong>Error Message: </strong>{{ uploadingInfo.error }}</p>
+        <p class="retry-options">
+          <a (click)="initiateUpload()">Retry Upload</a
+          ><a (click)="onClickFailureCancel()">Cancel</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

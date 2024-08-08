@@ -13,7 +13,7 @@
     "experimentalDecorators": true,
     "noImplicitAny": false,
     "allowUnusedLabels": false,
-    "strict": false,
+    "strict": true,
     "strictPropertyInitialization": false,
     "target": "ES2022",
     "typeRoots": ["node_modules/@types"],
@@ -22,6 +22,9 @@
     "allowSyntheticDefaultImports": true
   },
   "angularCompilerOptions": {
-    "strictTemplates": false
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
   }
 }

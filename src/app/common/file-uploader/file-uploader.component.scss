@@ -35,9 +35,9 @@
       cursor: pointer;
       border-color: $hover-color;
       color: $hover-color;
-      p small {
-        text-decoration: underline;
-      }
+        p small {
+          text-decoration: underline;
+        }
     }
   }
 
@@ -76,6 +76,7 @@
       &.highlight {
         animation: highlight-selected-file-animation;
         animation-duration: 0.75s;
+
         @keyframes highlight-selected-file-animation {
           0% { background: rgba(33, 150, 243, 0.4); }
           0% { box-shadow: 0 0 6px rgba(33, 150, 243, 1); }
@@ -84,6 +85,7 @@
       }
     }
   }
+
   a.clear-upload {
     margin-left: 1ex;
     &:hover i {
@@ -92,6 +94,7 @@
     }
     display: inline-block;
   }
+
   // Upload area/result
   .upload-area {
     .progress-area {
@@ -113,6 +116,7 @@
         margin-bottom: 0.5em;
       }
     }
+
     .result-area {
       .result-text {
         margin-bottom: 0;

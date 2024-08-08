@@ -1,0 +1,15 @@
+<div class="csv-result-modal">
+  <div mat-dialog-title class="modal-header clearfix">
+    <h3 class="modal-title">
+      <i class="fa fa-file-excel-o fa-2x pull-left"></i>
+      {{ title }}
+      <small>Response details</small>
+    </h3>
+  </div>
+  <div mat-dialog-content class="modal-body clearfix">
+    <file-uploader files="batchFiles" url="url" nSuccess="wrapSuccess($event)"></file-uploader>
+  </div>
+  <div mat-dialog-actions class="modal-footer clearfix">
+    <button mat-button class="btn btn-primary pull-right" (click)="close()">Done</button>
+  </div>
+</div>
