@@ -102,4 +102,3 @@ angular.module("doubtfire.common.modals.csv-result-modal", [])
   $scope.close = ->
     $modalInstance.dismiss()
 )
-

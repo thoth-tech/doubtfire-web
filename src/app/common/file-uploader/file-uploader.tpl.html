@@ -24,11 +24,11 @@
         <p class="fa {{upload.display.icon}} fa-3x"></p>
         <p ng-show="upload.display.error">
           Invalid file provided
-          <small> Accepted files: <code>{{upload.accept.split(',').join(', ')}}</code> </small>
+          <small> Accepted files: code>{{upload.accept.split(',').join(', ')}}</code> </small>
         </p>
         <p ng-show="dropSupported" ng-hide="upload.display.error">
           Drop {{upload.display.type}} file here
-          <small> or click to select one </small>
+          <small> or click to select one</small>
         </p>
         <p ng-hide="dropSupported || upload.display.error">
           Click to select {{upload.display.type}} file
@@ -45,7 +45,7 @@
       </div><!--/selected-file-->
     </div><!--/drop-zones-->
     <div ng-show="singleDropZone">
-      <h5 class="text-muted">Upload Summary</h5>
+      <h5 class="text-muted">Upload Summary </h5>
       <div class="selected-files list-group">
         <div class="selected-file list-group-item clearfix" ng-class="{highlight: upload.model.length > 0}" ng-repeat="upload in uploadZones">
           <div class="pull-left">
