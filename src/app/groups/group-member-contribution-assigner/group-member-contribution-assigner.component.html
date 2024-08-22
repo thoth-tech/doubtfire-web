@@ -1,0 +1,41 @@
+<div class="group-member-contribution-assigner">
+  <table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th><a (click)="memberSortOrder='student_name'; reverse=!reverse">Team Member</a></th>
+        <th><a (click)="memberSortOrder='targetGrade'; reverse=!reverse">Target Grade</a></th>
+        <th class="col-sm-4"><a (click)="memberSortOrder='rating'; reverse=!reverse">Contribution</a></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let contrib of team.memberContributions | orderBy:memberSortOrder:reverse">
+        <td>{{contrib.project.student.name}}</td>
+        <td class="text-left">
+          <grade-icon [grade]="contrib.project.targetGrade"></grade-icon>
+        </td>
+        <td>
+          <rating
+            class="group-member-contribution-rating"
+            (click)="checkClearRating(contrib)"
+            [(ngModel)]="contrib.rating"
+            (hover)="hoveringOver(contrib, $event)"
+            (leave)="hoveringOver(contrib, null)"
+            [max]="numStars"
+            [stateOn]="'fa fa-child rating-outline'"
+            [stateOff]="'fa fa-child rating-disabled'">
+          </rating>
+          <span
+            class="label {{percentClass(contrib.percent)}}"
+            *ngIf="contrib.overStar">
+            <span *ngIf="contrib.percent > 0">
+              {{contrib.percent}} % effort
+            </span>
+            <span *ngIf="contrib.percent <= 0">
+              No effort
+            </span>
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

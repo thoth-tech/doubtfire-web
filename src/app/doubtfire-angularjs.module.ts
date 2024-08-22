@@ -89,7 +89,7 @@ import 'build/src/app/admin/modals/create-unit-modal/create-unit-modal.js';
 import 'build/src/app/groups/group-selector/group-selector.js';
 import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
-import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
+//import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
 import 'build/src/app/groups/group-set-selector/group-set-selector.js';
 import 'build/src/app/units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.js';
@@ -225,6 +225,8 @@ import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
 import {AlertService} from './common/services/alert.service';
 import {GradeService} from './common/services/grade.service';
+import {GroupMemberService} from './groups/group-member-contribution-assigner/group-member-contribution-assigner.service';
+
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -239,6 +241,8 @@ export const DoubtfireAngularJSModule = angular.module('doubtfire', [
 
 // Downgrade angular modules that we need...
 // factory -> service
+DoubtfireAngularJSModule.factory('GroupMemberContributionAssigner', downgradeInjectable(GroupMemberService));
+
 DoubtfireAngularJSModule.factory('AboutDoubtfireModal', downgradeInjectable(AboutDoubtfireModal));
 DoubtfireAngularJSModule.factory(
   'TeachingPeriodUnitImportService',
