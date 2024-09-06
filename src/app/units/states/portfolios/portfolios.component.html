@@ -1,0 +1,108 @@
+<div id="student-portfolios" class="container">
+  <mat-tab-group>
+    <mat-tab
+      *ngFor="let tab of tabs"
+      [disabled]="!selectedStudent"
+      (selectedTabChange)="selectedStudent && setActiveTab(tab)"
+    >
+      <ng-template mat-tab-label>
+        {{tab.title}}
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+  <!-- /tab -->
+  <div *ngIf="activeTab === tabs.selectStudent" class="container">
+    <mat-card>
+      <mat-card-header>
+        <div class="pull-left">
+          <mat-card-title>Mark Portfolios</mat-card-title>
+          <mat-card-subtitle>Assess student portfolios</mat-card-subtitle>
+        </div>
+        <div class="pull-right toolbar">
+          <div class="buttons">
+            <!-- Portfolio Filter Buttons -->
+            <div class="btn-group">
+              <mat-button-toggle-group [(ngModel)]="portfolioFilter">
+                <mat-button-toggle value="allStudents" matTooltip="Show all students, even those without portfolios">
+                  <mat-icon>language</mat-icon>
+                </mat-button-toggle>
+                <mat-button-toggle value="withPortfolio" matTooltip="Show only students with portfolios">
+                  <mat-icon>book</mat-icon>
+                </mat-button-toggle>
+              </mat-button-toggle-group>
+            </div>
+
+            <!-- Student Filter Buttons -->
+            <div class="btn-group">
+              <mat-button-toggle-group [(ngModel)]="studentFilter">
+                <mat-button-toggle value="allStudents" matTooltip="Show all students">
+                  <mat-icon>school</mat-icon>
+                </mat-button-toggle>
+                <mat-button-toggle value="myStudents" matTooltip="Show only my students">
+                  <mat-icon>edit</mat-icon>
+                </mat-button-toggle>
+              </mat-button-toggle-group>
+            </div>
+
+            <!-- Portfolio Grade Filter -->
+            <div class="btn-group btn-group-sm select-portfolio-grade">
+              <mat-button-toggle-group [(ngModel)]="filterOptions.selectedGrade">
+                <mat-button-toggle value="-1" matTooltip="Show all portfolios">All</mat-button-toggle>
+                <!-- <mat-button-toggle *ngFor="let grade of gradeValues; let i = index" [value]="i"
+                  *ngIf="i != 4" matTooltip="Select to show students aiming for {{grades[grade]}}">
+                  <grade-icon [grade]="grade"></grade-icon>
+                </mat-button-toggle> -->
+              </mat-button-toggle-group>
+            </div>
+          </div>
+
+          <!-- Search Form -->
+          <mat-form-field appearance="outline" class="form-horizontal">
+            <mat-label>Search</mat-label>
+            <input matInput [(ngModel)]="search" placeholder="Search..." type="search" autocomplete="off">
+          </mat-form-field>
+          <!-- <p *ngIf="filteredStudents.length < allStudents.length && filteredStudents.length != 0">
+            Showing {{filteredStudents.length}} of {{unit.students.length}} students enrolled.
+          </p> -->
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Display message if no portfolios found -->
+        <div *ngIf="filteredStudents.length === 0" class="large-notice-block">
+          <mat-icon>book</mat-icon>
+          <p>No portfolios found</p>
+        </div>
+
+        <!-- Student List Table -->
+        <table mat-table [dataSource]="filteredStudents" class="mat-elevation-z8">
+          <ng-container matColumnDef="studentId">
+            <th mat-header-cell *matHeaderCellDef>
+              <a (click)="sortOrder='student.studentId'; reverse=!reverse">
+                Student
+                <!-- <mat-icon *ngIf="sortOrder == 'student.studentId'">{{ reverse ? 'arrow_drop_down' : 'arrow_drop_up' }}</mat-icon> -->
+              </a>
+            </th>
+            <td mat-cell *matCellDef="let student">{{ student.student.studentId || student.student.username }}</td>
+          </ng-container>
+
+          <!-- Similar table columns for Name, Tutor, Tutorial, Target, Submitted Grade, etc. -->
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <!-- <tr mat-row *matRowDef="let student; columns: displayedColumns;" (click)="selectStudent(student)" [ngClass]="{'selected': selectedStudent == student}"></tr> -->
+        </table>
+      </mat-card-content>
+
+      <!-- Pagination -->
+      <mat-card-footer>
+        <mat-paginator [length]="filteredStudents.length" [pageSize]="pageSize" (page)="handlePageEvent($event)"></mat-paginator>
+        <div class="pull-right">
+          <button mat-raised-button color="primary" (click)="downloadGrades()">
+            <mat-icon>download</mat-icon> Download Grades
+          </button>
+        </div>
+      </mat-card-footer>
+    </mat-card>
+  </div>
+
+</div>
