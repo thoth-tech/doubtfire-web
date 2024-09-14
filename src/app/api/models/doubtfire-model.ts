@@ -32,6 +32,10 @@ export * from './task-comment/discussion-comment';
 export * from '../services/task-outcome-alignment.service';
 export * from './task-similarity';
 export * from './tii-action';
+export * from './course';
+export * from './course-map';
+export * from './unit-definition';
+export * from './requirement-set';
 
 // Users -- are students or staff
 export * from './user/user';

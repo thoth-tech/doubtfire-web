@@ -1,0 +1,116 @@
+.required-units-container {
+  border: 1px solid #337ab7;
+  border-radius: 6px;
+  display: inline-block;
+  width: 30vw;
+  vertical-align: top;
+  align-items: center;
+}
+
+.year-container {
+  margin: 16px;
+  border: 1px solid #337ab7;
+  border-radius: 9px;
+  display: flex;
+  vertical-align: top;
+  flex-direction: column;
+  border-radius: 6px;
+  width: 98%;
+  justify-content: center;
+  align-items: center;
+}
+
+.trimester-list {
+  display: flex;
+  flex-direction: row; /* Makes the items within the list display horizontally */
+  padding: 10px;
+  border-radius: 6px;
+  background-color: rgb(238, 238, 238);
+  margin: 10px;
+  align-items: center;
+  width: 95%;
+}
+
+.unit {
+  padding: 8px;
+  margin: 16px;
+  background-color: #357bb9a8;
+  color: white;
+  border-radius: 6px;
+  cursor: move;
+  align-content: center;
+  height: 40px;
+  width: 95%;
+}
+
+.study-periods-container {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #337ab7;
+  border-radius: 6px;
+  margin-left: 20px;
+  width: 70vw;
+  align-items: center;
+}
+
+.study-periods-header, .required-units-header, .year-header{
+  background-color: #337ab7;
+  border-radius: 5px 5px 0 0;
+  color: white;
+  height: 40px;
+  align-items: center;
+  display: flex;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.study-periods-title, .required-units-title, .year-title, .electives-title {
+  margin: 0 2%;
+}
+
+.form {
+  margin: 0 2%;
+}
+
+.text {
+  margin-left: 2%;
+}
+
+.electives-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+mat-form-field {
+  width: 75%;
+
+}
+
+.search-bar {
+  margin: 0 1% 0 1%;
+  width: 70%;
+}
+
+.button {
+  border-radius: 5px;
+  margin: 0 2% 2% 2%;
+}
+
+.coursemap {
+  display: flex;
+  flex-direction: row;
+}
+
+.trimester-heading {
+  margin-right: 20px;
+  align-items: center;
+}
+
+.delete-button {
+  margin-left: auto;
+  right: 2%;
+}
+
+
