@@ -1,0 +1,55 @@
+<div class="unit-ilo-edit-modal">
+  <form (ngSubmit)="saveILO()" role="form">
+    <div mat-dialog-title>
+      <h3>{{ isNew ? 'Create Learning Outcome' : 'Edit Learning Outcome: ' + ilo.iloNumber }}</h3>
+    </div>
+    <div mat-dialog-content>
+      <div fxLayout="row" fxLayoutAlign="start start" style="margin-bottom: 0" required>
+        <div fxFlex="20%" style="text-align: right; font-weight: bold; margin-right: 32px">
+          <label matLabel>Name</label>
+        </div>
+        <div fxFlex="80%">
+          <mat-form-field appearance="outline" style="width: 100%">
+            <input matInput [(ngModel)]="ilo.name" placeholder="Outcome Name" name="name" />
+          </mat-form-field>
+        </div>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start start" style="margin-bottom: 0" required>
+        <div fxFlex="20%" style="text-align: right; font-weight: bold; margin-right: 32px">
+          <label matLabel>Abbreviation</label>
+        </div>
+        <div fxFlex="80%">
+          <mat-form-field appearance="outline" style="width: 100%">
+            <input matInput [(ngModel)]="ilo.abbreviation" placeholder="ABBR" name="abbreviation" />
+          </mat-form-field>
+        </div>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start start" style="margin-bottom: 0" required>
+        <div fxFlex="20%" style="text-align: right; font-weight: bold; margin-right: 32px">
+          <label matLabel>Description</label>
+        </div>
+        <div fxFlex="80%">
+          <mat-form-field appearance="outline" style="width: 100%">
+            <textarea
+              matInput
+              [(ngModel)]="ilo.description"
+              placeholder="Enter markdown description..."
+              name="description"
+              style="min-height: 120px"
+            ></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    <div mat-dialog-actions class="modal-footer" style="justify-content: flex-end">
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!ilo.name || !ilo.abbreviation || !ilo.description"
+      >
+        {{ isNew ? 'Create' : 'Update' }}
+      </button>
+    </div>
+  </form>
+</div>

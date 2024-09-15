@@ -223,6 +223,8 @@ import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
+import {UnitILOEditModalComponent} from './units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.component';
+import {UnitILOEditModalService} from './units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.service';
 import {GradeService} from './common/services/grade.service';
 
 @NgModule({
@@ -325,6 +327,7 @@ import {GradeService} from './common/services/grade.service';
     FUsersComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    UnitILOEditModalComponent,
   ],
   // Services we provide
   providers: [
@@ -357,6 +360,7 @@ import {GradeService} from './common/services/grade.service';
     FileDownloaderService,
     CheckForUpdateService,
     TaskOutcomeAlignmentService,
+    UnitILOEditModalService,
     visualisationsProvider,
     commentsModalProvider,
     rootScopeProvider,
