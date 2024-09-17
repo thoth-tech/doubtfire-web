@@ -135,7 +135,7 @@ import 'build/src/app/common/services/date-service.js';
 import 'build/src/app/sessions/auth/http-auth-injector.js';
 import 'build/src/app/sessions/sessions.js';
 import 'build/src/app/errors/errors.js';
-import 'build/src/app/errors/states/unauthorised/unauthorised.js';
+//import 'build/src/app/errors/states/unauthorised/unauthorised.js';
 import 'build/src/app/errors/states/timeout/timeout.js';
 import 'build/src/app/errors/states/states.js';
 import 'build/src/common/utilService/utilService.js';
@@ -225,6 +225,7 @@ import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
 import {AlertService} from './common/services/alert.service';
 import {GradeService} from './common/services/grade.service';
+import {UnauthorisedComponent} from './errors/states/unauthorised/unauthorised.component';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -239,6 +240,7 @@ export const DoubtfireAngularJSModule = angular.module('doubtfire', [
 
 // Downgrade angular modules that we need...
 // factory -> service
+DoubtfireAngularJSModule.factory('Unauthorised', downgradeInjectable(UnauthorisedComponent));
 DoubtfireAngularJSModule.factory('AboutDoubtfireModal', downgradeInjectable(AboutDoubtfireModal));
 DoubtfireAngularJSModule.factory(
   'TeachingPeriodUnitImportService',
