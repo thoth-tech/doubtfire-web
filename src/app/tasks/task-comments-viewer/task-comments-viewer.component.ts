@@ -1,3 +1,4 @@
+/* eslint-disable @angular-eslint/component-selector */
 import { Component, OnInit, Input, Inject, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { commentsModal } from 'src/app/ajs-upgraded-providers';
 import { Task, Project, TaskComment, TaskCommentService } from 'src/app/api/models/doubtfire-model';

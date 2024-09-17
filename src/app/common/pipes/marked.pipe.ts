@@ -1,12 +1,12 @@
-import {Pipe, PipeTransform} from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 import * as marked from 'marked';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Pipe({
   name: 'marked',
 })
 export class MarkedPipe implements PipeTransform {
-  // Set the options for the markdown renderer
-  constructor() {
+  constructor(private sanitizer: DomSanitizer) {
     marked.setOptions({
       renderer: new marked.Renderer(),
       pedantic: false,
@@ -15,10 +15,17 @@ export class MarkedPipe implements PipeTransform {
     });
   }
 
-  transform(value: string, ...args: any[]): string {
+  transform(value: string, ...args: any[]): SafeHtml {
     if (value && value.length > 0) {
-      return <string>marked.parse(value.replaceAll(/\r\n|\r|\n/g, '<br />'), {async: false});
+      const parsedValue = value;
+      const html = <string>marked.parse(parsedValue, {async: false});
+      console.log(html);
+
+      // Sanitizing the HTML for safe rendering
+      return this.sanitizer.bypassSecurityTrustHtml(html);
     }
-    return value;
+
+    // Return empty or unmodified value as safe HTML
+    return this.sanitizer.bypassSecurityTrustHtml(value || '');
   }
 }
