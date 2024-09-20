@@ -1,3 +1,17 @@
+.scrollable-form {
+  height: calc(100vh - 150px); // Adjust the height as needed for your layout
+  overflow-y: auto; // Enables vertical scrolling
+  padding: 16px; // Add some padding around the form
+}
+
+.main-container {
+  width: 100%;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
 :host {
   height: auto;
   overflow-y: auto;

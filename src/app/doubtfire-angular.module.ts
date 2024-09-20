@@ -224,6 +224,7 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
+import {UnitStaffEditorComponent} from './units/states/edit/directives/unit-staff-editor/unit-staff-editor.component';
 
 @NgModule({
   // Components we declare
@@ -252,6 +253,7 @@ import {GradeService} from './common/services/grade.service';
     UnitTutorialsListComponent,
     UnitTutorialsManagerComponent,
     FileDropComponent,
+    UnitStaffEditorComponent,
     UnitStudentsEditorComponent,
     UnitTaskEditorComponent,
     TaskDefinitionEditorComponent,

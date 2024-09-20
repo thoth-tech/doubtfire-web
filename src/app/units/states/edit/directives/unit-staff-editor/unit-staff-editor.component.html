@@ -1,0 +1,115 @@
+<div class="unit-staff-editor">
+  <ng-template #staffAvatar let-match="match">
+    <a>
+      <span [innerHTML]="match.label | typeaheadHighlight: query"></span>
+    </a>
+  </ng-template>
+
+  <mat-card class="no-shadow">
+    <mat-card-header>
+      <mat-card-title>Modify Unit Staff</mat-card-title>
+      <mat-card-subtitle>
+        Add staff members to the unit, assigning them a convenor or tutor role.
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="col-sm-12">
+        <div *ngIf="unitStaff.length === 0" class="callout callout-info">
+          This unit has no staff assigned
+        </div>
+        <div *ngIf="unitStaff.length > 0">
+          <table mat-table [dataSource]="unitStaff" class="no-shadow">
+            <!-- Avatar Column -->
+            <ng-container matColumnDef="avatar">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let staff">
+                <user-icon [size]="30" [user]="staff.user"></user-icon>
+              </td>
+            </ng-container>
+
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let staff">{{ staff.user.name }}</td>
+            </ng-container>
+
+            <!-- Role Column -->
+            <ng-container matColumnDef="role">
+              <th mat-header-cell *matHeaderCellDef>Role</th>
+              <td mat-cell *matCellDef="let staff">
+                <mat-button-toggle-group
+                  [value]="staff.role"
+                  (change)="changeRole(staff, $event.value)"
+                  appearance="legacy"
+                >
+                  <mat-button-toggle value="Tutor" matTooltip="Tutors deliver unit content."
+                    >Tutor</mat-button-toggle
+                  >
+                  <mat-button-toggle value="Convenor" matTooltip="Convenors manage the unit."
+                    >Convenor</mat-button-toggle
+                  >
+                </mat-button-toggle-group>
+              </td>
+            </ng-container>
+
+            <!-- Main Convenor Column -->
+            <ng-container matColumnDef="mainConvenor">
+              <th mat-header-cell *matHeaderCellDef>Main Convenor</th>
+              <td mat-cell *matCellDef="let staff">
+                <button
+                  *ngIf="staff.role === 'Convenor'"
+                  [disabled]="staff.id === unit.mainConvenor.id"
+                  mat-button
+                  (click)="changeMainConvenor(staff)"
+                >
+                  <mat-icon>{{ staff.id === unit.mainConvenor.id ? 'check' : 'clear' }}</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let staff">
+                <button mat-icon-button color="warn" (click)="removeStaff(staff)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="['avatar', 'name', 'role', 'mainConvenor', 'actions']"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: ['avatar', 'name', 'role', 'mainConvenor', 'actions']"
+            ></tr>
+          </table>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-footer class="flex flex-row align-middle p-6 justify-center items-center">
+      <mat-form-field appearance="outline" class="w-full no-shadow mr-4">
+        <input
+          type="text"
+          matInput
+          [formControl]="tutorFormControl"
+          [matAutocomplete]="auto"
+          [(ngModel)]="selectedStaff"
+          placeholder="Staff Name"
+        />
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+          <mat-option *ngFor="let tutor of filteredTutors | async" [value]="tutor">
+            {{ tutor.name }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+        <button mat-raised-button color="primary" class="min-w-fir mb-6" (click)="addSelectedStaff()">
+          Add Staff
+        </button>
+    </mat-card-footer>
+  </mat-card>
+</div>
