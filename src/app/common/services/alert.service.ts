@@ -7,6 +7,9 @@ import {ConfettiService} from './confetti.service';
   providedIn: 'root',
 })
 export class AlertService {
+  add(arg0: string, arg1: string, arg2: number) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     private snackBar: MatSnackBar,
     private confetti: ConfettiService,

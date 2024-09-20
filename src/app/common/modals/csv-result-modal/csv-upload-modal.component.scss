@@ -1,0 +1,32 @@
+.csv-result-modal {
+  .modal-header small {
+    display: block;
+  }
+  .mdc-dialog__title::before {
+    height: auto;
+  }
+  table {
+    table-layout: fixed;
+  }
+  currentTemplate
+
+
+  table th.message { width: 20%; }
+  table th.data    { width: 80%; }
+
+  td.csv-row {
+    display: block;
+    overflow-x: scroll;
+    font-family: monospace;
+    white-space: nowrap;
+  }
+  .cust-mat-btn{
+    justify-content: flex-end;
+    padding: 15px 22px;
+    border-top: 1px dotted #999;
+  }
+  .btn-primary{
+    background-color: #337ab7;
+    color: #fff
+  }
+}

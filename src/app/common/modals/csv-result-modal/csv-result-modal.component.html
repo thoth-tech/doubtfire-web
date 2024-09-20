@@ -1,0 +1,80 @@
+<div class="csv-result-modal">
+  <div mat-dialog-title class="modal-header clearfix">
+    <h3 class="modal-title">
+      <i class="fa fa-file-excel-o fa-2x pull-left"></i>
+      {{ title }}
+      <small>Response details</small>
+    </h3>
+  </div>
+  <div mat-dialog-content class="modal-body clearfix">
+    <p class="btn-group col-sm-8 col-sm-offset-2">
+      <button
+        mat-button
+        class="btn col-sm-4"
+        [ngClass]="{'btn-success': activeCsvResponseSelection === 'success'}"
+        (click)="activeCsvResponseSelection = 'success'"
+      >
+        Success <span class="badge pull-right">{{ response.success.length }}</span>
+      </button>
+      <button
+        mat-button
+        class="btn col-sm-4"
+        [ngClass]="{'btn-danger': activeCsvResponseSelection === 'errors'}"
+        (click)="activeCsvResponseSelection = 'errors'"
+      >
+        Errors <span class="badge pull-right">{{ response.errors.length }}</span>
+      </button>
+      <button
+        mat-button
+        class="btn col-sm-4"
+        [ngClass]="{'btn-warning': activeCsvResponseSelection === 'ignored'}"
+        (click)="activeCsvResponseSelection = 'ignored'"
+      >
+        Ignored <span class="badge pull-right">{{ response.ignored.length }}</span>
+      </button>
+    </p>
+    <div
+      *ngIf="response[activeCsvResponseSelection].length === 0"
+      class="callout callout-info col-sm-12"
+    >
+      No data to show
+    </div>
+    <table
+      *ngIf="response[activeCsvResponseSelection].length > 0"
+      class="table table-condensed table-hover"
+    >
+      <thead>
+        <tr>
+          <th class="message">Message</th>
+          <th class="data">Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="
+            let item of response[activeCsvResponseSelection].slice(
+              (currentPage - 1) * pageSize,
+              currentPage * pageSize
+            )
+          "
+        >
+          <td>{{ item.message }}</td>
+          <td class="csv-row">{{ item.row }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div mat-dialog-actions class="modal-footer clearfix">
+    <pagination-controls
+      (pageChange)="currentPage = $event"
+      *ngIf="response[activeCsvResponseSelection].length > pageSize"
+      [totalItems]="response[activeCsvResponseSelection].length"
+      [itemsPerPage]="pageSize"
+      [maxSize]="maxSize"
+      directionLinks="true"
+      autoHide="true"
+      class="pagination-sm pull-left"
+    ></pagination-controls>
+    <button mat-button class="btn btn-primary pull-right" (click)="close()">Done</button>
+  </div>
+</div>

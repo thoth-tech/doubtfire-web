@@ -59,9 +59,7 @@ import {
   visualisationsProvider,
   analyticsServiceProvider,
   dateServiceProvider,
-  CsvUploadModalProvider,
   UnitStudentEnrolmentModalProvider,
-  CsvResultModalProvider,
   AudioRecorderProvider,
   AudioRecorderServiceProvider,
   commentsModalProvider,
@@ -225,6 +223,12 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
 
+import {CsvResultModalComponent} from './common/modals/csv-result-modal/csv-result-modal.component';
+import {CsvResultModalService} from './common/modals/csv-result-modal/csv-result-modal.service';
+import {CsvUploadModalComponent} from './common/modals/csv-result-modal/csv-upload-modal.component';
+import {CsvUploadModalService} from './common/modals/csv-result-modal/csv-upload-modal.service';
+import {FileUploaderComponent} from './common/file-uploader/file-uploader.component';
+
 @NgModule({
   // Components we declare
   declarations: [
@@ -325,9 +329,14 @@ import {GradeService} from './common/services/grade.service';
     FUsersComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    CsvResultModalComponent,
+    CsvUploadModalComponent,
+    FileUploaderComponent,
   ],
   // Services we provide
   providers: [
+    CsvResultModalService,
+    CsvUploadModalService,
     AlertService,
     MarkedPipe,
     CampusService,
@@ -366,15 +375,13 @@ import {GradeService} from './common/services/grade.service';
     gradeTaskModalProvider,
     analyticsServiceProvider,
     dateServiceProvider,
-    CsvUploadModalProvider,
-    CsvResultModalProvider,
     {provide: MAT_DATE_LOCALE, useValue: 'en-AU'},
     UnitStudentEnrolmentModalProvider,
     TaskCommentService,
     AudioRecorderProvider,
     AudioRecorderServiceProvider,
     plagiarismReportModalProvider,
-    UnitStudentsEditorComponent,
+    // UnitStudentsEditorComponent,
     ConfirmationModalProvider,
     {
       provide: HTTP_INTERCEPTORS,

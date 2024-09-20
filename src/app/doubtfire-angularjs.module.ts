@@ -120,10 +120,10 @@ import 'build/src/app/common/filters/filters.js';
 import 'build/src/app/common/content-editable/content-editable.js';
 import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
-import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
+//  import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
 import 'build/src/app/common/modals/modals.js';
 import 'build/src/app/common/grade-icon/grade-icon.js';
-import 'build/src/app/common/file-uploader/file-uploader.js';
+// import 'build/src/app/common/file-uploader/file-uploader.js';
 import 'build/src/app/common/common.js';
 import 'build/src/app/common/services/listener-service.js';
 import 'build/src/app/common/services/outcome-service.js';
@@ -220,6 +220,12 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+
+import {CsvResultModalComponent} from './common/modals/csv-result-modal/csv-result-modal.component';
+import {CsvResultModalService} from './common/modals/csv-result-modal/csv-result-modal.service';
+import {CsvUploadModalComponent} from './common/modals/csv-result-modal/csv-upload-modal.component';
+import {CsvUploadModalService} from './common/modals/csv-result-modal/csv-upload-modal.service';
+import {FileUploaderComponent} from './common/file-uploader/file-uploader.component';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
@@ -376,6 +382,28 @@ DoubtfireAngularJSModule.directive(
   'fTaskDueCard',
   downgradeComponent({component: TaskDueCardComponent}),
 );
+
+DoubtfireAngularJSModule.directive(
+  'fileUploader',
+  downgradeComponent({component: FileUploaderComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'csvResultModalComponent',
+  downgradeComponent({component: CsvResultModalComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'csvUploadModalComponent',
+  downgradeComponent({component: CsvUploadModalComponent}),
+);
+DoubtfireAngularJSModule.factory(
+  'csvUploadModalService',
+  downgradeInjectable(CsvUploadModalService),
+);
+DoubtfireAngularJSModule.factory(
+  'csvResultModalService',
+  downgradeInjectable(CsvResultModalService),
+);
+
 DoubtfireAngularJSModule.directive('fUsers', downgradeComponent({component: FUsersComponent}));
 DoubtfireAngularJSModule.directive(
   'fTaskAssessmentCard',
