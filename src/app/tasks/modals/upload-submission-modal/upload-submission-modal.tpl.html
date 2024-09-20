@@ -61,6 +61,25 @@
         </div>
         <div class="card-body">
           <file-uploader
+              [files]="files"
+              [url]="url"
+              [method]="method"
+              [payload]="payload"
+              [onBeforeUpload]="onBeforeUpload"
+              [onSuccess]="onSuccess"
+              [onFailure]="onFailure"
+              [onComplete]="onComplete"
+              [isUploading]="isUploading"
+              [isReady]="isReady"
+              [showName]="showName"
+              [asButton]="asButton"
+              [filesSelected]="filesSelected"
+              [singleDropZone]="singleDropZone"
+              [showUploadButton]="showUploadButton"
+              [resetAfterUpload]="resetAfterUpload"
+              (initiateUpload)="initiateFileUpload()">
+          </file-uploader>
+          <!-- <file-uploader
             files="uploader.files"
             url="uploader.url"
             payload="uploader.payload"
@@ -73,7 +92,7 @@
             on-click-failure-cancel="uploader.onFailureCancel"
             on-before-upload="uploader.onBeforeUpload"
             on-success="uploader.onSuccess"
-            on-complete="uploader.onComplete"></file-uploader>
+            on-complete="uploader.onComplete"></file-uploader> -->
         </div>
       </div>
     </div>

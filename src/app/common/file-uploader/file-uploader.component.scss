@@ -1,16 +1,32 @@
 .file-uploader {
   display: block;
-  // Add some margin like a <p>
+
   margin: 2.5em 0;
 
-  // Colors to make it easy to understand
-  $hover-color:   $brand-primary;
-  $accept-color:  $brand-success;
-  $reject-color:  $brand-danger;
+  // $hover-color:   $brand-primary;
+  // $accept-color:  $brand-success;
+  // $reject-color:  $brand-danger;
+  $hover-color:   #007bff;  // Primary color (blue)
+$accept-color:  #28a745;  // Success color (green)
+$reject-color:  #dc3545;  // Danger color (red)
 
-  // Extra additional icons
-  $ban-icon:      $fa-var-ban;
-  $download-icon: $fa-var-download;
+
+  // $ban-icon:      fa-var-ban;
+  // $download-icon: fa-var-download;
+
+  // .ban-icon:before {
+  //   font-family: "Font Awesome 5 Free";
+  //   content: "\f05e"; // Unicode for ban icon
+  //   font-weight: 900;
+  // }
+
+  // .download-icon:before {
+  //   font-family: "Font Awesome 5 Free";
+  //   content: "\f019"; // Unicode for download icon
+  //   font-weight: 900;
+  // }
+  $ban-icon:     '\f05e';
+  $download-icon: '\f019';
 
   .upload-commit-actions {
     margin-top: 1em;
@@ -18,7 +34,15 @@
       margin-right: 1.5ex;
     }
   }
+  .drop.well.file-over {
+    cursor: copy;
+    border-color: $accept-color;
+    color: $accept-color;
 
+    p.fa::before {
+      content: $download-icon;
+    }
+  }
   .well.drop {
     border: 2px #bbb dotted;
     font-size: larger;
@@ -26,7 +50,7 @@
     color: #aaa;
     text-align: center;
     &, i {
-      @include transition(all 0.25s ease);
+      // @include transition(all 0.25s ease);
     }
     p small {
       display: block;
@@ -41,27 +65,25 @@
     }
   }
 
-  // Wells which have file over
   .well.drop.file-over {
     cursor: copy;
     border-color: $accept-color;
     color: $accept-color;
-    // Switch the icon over
+
     p.fa::before {
       content: $download-icon;
     }
   }
-  // Rejected file over
   .well.drop.file-rejected {
     border-color: $reject-color;
     color: $reject-color;
-    // Switch the icon over
+
     p.fa::before {
       content: $ban-icon;
     }
   }
 
-  // File header
+
   .selected-files {
     &:not(.list-group) {
       display: inline-block;
@@ -92,7 +114,7 @@
     }
     display: inline-block;
   }
-  // Upload area/result
+
   .upload-area {
     .progress-area {
       .progress {
@@ -104,7 +126,7 @@
         justify-content: center;
       }
       i.fa-arrow-right {
-        @include animation-wobble();
+        // @include animation-wobble();
       }
       i {
         flex-basis: auto !important;
@@ -123,7 +145,7 @@
       }
       i {
         font-size: 2em;
-        @include animation-grow;
+        // @include animation-grow;
         margin-right: 1ex;
       }
       .retry-options {
@@ -137,3 +159,4 @@
     }
   }
 }
+

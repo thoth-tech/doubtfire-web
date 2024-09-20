@@ -123,7 +123,7 @@ import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
 import 'build/src/app/common/modals/modals.js';
 import 'build/src/app/common/grade-icon/grade-icon.js';
-import 'build/src/app/common/file-uploader/file-uploader.js';
+// import 'build/src/app/common/file-uploader/file-uploader.js';
 import 'build/src/app/common/common.js';
 import 'build/src/app/common/services/listener-service.js';
 import 'build/src/app/common/services/outcome-service.js';
@@ -220,6 +220,8 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+
+import {FileUploaderComponent} from './common/file-uploader/file-uploader.component';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
@@ -328,6 +330,11 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'fTaskSubmissionCard',
   downgradeComponent({component: TaskSubmissionCardComponent}),
+);
+
+DoubtfireAngularJSModule.directive(
+  'fileUploader',
+  downgradeComponent({component: FileUploaderComponent}),
 );
 
 DoubtfireAngularJSModule.directive('fFooter', downgradeComponent({component: FooterComponent}));
