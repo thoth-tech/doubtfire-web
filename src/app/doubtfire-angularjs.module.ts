@@ -87,7 +87,7 @@ import 'build/src/app/projects/project-outcome-alignment/project-outcome-alignme
 import 'build/src/app/admin/modals/modals.js';
 import 'build/src/app/admin/modals/create-unit-modal/create-unit-modal.js';
 import 'build/src/app/groups/group-selector/group-selector.js';
-import 'build/src/app/groups/group-set-manager/group-set-manager.js';
+// import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
@@ -145,6 +145,7 @@ import 'build/src/i18n/resources-locale_en-US.js';
 import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
+
 
 import {AboutDoubtfireModal} from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {TaskCommentComposerComponent} from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
@@ -220,6 +221,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import {GroupSetManagerComponent} from './groups/group-set-manager/group-set-manager.component';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
@@ -300,6 +302,10 @@ DoubtfireAngularJSModule.factory('GlobalStateService', downgradeInjectable(Globa
 DoubtfireAngularJSModule.factory(
   'TransitionHooksService',
   downgradeInjectable(TransitionHooksService),
+);
+DoubtfireAngularJSModule.directive(
+  'groupSetManagerComponent',
+  downgradeComponent({component: GroupSetManagerComponent}),
 );
 DoubtfireAngularJSModule.factory(
   'EditProfileService',

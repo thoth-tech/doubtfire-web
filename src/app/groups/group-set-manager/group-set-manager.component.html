@@ -1,0 +1,59 @@
+<!-- <group-selector
+  [unit]="unit"
+  [unit-role]="unitRole"
+  [project]="project"
+  [selected-group]="selectedGroup"
+  [selected-group-set]="selectedGroupSet"
+  [show-group-set-selector]="showGroupSetSelector"
+  (on-select)="newGroupSelected()"
+  class="mat-card mat-card-primary"
+> -->
+<!-- </group-selector> -->
+
+<mat-card *ngIf="selectedGroup">
+  <mat-card-header>
+    <mat-card-title>
+      Members of
+      <span *ngIf="unitRole || selectedGroupSet.allowStudentsToManageGroups">
+        <a (click)="updateGroup(selectedGroup)">
+          {{ selectedGroup.name }}
+        </a>
+      </span>
+    </mat-card-title>
+    <mat-card-subtitle>
+      <mat-icon *ngIf="selectedGroup.locked" matTooltip="This group is locked">lock</mat-icon>
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content *ngIf="showMemberPanelToolbar">
+    <form (ngSubmit)="addMember(selectedStudent)" class="input-group">
+      <mat-form-field>
+        <input
+          matInput
+          placeholder="Enter student name or username..."
+          [(ngModel)]="selectedStudent"
+          name="selectedStudent"
+          [matAutocomplete]="auto"
+          (input)="filterStudents($event.target.value)"
+        />
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addMember($event.option.value)">
+          <mat-option *ngFor="let student of filteredStudents | async" [value]="student">
+            {{ student.name }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="!selectedStudent.id">
+        <mat-icon>add</mat-icon> Add Member
+      </button>
+    </form>
+  </mat-card-content>
+
+  <group-member-list
+    [unit]="unit"
+    [unit-role]="unitRole"
+    [project]="project"
+    [selected-group]="selectedGroup"
+    (on-members-loaded)="groupMembersLoaded()"
+  ></group-member-list>
+</mat-card>

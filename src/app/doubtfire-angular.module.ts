@@ -1,3 +1,5 @@
+import {GroupSetManagerComponent} from './groups/group-set-manager/group-set-manager.component';
+
 import {interval} from 'rxjs';
 import {take} from 'rxjs/operators';
 
@@ -43,6 +45,8 @@ import {UIRouterUpgradeModule} from '@uirouter/angular-hybrid';
 import {MatDialogModule as MatDialogModuleNew} from '@angular/material/dialog';
 import {AlertService} from 'src/app/common/services/alert.service';
 import {AlertComponent} from 'src/app/common/services/alert.service';
+
+
 
 import {setTheme} from 'ngx-bootstrap/utils';
 
@@ -228,6 +232,7 @@ import {GradeService} from './common/services/grade.service';
 @NgModule({
   // Components we declare
   declarations: [
+    GroupSetManagerComponent,
     AlertComponent,
     AboutDoubtfireModalContent,
     TeachingPeriodUnitImportDialogComponent,
