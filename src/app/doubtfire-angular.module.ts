@@ -225,6 +225,7 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
 
+import {GroupSetSelectorComponent} from './groups/group-set-selector/group-set-selector.component';
 @NgModule({
   // Components we declare
   declarations: [
@@ -325,6 +326,7 @@ import {GradeService} from './common/services/grade.service';
     FUsersComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    GroupSetSelectorComponent,
   ],
   // Services we provide
   providers: [
@@ -348,6 +350,7 @@ import {GradeService} from './common/services/grade.service';
     UserService,
     TaskService,
     GradeService,
+
     TaskSimilarityService,
     WebcalService,
     ActivityTypeService,

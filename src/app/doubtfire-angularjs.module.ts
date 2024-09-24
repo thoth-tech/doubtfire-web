@@ -91,7 +91,7 @@ import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
-import 'build/src/app/groups/group-set-selector/group-set-selector.js';
+
 import 'build/src/app/units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.js';
 import 'build/src/app/units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.js';
 import 'build/src/app/units/modals/modals.js';
@@ -220,7 +220,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
-
+import {GroupSetSelectorComponent} from './groups/group-set-selector/group-set-selector.component';
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
 import {AlertService} from './common/services/alert.service';
@@ -235,6 +235,7 @@ export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.projects',
   'doubtfire.groups',
   'doubtfire.visualisations',
+
 ]);
 
 // Downgrade angular modules that we need...
@@ -320,6 +321,10 @@ DoubtfireAngularJSModule.directive('appHeader', downgradeComponent({component: H
 DoubtfireAngularJSModule.directive(
   'splashScreen',
   downgradeComponent({component: SplashScreenComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'groupSetSelector',
+  downgradeComponent({component: GroupSetSelectorComponent}),
 );
 DoubtfireAngularJSModule.directive(
   'userBadge',
