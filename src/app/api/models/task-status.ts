@@ -175,7 +175,7 @@ export class TaskStatus {
   ]);
 
   public static readonly STATUS_LABELS = new Map<TaskStatusEnum, string>([
-    ['ready_for_feedback', 'Ready for Feedback'],
+    ['ready_for_feedback', 'Awaiting Feedback'],
     ['not_started', 'Not Started'],
     ['working_on_it', 'Working On It'],
     ['need_help', 'Need Help'],
@@ -192,6 +192,7 @@ export class TaskStatus {
 
   public static readonly STATUS_NAME_TO_KEY = new Map<string, TaskStatusEnum>([
     ['Ready for Feedback', 'ready_for_feedback'],
+    ['Awaiting Feedback', 'ready_for_feedback'],
     ['Not Started', 'not_started'],
     ['Working On It', 'working_on_it'],
     ['Need Help', 'need_help'],

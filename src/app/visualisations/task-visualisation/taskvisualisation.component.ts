@@ -39,7 +39,7 @@ export class TaskVisualisationComponent implements OnInit {
         }
       });
 
-      const sortOrder = ['Complete', 'Not Started', 'Working On It'];
+      const sortOrder = ['Complete', 'Discuss', 'Awaiting Feedback', 'Working On It', 'Not Started'];
 
       this.data = Array.from(taskCounts)
         .map(([status, count]) => {
@@ -48,6 +48,7 @@ export class TaskVisualisationComponent implements OnInit {
             value: count,
           };
         })
+        .filter((task) => task.value > 0 || sortOrder.includes(task.name))
         .sort((a, b) => {
           let aIndex = sortOrder.indexOf(a.name);
           let bIndex = sortOrder.indexOf(b.name);
@@ -56,15 +57,14 @@ export class TaskVisualisationComponent implements OnInit {
           bIndex = bIndex === -1 ? sortOrder.length : bIndex;
 
           return aIndex - bIndex;
-        })
-        .filter((task) => task.value > 0);
+        });
 
       this.colors = Array.from(TaskStatus.STATUS_COLORS).map(([status, color]) => {
         return { name: TaskStatus.STATUS_LABELS.get(status), value: color };
       });
 
-      console.log('Data:', this.data);
-      console.log('Colors:', this.colors);
+      // console.log('Data:', this.data);
+      // console.log('Colors:', this.colors);
     }
   }
 
