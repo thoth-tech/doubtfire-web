@@ -130,7 +130,6 @@ import {StudentTutorialSelectComponent} from './units/states/edit/directives/uni
 import {StudentCampusSelectComponent} from './units/states/edit/directives/unit-students-editor/student-campus-select/student-campus-select.component';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from 'src/environments/environment';
-import {NgxChartsModule} from '@swimlane/ngx-charts';
 import {PickerModule} from '@ctrl/ngx-emoji-mart';
 import {EmojiModule} from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import {EmojiService} from './common/services/emoji.service';
@@ -238,7 +237,6 @@ import {
   TeachingPeriodUnitImportDialogComponent,
   TeachingPeriodUnitImportService,
 } from './admin/states/teaching-periods/teaching-period-unit-import/teaching-period-unit-import.dialog';
-<<<<<<< HEAD
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
 import {TiiActionLogComponent} from './admin/tii-action-log/tii-action-log.component';
 import {TiiActionService} from './api/services/tii-action.service';
@@ -248,7 +246,6 @@ import {FTaskDetailsViewComponent} from './units/task-viewer/directives/task-det
 import {FTaskSheetViewComponent} from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
-
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import {ScormAdapterService} from './api/services/scorm-adapter.service';
 import {ScormCommentComponent} from './tasks/task-comments-viewer/scorm-comment/scorm-comment.component';
@@ -444,7 +441,6 @@ import {TaskVisualisationComponent} from './visualisations/task-visualisation/ta
     ProjectProgressGaugeComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
-<<<<<<< HEAD
     CommentsModalComponent,
     ScormPlayerComponent,
     ScormCommentComponent,
@@ -631,82 +627,8 @@ import {TaskVisualisationComponent} from './visualisations/task-visualisation/ta
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModuleNew,
-<<<<<<< HEAD
     CalendarModule.forRoot({provide: CalendarDateAdapter, useFactory: adapterFactory}),
     CodeEditorModule.forRoot(),
-=======
-    NgxChartsModule
-  ],
-  // Services we provide
-  providers: [
-    CampusService,
-    AuthenticationService,
-    GroupSetService,
-    GroupService,
-    UnitService,
-    ProjectService,
-    UnitRoleService,
-    LearningOutcomeService,
-    TaskDefinitionService,
-    TeachingPeriodService,
-    TiiActionService,
-    TeachingPeriodBreakService,
-    TeachingPeriodUnitImportService,
-    TutorialService,
-    TutorialStreamService,
-    UserService,
-    TaskService,
-    TaskSimilarityService,
-    WebcalService,
-    ActivityTypeService,
-    OverseerImageService,
-    OverseerAssessmentService,
-    EmojiService,
-    FileDownloaderService,
-    CheckForUpdateService,
-    TaskOutcomeAlignmentService,
-    visualisationsProvider,
-    commentsModalProvider,
-    rootScopeProvider,
-    calendarModalProvider,
-    aboutDoubtfireModalProvider,
-    gradeServiceProvider,
-    uploadSubmissionModalProvider,
-    gradeTaskModalProvider,
-    analyticsServiceProvider,
-    dateServiceProvider,
-    alertServiceProvider,
-    CsvUploadModalProvider,
-    CsvResultModalProvider,
-    { provide: MAT_DATE_LOCALE, useValue: 'en-AU' },
-    UnitStudentEnrolmentModalProvider,
-    TaskCommentService,
-    AudioRecorderProvider,
-    AudioRecorderServiceProvider,
-    plagiarismReportModalProvider,
-    UnitStudentsEditorComponent,
-    ConfirmationModalProvider,
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: HttpAuthenticationInterceptor,
-      multi: true,
-      deps: [UserService],
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: HttpErrorInterceptor,
-      multi: true,
-      deps: [AuthenticationService, UserService],
-    },
-    AboutDoubtfireModal,
-    AboutDoubtfireModalService,
-    DoubtfireConstants,
-    TasksOfTaskDefinitionPipe,
-    TasksInTutorialsPipe,
-    TasksForInboxSearchPipe,
-    IsActiveUnitRole,
-    CreateNewUnitModal,
->>>>>>> f1cc39e5 (feat: visualisations)
   ],
 })
 

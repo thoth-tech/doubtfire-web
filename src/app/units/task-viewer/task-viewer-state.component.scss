@@ -19,6 +19,9 @@
   width: 10px
 }
 
+// HACK - issue access this from the main style.scss
+$main-view-max-height: calc((var(--vh, 1vh) * (100)) - 85px);
+
 f-task-viewer-state {
   height: calc($main-view-max-height + 70px); // temporary fix to reclaim the footer region for this specific page
   display: flex;

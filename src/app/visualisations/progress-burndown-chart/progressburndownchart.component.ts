@@ -1,15 +1,18 @@
-import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
-import * as moment from 'moment';
+import { Component, OnInit, Input, SimpleChanges, LOCALE_ID } from '@angular/core';
+import { Project, Unit } from 'src/app/api/models/doubtfire-model';
+import { formatDate } from '@angular/common';
+import { MappingFunctions } from 'src/app/api/services/mapping-fn';
+import { AppInjector } from 'src/app/app-injector';
 
 @Component({
-  selector: 'app-progress-burndown-chart',
+  selector: 'f-progress-burndown-chart',
   templateUrl: './progressburndownchart.component.html',
   styleUrls: ['./progressburndownchart.component.scss']
 })
 
 export class ProgressBurndownChartComponent implements OnInit {
-  @Input() project: any;
-  @Input() unit: any;
+  @Input() project: Project;
+  @Input() unit: Unit;
   @Input() grade: any;
 
   data: any[] = [];
@@ -49,16 +52,19 @@ export class ProgressBurndownChartComponent implements OnInit {
     }
   }
 
-  generateDates(startDate, endDate) {
-    const start = moment(startDate);
-    const end = moment(endDate);
-    const totalDays = end.diff(start, 'days');
-    const interval = totalDays / 9;
+  generateDates() {
+    const startDate: Date = this.unit.startDate;
+    const endDate: Date = this.unit.endDate;
+    const locale: string = AppInjector.get(LOCALE_ID);
+    const numberPoints = 10;
+    // Get the number of days between dates
+    const totalDays =  MappingFunctions.daysBetween(startDate, endDate);
+    const interval = totalDays / (numberPoints - 1); // get gaps between points
 
     const dates = [];
-    for (let i = 0; i <= 9; i++) {
-      const date = moment(start).add(interval * i, 'days');
-      dates.push(date.format('D MMM'));
+    for (let i = 0; i < numberPoints; i++) {
+      const date = MappingFunctions.daysAfter(startDate, interval * i);
+      dates.push(formatDate(date, 'd MMM', locale));
     }
 
     return dates;
@@ -66,10 +72,7 @@ export class ProgressBurndownChartComponent implements OnInit {
 
   updateData(): void {
     const chartData = this.project?.burndownChartData;
-
-    const startDate = new Date(this.unit.startDate).getTime();
-    const endDate = new Date(this.unit.endDate).getTime();
-    const dates = this.generateDates(startDate, endDate);
+    const dates = this.generateDates();
 
     const formattedData = chartData.map((dataset) => {
       const values = Array(10)
