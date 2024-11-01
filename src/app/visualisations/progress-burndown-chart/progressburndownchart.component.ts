@@ -1,16 +1,16 @@
-import { Component, OnInit, Input, SimpleChanges, LOCALE_ID } from '@angular/core';
+import { Component, OnInit, Input, SimpleChanges, LOCALE_ID, ViewContainerRef } from '@angular/core';
 import { Project, Unit } from 'src/app/api/models/doubtfire-model';
 import { formatDate } from '@angular/common';
 import { MappingFunctions } from 'src/app/api/services/mapping-fn';
 import { AppInjector } from 'src/app/app-injector';
+import { ChartBaseComponent } from 'src/app/common/chart-base/chart-base-component/chart-base-component.component';
 
 @Component({
   selector: 'f-progress-burndown-chart',
   templateUrl: './progressburndownchart.component.html',
   styleUrls: ['./progressburndownchart.component.scss']
 })
-
-export class ProgressBurndownChartComponent implements OnInit {
+export class ProgressBurndownChartComponent extends ChartBaseComponent implements OnInit {
   @Input() project: Project;
   @Input() unit: Unit;
   @Input() grade: any;
@@ -32,12 +32,16 @@ export class ProgressBurndownChartComponent implements OnInit {
 
   private seriesVisibility: { [key: string]: boolean } = {};
 
-  constructor() {
+  constructor(public viewContainerRef: ViewContainerRef) {
+    super(viewContainerRef);
     this.data = [];
     this.temp = [];
   }
 
   ngOnInit(): void {
+    console.log('ProgressBurndownChartComponent: ngOnInit');
+    console.log(this.project);
+
     this.project.refreshBurndownChartData();
     this.updateData();
     this.data.forEach((item) => {
@@ -53,8 +57,8 @@ export class ProgressBurndownChartComponent implements OnInit {
   }
 
   generateDates() {
-    const startDate: Date = this.unit.startDate;
-    const endDate: Date = this.unit.endDate;
+    const startDate: Date = this.project.unit.startDate;
+    const endDate: Date = this.project.unit.endDate;
     const locale: string = AppInjector.get(LOCALE_ID);
     const numberPoints = 10;
     // Get the number of days between dates

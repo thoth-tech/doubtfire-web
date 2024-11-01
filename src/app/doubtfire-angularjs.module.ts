@@ -181,7 +181,6 @@ import {
   UnitService,
   UserService,
 } from './api/models/doubtfire-model';
-<<<<<<< HEAD
 import {FileDownloaderService} from './common/file-downloader/file-downloader.service';
 import {CheckForUpdateService} from './sessions/service-worker-updater/check-for-update.service';
 import {TaskSubmissionService} from './common/services/task-submission.service';
@@ -555,12 +554,12 @@ const otherwiseConfigBlock = [
 DoubtfireAngularJSModule.config(otherwiseConfigBlock);
 
 DoubtfireAngularJSModule.directive(
-  'progressBurndownChart',
+  'fProgressBurndownChart',
   downgradeComponent({component: ProgressBurndownChartComponent}),
 );
 
 DoubtfireAngularJSModule.directive(
-  'taskVisualisation',
+  'fTaskVisualisation',
   downgradeComponent({component: TaskVisualisationComponent}),
 );
 

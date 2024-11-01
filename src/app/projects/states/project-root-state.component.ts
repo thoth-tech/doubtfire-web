@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {Component, Input} from '@angular/core';
-import {Observable, first} from 'rxjs';
+import {AsyncSubject, Observable, Subscriber, first} from 'rxjs';
 import {Project, ProjectService} from 'src/app/api/models/doubtfire-model';
 import {AppInjector} from 'src/app/app-injector';
 import {NgHybridStateDeclaration} from '@uirouter/angular-hybrid';
@@ -32,19 +32,25 @@ export const ProjectRootState: NgHybridStateDeclaration = {
     project$: function ($stateParams) {
       const projectService = AppInjector.get(ProjectService);
       const globalState = AppInjector.get(GlobalStateService);
+      const projectId = parseInt($stateParams.projectId);
 
-      return new Observable<Project>((observer) => {
-        const projectId = parseInt($stateParams.projectId);
+      const result = new AsyncSubject<Project>();
 
-        globalState.onLoad(() => {
-          projectService.get({id: projectId}, {cacheBehaviourOnGet: 'cacheQuery'}).subscribe({
-            next: (project: Project) => {
-              observer.next(project);
-              observer.complete();
-            },
-          });
+      const mappingCompleteCallback = (entity: Project) => {
+        result.next(entity);
+        result.complete();
+      }
+
+      // Async call to load the project
+      globalState.onLoad(() => {
+        projectService.get({id: projectId}, {cacheBehaviourOnGet: 'cacheQuery', mappingCompleteCallback: mappingCompleteCallback}).subscribe({
+          next: (_project: Project) => {
+            // Do nothing - the mappingCompleteCallback will be called when complete
+          },
         });
-      }).pipe(first());
+      });
+
+      return result;
     },
   },
 };

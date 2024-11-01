@@ -317,15 +317,6 @@ import {UnitRootStateComponent} from './units/unit-root-state.component';
 import {TaskViewerStateComponent} from './units/task-viewer/task-viewer-state.component';
 import {ProjectRootStateComponent} from './projects/states/project-root-state.component';
 import {ProjectProgressDashboardComponent} from './projects/project-progress-dashboard/project-progress-dashboard.component';
-import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
-import {TiiActionLogComponent} from './admin/tii-action-log/tii-action-log.component';
-import {TiiActionService} from './api/services/tii-action.service';
-import {FUnitsComponent} from './admin/states/units/units.component';
-import {FUnitTaskListComponent} from './units/task-viewer/directives/unit-task-list/unit-task-list.component';
-import {FTaskDetailsViewComponent} from './units/task-viewer/directives/task-details-view/task-details-view.component';
-import {FTaskSheetViewComponent} from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
-import {ProgressBurndownChartComponent} from './visualisations/progress-burndown-chart/progressburndownchart.component';
-import {TaskVisualisationComponent} from './visualisations/task-visualisation/taskvisualisation.component';
 
 @NgModule({
   // Components we declare
@@ -473,6 +464,7 @@ import {TaskVisualisationComponent} from './visualisations/task-visualisation/ta
     AnalyticsTutorTimesComponent,
     PortfolioIncludedTasksComponent,
     OverseerScriptEditorModalComponent,
+    ChartBaseComponent,
     ProgressBurndownChartComponent,
     TaskVisualisationComponent,
   ],
