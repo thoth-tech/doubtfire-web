@@ -17,12 +17,12 @@ angular.module('doubtfire.projects.states.index', [])
   }
 )
 
-.controller("ProjectsIndexStateCtrl", ($scope, $rootScope, $state, $stateParams, newProjectService, listenerService, GlobalStateService) ->
+.controller("ProjectsIndexStateCtrl", ($scope, $rootScope, $state, $stateParams, newProjectService, listenerService, globalStateService) ->
   # Error - required projectId is missing!
   projectId = +$stateParams.projectId
   return $state.go('home') unless projectId
 
-  GlobalStateService.onLoad () ->
+  globalStateService.onLoad () ->
     # Load in project
     newProjectService.get(projectId, {
       # Ensure that we cache queries here... so that we get any projects we are in
@@ -39,7 +39,7 @@ angular.module('doubtfire.projects.states.index', [])
           $scope.project = project
           $scope.unit = project.unit if project.unit.taskDefinitions.length > 0 && project.tasks.length == project.unit.taskDefinitions.length
 
-          GlobalStateService.setView('PROJECT', $scope.project)
+          globalStateService.setView('PROJECT', $scope.project)
 
           # Go home if no project was found
           return $state.go('home') unless project?
