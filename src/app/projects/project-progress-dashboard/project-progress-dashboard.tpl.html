@@ -22,6 +22,10 @@
             <div class="panel-body text-center">
               <p class="btn-group">
                 <label ng-repeat="grade in grades" ng-click="chooseGrade($index)" class="btn btn-default col-sm-3 text-center" ng-model="project.targetGrade" btn-radio="{{$index}}">
+                  <grade-icon [grade]="grade" tooltip="Select a {{grade}} as your target grade" tooltip-append-to-body="true"></grade-icon>
+                </label>
+
+                <label ng-repeat="grade in grades" ng-click="chooseGrade($index)" class="btn btn-default col-sm-3 text-center" ng-model="project.targetGrade" btn-radio="{{$index}}">
                   <grade-icon grade="grade" tooltip="Select a {{grade}} as your target grade" tooltip-append-to-body="true" class="text-{{$index == project.targetGrade ? 'primary' : 'muted'}}"></grade-icon>
                 </label>
               </p>
@@ -30,7 +34,7 @@
         </div>
       </div>
     </div><!--right-hand-panel-->
-  
+
     <div class="col-md-8 col-md-pull-4">
       <div class="panel panel-default">
         <div class="panel-heading clearfix">
@@ -120,4 +124,3 @@
       </div>
     </div><!--primary-panel-->
   </div>
-  

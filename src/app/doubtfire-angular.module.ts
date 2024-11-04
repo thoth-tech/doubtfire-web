@@ -303,6 +303,7 @@ import {OverseerScriptEditorModalComponent} from './units/states/edit/directives
 import {CodeEditorModule} from '@ngstack/code-editor';
 import {UploadGradesComponent} from './units/states/portfolios/upload-grades/upload-grades.component';
 import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
+import {GradeTaskModalComponent} from './tasks/modals/grade-task-modal/grade-task-modal.component';
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
   parse: {
@@ -403,6 +404,7 @@ import {ProjectProgressDashboardComponent} from './projects/project-progress-das
     TaskDropdownComponent,
     SplashScreenComponent,
     ProjectDashboardComponent,
+    GradeTaskModalComponent,
     ObjectSelectComponent,
     WelcomeComponent,
     AcceptEulaComponent,

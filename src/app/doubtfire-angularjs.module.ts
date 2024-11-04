@@ -40,7 +40,6 @@ import 'build/src/app/visualisations/achievement-custom-bar-chart.js';
 import 'build/src/app/visualisations/alignment-bar-chart.js';
 import 'build/src/app/visualisations/achievement-box-plot.js';
 import 'build/src/app/tasks/modals/upload-submission-modal/upload-submission-modal.js';
-import 'build/src/app/tasks/modals/grade-task-modal/grade-task-modal.js';
 import 'build/src/app/tasks/modals/modals.js';
 import 'build/src/app/tasks/tasks.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment.js';
@@ -346,10 +345,16 @@ DoubtfireAngularJSModule.factory(
   downgradeInjectable(SidekiqProgressModalService),
 );
 
+DoubtfireAngularJSModule.factory('GradeTaskModal', downgradeInjectable(GradeTaskModalService));
+
 // directive -> component
 DoubtfireAngularJSModule.directive(
   'fProjectTasksList',
   downgradeComponent({component: ProjectTasksListComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'gradeIcon',
+  downgradeComponent({component: GradeIconComponent}),
 );
 DoubtfireAngularJSModule.directive(
   'taskCommentComposer',
