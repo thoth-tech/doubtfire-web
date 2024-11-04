@@ -39,7 +39,7 @@ export const TaskViewerState: NgHybridStateDeclaration = {
   parent: 'unit-root-state',
   data: {
     pageTitle: 'Unit Tasks',
-    roleWhiteList: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
+    roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
   },
   views: {
     unitView: {

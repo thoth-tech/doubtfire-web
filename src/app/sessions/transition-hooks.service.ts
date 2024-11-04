@@ -47,6 +47,16 @@ export class TransitionHooksService {
         this.globalState.setNotInboxState();
       }
 
+      // Check authorization whitelist
+      if (toStateData.roleWhitelist && !this.authenticationService.isAuthorised(toStateData.roleWhitelist)) {
+        if (authenticationService.isAuthenticated()) {
+          return transition.router.stateService.target("unauthorised");
+        } else if (toState !== "sign_in") {
+          return transition.router.stateService.target("sign_in");
+        }
+        return false;
+      }
+
       // Adjust settings such as headers
       switch (toState) {
         case 'timeout':

@@ -34,7 +34,7 @@ export const UnitRootState: NgHybridStateDeclaration = {
   abstract: true,
   data: {
     pageTitle: 'Unit Root State',
-    roleWhiteList: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
+    roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
   },
   views: {
     main: {

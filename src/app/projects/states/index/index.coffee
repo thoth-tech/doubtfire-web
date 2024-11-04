@@ -13,7 +13,6 @@ angular.module('doubtfire.projects.states.index', [])
         templateUrl: "units/states/index/index.tpl.html" # We can re-use unit's index here
     data:
       pageTitle: "_Home_"
-      roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor']
   }
 )
 

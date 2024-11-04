@@ -21,7 +21,6 @@ export const ProjectRootState: NgHybridStateDeclaration = {
   abstract: true,
   data: {
     pageTitle: 'Unit Studied',
-    roleWhiteList: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
   },
   views: {
     main: {

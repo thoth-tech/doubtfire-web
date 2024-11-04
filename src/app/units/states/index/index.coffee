@@ -13,7 +13,7 @@ angular.module('doubtfire.units.states.index', [])
         templateUrl: "units/states/index/index.tpl.html"
     data:
       pageTitle: "_Home_"
-      roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor']
+      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor']
   }
 )
 
