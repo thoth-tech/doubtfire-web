@@ -223,9 +223,7 @@ import {FTaskSheetViewComponent} from './units/task-viewer/directives/task-sheet
 
 
 import {TaskIlosCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-ilos-card/task-ilos-card.component';
-import {FUnitsComponent} from './admin/states/f-units/f-units.component';
-
-import {MarkedPipe} from './common/pipes/marked.pipe';
+import {FUnitsComponent} from './admin/states/units/units.component';
 import {AlertService} from './common/services/alert.service';
 
 import {GradeService} from './common/services/grade.service';
@@ -275,7 +273,6 @@ DoubtfireAngularJSModule.factory('D2lUnitDetailsModal', downgradeInjectable(D2lU
 DoubtfireAngularJSModule.factory('D2lTransferModal', downgradeInjectable(D2lTransferModal));
 DoubtfireAngularJSModule.factory('DoubtfireConstants', downgradeInjectable(DoubtfireConstants));
 DoubtfireAngularJSModule.factory('ExtensionModal', downgradeInjectable(ExtensionModalService));
-DoubtfireAngularJSModule.factory('Marked', downgradeInjectable(MarkedPipe));
 DoubtfireAngularJSModule.factory('CalendarModal', downgradeInjectable(CalendarModalService));
 DoubtfireAngularJSModule.factory(
   'ConfirmationModal',

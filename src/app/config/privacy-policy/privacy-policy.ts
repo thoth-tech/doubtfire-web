@@ -10,7 +10,6 @@ interface Response {
 @Injectable({
   providedIn: 'root'
 })
-
 export class PrivacyPolicy {
   privacy = '';
   plagiarism = '';
@@ -22,12 +21,12 @@ export class PrivacyPolicy {
 
     const url: string = `${this.API_URL}/settings/privacy`;
 
-    this.http
-    .get<Response>(url)
-    .subscribe(response => {
-      this.privacy = response.privacy;
-      this.plagiarism = response.plagiarism;
-      this.loaded = true;
-    });
+    this.http.get<Response>(url)
+      .subscribe(response => {
+        this.privacy = response.privacy;
+        this.plagiarism = response.plagiarism;
+        this.loaded = true;
+      }
+    );
   }
 }
