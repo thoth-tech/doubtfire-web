@@ -1,0 +1,85 @@
+[1mdiff --git a/src/app/doubtfire-angular.module.ts b/src/app/doubtfire-angular.module.ts[m
+[1mindex a519ee69..b691d05e 100644[m
+[1m--- a/src/app/doubtfire-angular.module.ts[m
+[1m+++ b/src/app/doubtfire-angular.module.ts[m
+[36m@@ -329,7 +329,6 @@[m [mimport {UnitStudentEnrolmentModalComponent} from './units/modals/unit-student-en[m
+   // Components we declare[m
+   declarations: [[m
+     AlertComponent,[m
+[31m-    UnitStudentEnrolmentModalComponent,[m
+     AboutDoubtfireModalContent,[m
+     D2lUnitDetailsFormComponent,[m
+     D2lTransferComponent,[m
+[36m@@ -629,11 +628,72 @@[m [mimport {UnitStudentEnrolmentModalComponent} from './units/modals/unit-student-en[m
+       enabled: environment.production,[m
+       registrationStrategy: () => interval(6000).pipe(take(1)),[m
+     }),[m
+[32m+[m[32m<<<<<<< HEAD[m
+     MatDatepickerModule,[m
+     MatNativeDateModule,[m
+     MatDialogModuleNew,[m
+     CalendarModule.forRoot({provide: CalendarDateAdapter, useFactory: adapterFactory}),[m
+     CodeEditorModule.forRoot(),[m
+[32m+[m[32m=======[m
+[32m+[m[32m  ],[m
+[32m+[m[32m  // Services we provide[m
+[32m+[m[32m  providers: [[m
+[32m+[m[32m    CampusService,[m
+[32m+[m[32m    TutorialService,[m
+[32m+[m[32m    TutorialStreamService,[m
+[32m+[m[32m    UserService,[m
+[32m+[m[32m    WebcalService,[m
+[32m+[m[32m    ActivityTypeService,[m
+[32m+[m[32m    OverseerImageService,[m
+[32m+[m[32m    OverseerAssessmentService,[m
+[32m+[m[32m    EmojiService,[m
+[32m+[m[32m    FileDownloaderService,[m
+[32m+[m[32m    CheckForUpdateService,[m
+[32m+[m[32m    userProvider,[m
+[32m+[m[32m    groupServiceProvider,[m
+[32m+[m[32m    unitProvider,[m
+[32m+[m[32m    commentsModalProvider,[m
+[32m+[m[32m    taskDefinitionProvider,[m
+[32m+[m[32m    userSettingsModalProvider,[m
+[32m+[m[32m    rootScopeProvider,[m
+[32m+[m[32m    userNotificationSettingsModalProvider,[m
+[32m+[m[32m    calendarModalProvider,[m
+[32m+[m[32m    aboutDoubtfireModalProvider,[m
+[32m+[m[32m    authProvider,[m
+[32m+[m[32m    currentUserProvider,[m
+[32m+[m[32m    taskServiceProvider,[m
+[32m+[m[32m    gradeServiceProvider,[m
+[32m+[m[32m    analyticsServiceProvider,[m
+[32m+[m[32m    unitServiceProvider,[m
+[32m+[m[32m    dateServiceProvider,[m
+[32m+[m[32m    taskProvider,[m
+[32m+[m[32m    projectServiceProvider,[m
+[32m+[m[32m    alertServiceProvider,[m
+[32m+[m[32m    CsvUploadModalProvider,[m
+[32m+[m[32m    CsvResultModalProvider,[m
+[32m+[m[32m    UnitStudentEnrolmentModalProvider,[m
+[32m+[m[32m    TaskCommentService,[m
+[32m+[m[32m    TaskCommentProvider,[m
+[32m+[m[32m    AudioRecorderProvider,[m
+[32m+[m[32m    AudioRecorderServiceProvider,[m
+[32m+[m[32m    plagiarismReportModalProvider,[m
+[32m+[m[32m    UnitStudentsEditorComponent,[m
+[32m+[m[32m    {[m
+[32m+[m[32m      provide: HTTP_INTERCEPTORS,[m
+[32m+[m[32m      useClass: TokenInterceptor,[m
+[32m+[m[32m      multi: true,[m
+[32m+[m[32m      deps: [currentUser],[m
+[32m+[m[32m    },[m
+[32m+[m[32m    AboutDoubtfireModal,[m
+[32m+[m[32m    AboutDoubtfireModalService,[m
+[32m+[m[32m    DoubtfireConstants,[m
+[32m+[m[32m    TasksOfTaskDefinitionPipe,[m
+[32m+[m[32m    TasksInTutorialsPipe,[m
+[32m+[m[32m    TasksForInboxSearchPipe,[m
+[32m+[m[32m    IsActiveUnitRole,[m
+[32m+[m[32m    campusServiceProvider,[m
+[32m+[m[32m    projectProvider,[m
+[32m+[m[32m>>>>>>> 070ed11f (build: complete)[m
+   ],[m
+ })[m
+ [m

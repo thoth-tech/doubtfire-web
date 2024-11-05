@@ -1,56 +1,49 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { alertService, CampusService, Project } from 'src/app/ajs-upgraded-providers';
+import { Campus, Project, Unit } from 'src/app/api/models/doubtfire-model';
+import { CampusService } from 'src/app/api/services/campus.service';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
-  selector: 'unit-student-enrolment-modal',
+  selector: 'f-unit-student-enrolment-modal',
   templateUrl: 'unit-student-enrolment-modal.component.html',
   styleUrls: ['unit-student-enrolment-modal.component.scss'],
 })
-export class UnitStudentEnrolmentModalComponent {
-  unit: any;
-  campuses: any = [];
-  projects: any;
-  student_id: string;
-  campus_id: any;
+export class UnitStudentEnrolmentModalComponent implements OnInit {
+  unit: Unit;
+  campuses: Campus[];
+  studentIdOrEmail: string;
+  selectedCampus: Campus;
 
   constructor(
     public dialogRef: MatDialogRef<UnitStudentEnrolmentModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    @Inject(alertService) public alert: any,
-    @Inject(CampusService) public campusService: any,
-    @Inject(Project) private project: any
+    @Inject(MAT_DIALOG_DATA) public data: {unit: Unit},
+    public alertService: AlertService,
+    public campusService: CampusService,
   ) {}
 
   ngOnInit() {
     this.unit = this.data.unit;
-    this.projects = this.data.unit.students;
-    this.campusService.query().subscribe((campuses: any) => {
+    this.campusService.query().subscribe((campuses: Campus[]) => {
       this.campuses = campuses;
     });
-    console.log(this.unit);
-    console.log(this.projects);
   }
 
-  enrolStudent(student_id, campus_id) {
-    console.log(this.unit.id, student_id, campus_id);
-    if (campus_id == null) {
-      this.alert.add('danger', 'Campus missing. Please indicate student campus', 5000);
+  enrolStudent(studentIdOrEmail: string, campus: Campus) {
+    if (!campus) {
+      this.alertService.error('Campus missing. Please indicate student campus', 5000);
       return;
     }
-    this.project.create(
-      { unit_id: this.unit.id, student_num: student_id, campus_id: campus_id },
-      (project) => {
-        if (!this.unit.studentEnrolled(project.project_id)) {
-          this.unit.addStudent(project);
-          this.alert.add('success', 'Student enrolled', 2000);
+    this.unit.enrolStudent(studentIdOrEmail, campus).
+      subscribe({
+        next: (_: Project) => {
+          this.alertService.success('Student enrolled', 2000);
           this.dialogRef.close();
-        } else {
-          this.alert.add('danger', 'Student is already enrolled', 2000);
+        },
+        error: (response: string) => {
+          this.alertService.error(`Error enrolling student: ${response}`, 6000);
         }
-      },
-      (response: { data: { error } }) =>
-        this.alert.add('danger', `Error enrolling student: ${response.data.error}`, 6000)
+      }
     );
   }
 }

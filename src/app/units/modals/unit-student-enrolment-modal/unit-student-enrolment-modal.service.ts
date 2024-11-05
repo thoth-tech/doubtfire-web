@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { UnitStudentEnrolmentModalComponent } from './unit-student-enrolment-modal.component';
+import { Unit } from 'src/app/api/models/doubtfire-model';
 
 @Injectable({
   providedIn: 'root',
@@ -8,11 +9,10 @@ import { UnitStudentEnrolmentModalComponent } from './unit-student-enrolment-mod
 export class UnitStudentEnrolmentModalService {
   constructor(public dialog: MatDialog) {}
 
-  public show(unit: any) {
-    let dialogRef: MatDialogRef<UnitStudentEnrolmentModalComponent, any>;
-    dialogRef = this.dialog.open(UnitStudentEnrolmentModalComponent, {
+  public show(unit: Unit) {
+    this.dialog.open(UnitStudentEnrolmentModalComponent, {
       data: {
-        unit,
+        unit: unit,
       },
     });
   }
