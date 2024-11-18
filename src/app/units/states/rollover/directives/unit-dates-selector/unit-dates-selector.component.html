@@ -1,0 +1,102 @@
+<div class="unit-dates-selector">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Create Unit</h3>
+      Duplicate an existing unit by specifying the time period.
+    </div>
+    <form class="form-horizontal" role="form" (ngSubmit)="saveUnit()">
+      <div class="panel-body">
+        <!-- Teaching Period Selection -->
+        <div class="form-group">
+          <label class="col-sm-2 control-label" for="teachingperiod">Teaching Period</label>
+          <div class="col-sm-9">
+            <app-object-select
+              [source]="teachingPeriodValues"
+              [(target)]="saveData.toPeriod"
+              (targetChange)="teachingPeriodSelected($event)"
+              label="Select Teaching Period"
+            ></app-object-select>
+          </div>
+        </div>
+
+        <!-- Start Date -->
+        <div class="form-group">
+          <label tooltip="Date for the start of teaching in the unit." class="col-sm-2 control-label" for="startdate">Start Date</label>
+          <div class="col-sm-9">
+            <div class="col-sm-4 input-group">
+              <input
+                *ngIf="!saveData.toPeriod"
+                datepicker-popup="yyyy-MM-dd"
+                [(ngModel)]="saveData.startDate"
+                name="startDate"
+                class="form-control"
+                id="startdate"
+                required
+                placeholder="yyyy-MM-dd"
+                (close)="open($event, 'start')"
+              />
+              <input
+                *ngIf="saveData.toPeriod"
+                type="text"
+                class="form-control"
+                id="startdate"
+                [value]="saveData.toPeriod.startDate | date"
+                disabled
+              />
+              <span class="input-group-btn">
+                <button
+                  class="btn btn-default"
+                  type="button"
+                  (click)="open($event, 'start')"
+                  [disabled]="saveData.toPeriod"
+                >
+                  <i class="fa fa-calendar"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- End Date -->
+        <div class="form-group">
+          <label class="col-sm-2 control-label" for="enddate">End Date</label>
+          <div class="col-sm-9">
+            <div class="col-sm-4 input-group">
+              <input
+                *ngIf="!saveData.toPeriod"
+                datepicker-popup="yyyy-MM-dd"
+                [(ngModel)]="saveData.endDate"
+                name="endDate"
+                class="form-control"
+                id="enddate"
+                required
+                (close)="open($event, 'end')"
+              />
+              <input
+                *ngIf="saveData.toPeriod"
+                type="text"
+                class="form-control"
+                id="enddate"
+                [value]="saveData.toPeriod.endDate | date"
+                disabled
+              />
+              <span class="input-group-btn">
+                <button
+                  class="btn btn-default"
+                  type="button"
+                  (click)="open($event, 'end')"
+                  [disabled]="saveData.toPeriod"
+                >
+                  <i class="fa fa-calendar"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-footer text-right">
+        <button type="submit" class="btn btn-success">Create Unit</button>
+      </div>
+    </form>
+  </div>
+</div>
