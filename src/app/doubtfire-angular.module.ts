@@ -224,7 +224,7 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
-
+import { TargetGradeHistoryComponent } from './projects/states/dashboard/directives/progress-dashboard/target-grade-history/target-grade-history.component';
 @NgModule({
   // Components we declare
   declarations: [
@@ -325,6 +325,7 @@ import {GradeService} from './common/services/grade.service';
     FUsersComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    TargetGradeHistoryComponent,
   ],
   // Services we provide
   providers: [
