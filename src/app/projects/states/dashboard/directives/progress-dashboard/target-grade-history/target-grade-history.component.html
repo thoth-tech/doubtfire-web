@@ -1,0 +1,59 @@
+<div class="card card-default card-sm card-target-grade-history">
+  <div class="card-heading">
+    <h4>Target Grade Change History</h4>
+  </div>
+  <div class="card-body">
+    <div *ngIf="loading" class="text-center">Loading history...</div>
+    <div *ngIf="error" class="alert alert-danger">
+      {{ error }}
+    </div>
+    <div *ngIf="!loading && !error && !paginatedGradeHistory?.length" class="text-muted">
+      No grade history available
+    </div>
+    <table
+      class="table table-striped"
+      *ngIf="!loading && !error && paginatedGradeHistory?.length > 0"
+    >
+      <thead>
+        <tr>
+          <th>Changed At</th>
+          <th>Previous Grade</th>
+          <th>New Grade</th>
+          <th>Changed By</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let history of paginatedGradeHistory">
+          <td>{{ history.changed_at | date: 'medium' }}</td>
+          <td>{{ history.previous_grade }}</td>
+          <td>{{ history.new_grade }}</td>
+          <td>{{ history.changed_by?.first_name }} {{ history.changed_by?.last_name }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!loading && !error && totalPages > 1" class="pagination-controls mt-3">
+      <button
+        class="btn btn-primary btn-sm me-2"
+        (click)="goToPage(currentPage - 1)"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      <button
+        class="btn btn-secondary btn-sm me-1"
+        *ngFor="let page of [].constructor(totalPages); let i = index"
+        [class.active]="i + 1 === currentPage"
+        (click)="goToPage(i + 1)"
+      >
+        {{ i + 1 }}
+      </button>
+      <button
+        class="btn btn-primary btn-sm ms-2"
+        (click)="goToPage(currentPage + 1)"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>
