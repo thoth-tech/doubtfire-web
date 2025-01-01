@@ -224,6 +224,7 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
+import {FStudentsListComponent} from './units/states/students-list/students-list.component';
 
 @NgModule({
   // Components we declare
@@ -325,6 +326,7 @@ import {GradeService} from './common/services/grade.service';
     FUsersComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    FStudentsListComponent,
   ],
   // Services we provide
   providers: [
@@ -375,6 +377,7 @@ import {GradeService} from './common/services/grade.service';
     AudioRecorderServiceProvider,
     plagiarismReportModalProvider,
     UnitStudentsEditorComponent,
+    FStudentsListComponent,
     ConfirmationModalProvider,
     {
       provide: HTTP_INTERCEPTORS,

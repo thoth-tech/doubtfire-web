@@ -2,6 +2,7 @@
   // Flag icons
   $flag-icon-width: 35px;
   $number-of-flags: 3;
+  $link-hover-color:#777777;
   table thead th {
     vertical-align: middle;
   }
@@ -77,4 +78,27 @@
       width: 10%;
     }
   }
+}
+
+
+.f-progress {
+  display: flex;
+  height: 20px;
+  overflow: hidden; // force rounded corners by cropping it
+  // @include box-shadow($progress-box-shadow);
+  font-size: .75rem;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  min-width: 100px;
+}
+.progress-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  background-color: #0d6efd;
+  transition: width .6s ease;
 }

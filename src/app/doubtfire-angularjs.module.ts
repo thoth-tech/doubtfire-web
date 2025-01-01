@@ -225,6 +225,7 @@ import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
 import {AlertService} from './common/services/alert.service';
 import {GradeService} from './common/services/grade.service';
+import {FStudentsListComponent} from './units/states/students-list/students-list.component';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -463,7 +464,10 @@ DoubtfireAngularJSModule.directive(
   downgradeComponent({component: StatusIconComponent}),
 );
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
-
+DoubtfireAngularJSModule.directive(
+  'fStudentsList',
+  downgradeComponent({component: FStudentsListComponent}),
+);
 // Global configuration
 
 // If the user enters a URL that doesn't match any known URL (state), send them to `/home`
