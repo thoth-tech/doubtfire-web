@@ -1,0 +1,45 @@
+<div class="loading" *ngIf="!loaded">
+  <mat-progress-spinner diameter="50"></mat-progress-spinner>
+  <p>Loading Members...</p>
+</div>
+
+<div *ngIf="loaded && selectedGroup.members.length === 0" class="no-members">
+  <mat-card>
+    <mat-card-title>No Members in Group</mat-card-title>
+    <mat-card-content>
+      <p>There are no members in this group.</p>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<table
+  *ngIf="loaded && selectedGroup.members.length > 0"
+  mat-table
+  [dataSource]="selectedGroup.members"
+  class="mat-elevation-z8"
+>
+  <thead>
+    <tr>
+      <th mat-header-cell *matHeaderCellDef> Student ID </th>
+      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <th mat-header-cell *matHeaderCellDef> Target Grade </th>
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr mat-row *matRowDef="let member">
+      <td mat-cell>{{ member.student.username || 'N/A' }}</td>
+      <td mat-cell>{{ member.student.name }}</td>
+      <td mat-cell>{{ member.targetGrade }}</td>
+      <td mat-cell>
+        <button
+          mat-button
+          color="warn"
+          (click)="removeMember(member)"
+        >
+          Remove
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
