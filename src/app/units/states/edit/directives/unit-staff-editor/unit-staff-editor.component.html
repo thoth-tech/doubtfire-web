@@ -1,0 +1,113 @@
+<div>
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h3>Modify Unit Staff</h3>
+      <p>Add staff members to the unit, assigning them a convenor or tutor role.</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="filter">
+      <label for="search">Search</label>
+      <input
+        id="search"
+        type="text"
+        placeholder="Search staff..."
+        (input)="applyFilter($event)"
+        class="data-entry"
+      />
+    </div>
+  </div>
+
+  <!-- Staff Table -->
+  <table mat-table [dataSource]="dataSource" matSort class="f-table">
+    <!-- Avatar Column -->
+    <ng-container matColumnDef="avatar">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let staff">
+        <user-icon [size]="30" [user]="staff.user"></user-icon>
+      </td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let staff">{{ staff.user.name }}</td>
+    </ng-container>
+
+    <!-- Role Column -->
+    <ng-container matColumnDef="role">
+      <th mat-header-cell *matHeaderCellDef>Role</th>
+      <td mat-cell *matCellDef="let staff">
+        <button
+          mat-button
+          color="primary"
+          [class.active]="staff.role === 'Tutor'"
+          (click)="changeRole(staff, 'Tutor')"
+        >
+          Tutor
+        </button>
+        <button
+          mat-button
+          color="primary"
+          [class.active]="staff.role === 'Convenor'"
+          (click)="changeRole(staff, 'Convenor')"
+        >
+          Convenor
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- Main Convenor Column -->
+    <ng-container matColumnDef="mainConvenor">
+      <th mat-header-cell *matHeaderCellDef>Main Convenor</th>
+      <td mat-cell *matCellDef="let staff">
+        <button
+          mat-icon-button
+          [disabled]="staff.id === unit.mainConvenor.id"
+          (click)="changeMainConvenor(staff)"
+        >
+          <mat-icon>
+            {{ staff.id === unit.mainConvenor.id ? 'check_circle' : 'cancel' }}
+          </mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let staff">
+        <button mat-icon-button color="warn" (click)="removeStaff(staff)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+  </table>
+
+  <!-- Add Staff Section -->
+  <div class="add-staff-section col-sm-12">
+    <label for="staff-search">Search and Add Staff</label>
+    <mat-form-field appearance="fill" class="staff-autocomplete">
+      <mat-label>Search staff</mat-label>
+      <input
+        matInput
+        [matAutocomplete]="auto"
+        (input)="filterStaff($event)"
+        placeholder="Enter staff name"
+      />
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        [displayWith]="displayStaffName"
+        (optionSelected)="selectedStaff = $event.option.value"
+      >
+        <mat-option *ngFor="let staff of filteredStaff" [value]="staff">
+          {{ staff.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="addSelectedStaff()">Add Staff</button>
+  </div>
+</div>

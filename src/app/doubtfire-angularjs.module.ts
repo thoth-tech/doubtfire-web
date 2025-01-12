@@ -220,6 +220,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import {UnitStaffEditorComponent} from './units/states/edit/directives/unit-staff-editor/unit-staff-editor.component';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
@@ -400,6 +401,10 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'unitStudentsEditor',
   downgradeComponent({component: UnitStudentsEditorComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'unitStaffEditor',
+  downgradeComponent({component: UnitStaffEditorComponent}),
 );
 DoubtfireAngularJSModule.directive(
   'fTaskDefinitionEditor',

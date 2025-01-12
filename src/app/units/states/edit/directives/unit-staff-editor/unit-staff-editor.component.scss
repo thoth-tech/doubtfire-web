@@ -1,0 +1,32 @@
+table {
+  width: 100%;
+}
+.header {
+  display: flex;
+  align-items: center;
+}
+.spacer {
+  flex-grow: 1;
+}
+.filter {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.data-entry {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 300px;
+}
+.add-staff-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.active {
+  background-color: #1976d2;
+  color: white;
+}
