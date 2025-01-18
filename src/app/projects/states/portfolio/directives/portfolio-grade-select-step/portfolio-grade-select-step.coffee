@@ -1,4 +1,4 @@
-angular.module('doubtfire.projects.states.portfolio.directives.portfolio-grade-select-step', [])
+
 
 #
 # Allows students to select the target grade they are hoping
