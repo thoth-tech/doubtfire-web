@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // portfolio-grade-select-step.component.ts
 import {Component, Input, OnInit} from '@angular/core';
-import {Grade, Project, ProjectService, Unit} from 'src/app/api/models/doubtfire-model';
+import {ProjectService, Unit} from 'src/app/api/models/doubtfire-model';
 import {GradeService} from 'src/app/common/services/grade.service';
 
 @Component({
-  selector: 'f-portfolio-grade-select-step',
+  selector: 'portfolio-grade-select-step',
   templateUrl: './portfolio-grade-select-step.component.html',
   styleUrls: ['./portfolio-grade-select-step.component.scss'],
 })
