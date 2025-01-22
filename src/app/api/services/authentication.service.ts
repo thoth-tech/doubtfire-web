@@ -191,4 +191,12 @@ export class AuthenticationService {
       setTimeout(() => this.router.stateService.go('timeout'), 500);
     }
   }
+
+  public getScormToken(): Observable<string> {
+    return this.httpClient.get(this.AUTH_URL + '/scorm').pipe(
+      map((response) => {
+        return response['scorm_auth_token'];
+      }),
+    );
+  }
 }

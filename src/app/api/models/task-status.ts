@@ -287,17 +287,18 @@ export class TaskStatus {
     [
       'discuss',
       {
-        detail: "You're almost complete!",
-        reason: 'Your work looks good and your tutor believes it is complete.',
-        action: 'To mark as complete, attend class and discuss it with your tutor.',
+        detail: 'Your work needs to be discussed further.',
+        reason: 'Your work looks good and your tutor believes it is on track.',
+        action: 'For this to be marked as complete, attend class and discuss it with your tutor.',
       },
     ],
     [
       'demonstrate',
       {
-        detail: "You're almost complete!",
-        reason: 'Your work looks good and your tutor believes it is complete.',
-        action: 'To mark as complete, attend class and demonstrate how your submission works to your tutor.',
+        detail: 'Your work needs to be demonstrated.',
+        reason: 'Your work looks good and your tutor believes it is on track.',
+        action:
+          'For this to be marked as complete you need to attend class and demonstrate how your submission works for your tutor.',
       },
     ],
     [
