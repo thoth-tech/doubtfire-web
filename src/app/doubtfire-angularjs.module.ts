@@ -202,6 +202,7 @@ import {ProjectService} from './api/services/project.service';
 import {ObjectSelectComponent} from './common/obect-select/object-select.component';
 import {TaskDefinitionService} from './api/services/task-definition.service';
 import {EditProfileDialogService} from './common/modals/edit-profile-dialog/edit-profile-dialog.service';
+import { DateService } from './common/services/date.service';
 import {GroupService} from './api/services/group.service';
 import {UserBadgeComponent} from './common/user-badge/user-badge.component';
 import {TaskStatusCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-status-card/task-status-card.component';
@@ -305,6 +306,7 @@ DoubtfireAngularJSModule.factory(
   'EditProfileService',
   downgradeInjectable(EditProfileDialogService),
 );
+DoubtfireAngularJSModule.factory('dateService', downgradeInjectable(DateService));
 DoubtfireAngularJSModule.factory('CreateNewUnitModal', downgradeInjectable(CreateNewUnitModal));
 
 // directive -> component
