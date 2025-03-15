@@ -57,5 +57,3 @@ export class DateService {
     }
   }
 }
-
-export default DateService;
