@@ -24,6 +24,8 @@ angular.module('doubtfire.groups.group-selector', [])
   controller: ($scope, $filter, $timeout, alertService, listenerService, newUserService, newGroupService) ->
     # Cleanup
     listeners = listenerService.listenTo($scope)
+    #Allows for integration with the migrated service.
+    $scope.$on '$destroy', -> listenerService.destroyListeners($scope.$id)
 
     # Unit role or project should be included in $scope
     if !$scope.unitRole? && !$scope.project? || $scope.unitRole? && $scope.project?

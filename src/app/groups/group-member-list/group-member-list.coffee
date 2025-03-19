@@ -15,6 +15,8 @@ angular.module('doubtfire.groups.group-member-list', [])
   controller: ($scope, $timeout, gradeService, alertService, listenerService) ->
     # Cleanup
     listeners = listenerService.listenTo($scope)
+    #Allows for integration with the migrated service.
+    $scope.$on '$destroy', -> listenerService.destroyListeners($scope.$id)
 
     # Initial sort orders
     $scope.tableSort =

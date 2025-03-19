@@ -7,6 +7,8 @@ angular.module('doubtfire.visualisations.progress-burndown-chart', [])
     unit: '='
   controller: ($scope, Visualisation, listenerService) ->
     listeners = listenerService.listenTo($scope)
+    #Allows for integration with the migrated service.
+    $scope.$on '$destroy', -> listenerService.destroyListeners($scope.$id)
 
     $scope.data = []
 
