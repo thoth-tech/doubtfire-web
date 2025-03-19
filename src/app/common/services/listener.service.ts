@@ -6,7 +6,9 @@ import {Injectable, OnDestroy} from '@angular/core';
 export class ListenerService implements OnDestroy {
   private listeners: {[scopeId: string]: (() => void)[]} = {};
 
-  listenTo(scopeId: string): (() => void)[] {
+  listenTo(scopeOrId): (() => void)[] {
+    const scopeId = typeof scopeOrId === 'string' ? scopeOrId : scopeOrId.$id;
+
     if (!this.listeners[scopeId]) {
       this.listeners[scopeId] = [];
     }
