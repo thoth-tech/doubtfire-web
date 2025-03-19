@@ -6,11 +6,6 @@ import {Injectable, OnDestroy} from '@angular/core';
 export class ListenerService implements OnDestroy {
   private listeners: {[scopeId: string]: (() => void)[]} = {};
 
-  /**
-   * Registers listeners for a given scope (or component).
-   * @param scopeId - A unique identifier for the scope (e.g., component instance or AngularJS $scope).
-   * @returns An array of cleanup functions for the registered listeners.
-   */
   listenTo(scopeId: string): (() => void)[] {
     if (!this.listeners[scopeId]) {
       this.listeners[scopeId] = [];
@@ -19,10 +14,6 @@ export class ListenerService implements OnDestroy {
     return this.listeners[scopeId];
   }
 
-  /**
-   * Cleans up listeners when the scope (or component) is destroyed.
-   * @param scopeId - The unique identifier for the scope.
-   */
   destroyListeners(scopeId: string): void {
     if (this.listeners[scopeId]) {
       this.listeners[scopeId].forEach((listener) => listener());
@@ -31,9 +22,6 @@ export class ListenerService implements OnDestroy {
     }
   }
 
-  /**
-   * Angular lifecycle hook to clean up all listeners when the service is destroyed.
-   */
   ngOnDestroy(): void {
     Object.keys(this.listeners).forEach((scopeId) => this.destroyListeners(scopeId));
   }
