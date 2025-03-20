@@ -1,18 +1,27 @@
 import {Injectable, OnDestroy} from '@angular/core';
 
+const debug: boolean = true;
 @Injectable({
   providedIn: 'root',
 })
 export class ListenerService implements OnDestroy {
   private listeners: {[scopeId: string]: (() => void)[]} = {};
+  private idCounter = 0;
 
-  listenTo(scopeOrId): (() => void)[] {
-    const scopeId = typeof scopeOrId === 'string' ? scopeOrId : scopeOrId.$id;
+  private generateUniqueId(): string {
+    return `listener-${++this.idCounter}`;
+  }
+
+  listenTo(scopeOrId?: {$id?: string}): (() => void)[] {
+    // Use $id if available, otherwise generate one
+    const scopeId = scopeOrId?.$id || this.generateUniqueId();
 
     if (!this.listeners[scopeId]) {
       this.listeners[scopeId] = [];
     }
-    //console.log('👂: ', 'ListenerService.listenTo', scopeId);
+    if (debug) {
+      console.log('👂: ', 'ListenerService.listenTo', scopeId);
+    }
     return this.listeners[scopeId];
   }
 
@@ -20,7 +29,9 @@ export class ListenerService implements OnDestroy {
     if (this.listeners[scopeId]) {
       this.listeners[scopeId].forEach((listener) => listener());
       delete this.listeners[scopeId];
-      //console.log('❌: ', 'ListenerService.destroyListeners', scopeId);
+      if (debug) {
+        console.log('❌: ', 'ListenerService.destroyListeners', scopeId);
+      }
     }
   }
 
