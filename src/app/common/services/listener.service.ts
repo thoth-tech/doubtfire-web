@@ -1,6 +1,5 @@
 import {Injectable, OnDestroy} from '@angular/core';
 
-const debug: boolean = true;
 @Injectable({
   providedIn: 'root',
 })
@@ -19,9 +18,6 @@ export class ListenerService implements OnDestroy {
     if (!this.listeners[scopeId]) {
       this.listeners[scopeId] = [];
     }
-    if (debug) {
-      console.log('👂: ', 'ListenerService.listenTo', scopeId);
-    }
     return this.listeners[scopeId];
   }
 
@@ -29,9 +25,6 @@ export class ListenerService implements OnDestroy {
     if (this.listeners[scopeId]) {
       this.listeners[scopeId].forEach((listener) => listener());
       delete this.listeners[scopeId];
-      if (debug) {
-        console.log('❌: ', 'ListenerService.destroyListeners', scopeId);
-      }
     }
   }
 
