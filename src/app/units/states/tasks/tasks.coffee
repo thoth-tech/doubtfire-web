@@ -23,6 +23,8 @@ angular.module('doubtfire.units.states.tasks', [
 .controller('UnitsTasksStateCtrl', ($scope, $state, newTaskService, listenerService, $transition$) ->
   # Cleanup
   listeners = listenerService.listenTo($scope)
+  #Allows for integration with the migrated service.
+  $scope.$on '$destroy', -> listenerService.destroyListeners($scope.$id)
 
   # Task data wraps:
   #  * the URL task composite key (project username + task def abbreviation) sourced from the URL,

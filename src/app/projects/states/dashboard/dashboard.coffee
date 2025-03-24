@@ -23,6 +23,8 @@ angular.module('doubtfire.projects.states.dashboard', [
 .controller("ProjectsDashboardStateCtrl", ($scope, $urlRouter, $state, $stateParams, listenerService) ->
   # Cleanup
   listeners = listenerService.listenTo($scope)
+  #Allows for integration with the migrated service.
+  $scope.$on '$destroy', -> listenerService.destroyListeners($scope.$id)
 
   # Load in task task abbreviation
   $scope.taskData = {
