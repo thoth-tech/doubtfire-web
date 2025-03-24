@@ -7,12 +7,13 @@ export class ListenerService implements OnDestroy {
   private listeners: {[scopeId: string]: (() => void)[]} = {};
   private idCounter = 0;
 
+  // Generate a unique ID for a listener
   private generateUniqueId(): string {
     return `listener-${++this.idCounter}`;
   }
 
   listenTo(scopeOrId?: {$id?: string}): (() => void)[] {
-    // Use $id if available, otherwise generate one
+    // If a scope is provided, use its ID as the scope ID
     const scopeId = scopeOrId?.$id || this.generateUniqueId();
 
     if (!this.listeners[scopeId]) {
@@ -21,6 +22,7 @@ export class ListenerService implements OnDestroy {
     return this.listeners[scopeId];
   }
 
+  // Destroy all listeners for a given scope
   destroyListeners(scopeId: string): void {
     if (this.listeners[scopeId]) {
       this.listeners[scopeId].forEach((listener) => listener());
@@ -28,6 +30,7 @@ export class ListenerService implements OnDestroy {
     }
   }
 
+  // Destroy all listeners
   ngOnDestroy(): void {
     Object.keys(this.listeners).forEach((scopeId) => this.destroyListeners(scopeId));
   }
