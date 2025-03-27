@@ -11,6 +11,7 @@ angular.module('doubtfire.visualisations', [
   'doubtfire.visualisations.achievement-custom-bar-chart'
 ])
 
+###
 .factory('Visualisation', ($interval, analyticsService) ->
   Visualisation = (type, visualisationName, opts, conf, titleOpts, subtitleOpts) ->
     DEFAULT_OPTS =
