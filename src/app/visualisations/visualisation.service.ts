@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-//import {analyticsService} from '../ajs-upgraded-providers';
+import {Inject, Injectable} from '@angular/core';
+import {analyticsService} from '../ajs-upgraded-providers';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +41,7 @@ export class VisualisationService {
     debounce: 10,
   };
 
-  constructor() {}
+  constructor(@Inject(analyticsService) private analyticsService) {}
 
   /**
    * Creates a visualisation configuration.
@@ -67,9 +67,7 @@ export class VisualisationService {
     const dirtyOpts = {...this.DEFAULT_OPTS, ...opts, type};
     const dirtyConf = {...this.DEFAULT_CONF, ...conf};
 
-    /*
     this.analyticsService.event('Visualisations', 'Created Visualisation', visualisationName);
-    */
 
     return [{chart: dirtyOpts, title: titleOpts, subtitle: subtitleOpts}, dirtyConf];
   }
