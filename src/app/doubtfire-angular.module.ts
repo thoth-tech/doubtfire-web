@@ -56,7 +56,6 @@ import {FTaskBadgeComponent} from 'src/app/common/task-badge/task-badge.componen
 import {DoubtfireAngularJSModule} from 'src/app/doubtfire-angularjs.module';
 import {HttpAuthenticationInterceptor} from './common/services/http-authentication.interceptor';
 import {
-  visualisationsProvider,
   analyticsServiceProvider,
   dateServiceProvider,
   CsvUploadModalProvider,
@@ -359,7 +358,6 @@ import {GradeService} from './common/services/grade.service';
     FileDownloaderService,
     CheckForUpdateService,
     TaskOutcomeAlignmentService,
-    visualisationsProvider,
     commentsModalProvider,
     rootScopeProvider,
     calendarModalProvider,
