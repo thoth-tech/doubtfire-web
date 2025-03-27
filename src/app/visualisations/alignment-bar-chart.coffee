@@ -8,11 +8,11 @@ angular.module('doubtfire.visualisations.alignment-bar-chart', [])
     unit: '='
     source: '='
     taskStatusFactor: '='
-  controller: ($scope, Visualisation, gradeService, outcomeService) ->
+  controller: ($scope, VisualisationService, gradeService, outcomeService) ->
     xFn = (d) -> d.label
     yFn = (d) -> d.value
 
-    [$scope.options, $scope.config] = Visualisation 'multiBarChart', 'ILO Alignment Bar Chart', {
+    [$scope.options, $scope.config] = VisualisationService.createVisualisation 'multiBarChart', 'ILO Alignment Bar Chart', {
       clipEdge: yes
       stacked: no
       height: 200
