@@ -13,7 +13,6 @@ export const csvResultModalService = new InjectionToken('CsvResultModalAngular')
 export const confirmationModal = new InjectionToken('ConfirmationModal');
 export const unitStudentEnrolmentModal = new InjectionToken('UnitStudentEnrolmentModalAngular');
 export const commentsModal = new InjectionToken('CommentsModal');
-export const visualisations = new InjectionToken('Visualisation');
 export const rootScope = new InjectionToken('$rootScope');
 export const calendarModal = new InjectionToken('CalendarModal');
 export const aboutDoubtfireModal = new InjectionToken('AboutDoubtfireModal');
@@ -21,12 +20,6 @@ export const plagiarismReportModal = new InjectionToken('PlagiarismReportModal')
 
 // Define a provider for the above injection token...
 // It will get the service from AngularJS via the factory
-export const visualisationsProvider = {
-  provide: visualisations,
-  useFactory: (i) => i.get('Visualisation'),
-  deps: ['$injector'],
-};
-
 export const calendarModalProvider = {
   provide: calendarModal,
   useFactory: (i) => i.get('CalendarModal'),

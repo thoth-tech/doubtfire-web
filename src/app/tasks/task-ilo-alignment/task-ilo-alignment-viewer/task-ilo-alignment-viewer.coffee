@@ -17,14 +17,14 @@ angular.module('doubtfire.tasks.task-ilo-alignment.task-ilo-alignment-viewer', [
     alignments: '=?'
     summaryOnly: '=?'
     hideVisualisation: '=?'
-  controller: ($scope, Visualisation, outcomeService) ->
+  controller: ($scope, VisualisationService, outcomeService) ->
     $scope.hideVisualisation = if $scope.hideVisualisation? then $scope.hideVisualisation else false
     $scope.targets = outcomeService.calculateTargets($scope.unit, $scope.unit, $scope.unit.taskStatusFactor)
 
     $scope.toggleExpanded = (align) ->
       align.expanded = !align.expanded
       if align.expanded
-        Visualisation.refreshAll()
+        VisualisationService.refreshAll()
 
     $scope.alignments = $scope.unit.ilos unless $scope.alignments?
 

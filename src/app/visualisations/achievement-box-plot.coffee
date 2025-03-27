@@ -10,7 +10,7 @@ angular.module('doubtfire.visualisations.achievement-box-plot', [])
     pctHolder: '='
     height: '=?'
     showLegend: '=?'
-  controller: ($scope, $timeout, Visualisation, outcomeService, $sce) ->
+  controller: ($scope, $timeout, VisualisationService, outcomeService, $sce) ->
     $scope.showLegend = unless $scope.showLegend? then true else $scope.showLegend
     $scope.height     = unless $scope.height?     then 600  else $scope.height
 
@@ -44,7 +44,7 @@ angular.module('doubtfire.visualisations.achievement-box-plot', [])
         if $scope.api?.refresh?
           $scope.api.refresh()
 
-    [$scope.options, $scope.config] = Visualisation 'boxPlotChart', 'ILO Achievement Box Plot', {
+    [$scope.options, $scope.config] = VisualisationService.createVisualisation 'boxPlotChart', 'ILO Achievement Box Plot', {
       x: (d) -> d.label
       height: $scope.height
       showXAxis: $scope.showLegend

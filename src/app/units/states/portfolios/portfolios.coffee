@@ -14,7 +14,7 @@ angular.module('doubtfire.units.states.portfolios', [])
       roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor']
    }
 )
-.controller("UnitPortfoliosStateCtrl", ($scope, alertService, analyticsService, gradeService, newProjectService, Visualisation, newTaskService, fileDownloaderService, newUserService) ->
+.controller("UnitPortfoliosStateCtrl", ($scope, alertService, analyticsService, gradeService, newProjectService, VisualisationService, newTaskService, fileDownloaderService, newUserService) ->
   # TODO: (@alexcu) Break this down into smaller directives/substates
 
   $scope.downloadGrades = -> fileDownloaderService.downloadFile($scope.unit.gradesUrl, "#{$scope.unit.code}-grades.csv")
@@ -26,7 +26,7 @@ angular.module('doubtfire.units.states.portfolios', [])
   $scope.statusClass = newTaskService.statusClass
   $scope.statusText = newTaskService.statusText
 
-  refreshCharts = Visualisation.refreshAll
+  refreshCharts = VisualisationService.refreshAll
 
   #
   # Sets the active tab
