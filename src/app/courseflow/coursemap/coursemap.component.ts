@@ -333,14 +333,14 @@ export class CoursemapComponent implements OnInit {
       return;
     }
 
-    const alreadyAdded = this.electiveUnits.some(unit => unit.code === this.unitCode);
+    const alreadyAdded = this.electiveUnits.some((unit) => unit.code === this.unitCode);
 
     if (alreadyAdded) {
       this.errorMessage = 'Unit already added';
       return;
     }
 
-    const foundUnit = this.units.find(unit => unit.code === this.unitCode);
+    const foundUnit = this.units.find((unit) => unit.code === this.unitCode);
 
     if (foundUnit) {
       this.electiveUnits.push(foundUnit);
