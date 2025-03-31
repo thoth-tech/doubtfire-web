@@ -7,7 +7,6 @@
 #
 angular.module('doubtfire.config', [
   'doubtfire.config.vendor-dependencies'
-  'doubtfire.config.routing'
   'doubtfire.config.analytics'
   'doubtfire.config.runtime'
   'doubtfire.config.root-controller'
