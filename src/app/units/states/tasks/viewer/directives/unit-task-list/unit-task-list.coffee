@@ -11,6 +11,8 @@ angular.module('doubtfire.units.states.tasks.viewer.directives.unit-task-list', 
     selectedTaskDef: '='
   controller: ($scope, $timeout, $filter, gradeService, listenerService) ->
     listeners = listenerService.listenTo($scope)
+    #Allows for integration with the migrated service.
+    $scope.$on '$destroy', -> listenerService.destroyListeners($scope.$id)
     # Set up initial filtered tasks
     $scope.filteredTasks = []
     # Set up filters

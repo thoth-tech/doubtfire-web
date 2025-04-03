@@ -231,6 +231,7 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
+import {ListenerService} from './common/services/listener.service';
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import {ScormAdapterService} from './api/services/scorm-adapter.service';
 import {ScormCommentComponent} from './tasks/task-comments-viewer/scorm-comment/scorm-comment.component';
@@ -367,6 +368,7 @@ const MY_DATE_FORMAT = {
   // Services we provide
   providers: [
     VisualisationService,
+    ListenerService,
     AlertService,
     MarkedPipe,
     CampusService,
