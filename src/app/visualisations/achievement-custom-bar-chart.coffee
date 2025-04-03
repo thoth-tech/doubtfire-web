@@ -7,7 +7,7 @@ angular.module('doubtfire.visualisations.achievement-custom-bar-chart', [])
     project: '='
     unit: '='
 
-  controller: ($scope, Visualisation, outcomeService, gradeService, $sce) ->
+  controller: ($scope, VisualisationService, outcomeService, gradeService, $sce) ->
     $scope.showLegend = if $scope.showLegend? then $scope.showLegend else true
     unless nv.models.achievementBar?
       nv.models.achievementBar = ->
@@ -662,7 +662,7 @@ angular.module('doubtfire.visualisations.achievement-custom-bar-chart', [])
         targets: iloTargets
       }
 
-    [$scope.options, $scope.config] = Visualisation 'achievementBarChart', 'ILO Achievement Bar Chart', {
+    [$scope.options, $scope.config] = VisualisationService.createVisualisation 'achievementBarChart', 'ILO Achievement Bar Chart', {
       height: 600
       duration: 500
       yDomain: [0, max]

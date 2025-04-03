@@ -6,7 +6,7 @@ angular.module('doubtfire.visualisations.student-task-status-pie-chart', [])
   scope:
     project: '='
     updateData: '=?'
-  controller: ($scope, newTaskService, Visualisation) ->
+  controller: ($scope, newTaskService, VisualisationService) ->
     colors = newTaskService.statusColors
     $scope.data = []
 
@@ -24,7 +24,7 @@ angular.module('doubtfire.visualisations.student-task-status-pie-chart', [])
 
     $scope.updateData()
 
-    [$scope.options, $scope.config] = Visualisation 'pieChart', 'Student Task Status Pie Chart', {
+    [$scope.options, $scope.config] = VisualisationService.createVisualisation 'pieChart', 'Student Task Status Pie Chart', {
       color: (d, i) ->
         colors.get(d.statusKey)
       x: (d) -> d.key

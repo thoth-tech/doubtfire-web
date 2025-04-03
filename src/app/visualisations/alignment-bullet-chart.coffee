@@ -12,7 +12,7 @@ angular.module('doubtfire.visualisations.alignment-bullet-chart', [])
     classStats: '='
     showLegend: '=?'
 
-  controller: ($scope, gradeService, Visualisation, $sce) ->
+  controller: ($scope, gradeService, VisualisationService, $sce) ->
     $scope.showLegend = if $scope.showLegend? then $scope.showLegend else true
     unless nv.models.iloBullet?
       # Chart design based on the recommendations of Stephen Few. Implementation
@@ -551,7 +551,7 @@ angular.module('doubtfire.visualisations.alignment-bullet-chart', [])
 
         chart
 
-    [$scope.options, $scope.config] = Visualisation 'iloChart', 'ILO Alignment Bullet Chart', {
+    [$scope.options, $scope.config] = VisualisationService.createVisualisation 'iloChart', 'ILO Alignment Bullet Chart', {
       height: 60
       duration: 500
     }, {}

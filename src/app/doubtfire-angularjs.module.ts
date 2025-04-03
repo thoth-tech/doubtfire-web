@@ -173,6 +173,7 @@ import {fPdfViewerComponent} from './common/pdf-viewer/pdf-viewer.component';
 import {PdfViewerPanelComponent} from './common/pdf-viewer-panel/pdf-viewer-panel.component';
 import {StaffTaskListComponent} from './units/states/tasks/inbox/directives/staff-task-list/staff-task-list.component';
 import {StatusIconComponent} from './common/status-icon/status-icon.component';
+import {VisualisationService} from './visualisations/visualisation.service';
 import {
   GroupSetService,
   LearningOutcomeService,
@@ -241,6 +242,7 @@ export const DoubtfireAngularJSModule = angular.module('doubtfire', [
 // Downgrade angular modules that we need...
 // factory -> service
 DoubtfireAngularJSModule.factory('AboutDoubtfireModal', downgradeInjectable(AboutDoubtfireModal));
+DoubtfireAngularJSModule.factory('VisualisationService', downgradeInjectable(VisualisationService));
 DoubtfireAngularJSModule.factory('D2lUnitDetailsModal', downgradeInjectable(D2lUnitDetailsModal));
 DoubtfireAngularJSModule.factory('D2lTransferModal', downgradeInjectable(D2lTransferModal));
 DoubtfireAngularJSModule.factory('DoubtfireConstants', downgradeInjectable(DoubtfireConstants));
