@@ -30,7 +30,7 @@ import 'build/templates-app.js';
 import 'build/assets/wav-worker.js';
 import 'build/src/app/visualisations/summary-task-status-scatter.js';
 import 'build/src/app/visualisations/student-task-status-pie-chart.js';
-import 'build/src/app/visualisations/progress-burndown-chart.js';
+// import 'build/src/app/visualisations/progress-burndown-chart.js';
 import 'build/src/app/visualisations/target-grade-pie-chart.js';
 import 'build/src/app/visualisations/task-status-pie-chart.js';
 import 'build/src/app/visualisations/task-completion-box-plot.js';
@@ -140,6 +140,7 @@ import 'build/src/i18n/resources-locale_en-US.js';
 import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
+import { ProgressBurndownChartComponent } from './visualisations/progress-burndown-chart.component';
 import {ListenerService} from './common/services/listener.service';
 import {AboutDoubtfireModal} from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {TaskCommentComposerComponent} from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
@@ -310,6 +311,10 @@ DoubtfireAngularJSModule.factory(
 DoubtfireAngularJSModule.factory('CreateNewUnitModal', downgradeInjectable(CreateNewUnitModal));
 
 // directive -> component
+DoubtfireAngularJSModule.directive(
+  'progressBurndownChart',
+  downgradeComponent({component: ProgressBurndownChartComponent}),
+);
 DoubtfireAngularJSModule.directive(
   'taskCommentComposer',
   downgradeComponent({component: TaskCommentComposerComponent}),
