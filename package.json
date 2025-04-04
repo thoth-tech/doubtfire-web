@@ -14,7 +14,7 @@
     "build:angular17": "ng build",
     "lint:fix": "ng lint --fix",
     "lint": "ng lint",
-    "serve:angular17": "export NODE_OPTIONS=--max_old_space_size=4096 && ng serve --configuration $NODE_ENV",
+    "serve:angular17": "export NODE_OPTIONS=--max_old_space_size=4096 && ng serve --poll=2000 --configuration $NODE_ENV",
     "start": "npm-run-all -l -s build:angular1 -p watch:angular1 serve:angular17",
     "watch:angular1": "grunt delta",
     "deploy:build2api": "ng build --delete-output-path=true --optimization=true --configuration production --output-path dist",

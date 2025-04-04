@@ -1,0 +1,44 @@
+<div class="timer-container">
+  <h2>Timer</h2>
+  <div class="timer-display">
+    <span>{{ formatNumber(hours) }}</span>:<span>{{ formatNumber(minutes) }}</span>:<span>{{ formatNumber(seconds) }}</span>
+  </div>
+  <div class="timer-labels">
+    <span>Hr</span>
+    <span>Min</span>
+    <span>Sec</span>
+  </div>
+  <div class="timer-controls">
+    <button class="start-btn" (click)="startTimer()" [disabled]="isRunning">Start</button>
+    <button class="stop-btn" (click)="stopTimer()" [disabled]="!isRunning">Stop</button>
+    <button class="reset-btn" (click)="resetTimer()">Reset</button>
+  </div>
+  <div class="manual-input">
+    <h3>Manual Time Input</h3>
+    <div class="input-group">
+      <label>Start:</label>
+      <input type="number" [(ngModel)]="manualHours" min="0" placeholder="Hr" />
+      <input type="number" [(ngModel)]="manualMinutes" min="0" max="59" placeholder="Min" />
+      <input type="number" [(ngModel)]="manualSeconds" min="0" max="59" placeholder="Sec" />
+    </div>
+    <div class="input-group">
+      <label>Finish:</label>
+      <input type="number" [(ngModel)]="manualFinishHours" min="0" placeholder="Hr" />
+      <input type="number" [(ngModel)]="manualFinishMinutes" min="0" max="59" placeholder="Min" />
+      <input type="number" [(ngModel)]="manualFinishSeconds" min="0" max="59" placeholder="Sec" />
+    </div>
+    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+    <div class="manual-input-buttons">
+      <button (click)="saveManualTime()">Save</button>
+      <button (click)="applyManualTime()" [disabled]="!isSaved">Apply</button>
+    </div>
+    <!-- New section to display saved times -->
+    <div class="saved-times" *ngIf="isSaved">
+      <p>Saved Start Time: {{ formatTime(savedStartSeconds) }}</p>
+      <p>Saved Finish Time: {{ formatTime(savedFinishSeconds) }}</p>
+    </div>
+  </div>
+  <div class="total-time">
+    <p>The Total Time Spent Is: {{ formatNumber(hours) }}:{{ formatNumber(minutes) }}:{{ formatNumber(seconds) }}</p>
+  </div>
+</div>
