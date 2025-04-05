@@ -1,0 +1,21 @@
+.chart-wrapper {
+  width: 100%;
+  padding: 1rem;
+}
+
+.progress-burndown-chart {
+  width: 100%;
+  height: 100%;
+}
+
+.dashed {
+  stroke-dasharray: 5,5;
+}
+
+.nv-legendWrap {
+  transform: translate(50px, -15px);
+}
+
+.nv-legendWrap .nv-series:last-child {
+  display: none; // Hide 'NOW' from legend
+}

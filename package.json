@@ -67,7 +67,7 @@
     "canvas-confetti": "^1.6.0",
     "codemirror": "5.65.0",
     "core-js": "^3.21.1",
-    "d3": "3.5.17",
+    "d3": "^3.5.17",
     "date-fns": "^3.6.0",
     "es5-shim": "^4.5.12",
     "file-saver": "^2.0.5",
@@ -104,7 +104,7 @@
     "@commitlint/config-conventional": "^17",
     "@types/angular": "1.5.11",
     "@types/canvas-confetti": "^1.6.0",
-    "@types/d3": "^3.5.17",
+    "@types/d3": "^3.5.53",
     "@types/file-saver": "^2.0.1",
     "@types/jasmine": "~3.9.1",
     "@types/jasminewd2": "~2.0.3",
@@ -162,11 +162,11 @@
     "underscore": "^1.8.3"
   },
   "optionalDependencies": {
+    "@esbuild/linux-x64": "0.25.1",
     "@nx/nx-darwin-arm64": "^18.0",
     "@nx/nx-darwin-x64": "^18.0",
     "@nx/nx-linux-x64-gnu": "^18.0",
     "@nx/nx-win32-x64-msvc": "^18.0",
-    "@rollup/rollup-linux-x64-gnu": "*",
-    "@esbuild/linux-x64": "0.25.1"
+    "@rollup/rollup-linux-x64-gnu": "*"
   }
 }
