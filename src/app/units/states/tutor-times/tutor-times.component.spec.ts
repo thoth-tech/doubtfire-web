@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { TutorTimesComponent } from './tutor-times.component';
 
-describe('InboxComponent', () => {
+describe('TutorTimesComponent', () => {
   let component: TutorTimesComponent;
   let fixture: ComponentFixture<TutorTimesComponent>;
 
