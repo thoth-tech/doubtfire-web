@@ -24,6 +24,8 @@ angular.module('doubtfire.groups.group-selector', [])
   controller: ($scope, $filter, $timeout, alertService, listenerService, newUserService, newGroupService) ->
     # Cleanup
     listeners = listenerService.listenTo($scope)
+    #Allows for integration with the migrated service.
+    $scope.$on '$destroy', -> listenerService.destroyListeners($scope.$id)
 
     # Unit role or project should be included in $scope
     if !$scope.unitRole? && !$scope.project? || $scope.unitRole? && $scope.project?
@@ -195,12 +197,11 @@ angular.module('doubtfire.groups.group-selector', [])
     # Toggle lockable group
     $scope.toggleLocked = (group) ->
       group.locked = !group.locked
-      newGroupService.update(group).subscribe({
-        next: (success) ->
+      $scope.unit.updateGroup(group,
+        (success) ->
           group.locked = success.locked
           alertService.success( "Group updated", 2000)
-        error: () -> alertService.error( "Failed to lock group. #{message}", 6000)
-      })
+      )
 
     # Watch selected group set changes
     listeners.push $scope.$on 'UnitGroupSetEditor/SelectedGroupSetChanged', (evt, args) ->

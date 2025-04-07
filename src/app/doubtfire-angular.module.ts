@@ -57,7 +57,6 @@ import {FTaskBadgeComponent} from 'src/app/common/task-badge/task-badge.componen
 import {DoubtfireAngularJSModule} from 'src/app/doubtfire-angularjs.module';
 import {HttpAuthenticationInterceptor} from './common/services/http-authentication.interceptor';
 import {
-  visualisationsProvider,
   analyticsServiceProvider,
   dateServiceProvider,
   CsvUploadModalProvider,
@@ -215,7 +214,7 @@ import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-ro
 import {FileDropComponent} from './common/file-drop/file-drop.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
-
+import {VisualisationService} from './visualisations/visualisation.service';
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {CreateNewUnitModalContentComponent} from './admin/modals/create-new-unit-modal/create-new-unit-modal-content.component';
 import {
@@ -232,6 +231,7 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
+import {ListenerService} from './common/services/listener.service';
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import {ScormAdapterService} from './api/services/scorm-adapter.service';
 import {ScormCommentComponent} from './tasks/task-comments-viewer/scorm-comment/scorm-comment.component';
@@ -241,6 +241,7 @@ import {ScormExtensionCommentComponent} from './tasks/task-comments-viewer/scorm
 import {ScormExtensionModalComponent} from './common/modals/scorm-extension-modal/scorm-extension-modal.component';
 import { D2lTransferComponent, D2lTransferModal } from './units/states/portfolios/d2l-transfer-modal/d2l-transfer.component';
 import { SuccessCloseComponent } from './common/success-close/success-close.component';
+import { ProgressBurndownChartComponent } from './visualisations/progress-burndown-chart.component';
 
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
@@ -258,6 +259,7 @@ const MY_DATE_FORMAT = {
 @NgModule({
   // Components we declare
   declarations: [
+    ProgressBurndownChartComponent,
     AlertComponent,
     AboutDoubtfireModalContent,
     D2lUnitDetailsFormComponent,
@@ -367,6 +369,8 @@ const MY_DATE_FORMAT = {
   ],
   // Services we provide
   providers: [
+    VisualisationService,
+    ListenerService,
     AlertService,
     MarkedPipe,
     CampusService,
@@ -397,7 +401,6 @@ const MY_DATE_FORMAT = {
     FileDownloaderService,
     CheckForUpdateService,
     TaskOutcomeAlignmentService,
-    visualisationsProvider,
     commentsModalProvider,
     rootScopeProvider,
     calendarModalProvider,

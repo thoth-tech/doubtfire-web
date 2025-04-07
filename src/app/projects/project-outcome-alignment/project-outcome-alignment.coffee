@@ -3,14 +3,14 @@ angular.module("doubtfire.projects.project-outcome-alignment", [])
 .directive("projectOutcomeAlignment", ->
   restrict: 'E'
   templateUrl: 'projects/project-outcome-alignment/project-outcome-alignment.tpl.html'
-  controller: ($scope, $rootScope, $timeout, outcomeService, alertService, analyticsService, Visualisation, newUnitService) ->
+  controller: ($scope, $rootScope, $timeout, outcomeService, alertService, analyticsService, VisualisationService, newUnitService) ->
     $scope.poaView = {
       activeTab: 'list'
     }
     $scope.targets = outcomeService.calculateTargets($scope.unit, $scope.unit, $scope.unit.taskStatusFactor)
     $scope.currentProgress = outcomeService.calculateProgress($scope.unit, $scope.project)
 
-    $scope.refreshCharts = Visualisation.refreshAll
+    $scope.refreshCharts = VisualisationService.refreshAll
 
     refreshAlignmentData = ->
       $scope.currentProgress.length = 0

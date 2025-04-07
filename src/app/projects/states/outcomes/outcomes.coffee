@@ -16,14 +16,14 @@ angular.module('doubtfire.projects.states.outcomes', [])
    }
 )
 
-.controller("LearningOutcomesStateCtrl", ($scope, $rootScope, $timeout, alertService, outcomeService, newUnitService, Visualisation) ->
+.controller("LearningOutcomesStateCtrl", ($scope, $rootScope, $timeout, alertService, outcomeService, newUnitService, VisualisationService) ->
   $scope.poaView = {
     activeTab: 'list'
   }
   $scope.targets = outcomeService.calculateTargets($scope.unit, $scope.unit, $scope.unit.taskStatusFactor)
   $scope.currentProgress = outcomeService.calculateProgress($scope.unit, $scope.project)
 
-  $scope.refreshCharts = Visualisation.refreshAll
+  $scope.refreshCharts = VisualisationService.refreshAll
 
   refreshAlignmentData = ->
     $scope.currentProgress.length = 0

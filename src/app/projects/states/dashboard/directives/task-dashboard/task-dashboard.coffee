@@ -10,7 +10,7 @@ angular.module('doubtfire.projects.states.dashboard.directives.task-dashboard', 
     showFooter: '@?'
     showSubmission: '@?'
   controller: ($scope, $stateParams, listenerService, newTaskService, DoubtfireConstants, TaskAssessmentModal, fileDownloaderService) ->
-    # $scope.overseerEnabled = DoubtfireConstants.IsOverseerEnabled
+    $scope.overseerEnabled = DoubtfireConstants.IsOverseerEnabled
 
     $scope.overseerEnabled = () ->
       DoubtfireConstants.IsOverseerEnabled.value && $scope.task?.overseerEnabled
@@ -31,6 +31,8 @@ angular.module('doubtfire.projects.states.dashboard.directives.task-dashboard', 
 
     # Cleanup
     listeners = listenerService.listenTo($scope)
+    #Allows for integration with the migrated service.
+    $scope.$on '$destroy', -> listenerService.destroyListeners($scope.$id)
     # Required changes when task changes
     listeners.push $scope.$watch('task.id', ->
       return unless $scope.task?

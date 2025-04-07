@@ -5,8 +5,10 @@ angular.module('doubtfire.visualisations.progress-burndown-chart', [])
   scope:
     project: '='
     unit: '='
-  controller: ($scope, Visualisation, listenerService) ->
+  controller: ($scope, VisualisationService, listenerService) ->
     listeners = listenerService.listenTo($scope)
+      #Allows for integration with the migrated service.
+    $scope.$on '$destroy', -> listenerService.destroyListeners($scope.$id)
 
     $scope.data = []
 
@@ -75,7 +77,7 @@ angular.module('doubtfire.visualisations.progress-burndown-chart', [])
       dates.start, dates.end
     ]
 
-    [$scope.options, $scope.config] = Visualisation 'lineChart', 'Student Progress Burndown Chart', {
+    [$scope.options, $scope.config] = VisualisationService.createVisualisation 'lineChart', 'Student Progress Burndown Chart', {
       useInteractiveGuideline: yes
       interactiveLayer:
         tooltip:
