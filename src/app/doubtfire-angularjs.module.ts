@@ -214,7 +214,7 @@ import { FUsersComponent } from './admin/states/users/users.component';
 import { FUnitTaskListComponent } from './units/task-viewer/directives/unit-task-list/unit-task-list.component';
 import { FTaskDetailsViewComponent } from './units/task-viewer/directives/task-details-view/task-details-view.component';
 import { FTaskSheetViewComponent } from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
-import { ProgressBurndownChartComponent } from './visualisations/progress-burndown-chart/progressburndownchart.component';
+import { GradeGaugeComponent } from './visualisations/new-gauge-component/grade-gauge.component';
 import { TaskVisualisationComponent } from './visualisations/task-visualisation/taskvisualisation.component';
 
 import {FUnitsComponent} from './admin/states/units/units.component';
@@ -488,7 +488,7 @@ DoubtfireAngularJSModule.config(otherwiseConfigBlock);
 
 DoubtfireAngularJSModule.directive(
   'fProgressBurndownChart',
-  downgradeComponent({ component: ProgressBurndownChartComponent })
+  downgradeComponent({ component: GradeGaugeComponent })
 );
 
 DoubtfireAngularJSModule.directive(

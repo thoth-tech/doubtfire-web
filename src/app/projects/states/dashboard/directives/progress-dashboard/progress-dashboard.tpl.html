@@ -27,7 +27,8 @@
           </div>
         </div><!--/burndown-heading-->
         <div class="card-body">
-          <f-progress-burndown-chart [project]="project" [unit]="project.unit" [grade]="project.targetGrade"></f-progress-burndown-chart>
+        <!----<f-progress-burndown-chart [project]="project" [unit]="project.unit" [grade]="project.targetGrade"></f-progress-burndown-chart>-->
+        <app-grade-gauge></app-grade-gauge>
         </div><!--/burndown-body-->
         <div class="card-footer">
           Aim to keep your

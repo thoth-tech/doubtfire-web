@@ -240,7 +240,7 @@ import { UnitRootStateComponent } from './units/unit-root-state.component';
 import { TaskViewerStateComponent } from './units/task-viewer/task-viewer-state.component';
 import { ProjectRootStateComponent } from './projects/states/project-root-state.component';
 import { ProjectProgressDashboardComponent } from './projects/project-progress-dashboard/project-progress-dashboard.component';
-import { ProgressBurndownChartComponent } from './visualisations/progress-burndown-chart/progressburndownchart.component';
+import { GradeGaugeComponent } from './visualisations/new-gauge-component/grade-gauge.component';
 import { TaskVisualisationComponent } from './visualisations/task-visualisation/taskvisualisation.component';
 import { ChartBaseComponent } from './common/chart-base/chart-base-component/chart-base-component.component';
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
@@ -382,7 +382,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     FUnitsComponent,
     UnauthorisedComponent,
     ChartBaseComponent,
-    ProgressBurndownChartComponent,
+    GradeGaugeComponent,
     TaskVisualisationComponent,
     ScormPlayerComponent,
     ScormCommentComponent,
