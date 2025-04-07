@@ -1,0 +1,23 @@
+<div class="gauge-container" #gaugeWrapper>
+    <div style="text-align: center;">
+      <ngx-charts-gauge
+        [view]="[500, 400]"
+        [min]="0"
+        [max]="100"
+        [bigSegments]="10"
+        [smallSegments]="5"
+        [angleSpan]="240"
+        [startAngle]="-120"
+        [units]="'%'"
+        [results]="gaugeData"
+        [scheme]="colorScheme">
+      </ngx-charts-gauge>
+  
+      <div class="legend">
+        <div *ngFor="let item of gaugeData; let i = index" class="legend-item">
+          <span class="legend-color" [style.background-color]="legendColors[i]"></span>
+          <span class="legend-label">{{ item.name }}</span>
+        </div>
+      </div>
+    </div>
+  </div>

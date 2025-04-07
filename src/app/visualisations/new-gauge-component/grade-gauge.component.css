@@ -1,0 +1,52 @@
+:host {
+    display: block;
+    padding: 1rem;
+  }
+  
+  .gauge-container {
+    background-color: #1e1e2f;
+    padding: 2rem;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    margin: auto;
+    flex-direction: column;
+  }
+  
+  :host ::ng-deep ngx-charts-gauge text {
+    fill: white;
+    font-size: 1.3rem;
+  }
+  
+  /* Legend Styling */
+  .legend {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 1rem;
+  }
+  
+  .legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  
+  /* Hide center "280%" text */
+  :host ::ng-deep ngx-charts-gauge text[alignment-baseline="middle"],
+  :host ::ng-deep ngx-charts-gauge .value-text {
+    display: none !important;
+    visibility: hidden !important;
+  }
