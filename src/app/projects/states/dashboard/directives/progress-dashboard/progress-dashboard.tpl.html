@@ -28,8 +28,8 @@
         </div><!--/burndown-heading-->
         <div class="card-body">
         <!----<f-progress-burndown-chart [project]="project" [unit]="project.unit" [grade]="project.targetGrade"></f-progress-burndown-chart>-->
-        <app-grade-gauge></app-grade-gauge>
-        </div><!--/burndown-body-->
+        <f-progress-gauge-chart [project]="project" [grade]="project.targetGrade"></f-progress-gauge-chart>
+      </div><!--/burndown-body-->
         <div class="card-footer">
           Aim to keep your
           <strong style="color: #e01b5d">Complete</strong>

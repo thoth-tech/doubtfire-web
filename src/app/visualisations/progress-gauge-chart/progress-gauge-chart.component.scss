@@ -1,0 +1,17 @@
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 400px;
+    
+    ::ng-deep {
+      .gauge-chart {
+        .gauge {
+          .background-arc {
+            fill: #F0F0F0;
+          }
+        }
+      }
+    }
+  }
