@@ -318,8 +318,7 @@ export class CoursemapComponent implements OnInit {
     this.completedUnits.has(unit.code)
       ? this.completedUnits.delete(unit.code)
       : this.completedUnits.add(unit.code);
-
-    console.log('Completed units:', this.completedUnits);
+      console.log('Completed units:', this.completedUnits);
   }
 
   // Check if a unit is completed
