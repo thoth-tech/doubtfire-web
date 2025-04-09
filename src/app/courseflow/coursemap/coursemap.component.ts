@@ -315,11 +315,11 @@ export class CoursemapComponent implements OnInit {
 
   // Toggle completion state
   toggleCompletion(unit: UnitDefinition) {
-    if (this.completedUnits.has(unit.code)) {
-      this.completedUnits.delete(unit.code);
-    } else {
-      this.completedUnits.add(unit.code);
-    }
+    this.completedUnits.has(unit.code)
+      ? this.completedUnits.delete(unit.code)
+      : this.completedUnits.add(unit.code);
+
+    console.log('Completed units:', this.completedUnits);
   }
 
   // Check if a unit is completed
