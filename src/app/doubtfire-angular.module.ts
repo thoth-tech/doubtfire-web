@@ -268,6 +268,7 @@ const MY_DATE_FORMAT = {
   },
 };
 import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 @NgModule({
   // Components we declare
@@ -470,6 +471,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     provideLottieOptions({
       player: () => player,
     }),
+    provideAnimationsAsync(),
   ],
   imports: [
     FlexLayoutModule,
