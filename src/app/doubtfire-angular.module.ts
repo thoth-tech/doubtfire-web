@@ -59,7 +59,6 @@ import {DoubtfireAngularJSModule} from 'src/app/doubtfire-angularjs.module';
 import {HttpAuthenticationInterceptor} from './common/services/http-authentication.interceptor';
 import {
   visualisationsProvider,
-  analyticsServiceProvider,
   dateServiceProvider,
   CsvUploadModalProvider,
   UnitStudentEnrolmentModalProvider,
@@ -226,6 +225,7 @@ import {
   TeachingPeriodUnitImportDialogComponent,
   TeachingPeriodUnitImportService,
 } from './admin/states/teaching-periods/teaching-period-unit-import/teaching-period-unit-import.dialog';
+import {AnalyticsService} from './common/services/analytics.service';
 import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
 import { AcceptEulaComponent } from './eula/accept-eula/accept-eula.component';
 import { TiiActionLogComponent } from './admin/tii-action-log/tii-action-log.component';
@@ -392,6 +392,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
   ],
   // Services we provide
   providers: [
+    AnalyticsService,
     AlertService,
     MarkedPipe,
     CampusService,
@@ -428,7 +429,6 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     aboutDoubtfireModalProvider,
     uploadSubmissionModalProvider,
     gradeTaskModalProvider,
-    analyticsServiceProvider,
     dateServiceProvider,
     CsvUploadModalProvider,
     CsvResultModalProvider,

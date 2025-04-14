@@ -123,7 +123,6 @@ import 'build/src/app/common/services/outcome-service.js';
 import 'build/src/app/common/services/services.js';
 import 'build/src/app/common/services/recorder-service.js';
 import 'build/src/app/common/services/media-service.js';
-import 'build/src/app/common/services/analytics-service.js';
 import 'build/src/app/common/services/date-service.js';
 import 'build/src/app/sessions/auth/http-auth-injector.js';
 import 'build/src/app/sessions/sessions.js';
@@ -221,6 +220,7 @@ import {FUnitsComponent} from './admin/states/units/units.component';
 import {AlertService} from './common/services/alert.service';
 
 import {GradeService} from './common/services/grade.service';
+import {AnalyticsService} from './common/services/analytics.service';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
@@ -278,6 +278,7 @@ DoubtfireAngularJSModule.factory(
 );
 DoubtfireAngularJSModule.factory('emojiService', downgradeInjectable(EmojiService));
 DoubtfireAngularJSModule.factory('gradeService', downgradeInjectable(GradeService));
+DoubtfireAngularJSModule.factory('analyticsService', downgradeInjectable(AnalyticsService));
 DoubtfireAngularJSModule.factory(
   'fileDownloaderService',
   downgradeInjectable(FileDownloaderService),
