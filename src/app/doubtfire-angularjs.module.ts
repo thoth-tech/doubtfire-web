@@ -54,7 +54,6 @@ import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/t
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-editor/task-ilo-alignment-editor.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-viewer/task-ilo-alignment-viewer.js';
 import 'build/src/app/config/privacy-policy/privacy-policy.js';
-import 'build/src/app/config/runtime/runtime.js';
 import 'build/src/app/config/config.js';
 import 'build/src/app/config/root-controller/root-controller.js';
 import 'build/src/app/config/local-storage/local-storage.js';
@@ -225,6 +224,23 @@ import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
 import {AlertService} from './common/services/alert.service';
 import {GradeService} from './common/services/grade.service';
+import {RuntimeService} from './config/runtime/runtime'; // Import the RuntimeService
+import {platformBrowserDynamic} from '@angular/platform-browser-dynamic'; // Angular bootstrapping function
+import {DoubtfireAngularModule} from './doubtfire-angular.module'; // The main Angular module of your application
+
+platformBrowserDynamic()
+  .bootstrapModule(DoubtfireAngularModule)
+  .then((platformRef) => {
+    // Once the module is bootstrapped successfully, retrieve the RuntimeService instance
+    const runtimeService = platformRef.injector.get(RuntimeService);
+
+    // Call a method on the RuntimeService to handle unauthorized access
+    runtimeService.handleUnauthorizedAccess('/dashboard');
+  })
+  .catch((error) => {
+    console.error('Error bootstrapping Angular module:', error);
+  });
+
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
