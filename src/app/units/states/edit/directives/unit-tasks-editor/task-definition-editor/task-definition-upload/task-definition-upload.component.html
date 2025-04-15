@@ -25,12 +25,12 @@
   <ng-container matColumnDef="tii-check" sticky>
     <th style="width: 20%" mat-header-cell *matHeaderCellDef>Check Similarity</th>
     <td style="width: 20%" mat-cell *matCellDef="let upreq">
-      @if (upreq.type === 'document') {
-<mat-checkbox [(ngModel)]="upreq.tiiCheck">TurnItIn</mat-checkbox>
-}
+      @if (upreq.type === 'document' && tiiEnabled()) {
+        <mat-checkbox [(ngModel)]="upreq.tiiCheck">TurnItIn</mat-checkbox>
+      }
       @if (upreq.type === 'code') {
-<mat-checkbox [(ngModel)]="upreq.tiiCheck">Moss</mat-checkbox>
-}
+        <mat-checkbox [(ngModel)]="upreq.tiiCheck">Moss</mat-checkbox>
+      }
     </td>
   </ng-container>
 

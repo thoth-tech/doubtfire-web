@@ -22,9 +22,11 @@ import {
   Project,
   TutorialStreamService,
   UnitRoleService,
+  D2lAssessmentMappingService,
 } from './doubtfire-model';
 import {LearningOutcome} from './learning-outcome';
 import {AlertService} from 'src/app/common/services/alert.service';
+import { D2lAssessmentMapping } from './d2l/d2l_assessment_mapping';
 
 export class Unit extends Entity {
   id: number;
@@ -63,6 +65,8 @@ export class Unit extends Entity {
   extensionWeeksOnResubmitRequest: number;
   allowStudentChangeTutorial: boolean;
 
+  d2lMapping: D2lAssessmentMapping;
+
   public readonly learningOutcomesCache: EntityCache<LearningOutcome> =
     new EntityCache<LearningOutcome>();
   public readonly tutorialStreamsCache: EntityCache<TutorialStream> =
@@ -91,6 +95,12 @@ export class Unit extends Entity {
     return {
       unit: super.toJson(mappingData, ignoreKeys),
     };
+  }
+
+  public hasChanges(): boolean {
+    const unitService = AppInjector.get(UnitService);
+    const changes = this.toJson(unitService.mapping);
+    return JSON.stringify(changes) !== '{"unit":{}}';
   }
 
   public get nameAndPeriod(): string {
@@ -231,8 +241,8 @@ export class Unit extends Entity {
     return Math.round((startToNow / totalDuration) * 100);
   }
 
-  public rolloverTo(body: {start_date: Date; end_date: Date}): Observable<Unit>;
-  public rolloverTo(body: {teaching_period_id: number}): Observable<Unit>;
+  public rolloverTo(body: {new_unit_code?: string, start_date: Date; end_date: Date}): Observable<Unit>;
+  public rolloverTo(body: {new_unit_code?: string, teaching_period_id: number}): Observable<Unit>;
   public rolloverTo(body: any): Observable<Unit> {
     const unitService = AppInjector.get(UnitService);
 
@@ -545,6 +555,26 @@ export class Unit extends Entity {
     AppInjector.get(FileDownloaderService).downloadFile(
       `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/tutor_assessments.json`,
       `${this.name}-tutor-assessments.csv`,
+    );
+  }
+
+  public hasD2lMapping(): boolean {
+    const doubtfireConstants = AppInjector.get(DoubtfireConstants);
+    return (
+      doubtfireConstants.IsD2LEnabled.value &&
+      this.d2lMapping !== undefined &&
+      this.d2lMapping.orgUnitId !== undefined &&
+      this.d2lMapping.orgUnitId.length > 0
+    );
+  }
+
+  public loadD2lMapping(): Observable<D2lAssessmentMapping> {
+    const d2lMappingSvc = AppInjector.get(D2lAssessmentMappingService);
+
+    return d2lMappingSvc.get({unitId: this.id}).pipe(
+      tap((mappings) => {
+        this.d2lMapping = mappings;
+      }),
     );
   }
 }

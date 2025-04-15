@@ -213,7 +213,6 @@ import {InboxComponent} from './units/states/tasks/inbox/inbox.component';
 import {TaskDefinitionEditorComponent} from './units/states/edit/directives/unit-tasks-editor/task-definition-editor/task-definition-editor.component';
 import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-route.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
-import {TeachingPeriodUnitImportService} from './admin/states/teaching-periods/teaching-period-unit-import/teaching-period-unit-import.dialog';
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
 import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-unit-task-list/f-unit-task-list.component';
@@ -225,6 +224,10 @@ import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
 import {AlertService} from './common/services/alert.service';
 import {GradeService} from './common/services/grade.service';
+import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
+import { D2lUnitDetailsModal } from './units/states/edit/directives/unit-details-editor/d2l-details-form/d2l-unit-details-form.component';
+import { D2lTransferModal } from './units/states/portfolios/d2l-transfer-modal/d2l-transfer.component';
+
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -235,15 +238,15 @@ export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.projects',
   'doubtfire.groups',
   'doubtfire.visualisations',
-]);
+]).config(['$locationProvider', ($locationProvider) => {
+  $locationProvider.html5Mode(true);
+}]);
 
 // Downgrade angular modules that we need...
 // factory -> service
 DoubtfireAngularJSModule.factory('AboutDoubtfireModal', downgradeInjectable(AboutDoubtfireModal));
-DoubtfireAngularJSModule.factory(
-  'TeachingPeriodUnitImportService',
-  downgradeInjectable(TeachingPeriodUnitImportService),
-);
+DoubtfireAngularJSModule.factory('D2lUnitDetailsModal', downgradeInjectable(D2lUnitDetailsModal));
+DoubtfireAngularJSModule.factory('D2lTransferModal', downgradeInjectable(D2lTransferModal));
 DoubtfireAngularJSModule.factory('DoubtfireConstants', downgradeInjectable(DoubtfireConstants));
 DoubtfireAngularJSModule.factory('ExtensionModal', downgradeInjectable(ExtensionModalService));
 DoubtfireAngularJSModule.factory('Marked', downgradeInjectable(MarkedPipe));
@@ -362,6 +365,10 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'activityTypeList',
   downgradeComponent({component: ActivityTypeListComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'fTaskScormCard',
+  downgradeComponent({component: TaskScormCardComponent}),
 );
 DoubtfireAngularJSModule.directive(
   'fTaskStatusCard',

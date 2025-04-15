@@ -8,6 +8,7 @@ interface SettingsResponseFormat {
   externalName: string;
   overseerEnabled: boolean;
   tiiEnabled: boolean;
+  d2lEnabled: boolean;
 }
 
 interface SignOutUrlResponseFormat {
@@ -38,6 +39,11 @@ export class DoubtfireConstants {
   public IsOverseerEnabled: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   /**
+   * Whether or not the D2L integration is enabled.
+   */
+  public IsD2LEnabled: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  /**
    * Whether or not the TurnItIn integration is enabled.
    */
   public IsTiiEnabled: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -47,7 +53,7 @@ export class DoubtfireConstants {
   constructor(handler: HttpBackend) {
     // Don't use interceptors for Doubtfire Constants
     this.http = new HttpClient(handler);
-    this.loadExternalName();
+    this.loadSettings();
     this.loadSignoutUrl();
   }
 
@@ -61,11 +67,12 @@ export class DoubtfireConstants {
   }
 
   // publish update to ExternalName when get request finishes.
-  private loadExternalName() {
+  private loadSettings() {
     this.http.get<SettingsResponseFormat>(this.settingsUrl).subscribe((result) => {
       this.ExternalName.next(result.externalName);
       this.IsOverseerEnabled.next(result.overseerEnabled);
       this.IsTiiEnabled.next(result.tiiEnabled);
+      this.IsD2LEnabled.next(result.d2lEnabled);
     });
   }
 }
