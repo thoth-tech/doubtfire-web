@@ -119,7 +119,6 @@ import 'build/src/app/common/modals/modals.js';
 import 'build/src/app/common/file-uploader/file-uploader.js';
 import 'build/src/app/common/common.js';
 import 'build/src/app/common/services/listener-service.js';
-import 'build/src/app/common/services/outcome-service.js';
 import 'build/src/app/common/services/services.js';
 import 'build/src/app/common/services/recorder-service.js';
 import 'build/src/app/common/services/media-service.js';
@@ -224,6 +223,8 @@ import {GradeService} from './common/services/grade.service';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import { OutcomeService } from './common/services/outcome-service';
+
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -494,4 +495,9 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'fTaskVisualisation',
   downgradeComponent({ component: TaskVisualisationComponent })
+);
+
+DoubtfireAngularJSModule.factory(
+  'outcomeService',
+  downgradeInjectable(OutcomeService),
 );
