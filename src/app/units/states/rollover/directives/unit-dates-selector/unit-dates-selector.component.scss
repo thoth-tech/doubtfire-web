@@ -1,0 +1,17 @@
+.unit-dates-selector {
+  .panel {
+    &-primary {
+      border-color: #007bff;
+    }
+    &-heading {
+      background-color: #007bff;
+      color: #fff;
+    }
+    &-body {
+      padding: 15px;
+    }
+    &-footer {
+      padding: 10px;
+    }
+  }
+}
