@@ -1,17 +1,42 @@
 <div class="coursemap">
-  <!-- Required Units Panel -->
+  <!-- Filter Units Container -->
   <div class="required-units-container">
+    <!-- Required Units Panel -->
     <div class="required-units-header">
       <h3 class="required-units-title">Required Units</h3>
     </div>
+    <div class="filter-container">
+      <div class="filter-header">
+        <h3 class="filter-title">Please Select Your Interest/Area</h3>
+      </div>
+      <label for="level">Level:</label>
+      <select id="level" [(ngModel)]="selectedLevel" (change)="filterUnits()">
+        <option *ngFor="let level of levels" [value]="level">{{ level }}</option>
+      </select>
+
+      <label for="year">Year:</label>
+      <select id="year" [(ngModel)]="selectedYear" (change)="filterUnits()">
+        <option *ngFor="let year of unityears" [value]="year">{{ year }}</option>
+      </select>
+
+      <label for="teachingPeriod">Teaching Period:</label>
+      <select id="teachingPeriod" [(ngModel)]="selectedTeachingPeriod" (change)="filterUnits()">
+        <option *ngFor="let period of teachingPeriods" [value]="period">{{ period }}</option>
+      </select>
+
+      <label for="specialization">Specialization:</label>
+      <select id="specialization" [(ngModel)]="selectedSpecialization" (change)="filterUnits()">
+        <option *ngFor="let spec of specializations" [value]="spec">{{ spec }}</option>
+      </select>
+    </div>
     <div
       cdkDropList
-      [cdkDropListData]="requiredUnits"
+      [cdkDropListData]="filteredUnits"
       (cdkDropListDropped)="drop($event)"
       [cdkDropListConnectedTo]="connectedDropLists"
       [id]="'requiredUnits'"
     >
-      <div class="unit" *ngFor="let unit of requiredUnits" cdkDrag>
+      <div class="unit" *ngFor="let unit of filteredUnits" cdkDrag>
         <strong>{{ unit.code }}</strong> - {{ unit.name }}
       </div>
     </div>

@@ -101,6 +101,33 @@ export class CoursemapComponent implements OnInit {
 
   completedUnits: Set<string> = new Set(); // Stores completed unit codes
 
+  unitLevels: Map<string, number> = new Map(); // Map to store unit levels
+
+  unitYears: Map<string, number> = new Map(); // Map to store unit years
+
+  unitTeachingPeriods: Map<string, UnitDefinition[]> = new Map(); // Map to store unit teaching periods
+
+  specializationUnits: Map<string, UnitDefinition[]> = new Map(); // Map to store specialization units
+
+  // Demo data for filtering
+  filteredElectiveUnits: Unit[] = [];
+  filteredUnits: UnitDefinition[] = [];
+  levels: string[] = ['All Levels', '1', '2', '3']; // Example levels
+  unityears: string[] = ['All Years', '2025', '2026', '2027', '2028']; // Example years
+  teachingPeriods: string[] = ['All Periods', 'Trimester 1', 'Trimester 2', 'Trimester 3']; // Example teaching periods
+  specializations: string[] = [
+    'All Specializations',
+    'Cyber Security',
+    'Data Analytics',
+    'Software Development',
+    'IT Management',
+  ]; // Specializations
+
+  selectedLevel: string = 'All Levels';
+  selectedYear: string = 'All Years';
+  selectedTeachingPeriod: string = 'All Periods';
+  selectedSpecialization: string = 'All Specializations';
+
   ngOnInit(): void {
     this.formData = {
       username: '',
@@ -149,6 +176,59 @@ export class CoursemapComponent implements OnInit {
       next: (data: Unit[]) => {
         this.units = data;
         this.errorMessage = null;
+        // Initialize the map for trimester units
+        // Assuming teaching periods are between trimester 1 and 3
+        // Remember this is only for demonstating
+        // purposes and should be replaced with actual logic
+        const teachingPeriods = ['Trimester 1', 'Trimester 2', 'Trimester 3'];
+        teachingPeriods.forEach((period) => {
+          this.unitTeachingPeriods.set(period, []); // Create an empty array for each teaching period
+        });
+        // Initialize the map for specialization units
+        // Assuming specializations are predefined
+        // You can replace this with actual data from your database
+        // For demonstration, let's say we have 4 specializations
+        // You can replace this with actual data from your database
+        const specializations = [
+          'Cyber Security',
+          'Data Analytics',
+          'Software Development',
+          'IT Management',
+        ];
+        specializations.forEach((spec) => {
+          this.specializationUnits.set(spec, []); // Create an empty array for each specialization
+        });
+
+        data.forEach((unit) => {
+          // Populate unit levels here (dummy logic based on code e.g., SIT111 => Level 1)
+          const level = this.extractLevelFromCode(unit.code);
+          this.unitLevels.set(unit.code, level);
+          // Populate unit years with random values (for demonstration purposes)
+          const randomYear = this.getRandomYear();
+          this.unitYears.set(unit.code, randomYear);
+          // Populate unit teaching periods with random values (for demonstration purposes)
+          // Assuming teaching periods are between trimester 1 and 3
+          // You can adjust this logic based on your actual requirements
+          const randomTeachingPeriod = this.getRandomTeachingPeriod(teachingPeriods);
+          this.unitTeachingPeriods.get(randomTeachingPeriod)?.push(unit);
+          // Randomly assign each unit to a specialization
+          const randomSpecialization = this.getRandomSpecialization(specializations);
+          this.specializationUnits.get(randomSpecialization)?.push(unit);
+          console.log(
+            `Unit: ${unit.code}, Level: ${level}, Year: ${randomYear}, Teaching Periods: {randomTeachingPeriod}`,
+          ); // Log for debugging
+        });
+
+        // Log the populated specialization units data for debugging
+        console.log('Cyber Security Units:', this.specializationUnits.get('Cyber Security'));
+        console.log('Data Analytics Units:', this.specializationUnits.get('Data Analytics'));
+        console.log(
+          'Software Development Units:',
+          this.specializationUnits.get('Software Development'),
+        );
+        console.log('IT Management Units:', this.specializationUnits.get('IT Management'));
+
+        this.filteredElectiveUnits = data;
       },
       error: (err) => {
         this.errorMessage = 'Error fetching units';
@@ -160,12 +240,67 @@ export class CoursemapComponent implements OnInit {
       next: (data: UnitDefinition[]) => {
         this.requiredUnits = data;
         this.errorMessage = null;
+
+        // Initialize the map for trimester units
+        // Assuming teaching periods are between trimester 1 and 3
+        // Remember this is only for demonstating
+        // purposes and should be replaced with actual logic
+        const teachingPeriods = ['Trimester 1', 'Trimester 2', 'Trimester 3'];
+        teachingPeriods.forEach((period) => {
+          this.unitTeachingPeriods.set(period, []); // Create an empty array for each teaching period
+        });
+        // Initialize the map for specialization units
+        // Assuming specializations are predefined
+        // You can replace this with actual data from your database
+        // For demonstration, let's say we have 4 specializations
+        // You can replace this with actual data from your database
+        const specializations = [
+          'Cyber Security',
+          'Data Analytics',
+          'Software Development',
+          'IT Management',
+        ];
+        specializations.forEach((spec) => {
+          this.specializationUnits.set(spec, []); // Create an empty array for each specialization
+        });
+
+        data.forEach((unit) => {
+          // Populate unit levels here (dummy logic based on code e.g., SIT111 => Level 1)
+          const level = this.extractLevelFromCode(unit.code);
+          this.unitLevels.set(unit.code, level);
+          // Populate unit years with random values (for demonstration purposes)
+          const randomYear = this.getRandomYear();
+          this.unitYears.set(unit.code, randomYear);
+          // Populate unit teaching periods with random values (for demonstration purposes)
+          // Assuming teaching periods are between trimester 1 and 3
+          // You can adjust this logic based on your actual requirements
+          const randomTeachingPeriod = this.getRandomTeachingPeriod(teachingPeriods);
+          this.unitTeachingPeriods.get(randomTeachingPeriod)?.push(unit);
+          // Randomly assign each unit to a specialization
+          const randomSpecialization = this.getRandomSpecialization(specializations);
+          this.specializationUnits.get(randomSpecialization)?.push(unit);
+          console.log(
+            `Unit: ${unit.code}, Level: ${level}, Year: ${randomYear}, Teaching Periods: {randomTeachingPeriod}`,
+          ); // Log for debugging
+        });
+
+        // Log the populated specialization units data for debugging
+        console.log('Cyber Security Units:', this.specializationUnits.get('Cyber Security'));
+        console.log('Data Analytics Units:', this.specializationUnits.get('Data Analytics'));
+        console.log(
+          'Software Development Units:',
+          this.specializationUnits.get('Software Development'),
+        );
+        console.log('IT Management Units:', this.specializationUnits.get('IT Management'));
+
+        // Filter units based on selected criteria
+        this.filteredUnits = data;
       },
       error: (err) => {
         this.errorMessage = 'Error fetching units';
         console.error('Error fetching unit definitions:', err);
       },
-    })
+    });
     //temporarily create coursemap with id of 1 until database is loaded
     this.courseMapService.addCourseMap(1, 1);
     //add empty units to coursemap to initialise study periods
@@ -180,7 +315,39 @@ export class CoursemapComponent implements OnInit {
       }
     );
   }
-
+  // Handle method for filtering units based on selected criteria
+  filterUnits() {
+    this.filteredUnits = this.requiredUnits.filter((unit) => {
+      const levelMatch =
+        this.selectedLevel === 'All Levels' ||
+        this.unitLevels.get(unit.code) === parseInt(this.selectedLevel);
+      const yearMatch =
+        this.selectedYear === 'All Years' ||
+        this.unitYears.get(unit.code) === parseInt(this.selectedYear);
+      const periodMatch =
+        this.selectedTeachingPeriod === 'All Periods' ||
+        (this.unitTeachingPeriods.get(this.selectedTeachingPeriod)?.includes(unit) ?? false);
+      const specializationMatch =
+        this.selectedSpecialization === 'All Specializations' ||
+        (this.specializationUnits.get(this.selectedSpecialization)?.includes(unit) ?? false);
+      return levelMatch && yearMatch && periodMatch && specializationMatch;
+    });
+    this.filteredElectiveUnits = this.units.filter((unit) => {
+      const levelMatch =
+        this.selectedLevel === 'All Levels' ||
+        this.unitLevels.get(unit.code) === parseInt(this.selectedLevel);
+      const yearMatch =
+        this.selectedYear === 'All Years' ||
+        this.unitYears.get(unit.code) === parseInt(this.selectedYear);
+      const periodMatch =
+        this.selectedTeachingPeriod === 'All Periods' ||
+        (this.unitTeachingPeriods.get(this.selectedTeachingPeriod)?.includes(unit) ?? false);
+      const specializationMatch =
+        this.selectedSpecialization === 'All Specializations' ||
+        (this.specializationUnits.get(this.selectedSpecialization)?.includes(unit) ?? false);
+      return levelMatch && yearMatch && periodMatch && specializationMatch;
+    });
+  }
   populateYearsArray(courseMapUnits: CourseMapUnit[]) {
     this.years = [];
 
@@ -313,12 +480,37 @@ export class CoursemapComponent implements OnInit {
     }
   }
 
+  extractLevelFromCode(code: string): number {
+    // Extracts the first digit from the numeric part of the unit code (e.g., SIT111 -> 1)
+    const match = code.match(/\d+/);
+    if (match && match[0]) {
+      return parseInt(match[0].charAt(0), 10);
+    }
+    return 0; // Unknown or invalid format
+  }
+
+  getRandomYear(): number {
+    // Generates a random number between 2025 and 2028
+    return Math.floor(Math.random() * 4) + 2025;
+  }
+
+  // Randomly assigns a specialization to a unit
+  getRandomSpecialization(specializations: string[]): string {
+    const randomIndex = Math.floor(Math.random() * specializations.length);
+    return specializations[randomIndex]; // Randomly returns one of the specializations
+  }
+
+  getRandomTeachingPeriod(periods: string[]): string {
+    const randomIndex = Math.floor(Math.random() * periods.length);
+    return periods[randomIndex]; // Randomly returns one of the teaching periods
+  }
   // Toggle completion state
   toggleCompletion(unit: UnitDefinition) {
     this.completedUnits.has(unit.code)
       ? this.completedUnits.delete(unit.code)
       : this.completedUnits.add(unit.code);
-      console.log('Completed units:', this.completedUnits);
+
+    console.log('Completed units:', this.completedUnits);
   }
 
   // Check if a unit is completed

@@ -11,6 +11,60 @@
   max-height: 90vh;
 }
 
+.filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 30px;
+}
+
+.filter-header {
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.filter-title {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+  font-weight: 500;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 4px;
+  display: block;
+}
+
+select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  color: #333;
+  appearance: none;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+
+  &:hover {
+    border-color: #999;
+  }
+
+  option {
+    padding: 8px;
+  }
+}
+
 /* Required Units Panel */
 .required-units-container {
   width: 25%;
@@ -161,5 +215,15 @@
 
   .required-units-container, .study-periods-container {
     width: 100%;
+  }
+
+  .filter-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 20px;
+
+    .filter-header {
+      grid-column: 1 / -1;
+    }
   }
 }
