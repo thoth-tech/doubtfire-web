@@ -1,6 +1,7 @@
 import {interval} from 'rxjs';
 import {take} from 'rxjs/operators';
 
+import { ContentEditableDirective } from './common/content-editable/content-editable.directive';
 import { NgModule, Injector, DoBootstrap } from '@angular/core';
 import { BrowserModule, DomSanitizer, Title } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
@@ -271,6 +272,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
 @NgModule({
   // Components we declare
   declarations: [
+    ContentEditableDirective,
     ProgressGaugeChartComponent,
     AlertComponent,
     UnitStudentEnrolmentModalComponent,
