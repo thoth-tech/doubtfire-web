@@ -34,6 +34,9 @@
 
     <span class="grow"></span>
 
+    @if (currentUser.role === 'Admin') {
+      <f-tutorial-csv></f-tutorial-csv>
+    }
     @if (currentUser.role === 'Admin' || currentUser.role === 'Convenor') {
       <button
         #menuState="matMenuTrigger"
