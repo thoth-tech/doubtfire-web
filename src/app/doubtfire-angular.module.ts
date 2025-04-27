@@ -11,6 +11,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 // Lottie animation module
 // import {LottieModule, LottieCacheModule} from 'ngx-lottie';
+import {PortfoliosComponent} from './units/states/portfolios/portfolios';
 import {provideLottieOptions, LottieComponent} from 'ngx-lottie';
 import player from 'lottie-web';
 import {ClipboardModule} from '@angular/cdk/clipboard';
@@ -272,6 +273,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 @NgModule({
   // Components we declare
   declarations: [
+    PortfoliosComponent,
     AlertComponent,
     UnitStudentEnrolmentModalComponent,
     AboutDoubtfireModalContent,

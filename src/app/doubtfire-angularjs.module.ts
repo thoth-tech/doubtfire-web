@@ -95,7 +95,6 @@ import 'build/src/app/units/units.js';
 import 'build/src/app/units/states/tasks/inbox/inbox.js';
 import 'build/src/app/units/states/tasks/tasks.js';
 import 'build/src/app/units/states/tasks/definition/definition.js';
-import 'build/src/app/units/states/portfolios/portfolios.js';
 import 'build/src/app/units/states/groups/groups.js';
 import 'build/src/app/units/states/states.js';
 import 'build/src/app/units/states/edit/directives/unit-group-set-editor/unit-group-set-editor.js';
@@ -224,6 +223,7 @@ import {GradeService} from './common/services/grade.service';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import {PortfoliosComponent} from './units/states/portfolios/portfolios';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -304,6 +304,7 @@ DoubtfireAngularJSModule.factory('CreateNewUnitModal', downgradeInjectable(Creat
 DoubtfireAngularJSModule.factory('GradeTaskModal', downgradeInjectable(GradeTaskModalService));
 DoubtfireAngularJSModule.factory('UnitStudentEnrolmentModal', downgradeInjectable(UnitStudentEnrolmentModalService));
 DoubtfireAngularJSModule.factory('PrivacyPolicy', downgradeInjectable(PrivacyPolicy));
+DoubtfireAngularJSModule.factory('Portfolios', downgradeInjectable(PortfoliosComponent));
 
 // directive -> component
 DoubtfireAngularJSModule.directive(
@@ -489,6 +490,11 @@ DoubtfireAngularJSModule.config(otherwiseConfigBlock);
 DoubtfireAngularJSModule.directive(
   'fProgressBurndownChart',
   downgradeComponent({ component: ProgressBurndownChartComponent })
+);
+
+DoubtfireAngularJSModule.directive(
+  'f-Portfolios',
+  downgradeComponent({ component: PortfoliosComponent })
 );
 
 DoubtfireAngularJSModule.directive(
