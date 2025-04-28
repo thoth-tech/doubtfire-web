@@ -1,0 +1,23 @@
+<div class="flex items-center">
+  <button mat-button [matMenuTriggerFor]="tutorialMenu" #tutorialMenuTrigger="matMenuTrigger">
+    <span class="flex items-center">
+      <span>Tutorials</span>
+      <mat-icon>{{ tutorialMenuTrigger.menuOpen ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
+    </span>
+  </button>
+
+  <mat-menu #tutorialMenu="matMenu" class="tutorial-dropdown-menu">
+    <button mat-menu-item (click)="fileInput.click()">
+      <mat-icon>upload_file</mat-icon>
+      <span>Upload Tutorial</span>
+    </button>
+
+    <button mat-menu-item (click)="downloadFile()">
+      <mat-icon>download</mat-icon>
+      <span>Download Tutorials</span>
+    </button>
+  </mat-menu>
+
+  <!-- Hidden file input -->
+  <input type="file" accept=".csv" #fileInput (change)="onFileChange($event)" hidden />
+</div>
