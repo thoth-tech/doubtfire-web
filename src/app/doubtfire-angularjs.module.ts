@@ -110,8 +110,8 @@ import 'build/src/app/units/states/rollover/rollover.js';
 import 'build/src/app/units/states/index/index.js';
 import 'build/src/app/units/states/students-list/students-list.js';
 import 'build/src/app/units/states/analytics/analytics.js';
+
 import 'build/src/app/common/filters/filters.js';
-import 'build/src/app/common/content-editable/content-editable.js';
 import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
@@ -214,7 +214,7 @@ import { FUsersComponent } from './admin/states/users/users.component';
 import { FUnitTaskListComponent } from './units/task-viewer/directives/unit-task-list/unit-task-list.component';
 import { FTaskDetailsViewComponent } from './units/task-viewer/directives/task-details-view/task-details-view.component';
 import { FTaskSheetViewComponent } from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
-import { ProgressBurndownChartComponent } from './visualisations/progress-burndown-chart/progressburndownchart.component';
+import { ProgressGaugeChartComponent } from './visualisations/progress-gauge-chart/progress-gauge-chart.component';
 import { TaskVisualisationComponent } from './visualisations/task-visualisation/taskvisualisation.component';
 
 import {FUnitsComponent} from './admin/states/units/units.component';
@@ -487,8 +487,8 @@ DoubtfireAngularJSModule.config(otherwiseConfigBlock);
 
 
 DoubtfireAngularJSModule.directive(
-  'fProgressBurndownChart',
-  downgradeComponent({ component: ProgressBurndownChartComponent })
+  'fProgressGaugeChart',
+  downgradeComponent({component: ProgressGaugeChartComponent}),
 );
 
 DoubtfireAngularJSModule.directive(
