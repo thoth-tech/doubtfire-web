@@ -99,7 +99,6 @@ export class CoursemapComponent implements OnInit {
     url: 'http://university.edu/courses/cs101',
   };
 
-
   ngOnInit(): void {
     this.formData = {
       username: '',
@@ -136,6 +135,9 @@ export class CoursemapComponent implements OnInit {
       'Data capture technologies',
       'SIT115',
       '1',
+      1,
+      'ABCD',
+      'EFHG'
     );
     this.formData = {
       username: '',
@@ -158,6 +160,7 @@ export class CoursemapComponent implements OnInit {
     this.unitDefinitionService.getDefinitions().subscribe({
       next: (data: UnitDefinition[]) => {
         this.requiredUnits = data;
+        console.log('Unit Definitions:', data);
         this.errorMessage = null;
       },
       error: (err) => {
@@ -309,10 +312,7 @@ export class CoursemapComponent implements OnInit {
         event.previousIndex,
         event.currentIndex,
       );
-
-
     }
-
   }
 
   fetchUnitByCode(): void {

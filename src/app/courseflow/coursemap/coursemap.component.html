@@ -27,7 +27,7 @@
         [id]="electiveUnits"
       >
         <div class="text" *ngFor="let unit of electiveUnits" cdkDrag class="unit">
-          <p >
+          <p>
             <strong>{{ unit.code }}</strong> - {{ unit.name }}
           </p>
         </div>
@@ -73,7 +73,10 @@
         <h5 class="trimester-heading">Trimester 1</h5>
 
         <div *ngFor="let unit of year.trimester1" cdkDrag class="unit">
-          <strong>{{ unit.code }}</strong> - {{ unit.name }}
+          <strong>{{ unit.code }}</strong> - {{ unit.name }} <br>
+          <strong>Credit Points </strong> - {{ unit.creditpoint }} <br>
+          <strong>Prerequisite Units</strong> - {{ unit.prerequisite }} <br>
+          <strong>Corequisite Units</strong> - {{ unit.corequisite }}
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 0)">
           <mat-icon>delete</mat-icon>
@@ -92,7 +95,10 @@
         <h5 class="trimester-heading">Trimester 2</h5>
 
         <div *ngFor="let unit of year.trimester2" cdkDrag class="unit">
-          <strong>{{ unit.code }}</strong> - {{ unit.name }}
+          <strong>{{ unit.code }}</strong> - {{ unit.name }} <br>
+          <strong>Credit Points </strong> - {{ unit.creditpoint }} <br>
+          <strong>Prerequisite Units</strong> - {{ unit.prerequisite }} <br>
+          <strong>Corequisite Units</strong> - {{ unit.corequisite }}
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 1)">
           <mat-icon>delete</mat-icon>
@@ -111,7 +117,10 @@
         <h5 class="trimester-heading">Trimester 3</h5>
 
         <div *ngFor="let unit of year.trimester3" cdkDrag class="unit">
-          <strong>{{ unit.code }}</strong> - {{ unit.name }}
+          <strong>{{ unit.code }}</strong> - {{ unit.name }} <br>
+          <strong>Credit Points </strong> - {{ unit.creditpoint }} <br>
+          <strong>Prerequisite Units</strong> - {{ unit.prerequisite }} <br>
+          <strong>Corequisite Units</strong> - {{ unit.corequisite }}
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 2)">
           <mat-icon>delete</mat-icon>

@@ -4,6 +4,7 @@ import {Observable} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 
 import API_URL from 'src/app/config/constants/apiURL';
+import { param } from 'jquery';
 
 @Injectable({
   providedIn: 'root'
@@ -41,12 +42,18 @@ export class UnitDefinitionService {
     description: string,
     code: string,
     version: string,
+    tasknum: number,
+    unitTutorFirstName: string,
+    unitTutorLastName: string,
   ): Observable<UnitDefinition> {
     let params = new HttpParams();
     params.set('name', name);
     params.set('description', description);
     params.set('code', code);
     params.set('version', version);
+    params.set('Number of Tasks', tasknum);
+    params.set('Unit Tutor first name', unitTutorFirstName);
+    params.set('Unit Tutor last name', unitTutorLastName);
     console.log("added unit definition");
     return this.http.post<UnitDefinition>(this.baseUrl, {params});
   }
@@ -56,13 +63,18 @@ export class UnitDefinitionService {
     name: string,
     description: string,
     code: string,
+    tasknum: number,
+    unitTutorFirstName: string,
+    unitTutorLastName: string,
   ): Observable<UnitDefinition> {
     const params = new HttpParams();
     params.set('unitDefinitionId', unitDefinitionId.toString());
     params.set('name', name);
     params.set('description', description);
     params.set('code', code);
-
+    params.set('Number of Tasks', tasknum);
+    params.set('Unit Tutor first name', unitTutorFirstName);
+    params.set('Unit Tutor last name', unitTutorLastName);
     const url = `${this.baseUrl}/:id:`;
     return this.http.put<UnitDefinition>(url, {params});
   }

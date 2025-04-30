@@ -3,5 +3,7 @@ export interface UnitDefinition {
   name: string;
   description: string;
   code: string;
+  creditpoint: number;
+  prerequisite: string;
+  corequisite: string;
 }
-
