@@ -49,7 +49,7 @@
         autocomplete="off"
       />
       <div class="input-group-btn">
-        <button type="submit" ng-disabled="!selectedStudent.id" class="btn btn-success">""
+        <button type="submit" ng-disabled="!selectedStudent.id" class="btn btn-success">
           <i class="fa fa-plus"></i> Add Member
         </button>
       </div>
@@ -61,7 +61,7 @@
   [unit-role]="unitRole"
   [project]="project"
   [selected-group]="selectedGroup"
-  (on-members-loaded)="groupMembersLoaded()"
+  (on-members-loaded)="groupMembersLoaded($event)"
 ></group-member-list>
 
 </div>

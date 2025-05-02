@@ -8,6 +8,7 @@ import { Group } from 'src/app/api/models/doubtfire-model';
 @Component({
   selector: 'group-member-list',
   templateUrl: './group-member-list.component.html',
+  //styleUrls: ['./group-member-list.component.scss'],
 })
 export class GroupMemberListComponent implements OnInit, OnChanges {
   @Input() project: Project;
@@ -55,7 +56,6 @@ export class GroupMemberListComponent implements OnInit, OnChanges {
       }
     }
   }
-
   sortTableBy(column: string): void {
     if (this.tableSort.order === column) {
       this.tableSort.reverse = !this.tableSort.reverse;
@@ -74,11 +74,9 @@ export class GroupMemberListComponent implements OnInit, OnChanges {
     });
   }
 
-
   private getNestedValue(obj: any, path: string): any {
     return path.split('.').reduce((o, key) => (o && o[key] !== undefined ? o[key] : ''), obj);
   }
-
 
 
   startLoading(): void {
@@ -95,6 +93,8 @@ export class GroupMemberListComponent implements OnInit, OnChanges {
   removeMember(member: Project): void {
     if (this.selectedGroup) {
       this.selectedGroup.removeMember(member);
+
+      // Hack to force Angular to detect change to selectedGroup.members
     setTimeout(() => {
       this.cdr.detectChanges(); // This triggers the view to refresh
     }, 0);
