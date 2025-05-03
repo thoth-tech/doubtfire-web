@@ -22,6 +22,7 @@ import {CourseService} from 'src/app/api/services/course.service';
 import {CourseMapService} from 'src/app/api/services/course-map.service';
 import {UnitDefinitionService} from 'src/app/api/services/unit-definition.service';
 import { CourseMapUnitService } from 'src/app/api/services/course-map-unit.service';
+import { MatAutocomplete, MatAutocompleteModule } from '@angular/material/autocomplete';
 
 type signInData =
   | {
@@ -54,6 +55,7 @@ type signInData =
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatAutocompleteModule
   ],
   providers: [UnitService, CourseService, CourseMapService, UnitDefinitionService],
 })
@@ -88,6 +90,7 @@ export class CoursemapComponent implements OnInit {
   requiredUnits: UnitDefinition[] = [];
   courses: Course[] = [];
   courseMapUnits: CourseMapUnit[];
+  filteredUnits: Unit[] = [];
 
   // Temporarily creating a course until database is populated with real data
   testCourse: Course = {
@@ -339,5 +342,15 @@ export class CoursemapComponent implements OnInit {
       this.unit = null;
     }
   }
-
+  filterUnits(value: string): void {
+    const filterValue = value.toLowerCase();
+    this.filteredUnits = this.units.filter(unit =>
+      unit.code.toLowerCase().includes(filterValue) ||
+      unit.name.toLowerCase().includes(filterValue)
+    );
+  }
+  
+  onUnitSelected(selectedCode: string): void {
+    this.unitCode = selectedCode;
+  }
 }

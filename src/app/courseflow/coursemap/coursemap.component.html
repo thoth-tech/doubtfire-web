@@ -36,15 +36,28 @@
         <div>
           <mat-form-field appearance="fill">
             <mat-label>Enter Unit Code</mat-label>
-            <input class="search-bar" matInput [(ngModel)]="unitCode" name="unitCode" id="unitCode"/>
+            <input
+              type="text"
+              class="search-bar"
+              matInput
+              [(ngModel)]="unitCode"
+              name="unitCode"
+              id="unitCode"
+              [matAutocomplete]="auto"
+              (ngModelChange)="filterUnits($event)"
+            />
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onUnitSelected($event.option.value)">
+              <mat-option *ngFor="let unit of filteredUnits" [value]="unit.code">
+                {{ unit.code }} - {{ unit.name }}
+              </mat-option>
+            </mat-autocomplete>
           </mat-form-field>
           <button mat-flat-button class="button" color="primary" type="submit">Add Unit</button>
-
           <div *ngIf="errorMessage" class="error">
             {{ errorMessage }}
           </div>
         </div>
-      </form>
+      </form>      
     </div>
   </div>
   <!-- Study Periods Panel -->
