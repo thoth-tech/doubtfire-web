@@ -16,18 +16,13 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
   @Input() grade: any;
 
   data: any[] = [];
+  gaugeData: any[] = [];
   temp: any[] = [];
 
   // options
   legend: boolean = true;
   showLabels: boolean = true;
   animations: boolean = true;
-  xAxis: boolean = true;
-  yAxis: boolean = true;
-  showYAxisLabel: boolean = true;
-  showXAxisLabel: boolean = true;
-  xAxisLabel: string = 'Time';
-  yAxisLabel: string = 'Tasks Remaining';
   colorScheme = { domain: ['#AAAAAA', '#777777', '#0079d8', '#E01B5D'] };
 
   private seriesVisibility: { [key: string]: boolean } = {};
@@ -35,6 +30,7 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
   constructor(public viewContainerRef: ViewContainerRef) {
     super(viewContainerRef);
     this.data = [];
+    this.gaugeData = [];
     this.temp = [];
   }
 
@@ -78,6 +74,7 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
     const chartData = this.project?.burndownChartData;
     const dates = this.generateDates();
 
+    // Create data for line chart (keeping original functionality)
     const formattedData = chartData.map((dataset) => {
       const values = Array(10)
         .fill(0)
@@ -100,8 +97,33 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
       };
     });
 
+    // Create data for gauge chart
+    // We take the latest value from each series
+    const gaugeFormattedData = chartData.map((dataset) => {
+      // Get the latest non-zero value
+      // Fix for the TypeScript error
+      const latestValues = dataset.values.filter(v => v && Array.isArray(v) && v.length > 1);
+      const latestValue = latestValues.length > 0 ?
+                          latestValues[latestValues.length - 1][1] : 0;
+
+      // Convert to percentage
+      let value = latestValue * 100;
+      if (value < 0) value = 0;
+
+      // Format name for display
+      let name = dataset.key;
+      if (name === 'To Submit') name = 'ToSubmit';
+      if (name === 'To Complete') name = 'ToComplete';
+
+      return {
+        name: name,
+        value: value
+      };
+    });
+
     this.temp = JSON.parse(JSON.stringify(formattedData));
     this.data = formattedData;
+    this.gaugeData = gaugeFormattedData;
   }
 
   onSelect(event): void {
@@ -135,5 +157,6 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
 
   public formatPerc(input) {
     return `${input}%`;
+
   }
 }
