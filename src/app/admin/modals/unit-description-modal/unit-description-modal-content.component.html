@@ -1,0 +1,16 @@
+<h3 mat-dialog-title>Unit Details</h3>
+
+<div mat-dialog-content class="pt-4">
+  <p><strong>Unit Code:</strong> {{ unit.code }}</p>
+  <p><strong>Name:</strong> {{ unit.name }}</p>
+  <p><strong>Credit Points:</strong> {{ unit.creditpoint }}</p>
+  <p>
+    <strong>Description:</strong><br /> {{ unit.description }}
+  </p>
+  <p *ngIf="unit.prerequisite"><strong>Prerequisite:</strong> {{ unit.prerequisite }}</p>
+  <p *ngIf="unit.corequisite"><strong>Corequisite:</strong> {{ unit.corequisite }}</p>
+</div>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

@@ -36,28 +36,15 @@
         <div>
           <mat-form-field appearance="fill">
             <mat-label>Enter Unit Code</mat-label>
-            <input
-              type="text"
-              class="search-bar"
-              matInput
-              [(ngModel)]="unitCode"
-              name="unitCode"
-              id="unitCode"
-              [matAutocomplete]="auto"
-              (ngModelChange)="filterUnits($event)"
-            />
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onUnitSelected($event.option.value)">
-              <mat-option *ngFor="let unit of filteredUnits" [value]="unit.code">
-                {{ unit.code }} - {{ unit.name }}
-              </mat-option>
-            </mat-autocomplete>
+            <input class="search-bar" matInput [(ngModel)]="unitCode" name="unitCode" id="unitCode"/>
           </mat-form-field>
           <button mat-flat-button class="button" color="primary" type="submit">Add Unit</button>
+
           <div *ngIf="errorMessage" class="error">
             {{ errorMessage }}
           </div>
         </div>
-      </form>      
+      </form>
     </div>
   </div>
   <!-- Study Periods Panel -->
@@ -89,7 +76,10 @@
           <strong>{{ unit.code }}</strong> - {{ unit.name }} <br>
           <strong>Credit Points </strong> - {{ unit.creditpoint }} <br>
           <strong>Prerequisite Units</strong> - {{ unit.prerequisite }} <br>
-          <strong>Corequisite Units</strong> - {{ unit.corequisite }}
+          <strong>Corequisite Units</strong> - {{ unit.corequisite }} <br>
+          <button class="info-button" (click)="openUnitDetailModal(unit)">
+            <strong> ... </strong>
+          </button>
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 0)">
           <mat-icon>delete</mat-icon>
@@ -111,11 +101,11 @@
           <strong>{{ unit.code }}</strong> - {{ unit.name }} <br>
           <strong>Credit Points </strong> - {{ unit.creditpoint }} <br>
           <strong>Prerequisite Units</strong> - {{ unit.prerequisite }} <br>
-          <strong>Corequisite Units</strong> - {{ unit.corequisite }}
+          <strong>Corequisite Units</strong> - {{ unit.corequisite }}<br>
+          <button mat-icon-button (click)="openUnitDetailModal(unit)">
+            <strong> ... </strong>>
+          </button>
         </div>
-        <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 1)">
-          <mat-icon>delete</mat-icon>
-        </button>
       </div>
       <!-- Trimester 3 -->
       <div
@@ -130,10 +120,13 @@
         <h5 class="trimester-heading">Trimester 3</h5>
 
         <div *ngFor="let unit of year.trimester3" cdkDrag class="unit">
-          <strong>{{ unit.code }}</strong> - {{ unit.name }} <br>
-          <strong>Credit Points </strong> - {{ unit.creditpoint }} <br>
-          <strong>Prerequisite Units</strong> - {{ unit.prerequisite }} <br>
-          <strong>Corequisite Units</strong> - {{ unit.corequisite }}
+          <strong>{{ unit.code }}</strong> - {{ unit.name }} <br />
+          <strong>Credit Points </strong> - {{ unit.creditpoint }} <br />
+          <strong>Prerequisite Units</strong> - {{ unit.prerequisite }} <br />
+          <strong>Corequisite Units</strong> - {{ unit.corequisite }} <br />
+          <button mat-icon-button (click)="openUnitDetailModal(unit)">
+            <strong> ... </strong>>
+          </button>
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 2)">
           <mat-icon>delete</mat-icon>

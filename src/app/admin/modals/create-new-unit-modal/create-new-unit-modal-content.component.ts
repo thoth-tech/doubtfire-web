@@ -16,7 +16,7 @@ export class CreateNewUnitModalContentComponent implements OnInit {
     private alerts: AlertService,
   ) {}
   showDates = false;
-  startDate: Date;
+  startDate: Date
   endDate: Date;
   selectedTeachingPeriod: number = null;
   corequisite: string = "null";
