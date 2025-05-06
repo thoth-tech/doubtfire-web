@@ -14,6 +14,7 @@ import {ProjectRootState} from './projects/states/project-root-state.component';
 import { TaskViewerState } from './units/task-viewer/task-viewer-state.component';
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import { Ng2ViewDeclaration } from '@uirouter/angular';
+import {PortfoliosComponent} from './units/states/portfolios/portfolios.component';
 
 /*
  * Use this file to store any states that are sourced by angular components.
@@ -411,6 +412,22 @@ const ScormPlayerReviewState: NgHybridStateDeclaration = {
   },
 };
 
+const PortfoliosState: NgHybridStateDeclaration = {
+  name: 'portfolios',
+  parent: 'units/index',
+  url: '/students/portfolios',
+  views: {
+    main: {
+      component: PortfoliosComponent,
+    },
+  },
+  data: {
+    task: "Student Portfolios",
+    pageTitle: '_"Home"_',
+    roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
+  }
+};
+
 /**
  * Export the list of states we have created in angular
  */
@@ -433,4 +450,5 @@ export const doubtfireStates = [
   ScormPlayerNormalState,
   ScormPlayerReviewState,
   ScormPlayerStudentReviewState,
+  PortfoliosState,
 ];
