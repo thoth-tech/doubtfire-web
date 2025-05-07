@@ -423,7 +423,7 @@ const PortfoliosState: NgHybridStateDeclaration = {
   },
   data: {
     task: "Student Portfolios",
-    pageTitle: '_"Home"_',
+    pageTitle: '_Home_',
     roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
   }
 };

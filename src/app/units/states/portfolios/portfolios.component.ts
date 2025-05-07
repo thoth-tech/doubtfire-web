@@ -28,8 +28,8 @@ interface User {
 
 @Component({
   selector: 'f-portfolios',
-  templateUrl: './portfolios.html',
-  styleUrls: ['./portfolios.css']
+  templateUrl: './portfolios.component.html',
+  styleUrls: ['./portfolios.component.scss']
 })
 export class PortfoliosComponent implements OnInit {
   tabs: Record<string, Tab> = {
