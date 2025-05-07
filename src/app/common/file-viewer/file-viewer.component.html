@@ -10,6 +10,7 @@
     style="display: block; min-height: 60rem"
     [src]="blobUrl"
     [render-text]="true"
+    [disableJavascript]="true"
     (after-load-complete)="onLoaded()"
     (page-rendered)="loaded = true"
     (on-progress)="onProgress($event)"
