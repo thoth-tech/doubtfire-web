@@ -7,7 +7,12 @@
       [class.active]="tab.value.active"
       [class.disabled]="!selectedStudent"
     >
-      <a class="nav-link" (click)="selectedStudent && setActiveTab(tab.value)">
+      <a
+        class="nav-link"
+        (click)="selectedStudent && setActiveTab(tab.value)"
+        (keydown.enter)="selectedStudent && setActiveTab(tab.value)"
+        tabindex="0"
+      >
         {{ tab.value.title }}
       </a>
     </li>
