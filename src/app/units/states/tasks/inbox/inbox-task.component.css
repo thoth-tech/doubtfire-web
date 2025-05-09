@@ -1,0 +1,9 @@
+.inbox-container {
+  height: var(--main-view-max-height);
+  display: flex;
+  flex-direction: column;
+}
+
+.inbox-container .mat-card-content {
+  flex-grow: 1;
+}
