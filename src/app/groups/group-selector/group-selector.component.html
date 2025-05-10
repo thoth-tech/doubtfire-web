@@ -1,0 +1,284 @@
+<div class="px-4 py-3 rounded-t text-white bg-[#337ab7] font-semibold">
+  <h4 class="text-2xl font-semibold flex items-center gap-2">
+    Groups for
+    <ng-container *ngIf="showGroupSetSelector; else justName">
+      <group-set-selector
+        [unit]="unit"
+        [(selectedGroupSet)]="selectedGroupSet"
+        (onSelectGroupSet)="selectGroupSet($event)"
+      >
+      </group-set-selector>
+    </ng-container>
+    <ng-template #justName>
+      <span class="font-semibold">{{ selectedGroupSet?.name || 'Group Work' }}</span>
+    </ng-template>
+  </h4>
+</div>
+
+<div
+  class="bg-white px-4 py-3 flex flex-col md:flex-row md:items-center gap-3 border-b border-gray-200 items-center"
+>
+  <div class="flex justify-start w-full md:w-1/2 space-x-2 staff-filter" *ngIf="unitRole">
+    <div class="flex rounded-md overflow-hidden border border-gray-300 divide-x divide-gray-300">
+      <button
+        class="flex items-center justify-center px-4 py-2 w-50 text-lg cursor-pointer bg-white hover:bg-gray-100 transition"
+        [ngClass]="{'bg-blue-100 font-semibold': staffFilter === 'all'}"
+        (click)="setStaffFilter('all')"
+        type="button"
+      >
+        <mat-icon class="mr-2 text-xl">school</mat-icon> All Tutorials
+      </button>
+      <button
+        class="flex items-center justify-center px-4 py-2 w-50 text-lg cursor-pointer bg-white hover:bg-gray-100 transition"
+        [ngClass]="{'bg-blue-100  font-semibold': staffFilter === 'mine'}"
+        (click)="setStaffFilter('mine')"
+        type="button"
+      >
+        <mat-icon class="mr-2 text-xl">edit</mat-icon> My Tutorials
+      </button>
+    </div>
+  </div>
+
+  <div class="flex justify-end w-full md:w-1/2">
+    <input
+      class="flex-grow px-4 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg h-10"
+      placeholder="Group Name"
+      [(ngModel)]="newGroupName"
+    />
+    <button
+      class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-r transition-colors duration-200 shadow-none border border-l-0 border-green-500 h-10 whitespace-nowrap"
+      *ngIf="canCreateGroups"
+      (click)="addGroup(newGroupName)"
+    >
+      <span class="text-xl font-bold">+</span>
+      Create Group
+    </button>
+  </div>
+</div>
+
+<div *ngIf="!loaded" class="flex items-center justify-center py-8">
+  <mat-icon class="animate-spin text-blue-500 text-2xl mr-2 text-base leading-none"
+    >autorenew</mat-icon
+  >
+  Loading Groups...
+</div>
+
+<div *ngIf="loaded && filteredGroups?.length === 0" class="bg-[#e3effa] border-l-4 border-[#337ab7] p-4 rounded">
+  <h4 class="font-semibold text-[#337ab7] mb-2">No Groups To Show</h4>
+  <p class="text-gray-700">
+    There are no groups available for <strong>{{ selectedGroupSet?.name }}</strong>
+    {{
+      staffFilter === 'mine' || selectedGroupSet?.keepGroupsInSameClass
+        ? ' in your tutorials.'
+        : ''
+    }}
+    {{ newGroupName.length > 0 ? ' with name ' + newGroupName + '.' : '.' }}
+  </p>
+  <p *ngIf="selectedGroupSet?.keepGroupsInSameClass" class="mt-2 text-sm text-blue-800">
+    Please make sure that you are enrolled in the correct tutorial. You can only join a group that
+    is running in your allocated tutorial. Use the
+    <a [routerLink]="['/projects/tutorials', project?.id]" class="underline text-blue-700"
+      >Tutorial List</a
+    >
+    to check and update your tutorial enrollment.
+  </p>
+</div>
+
+<div class="overflow-x-auto border border-gray-200 rounded-b-lg">
+  <table
+    *ngIf="loaded && shownGroups?.length > 0"
+    class="min-w-full table-fixed divide-y divide-gray-200 border border-gray-200 rounded-b-lg"
+  >
+    <thead class="bg-gray-100">
+      <tr class="h-10">
+        <th class="px-4 py-2 h-10 align-middle">
+          <div class="flex items-center space-x-1 cursor-pointer" (click)="sortTableBy('name')">
+            <span class="font-bold text-[#337ab7]">Name</span>
+            <mat-icon
+              *ngIf="tableSort.order === 'name'"
+              class="text-[#337ab7] text-2xl flex items-center"
+            >
+              {{ tableSort.reverse ? 'arrow_drop_up' : 'arrow_drop_down' }}
+            </mat-icon>
+          </div>
+        </th>
+        <th class="px-4 py-2 h-10 align-middle">
+          <div
+            class="flex items-center space-x-1 cursor-pointer"
+            (click)="sortTableBy('tutorial.abbreviation')"
+          >
+            <span class="font-bold text-[#337ab7]">Tutorial</span>
+            <mat-icon
+              *ngIf="tableSort.order === 'tutorial.abbreviation'"
+              class="text-[#337ab7] text-2xl flex items-center"
+            >
+              {{ tableSort.reverse ? 'arrow_drop_up' : 'arrow_drop_down' }}
+            </mat-icon>
+          </div>
+        </th>
+        <th *ngIf="unitRole" class="px-4 py-2 h-10 align-middle">
+          <div
+            class="flex items-center space-x-1 cursor-pointer"
+            (click)="sortTableBy('capacityAdjustment')"
+          >
+            <span class="font-bold text-[#337ab7]">Capacity Adjustment</span>
+            <mat-icon
+              *ngIf="tableSort.order === 'capacityAdjustment'"
+              class="text-[#337ab7] text-2xl flex items-center"
+            >
+              {{ tableSort.reverse ? 'arrow_drop_up' : 'arrow_drop_down' }}
+            </mat-icon>
+          </div>
+        </th>
+        <th class="px-4 py-2 h-10 align-middle">
+          <div
+            class="flex items-center space-x-1 cursor-pointer"
+            (click)="sortTableBy('hasSpace()')"
+          >
+            <span class="font-bold text-[#337ab7]">Capacity</span>
+            <mat-icon
+              *ngIf="tableSort.order === 'hasSpace()'"
+              class="text-[#337ab7] text-2xl flex items-center"
+            >
+              {{ tableSort.reverse ? 'arrow_drop_up' : 'arrow_drop_down' }}
+            </mat-icon>
+          </div>
+        </th>
+        <th
+          *ngIf="(project && selectedGroupSet.allowStudentsToManageGroups) || unitRole"
+          class="px-4 py-2 h-10 align-middle"
+        >
+          <span class="font-bold text-gray-800">Actions</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let group of shownGroups; let i = index"
+        [ngClass]="i % 2 === 1 ? 'bg-blue-50' : 'bg-white'"
+        class="h-10 align-middle text-xl text-[#333] cursor-pointer hover:bg-gray-50"
+        (click)="selectGroup(group)"
+      >
+        <!-- Group Name -->
+        <td class="px-4 py-2 h-10 align-middle cursor-pointer">
+          <span *ngIf="editingGroupId !== group.id" class="font-bold">{{
+            group.name || 'Not Set'
+          }}</span>
+          <input
+            *ngIf="editingGroupId === group.id"
+            [(ngModel)]="editCache.name"
+            (blur)="saveEdit(group)"
+            (keydown.enter)="saveEdit(group)"
+            (keydown.esc)="cancelEdit()"
+            class="text-xl px-2 py-1 border border-gray-300 rounded w-full h-10"
+            autofocus
+          />
+        </td>
+        <!-- Tutorial -->
+        <td class="px-4 py-2 h-10 align-middle cursor-pointer">
+          <span *ngIf="editingGroupId !== group.id">{{ group?.tutorial?.abbreviation }}</span>
+          <select
+            *ngIf="editingGroupId === group.id"
+            [(ngModel)]="editCache.tutorialId"
+            (blur)="saveEdit(group)"
+            class="text-xl px-2 py-1 border border-gray-300 rounded w-full h-10"
+          >
+            <option *ngFor="let t of unit.tutorials" [value]="t.id">{{ t.abbreviation }}</option>
+          </select>
+        </td>
+        <!-- Capacity Adjustment -->
+        <td *ngIf="unitRole" class="px-4 py-2 h-10 align-middle text-center cursor-pointer">
+          <span *ngIf="editingGroupId !== group.id">{{ group.capacityAdjustment }}</span>
+          <input
+            *ngIf="editingGroupId === group.id"
+            type="number"
+            [(ngModel)]="editCache.capacityAdjustment"
+            (blur)="saveEdit(group)"
+            class="text-xl text-center px-2 py-1 border border-gray-300 rounded h-10 w-16"
+          />
+        </td>
+        <!-- Capacity -->
+        <td class="px-4 py-2 h-10 align-middle text-center">
+          <span *ngIf="group?.hasSpace()" class="text-green-600 font-semibold">Available</span>
+          <span *ngIf="!group?.hasSpace()" class="text-red-600 font-semibold">Full</span>
+        </td>
+        <!-- Actions -->
+        <td class="px-4 py-2 flex gap-2 items-center" (click)="$event.stopPropagation()">
+          <ng-container *ngIf="editingGroupId === group.id; else notEditingBtns">
+            <button
+              (click)="saveEdit(group)"
+              class="flex items-center justify-center gap-1 px-2 py-1.5 bg-white border border-gray-300 text-gray-800 rounded text-base font-medium shadow-sm hover:bg-gray-100 h-10"
+            >
+              <mat-icon class="text-2xl leading-none flex items-center">save</mat-icon>
+              <span>Save</span>
+            </button>
+            <button
+              (click)="cancelEdit()"
+              class="flex items-center justify-center gap-1 px-2 py-1.5 bg-white border border-gray-300 text-gray-800 rounded text-base font-medium shadow-sm hover:bg-gray-100 h-10"
+            >
+              <mat-icon class="text-2xl leading-none flex items-center">close</mat-icon>
+              <span>Cancel</span>
+            </button>
+          </ng-container>
+          <ng-template #notEditingBtns>
+            <button
+              class="flex items-center justify-center gap-1 px-2 py-1.5 bg-white border border-gray-300 text-gray-800 rounded text-base font-medium shadow-sm hover:bg-gray-100 h-10"
+              (click)="startEditing(group)"
+            >
+              <mat-icon class="text-xl leading-none flex items-center">edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            <button
+              class="flex items-center justify-center gap-1 px-2 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-base font-medium shadow-sm h-10"
+              (click)="toggleLocked(group)"
+            >
+              <mat-icon class="text-xl leading-none flex items-center">
+                {{ group.locked ? 'lock' : 'lock_open' }}
+              </mat-icon>
+              <span>{{ group.locked ? 'Unlock' : 'Lock' }}</span>
+            </button>
+            <button
+              class="flex items-center justify-center gap-1 px-2 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-base font-medium shadow-sm h-10"
+              (click)="deleteGroup(group)"
+            >
+              <mat-icon class="text-xl leading-none flex items-center">delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </ng-template>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div
+  class="panel-footer text-center py-4 bg-white border-t"
+  *ngIf="
+    pagination.show ||
+    (selectedGroupSet?.keepGroupsInSameClass && shownGroups?.length > 0 && !unitRole)
+  "
+>
+  <pagination
+    *ngIf="pagination.show"
+    [totalItems]="pagination.totalSize"
+    (pageChanged)="pagination.onChange()"
+    [(ngModel)]="pagination.currentPage"
+    [itemsPerPage]="pagination.pageSize"
+    [maxSize]="pagination.maxSize"
+    class="pagination-sm"
+    [boundaryLinks]="true"
+    [rotate]="false"
+  >
+  </pagination>
+  <p
+    *ngIf="selectedGroupSet?.keepGroupsInSameClass && shownGroups?.length > 0 && !unitRole"
+    class="mt-2 text-sm text-blue-800"
+  >
+    Can't see the group you need to join? Groups shown are limited to those in your allocated
+    tutorials. Use the
+    <a [routerLink]="['/projects/tutorials', project.id]" class="underline text-blue-700"
+      >Tutorial List</a
+    >
+    to check and update your tutorial enrollment if needed.
+  </p>
+</div>

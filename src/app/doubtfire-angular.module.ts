@@ -224,7 +224,12 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
-
+import {GroupSetSelectorComponent} from './groups/group-set-selector/group-set-selector.component';
+import {GroupSelectorComponent} from './groups/group-selector/group-selector.component';
+import {GroupsInTutorialsPipe} from './common/filters/groups-in-tutorial.pipe';
+import {GroupsWithNamePipe} from './common/filters/groups-with-name.pipe';
+import {GroupsForStudentPipe} from './common/filters/groups-for-student.pipe';
+import {PaginateAndSortPipe} from './common/filters/paginate-and-sort.pipe';
 @NgModule({
   // Components we declare
   declarations: [
@@ -325,6 +330,8 @@ import {GradeService} from './common/services/grade.service';
     FUsersComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    GroupSetSelectorComponent,
+    GroupSelectorComponent,
   ],
   // Services we provide
   providers: [
@@ -399,6 +406,10 @@ import {GradeService} from './common/services/grade.service';
     provideLottieOptions({
       player: () => player,
     }),
+    GroupsInTutorialsPipe,
+    GroupsWithNamePipe,
+    GroupsForStudentPipe,
+    PaginateAndSortPipe,
   ],
   imports: [
     FlexLayoutModule,

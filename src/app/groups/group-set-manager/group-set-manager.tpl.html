@@ -1,15 +1,15 @@
 <group-selector
-  unit="unit"
-  unit-role="unitRole"
-  project="project"
-  selected-group="selectedGroup"
-  selected-group-set="selectedGroupSet"
-  show-group-set-selector="showGroupSetSelector"
-  on-select="newGroupSelected"
-  class="panel panel-primary"
->
+  [unit]="unit"
+  [project]="project"
+  [unit-role]="unitRole"
+  [selected-group-set]="selectedGroupSet"
+  [selected-group]="selectedGroup"
+  [show-group-set-selector]="showGroupSetSelector"
+  (on-select-group)="newGroupSelected($event)">
 </group-selector>
+
 <div class="panel panel-default panel-group-memberships" ng-show="selectedGroup">
+
   <div class="panel-heading">
     <div class="row">
       <div class="col-xs-11">
