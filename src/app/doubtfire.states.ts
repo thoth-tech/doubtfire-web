@@ -15,6 +15,8 @@ import { TaskViewerState } from './units/task-viewer/task-viewer-state.component
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import { Ng2ViewDeclaration } from '@uirouter/angular';
 import {PortfoliosComponent} from './units/states/portfolios/portfolios.component';
+import {UnitService} from './api/services/unit.service';
+import {AppInjector} from './app-injector';
 
 /*
  * Use this file to store any states that are sourced by angular components.
@@ -418,6 +420,17 @@ const PortfoliosState: NgHybridStateDeclaration = {
   views: {
     main: {
       component: PortfoliosComponent,
+    },
+  },
+  resolve: {
+    unit: function ($stateParams) {
+      const unitService = AppInjector.get(UnitService);
+      console.log($stateParams);
+      unitService.query({id: $stateParams.unitId}).subscribe((unit) => {
+        console.log($stateParams.unitId);
+        console.log(unit);
+        return unit;
+      });
     },
   },
   data: {

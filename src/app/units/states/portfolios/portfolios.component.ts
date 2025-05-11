@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnInit} from '@angular/core';
 import {AlertService} from 'src/app/common/services/alert.service';
 import {UserService} from 'src/app/api/services/user.service';
 import {GradeService} from 'src/app/common/services/grade.service';
@@ -7,8 +7,6 @@ import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloa
 import {Project} from 'src/app/api/models/project';
 import {Unit} from 'src/app/api/models/unit';
 import {analyticsService} from 'src/app/ajs-upgraded-providers';
-import {StateParams} from '@uirouter/core';
-import {UnitService} from 'src/app/api/services/unit.service';
 
 interface Tab {
   title: string;
@@ -60,7 +58,7 @@ export class PortfoliosComponent implements OnInit {
   editingRationale = false;
   selectedStudent: User | null = null;
   project: Project | null = null;
-  unit: Unit | null = null;
+  @Input() unit: Unit | null = null;
 
   constructor(
     private userService: UserService,
@@ -69,8 +67,6 @@ export class PortfoliosComponent implements OnInit {
     private projectService: ProjectService,
     private fileDownloaderService: FileDownloaderService,
     @Inject(analyticsService) private AnalyticsService,
-    private statePrams: StateParams,
-    private unitService: UnitService
   )
   {
     this.tutor = this.userService.currentUser;
@@ -81,13 +77,6 @@ export class PortfoliosComponent implements OnInit {
     this.AnalyticsService.event('studentFilter', 'Teacher View - Grading Tab');
     this.AnalyticsService.event('sortOrder', 'Teacher View - Grading Tab');
     this.AnalyticsService.event('currentPage', 'Teacher View - Grading Tab', 'Selected Page');
-
-    const unitId = this.statePrams.unit_id;
-    if (unitId) {
-      this.unitService.addKey(unitId).subscribe(unit => {
-        this.unit = unit;
-      });
-    }
   }
 
   setActiveTab(tab: Tab): void {
