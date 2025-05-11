@@ -421,6 +421,7 @@ const MY_DATE_FORMAT = {
     plagiarismReportModalProvider,
     UnitStudentsEditorComponent,
     ConfirmationModalProvider,
+    UnitDatesSelectorComponent,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpAuthenticationInterceptor,
