@@ -1,5 +1,6 @@
 import {interval} from 'rxjs';
 import {take} from 'rxjs/operators';
+import { ContentEditableDirective } from './common/content-editable/content-editable.directive';
 
 import { NgModule, Injector, DoBootstrap } from '@angular/core';
 import { BrowserModule, DomSanitizer, Title } from '@angular/platform-browser';

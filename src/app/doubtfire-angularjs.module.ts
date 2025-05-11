@@ -111,7 +111,7 @@ import 'build/src/app/units/states/index/index.js';
 import 'build/src/app/units/states/students-list/students-list.js';
 import 'build/src/app/units/states/analytics/analytics.js';
 import 'build/src/app/common/filters/filters.js';
-import 'build/src/app/common/content-editable/content-editable.js';
+import { ContentEditableDirective } from './common/content-editable/content-editable.directive';
 import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
@@ -494,4 +494,8 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'fTaskVisualisation',
   downgradeComponent({ component: TaskVisualisationComponent })
+);
+DoubtfireAngularJSModule.directive(
+  'contenteditable',
+  downgradeComponent({ component: ContentEditableDirective })
 );
