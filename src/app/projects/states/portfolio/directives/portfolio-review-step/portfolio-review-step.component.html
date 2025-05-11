@@ -1,0 +1,115 @@
+<div id="portfolio-state" class="container project-portfolio-wizard"></div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Review Portfolio</h3>
+  </div>
+
+  <div class="panel-body">
+    <!-- Error Card -->
+    <div class="card border-danger mb-3" *ngIf="!(hasLSR && hasTasksSelected)">
+      <div class="card-header bg-danger text-white">
+        <i class="fa fa-warning"></i> There are issues with your portfolio
+      </div>
+      <div class="card-body">
+        <p *ngIf="!hasLSR">
+          Your portfolio <strong>must</strong> include a learning summary report.
+        </p>
+        <p *ngIf="!hasTasksSelected"></p>
+        <p *ngIf="unitHasILOs">
+          Your portfolio <strong>must</strong> include tasks aligned to the unit’s
+          <strong>{{ unit.ilos.length }} intended learning outcomes</strong>.
+        </p>
+        <p *ngIf="!unitHasILOs">
+          Your portfolio <strong>must</strong> include tasks that you have completed this teaching
+          period.
+        </p>
+      </div>
+    </div>
+
+    <!-- Compiling Card -->
+    <div class="card border-info mb-3" *ngIf="portfolioIsCompiling">
+      <div class="card-header bg-info text-white">Portfolio Processing</div>
+      <div class="card-body">
+        <p>Your portfolio compilation is scheduled with {{ externalName.value }}.</p>
+      </div>
+    </div>
+
+    <!-- Task & File Review Section -->
+    <div *ngIf="canCompilePortfolio">
+      <p>
+        {{ externalName.value }} will create your portfolio once you are happy with your
+        submissions.
+      </p>
+
+      <!-- Extra Files -->
+      <div *ngIf="extraFiles().length > 0">
+        <p>
+          You have attached
+          <strong
+            >{{ extraFiles().length }} extra file{{ extraFiles().length > 1 ? 's' : '' }}</strong
+          >.
+        </p>
+        <ol>
+          <li *ngFor="let file of extraFiles()">
+            <i class="fa fa-file-{{ file.kind }}-o"></i> {{ file.name }}
+          </li>
+        </ol>
+      </div>
+
+      <!-- Selected Tasks -->
+      <div *ngIf="selectedTasks().length > 0">
+        <p>
+          You have included <strong>{{ selectedTasks().length }} tasks</strong> in your portfolio.
+          Each task will be attached in the order below:
+        </p>
+        <ol>
+          <li *ngFor="let task of selectedTasks()">
+            <span class="badge bg-info text-white me-2">{{ task.definition.abbreviation }}</span>
+            {{ task.definition.name }}
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Create Portfolio Button -->
+    <div class="card border-secondary mb-3" *ngIf="canCompilePortfolio">
+      <div class="card-header">Create Your Portfolio</div>
+      <div class="card-body">
+        <p>
+          Once you click <strong>Create Portfolio</strong>, OnTrack will compile your submission.
+        </p>
+        <p class="fw-bold">
+          To make changes after this, you will need to delete and recreate the portfolio.
+        </p>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-success w-100" (click)="toggleCompileProject()">
+          <i class="fa fa-book"></i> Create My Portfolio
+        </button>
+      </div>
+    </div>
+
+    <!-- Download Portfolio -->
+    <div class="card border-success" *ngIf="project?.portfolioAvailable">
+      <div class="card-header bg-success text-white">Download Portfolio</div>
+      <div class="card-body">
+        This is the <strong>exact same document</strong> your assessor will see.
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-danger me-2" (click)="deletePortfolio()">
+          <i class="fa fa-trash-o"></i> Delete Portfolio
+        </button>
+        <button class="btn btn-success" (click)="downloadPortfolio()">
+          <i class="fa fa-download"></i> Download Portfolio
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Navigation -->
+  <div class="panel-footer d-flex justify-content-between">
+    <button class="btn btn-primary" (click)="advanceActiveTab(-1)">
+      <i class="fa fa-arrow-left"></i> Back
+    </button>
+  </div>
+</div>
