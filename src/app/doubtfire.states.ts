@@ -413,19 +413,18 @@ const ScormPlayerReviewState: NgHybridStateDeclaration = {
 };
 
 const PortfoliosState: NgHybridStateDeclaration = {
-  name: 'portfolios',
-  parent: 'units/index',
-  url: '/students/portfolios',
+  name: 'units/students/portfolios',
+  url: '/units/:unitId/students/portfolios',
   views: {
     main: {
       component: PortfoliosComponent,
     },
   },
   data: {
-    task: "Student Portfolios",
+    task: 'Student Portfolios',
     pageTitle: '_Home_',
     roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
-  }
+  },
 };
 
 /**

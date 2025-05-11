@@ -7,6 +7,8 @@ import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloa
 import {Project} from 'src/app/api/models/project';
 import {Unit} from 'src/app/api/models/unit';
 import {analyticsService} from 'src/app/ajs-upgraded-providers';
+import {StateParams} from '@uirouter/core';
+import {UnitService} from 'src/app/api/services/unit.service';
 
 interface Tab {
   title: string;
@@ -67,7 +69,10 @@ export class PortfoliosComponent implements OnInit {
     private projectService: ProjectService,
     private fileDownloaderService: FileDownloaderService,
     @Inject(analyticsService) private AnalyticsService,
-  ) {
+    private statePrams: StateParams,
+    private unitService: UnitService
+  )
+  {
     this.tutor = this.userService.currentUser;
   }
 
@@ -76,6 +81,13 @@ export class PortfoliosComponent implements OnInit {
     this.AnalyticsService.event('studentFilter', 'Teacher View - Grading Tab');
     this.AnalyticsService.event('sortOrder', 'Teacher View - Grading Tab');
     this.AnalyticsService.event('currentPage', 'Teacher View - Grading Tab', 'Selected Page');
+
+    const unitId = this.statePrams.unit_id;
+    if (unitId) {
+      this.unitService.addKey(unitId).subscribe(unit => {
+        this.unit = unit;
+      });
+    }
   }
 
   setActiveTab(tab: Tab): void {
