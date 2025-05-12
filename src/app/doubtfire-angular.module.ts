@@ -224,7 +224,7 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
-import { PortfolioReviewStepComponent } from './projects/states/portfolio/directives/portfolio-review-step/portfolio-review-step.component';
+import {PortfolioReviewStepComponent} from 'src/app/projects/states/portfolio/directives/portfolio-review-step/portfolio-review-step.component';
 
 @NgModule({
   // Components we declare
