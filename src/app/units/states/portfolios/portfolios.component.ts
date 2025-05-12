@@ -117,5 +117,4 @@ export class PortfoliosComponent implements OnInit {
   get sortedTabs(): Tab[] {
     return Object.values(this.tabs).sort((a, b) => a.seq - b.seq);
   }
-
 }

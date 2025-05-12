@@ -52,22 +52,21 @@
 
           <div class="btn-group btn-group-sm select-portfolio-grade">
             <!-- 'All' button -->
-            <label class="btn btn-default text-center" [class.active]="filterOptions.selectedGrade" btn-radio="-1">
-              <input
-                type="radio"
-                name="gradeFilter"
-                [value]="-1"
-                [(ngModel)]="filterOptions.selectedGrade"
-                hidden
-              />
-              <span
-                class="grade-icon"
-                matTooltip="Show all portfolios"
-                class="text-{{$index === filterOptions.selectedGrade ? 'primary' : 'muted'}}"
-              >
-                All
-              </span>
-            </label>
+            <label
+            class="btn btn-default"
+            [ngClass]="{ 'active': filterOptions.selectedGrade === -1 }"
+            btn-radio="-1"
+            style="margin-right: 10px;"
+          >
+            <input
+              type="radio"
+              name="gradeFilter"
+              [value]="-1"
+              [(ngModel)]="filterOptions.selectedGrade"
+              class="hidden-radio"
+            />
+            <grade-icon [index]="'all'" [title]="'Show all portfolios'"></grade-icon>
+          </label>
 
             <!-- Grade buttons -->
             <ng-container *ngFor="let grade of gradeResults; let i = index">
