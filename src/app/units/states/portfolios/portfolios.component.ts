@@ -51,8 +51,7 @@ export class PortfoliosComponent implements OnInit {
     { name: 'Pass', scores: [50, 53, 55, 57] },
     { name: 'Credit', scores: [60, 63, 65, 67] },
     { name: 'Distinction', scores: [70, 73, 75, 77] },
-    { name: 'High Distinction', scores: [80, 83, 85, 87] },
-    { name: 'High Distinction', scores: [90, 93, 95, 97, 100] }
+    { name: 'High Distinction', scores: [80, 83, 85, 87, 90, 93, 95, 97, 100] }
   ];
 
   editingRationale = false;
@@ -115,7 +114,8 @@ export class PortfoliosComponent implements OnInit {
     }
   }
 
-  get sortedTabs() {
+  get sortedTabs(): Tab[] {
     return Object.values(this.tabs).sort((a, b) => a.seq - b.seq);
   }
+
 }

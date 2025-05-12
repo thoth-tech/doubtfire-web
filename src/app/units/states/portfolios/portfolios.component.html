@@ -2,18 +2,18 @@
   <!-- Tabs -->
   <ul class="nav nav-tabs">
     <li
-      *ngFor="let tab of tabs | keyvalue : sortedTabs"
+      *ngFor="let tab of sortedTabs"
       class="nav-item"
-      [class.active]="tab.value.active"
+      [class.active]="tab.active"
       [class.disabled]="!selectedStudent"
     >
       <a
         class="nav-link"
-        (click)="selectedStudent && setActiveTab(tab.value)"
-        (keydown.enter)="selectedStudent && setActiveTab(tab.value)"
+        (click)="selectedStudent && setActiveTab(tab)"
+        (keydown.enter)="selectedStudent && setActiveTab(tab)"
         tabindex="0"
       >
-        {{ tab.value.title }}
+        {{ tab.title }}
       </a>
     </li>
   </ul>
@@ -30,38 +30,58 @@
         <div class="buttons">
           <div class="btn-group">
             <label class="btn btn-default" [class.active]="portfolioFilter === 'allStudents'">
-              <input type="radio" name="portfolioFilter" [(ngModel)]="portfolioFilter" value="allStudents" />
+              <input type="radio" name="portfolioFilter" [(ngModel)]="portfolioFilter" value="allStudents" class="hidden-radio" />
               <i class="fa fa-globe" title="Show all students"></i>
             </label>
             <label class="btn btn-default" [class.active]="portfolioFilter === 'withPortfolio'">
-              <input type="radio" name="portfolioFilter" [(ngModel)]="portfolioFilter" value="withPortfolio" />
+              <input type="radio" name="portfolioFilter" [(ngModel)]="portfolioFilter" value="withPortfolio" class="hidden-radio" />
               <i class="fa fa-book" title="Only students with portfolios"></i>
             </label>
           </div>
 
           <div class="btn-group">
             <label class="btn btn-default" [class.active]="studentFilter === 'allStudents'">
-              <input type="radio" name="studentFilter" [(ngModel)]="studentFilter" value="allStudents" />
+              <input type="radio" name="studentFilter" [(ngModel)]="studentFilter" value="allStudents" class="hidden-radio" />
               <i class="fa fa-university" title="All students"></i>
             </label>
             <label class="btn btn-default" [class.active]="studentFilter === 'myStudents'">
-              <input type="radio" name="studentFilter" [(ngModel)]="studentFilter" value="myStudents" />
+              <input type="radio" name="studentFilter" [(ngModel)]="studentFilter" value="myStudents" class="hidden-radio" />
               <i class="fa fa-pencil" title="My students only"></i>
             </label>
           </div>
 
           <div class="btn-group btn-group-sm select-portfolio-grade">
-            <label class="btn btn-default" [class.active]="filterOptions.selectedGrade === -1">
-              <input type="radio" [(ngModel)]="filterOptions.selectedGrade" [value]="-1" />
-              <span>All</span>
+            <!-- 'All' button -->
+            <label class="btn btn-default text-center" [class.active]="filterOptions.selectedGrade" btn-radio="-1">
+              <input
+                type="radio"
+                name="gradeFilter"
+                [value]="-1"
+                [(ngModel)]="filterOptions.selectedGrade"
+                hidden
+              />
+              <span
+                class="grade-icon"
+                matTooltip="Show all portfolios"
+                class="text-{{$index === filterOptions.selectedGrade ? 'primary' : 'muted'}}"
+              >
+                All
+              </span>
             </label>
+
+            <!-- Grade buttons -->
             <ng-container *ngFor="let grade of gradeResults; let i = index">
               <label
                 class="btn btn-default"
-                [ngClass]="{'active': filterOptions.selectedGrade === i}"
+                [ngClass]="{ 'active': filterOptions.selectedGrade === i }"
                 *ngIf="i !== 4"
               >
-                <input type="radio" [(ngModel)]="filterOptions.selectedGrade" [value]="i" />
+                <input
+                  type="radio"
+                  [(ngModel)]="filterOptions.selectedGrade"
+                  [value]="i"
+                  class="hidden-radio"
+                />
                 <grade-icon [index]="i" [title]="'Show ' + grade.name"></grade-icon>
               </label>
             </ng-container>
@@ -146,7 +166,7 @@
 
     <div class="panel-footer clearfix">
       <pagination
-        [totalItems]="filteredStudents.length"
+      [totalItems]="filteredStudents?.length || 0"
         [(ngModel)]="currentPage"
         [itemsPerPage]="pageSize"
         [maxSize]="maxSize"
