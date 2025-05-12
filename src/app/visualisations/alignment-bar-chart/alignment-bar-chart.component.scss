@@ -1,0 +1,37 @@
+.chart-container {
+  width: 100%;
+  max-width: 100%;
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.chart-controls {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+
+  .control {
+    display: inline-block;
+    margin-right: 20px;
+
+    label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+
+      input {
+        margin-right: 8px;
+      }
+
+      span {
+        font-size: 14px;
+      }
+    }
+  }
+}

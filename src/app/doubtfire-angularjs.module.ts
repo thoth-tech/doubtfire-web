@@ -40,7 +40,6 @@ import 'build/src/app/visualisations/task-completion-box-plot.js';
 import 'build/src/app/visualisations/visualisations.js';
 import 'build/src/app/visualisations/alignment-bullet-chart.js';
 import 'build/src/app/visualisations/achievement-custom-bar-chart.js';
-import 'build/src/app/visualisations/alignment-bar-chart.js';
 import 'build/src/app/visualisations/achievement-box-plot.js';
 import 'build/src/app/tasks/modals/upload-submission-modal/upload-submission-modal.js';
 import 'build/src/app/tasks/modals/modals.js';
@@ -119,7 +118,6 @@ import 'build/src/app/common/modals/modals.js';
 import 'build/src/app/common/file-uploader/file-uploader.js';
 import 'build/src/app/common/common.js';
 import 'build/src/app/common/services/listener-service.js';
-import 'build/src/app/common/services/outcome-service.js';
 import 'build/src/app/common/services/services.js';
 import 'build/src/app/common/services/recorder-service.js';
 import 'build/src/app/common/services/media-service.js';
@@ -221,9 +219,12 @@ import {FUnitsComponent} from './admin/states/units/units.component';
 import {AlertService} from './common/services/alert.service';
 
 import {GradeService} from './common/services/grade.service';
+import { OutcomeService } from './common/services/outcome-service';
+
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import { AlignmentBarChartComponent } from './visualisations/alignment-bar-chart/alignment-bar-chart.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -278,6 +279,7 @@ DoubtfireAngularJSModule.factory(
 );
 DoubtfireAngularJSModule.factory('emojiService', downgradeInjectable(EmojiService));
 DoubtfireAngularJSModule.factory('gradeService', downgradeInjectable(GradeService));
+DoubtfireAngularJSModule.factory('outcomeService', downgradeInjectable(OutcomeService));
 DoubtfireAngularJSModule.factory(
   'fileDownloaderService',
   downgradeInjectable(FileDownloaderService),
@@ -494,4 +496,9 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'fTaskVisualisation',
   downgradeComponent({ component: TaskVisualisationComponent })
+);
+
+DoubtfireAngularJSModule.directive(
+  'fAlignmentBarChart',
+  downgradeComponent({ component: AlignmentBarChartComponent})
 );

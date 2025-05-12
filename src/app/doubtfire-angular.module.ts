@@ -267,6 +267,8 @@ const MY_DATE_FORMAT = {
   },
 };
 import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
+import { AlignmentBarChartComponent } from './visualisations/alignment-bar-chart/alignment-bar-chart.component';
+import { OutcomeService } from './common/services/outcome-service';
 
 @NgModule({
   // Components we declare
@@ -389,6 +391,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     TaskScormCardComponent,
     ScormExtensionCommentComponent,
     ScormExtensionModalComponent,
+    AlignmentBarChartComponent,
   ],
   // Services we provide
   providers: [
@@ -421,6 +424,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     FileDownloaderService,
     CheckForUpdateService,
     TaskOutcomeAlignmentService,
+    OutcomeService,
     visualisationsProvider,
     commentsModalProvider,
     rootScopeProvider,
