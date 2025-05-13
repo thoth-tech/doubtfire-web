@@ -7,6 +7,8 @@ import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloa
 import {Project} from 'src/app/api/models/project';
 import {Unit} from 'src/app/api/models/unit';
 import {analyticsService} from 'src/app/ajs-upgraded-providers';
+import {StateService} from '@uirouter/angular';
+import {UnitService} from 'src/app/api/services/unit.service';
 
 interface Tab {
   title: string;
@@ -39,6 +41,8 @@ export class PortfoliosComponent implements OnInit {
     assessPortfolio: { title: "Assess Portfolio", subtitle: "Enter a grade for the student", seq: 3 }
   };
 
+  unitId: string;
+
   activeTab: Tab = this.tabs.selectStudent;
   tutor: User;
   search = '';
@@ -57,6 +61,7 @@ export class PortfoliosComponent implements OnInit {
   editingRationale = false;
   selectedStudent: User | null = null;
   project: Project | null = null;
+  students: any[] = [];
   @Input() unit: Unit | null = null;
 
   constructor(
@@ -65,6 +70,8 @@ export class PortfoliosComponent implements OnInit {
     private gradeService: GradeService,
     private projectService: ProjectService,
     private fileDownloaderService: FileDownloaderService,
+    private stateService: StateService,
+    private unitService: UnitService,
     @Inject(analyticsService) private AnalyticsService,
   )
   {
@@ -72,10 +79,29 @@ export class PortfoliosComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.unitId = this.stateService.params['unitId'];
+    this.setUnit();
     this.setActiveTab(this.tabs.selectStudent);
     this.AnalyticsService.event('studentFilter', 'Teacher View - Grading Tab');
     this.AnalyticsService.event('sortOrder', 'Teacher View - Grading Tab');
     this.AnalyticsService.event('currentPage', 'Teacher View - Grading Tab', 'Selected Page');
+  }
+
+  setUnit(): void {
+    if (this.unitId) {
+      this.unitService.get(this.unitId).subscribe({
+        next: (unit) => {
+          this.projectService.loadStudents(unit).subscribe({
+            next: (students) => {
+              this.unit = unit;
+              this.students = students;
+              console.log('Students:', students);
+              console.log('Unit:', unit);
+            },
+          });
+        },
+      });
+    }
   }
 
   setActiveTab(tab: Tab): void {
