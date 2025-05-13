@@ -1,0 +1,5 @@
+f-inbox {
+    display: flex;
+    height: var(--main-view-max-height);
+    max-height: 100%;
+}
