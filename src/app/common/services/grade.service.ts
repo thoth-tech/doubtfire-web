@@ -8,7 +8,7 @@ export class GradeService {
   allGradeValues = [-1, 0, 1, 2, 3];
   gradeValues = [0, 1, 2, 3];
 
-  public grades = {
+  grades = {
     '-1': 'Fail',
     0: 'Pass',
     1: 'Credit',
@@ -16,7 +16,7 @@ export class GradeService {
     3: 'High Distinction',
   };
 
-  public gradeIndex = {
+  gradeIndex = {
     Fail: -1,
     Pass: 0,
     Credit: 1,
@@ -24,7 +24,7 @@ export class GradeService {
     'High Distinction': 3,
   };
 
-  public gradeViewData = [
+  gradeViewData = [
     {value: -1, viewValue: 'Fail'},
     {value: 0, viewValue: 'Pass'},
     {value: 1, viewValue: 'Credit'},

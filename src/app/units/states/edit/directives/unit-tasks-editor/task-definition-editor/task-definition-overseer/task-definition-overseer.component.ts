@@ -87,9 +87,7 @@ export class TaskDefinitionOverseerComponent implements OnChanges {
   }
 
   public uploadOverseerResources(files: FileList) {
-    const validFiles = Array.from(files as ArrayLike<File>).filter(
-      (f) => f.type === 'application/zip' || f.type === 'application/x-zip-compressed',
-    );
+    const validFiles = Array.from(files as ArrayLike<File>).filter((f) => f.type === 'application/zip');
     if (validFiles.length > 0) {
       const file = validFiles[0];
       this.taskDefinitionService.uploadTaskResources(this.taskDefinition, file).subscribe({

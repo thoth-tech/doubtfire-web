@@ -121,9 +121,7 @@ angular.module('doubtfire.units.states.portfolios', [])
     $scope.selectedStudent = student
     $scope.project = null
     newProjectService.loadProject(student, $scope.unit).subscribe({
-      next: (project) ->
-        $scope.project = project
-        $scope.project.preloadedUrl = $scope.project.portfolioUrl()
+      next: (project) -> $scope.project = project
       error: (message) -> alertService.error( message, 6000)
     })
 )

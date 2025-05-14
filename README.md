@@ -227,14 +227,11 @@ TODO:
 
 ## Table of Contents
 
-- [Doubtfire Web ![CI](https://github.com/doubtfire-lms/doubtfire-web/actions/workflows/nodejs-ci.yml)](#doubtfire-web-)
-  - [Migration Progress](#migration-progress)
-  - [Table of Contents](#table-of-contents)
-  - [Getting Started](#getting-started)
-  - [Deployment](#deployment)
-  - [Resources](#resources)
-  - [Contributing](#contributing)
-  - [License](#license)
+1. [Getting Started](#getting-started)
+2. [Resources](#resources)
+3. [Contributing](#contributing)
+4. [Deployment](#deployment)
+5. [License](#license)
 
 ## Getting Started
 

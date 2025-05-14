@@ -7,7 +7,6 @@ import {
   SimpleChanges,
   OnChanges,
   ViewChild,
-  AfterViewInit,
 } from '@angular/core';
 import {PdfViewerComponent} from 'ng2-pdf-viewer';
 import {FileDownloaderService} from '../file-downloader/file-downloader.service';
@@ -18,11 +17,9 @@ import {AlertService} from '../services/alert.service';
   templateUrl: './pdf-viewer.component.html',
   styleUrls: ['./pdf-viewer.component.scss'],
 })
-export class fPdfViewerComponent implements OnDestroy, OnChanges, AfterViewInit {
+export class fPdfViewerComponent implements OnDestroy, OnChanges {
   private _pdfUrl: string;
   public pdfBlobUrl: string;
-  public useNativePdfViewer = false;
-
   @Input() pdfUrl: string;
   @ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
   pdfSearchString: string;
@@ -39,10 +36,6 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges, AfterViewInit 
       this.fileDownloader.releaseBlob(this.pdfBlobUrl);
       this.pdfBlobUrl = null;
     }
-  }
-
-  ngAfterViewInit(): void {
-    this.useNativePdfViewer = localStorage.getItem('useNativePdfViewer') === 'true';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -75,33 +68,24 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges, AfterViewInit 
     });
   }
 
-  public zoomIn() {
+  zoomIn() {
     if (this.zoomValue < 2.5) {
       this.zoomValue += 0.1;
     }
   }
-  public zoomOut() {
+  zoomOut() {
     if (this.zoomValue > 0.5) {
       this.zoomValue -= 0.1;
     }
   }
 
-  public downloadPdf() {
-    this.fileDownloader.downloadBlobToFile(this.pdfBlobUrl, 'displayed-pdf.pdf');
-  }
-
-  public toggleNativePdfViewer() {
-    this.useNativePdfViewer = !this.useNativePdfViewer;
-    localStorage.setItem('useNativePdfViewer', this.useNativePdfViewer.toString());
-  }
-
   private downloadBlob(downloadUrl: string): void {
     this.fileDownloader.downloadBlob(
       downloadUrl,
-      (url: string, _response: HttpResponse<Blob>) => {
+      (url: string, response: HttpResponse<Blob>) => {
         this.pdfBlobUrl = url;
       },
-      (error: unknown) => {
+      (error: any) => {
         this.alerts.error(`Error downloading PDF. ${error}`, 6000);
       },
     );

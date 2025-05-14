@@ -122,28 +122,27 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
       this.refreshData();
     }
   }
-
   ngOnDestroy(): void {
-    this.hotkeys.removeShortcuts('control.shift.arrowdown');
-    this.hotkeys.removeShortcuts('control.shift.arrowup');
+    this.hotkeys.removeShortcuts('meta.shift.arrowdown');
+    this.hotkeys.removeShortcuts('meta.shift.arrowup');
   }
 
   ngOnInit(): void {
     const registeredHotkeys = this.hotkeys.getHotkeys().map((hotkey) => hotkey.keys);
 
-    if (!registeredHotkeys.includes('control.shift.arrowdown')) {
+    if (!registeredHotkeys.includes('meta.shift.arrowdown')) {
       this.hotkeys
         .addShortcut({
-          keys: 'control.shift.arrowdown',
+          keys: 'meta.shift.arrowdown',
           description: 'Select next task',
         })
         .subscribe(() => this.nextTask());
     }
 
-    if (!registeredHotkeys.includes('control.shift.arrowup')) {
+    if (!registeredHotkeys.includes('meta.shift.arrowup')) {
       this.hotkeys
         .addShortcut({
-          keys: 'control.shift.arrowup',
+          keys: 'meta.shift.arrowup',
           description: 'Select previous task',
         })
         .subscribe(() => this.previousTask());
@@ -364,7 +363,7 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private scrollToTaskInList(task) {
-    const taskEl = document.querySelector(`#${task.taskKeyToIdString()}`) as any;
+    const taskEl = document.querySelector(`staff-task-list #${task.taskKeyToIdString()}`) as any;
     if (!taskEl) {
       return;
     }
@@ -386,9 +385,6 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   nextTask(): void {
-    if (!this.filteredTasks) {
-      return;
-    }
     const currentTaskIndex = this.filteredTasks.findIndex((task) => this.isSelectedTask(task));
     if (currentTaskIndex >= this.filteredTasks.length) {
       return;

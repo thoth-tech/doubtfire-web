@@ -1,3 +1,4 @@
+
 import { Pipe, PipeTransform } from '@angular/core';
 import { Task, TaskDefinition } from '../../api/models/doubtfire-model';
 
@@ -9,12 +10,10 @@ export class TaskDefinitionNamePipe implements PipeTransform {
     searchName = searchName.toLowerCase();
     return taskDefinitions.filter( // use lodash filter?
       (td) => {
-        return (
-          td?.name.toLowerCase().includes(searchName) ||
-          td?.abbreviation.toLowerCase().includes(searchName) ||
-          td?.targetGradeText.toLowerCase().includes(searchName)
-        );
-      },
-    );
+        return td.name.toLowerCase().includes(searchName)  ||
+          td.abbreviation.toLowerCase().includes(searchName)  ||
+          td.targetGradeText.toLowerCase().includes(searchName)
+      }
+    )
   }
 }

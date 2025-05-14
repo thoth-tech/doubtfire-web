@@ -13,15 +13,16 @@ angular.module('doubtfire.projects.states.index', [])
         templateUrl: "units/states/index/index.tpl.html" # We can re-use unit's index here
     data:
       pageTitle: "_Home_"
+      roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor']
   }
 )
 
-.controller("ProjectsIndexStateCtrl", ($scope, $rootScope, $state, $stateParams, newProjectService, listenerService, globalStateService) ->
+.controller("ProjectsIndexStateCtrl", ($scope, $rootScope, $state, $stateParams, newProjectService, listenerService, GlobalStateService) ->
   # Error - required projectId is missing!
   projectId = +$stateParams.projectId
   return $state.go('home') unless projectId
 
-  globalStateService.onLoad () ->
+  GlobalStateService.onLoad () ->
     # Load in project
     newProjectService.get(projectId, {
       # Ensure that we cache queries here... so that we get any projects we are in
@@ -38,7 +39,7 @@ angular.module('doubtfire.projects.states.index', [])
           $scope.project = project
           $scope.unit = project.unit if project.unit.taskDefinitions.length > 0 && project.tasks.length == project.unit.taskDefinitions.length
 
-          globalStateService.setView('PROJECT', $scope.project)
+          GlobalStateService.setView('PROJECT', $scope.project)
 
           # Go home if no project was found
           return $state.go('home') unless project?

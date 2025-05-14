@@ -89,7 +89,7 @@
         <div *ngFor="let project of projects">
           <div
             *ngIf="project.unit.isActive"
-            uiSref="dashboard2"
+            uiSref="projects/dashboard"
             [uiParams]="{projectId: project.id, taskAbbr: ''}"
             class="removeStyle"
           >
