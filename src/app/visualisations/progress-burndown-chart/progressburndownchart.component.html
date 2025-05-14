@@ -1,19 +1,25 @@
 <div class="chart-container">
-  <ngx-charts-line-chart
-    class="progress-burndown-chart"
+  <ngx-charts-gauge
+    class="progress-gauge-chart"
     [view]=""
-    [results]="data"
+    [results]="gaugeData"
     [legend]="legend"
     [legendTitle]="''"
-    [showXAxisLabel]="showXAxisLabel"
-    [showYAxisLabel]="showYAxisLabel"
-    [xAxis]="xAxis"
-    [yAxis]="yAxis"
-    [xAxisLabel]="xAxisLabel"
-    [yAxisLabel]="yAxisLabel"
-    [yAxisTickFormatting]="formatPerc"
+    [min]="0"
+    [max]="100"
+    [units]="''"
+    [bigSegments]="10"
+    [smallSegments]="5"
+    [angleSpan]="240"
+    [startAngle]="-120"
+    [showAxis]="true"
     [scheme]="colorScheme"
+    [textValue]="markedPercentage + '%'"
+    [valueFormatting]="formatGaugeValue"
     (select)="onSelect($event)"
     >
-  </ngx-charts-line-chart>
+  </ngx-charts-gauge>
+</div>
+<div class="gauge-instructions">
+  <p>Aim to keep your <strong>Marked</strong> percentage at or above your <strong>Target Grade</strong> line. This shows you're making good progress towards your goal.</p>
 </div>
