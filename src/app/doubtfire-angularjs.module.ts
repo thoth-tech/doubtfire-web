@@ -96,7 +96,7 @@ import 'build/src/app/units/modals/unit-student-enrolment-modal/unit-student-enr
 import 'build/src/app/units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.js';
 import 'build/src/app/units/modals/modals.js';
 import 'build/src/app/units/units.js';
-import 'build/src/app/units/states/tasks/inbox/inbox.js';
+import {InboxTaskComponent} from './units/states/tasks/inbox/inbox-task.component';
 import 'build/src/app/units/states/tasks/tasks.js';
 import 'build/src/app/units/states/tasks/viewer/directives/directives.js';
 import 'build/src/app/units/states/tasks/viewer/viewer.js';
@@ -462,6 +462,11 @@ DoubtfireAngularJSModule.directive(
   'statusIcon',
   downgradeComponent({component: StatusIconComponent}),
 );
+DoubtfireAngularJSModule.directive(
+  'fInbox',
+  downgradeComponent({ component: InboxTaskComponent })
+);
+
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
 
 // Global configuration

@@ -10,6 +10,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 // Lottie animation module
 // import {LottieModule, LottieCacheModule} from 'ngx-lottie';
+import {InboxTaskComponent} from './units/states/tasks/inbox/inbox-task.component';
 import {provideLottieOptions, LottieComponent} from 'ngx-lottie';
 import player from 'lottie-web';
 import {ClipboardModule} from '@angular/cdk/clipboard';
@@ -228,6 +229,7 @@ import {GradeService} from './common/services/grade.service';
 @NgModule({
   // Components we declare
   declarations: [
+    InboxTaskComponent,
     AlertComponent,
     AboutDoubtfireModalContent,
     TeachingPeriodUnitImportDialogComponent,
