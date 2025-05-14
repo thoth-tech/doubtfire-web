@@ -1,6 +1,5 @@
 angular.module('doubtfire.units.states.tasks', [
   'doubtfire.units.states.tasks.definition'
-  'doubtfire.units.states.tasks.viewer'
 ])
 
 #
