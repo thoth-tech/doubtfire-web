@@ -1,0 +1,30 @@
+<h3 mat-dialog-title>Tutorial Enrolment</h3>
+<div mat-dialog-content>
+  <p class="w-full">
+    Please select from the dropdown below the tutorial you would like to enrol in.
+  </p>
+
+  <mat-form-field class="w-full">
+    <mat-label>Tutorials</mat-label>
+    <mat-select [formControl]="tutorialsFormControl">
+      @for (tutorial of getTutorialsForStream(); track tutorial) {
+        <mat-option [value]="tutorial">{{ tutorial.abbreviation }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-dialog-close mat-stroked-button color="warn">Cancel</button>
+  <button
+    mat-dialog-close
+    style="margin-right: 10px; float: right"
+    mat-stroked-button
+    color="primary"
+    [disabled]="!tutorialsFormControl.value"
+    mat-button
+    (click)="attemptTutorialEnrolment()"
+  >
+    Enrol
+  </button>
+</div>

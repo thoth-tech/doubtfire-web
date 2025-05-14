@@ -1,11 +1,11 @@
-import { CachedEntityService } from 'ngx-entity-service';
-import { TaskDefinition, Unit } from 'src/app/api/models/doubtfire-model';
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {CachedEntityService} from 'ngx-entity-service';
+import {TaskDefinition, Unit} from 'src/app/api/models/doubtfire-model';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import API_URL from 'src/app/config/constants/apiURL';
-import { MappingFunctions } from './mapping-fn';
-import { AppInjector } from 'src/app/app-injector';
-import { Observable } from 'rxjs';
+import {MappingFunctions} from './mapping-fn';
+import {AppInjector} from 'src/app/app-injector';
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
@@ -81,6 +81,15 @@ export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
           return taskDef.tutorialStream?.abbreviation;
         },
       },
+      {
+        keys: ['tutorialSelfEnrolmentStream', 'tutorial_self_enrolment_stream_abbr'],
+        toEntityFn: (data: object, key: string, taskDef: TaskDefinition, params?: any) => {
+          return taskDef.unit.tutorialStreamsCache.get(data[key]);
+        },
+        toJsonFn: (taskDef: TaskDefinition, key: string) => {
+          return taskDef.tutorialSelfEnrolmentStream?.abbreviation;
+        },
+      },
       'plagiarismWarnPct',
       'restrictStatusUpdates',
       {
@@ -100,6 +109,7 @@ export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
       'hasTaskResources',
       'hasTaskAssessmentResources',
       'scormEnabled',
+      'tutorialSelfEnrolmentEnabled',
       'hasScormData',
       'scormAllowReview',
       'scormBypassTest',
@@ -108,7 +118,7 @@ export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
       'isGraded',
       'maxQualityPts',
       'overseerImageId',
-      'assessmentEnabled'
+      'assessmentEnabled',
     );
 
     this.mapping.mapAllKeysToJsonExcept(
@@ -116,7 +126,7 @@ export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
       'hasTaskSheet',
       'hasTaskResources',
       'hasTaskAssessmentResources',
-      'hasScormData'
+      'hasScormData',
     );
   }
 

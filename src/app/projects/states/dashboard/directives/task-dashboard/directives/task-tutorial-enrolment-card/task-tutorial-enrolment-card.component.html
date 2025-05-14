@@ -1,0 +1,34 @@
+<mat-card appearance="outlined" [hidden]="!this.task.definition.tutorialSelfEnrolmentEnabled">
+  <mat-card-header>
+    <mat-card-title>Tutorial Enrolment</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="pt-2">
+      This task lets you choose a tutorial to enrol in for the teaching period. Your selected
+      tutorial will determine which tutor is assigned to mark your work throughout the teaching
+      period.
+    </p>
+    @if (!isStudentEnrolledInTutorialStream()) {
+      <p>To complete this task, you must enrol in a tutorial from the provided list.</p>
+    }
+    @if (isStudentEnrolledInTutorialStream()) {
+      <p class="text-green-600 font-bold">You're enrolled! You can now proceed to the next task.</p>
+      <p>
+        You can confirm your enrolment in the
+        <a uiSref="projects/tutorials" [uiParams]="{projectId: this.task.project.id, taskAbbr: ''}"
+          >Tutorials List</a
+        >.
+      </p>
+    }
+  </mat-card-content>
+  @if (!isStudentEnrolledInTutorialStream()) {
+    <mat-card-actions class="space-x-2 px-5 pt-2">
+      <button mat-stroked-button (click)="launchTutorialEnrolment()" [disabled]="isNotStudent()">
+        <mat-icon style="width: 20px; height: 20px; font-size: 20px" aria-label="Launch icon">
+          launch
+        </mat-icon>
+        Begin enrolment
+      </button>
+    </mat-card-actions>
+  }
+</mat-card>

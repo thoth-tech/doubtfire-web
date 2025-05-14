@@ -221,6 +221,7 @@ import {MarkedPipe} from './common/pipes/marked.pipe';
 import {AlertService} from './common/services/alert.service';
 import {GradeService} from './common/services/grade.service';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
+import {TaskTutorialEnrolmentCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-tutorial-enrolment-card/task-tutorial-enrolment-card.component';
 import { D2lUnitDetailsModal } from './units/states/edit/directives/unit-details-editor/d2l-details-form/d2l-unit-details-form.component';
 import { D2lTransferModal } from './units/states/portfolios/d2l-transfer-modal/d2l-transfer.component';
 
@@ -366,6 +367,10 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'fTaskScormCard',
   downgradeComponent({component: TaskScormCardComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'fTaskTutorialEnrolmentCard',
+  downgradeComponent({component: TaskTutorialEnrolmentCardComponent}),
 );
 DoubtfireAngularJSModule.directive(
   'fTaskStatusCard',
