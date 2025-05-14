@@ -41,9 +41,9 @@
     "@angular/upgrade": "^18.0",
     "@ctrl/ngx-emoji-mart": "^9.2.0",
     "@ngneat/hotkeys": "^4.0.0",
+    "@swimlane/ngx-charts": "^20.5.0",
     "@uirouter/angular": "^14.0",
     "@uirouter/angular-hybrid": "^18.0",
-    "@swimlane/ngx-charts": "^20.5.0",
     "@uirouter/angularjs": "^1.0.30",
     "@uirouter/core": "^6.1.0",
     "@uirouter/rx": "^1.0.0",
@@ -102,8 +102,8 @@
     "@angular-eslint/eslint-plugin-template": "18.0.1",
     "@angular-eslint/schematics": "18.0.1",
     "@angular-eslint/template-parser": "18.0.1",
-    "@angular/compiler-cli": "^18.0.3",
     "@angular/cli": "^18.0.4",
+    "@angular/compiler-cli": "^18.0.3",
     "@angular/language-service": "^18.0.3",
     "@commitlint/cli": "^16.0.1",
     "@commitlint/config-conventional": "^17",
@@ -139,7 +139,7 @@
     "grunt-preprocess": "5.1.0",
     "grunt-sass": "^3.0.2",
     "grunt-sass-globbing": "^1.4.0",
-    "husky": "~8",
+    "husky": "^8.0.3",
     "ip": "^1.1.2",
     "jasmine-core": "~4.1.0",
     "jasmine-spec-reporter": "~5.0.0",
@@ -159,7 +159,7 @@
     "typescript": "~5.4.5",
     "underscore": "^1.8.3"
   },
-"optionalDependencies": {
+  "optionalDependencies": {
     "@esbuild/linux-x64": "0.25.1",
     "@nx/nx-darwin-arm64": "^18.0",
     "@nx/nx-darwin-x64": "^18.0",
