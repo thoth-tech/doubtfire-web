@@ -92,7 +92,7 @@ import 'build/src/app/groups/group-set-selector/group-set-selector.js';
 import 'build/src/app/units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.js';
 import 'build/src/app/units/modals/modals.js';
 import 'build/src/app/units/units.js';
-import 'build/src/app/units/states/tasks/inbox/inbox.js';
+import {InboxTaskComponent} from './units/states/tasks/inbox/inbox-task.component';
 import 'build/src/app/units/states/tasks/tasks.js';
 import 'build/src/app/units/states/tasks/definition/definition.js';
 import 'build/src/app/units/states/portfolios/portfolios.js';
@@ -467,6 +467,10 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'statusIcon',
   downgradeComponent({component: StatusIconComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'fInbox',
+  downgradeComponent({ component: InboxTaskComponent })
 );
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
 
