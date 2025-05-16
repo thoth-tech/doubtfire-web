@@ -82,7 +82,6 @@ import 'build/src/app/projects/states/index/index.js';
 import 'build/src/app/projects/states/tutorials/tutorials.js';
 import 'build/src/app/projects/project-outcome-alignment/project-outcome-alignment.js';
 import 'build/src/app/admin/modals/modals.js';
-import 'build/src/app/admin/modals/create-unit-modal/create-unit-modal.js';
 import 'build/src/app/groups/group-selector/group-selector.js';
 import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
@@ -138,6 +137,7 @@ import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
 
+import { CreateUnitModalComponent } from './admin/modals/create-unit-modal/create-unit-modal.component';
 import {AboutDoubtfireModal} from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {ProjectTasksListComponent} from './tasks/project-tasks-list/project-tasks-list.component';
 import {TaskCommentComposerComponent} from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
@@ -286,6 +286,10 @@ DoubtfireAngularJSModule.factory(
   'checkForUpdateService',
   downgradeInjectable(CheckForUpdateService),
 );
+DoubtfireAngularJSModule.directive(
+  'createUnitModal',
+  downgradeComponent({ component: CreateUnitModalComponent })
+)
 DoubtfireAngularJSModule.factory(
   'TaskAssessmentModal',
   downgradeInjectable(TaskAssessmentModalService),

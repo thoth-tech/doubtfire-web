@@ -13,6 +13,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 // import {LottieModule, LottieCacheModule} from 'ngx-lottie';
 import {provideLottieOptions, LottieComponent} from 'ngx-lottie';
 import player from 'lottie-web';
+import { CreateUnitModalComponent } from './admin/modals/create-unit-modal/create-unit-modal.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {MatToolbarModule} from '@angular/material/toolbar';
@@ -271,6 +272,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
 @NgModule({
   // Components we declare
   declarations: [
+    CreateUnitModalComponent,
     AlertComponent,
     UnitStudentEnrolmentModalComponent,
     AboutDoubtfireModalContent,

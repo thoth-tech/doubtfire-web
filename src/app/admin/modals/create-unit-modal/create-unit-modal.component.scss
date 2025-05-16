@@ -1,0 +1,11 @@
+.create-unit-modal {
+  .form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+}
