@@ -11,6 +11,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 // Lottie animation module
 // import {LottieModule, LottieCacheModule} from 'ngx-lottie';
+import { GroupMemberListComponent } from './groups/group-member-list/group-member-list.component';
 import {provideLottieOptions, LottieComponent} from 'ngx-lottie';
 import player from 'lottie-web';
 import {ClipboardModule} from '@angular/cdk/clipboard';
@@ -389,6 +390,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     TaskScormCardComponent,
     ScormExtensionCommentComponent,
     ScormExtensionModalComponent,
+    GroupMemberListComponent,
   ],
   // Services we provide
   providers: [

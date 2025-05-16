@@ -1,0 +1,96 @@
+<div class="bg-white shadow-md rounded-lg overflow-hidden">
+  <div class="p-6 grid grid-cols-2 gap-6 text-[15px]">
+    <!-- Loading Spinner -->
+    <div class="flex items-center gap-2 text-gray-600" *ngIf="!loaded">
+      <mat-icon class="animate-spin text-[16px]" aria-hidden="true">sync</mat-icon>
+      Loading Members...
+    </div>
+
+    <!-- No Members Message -->
+    <ng-template #noMembers>
+      <div class="col-span-2">
+        <div class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded text-blue-800">
+          <h4 class="text-[16px] font-semibold">No members in group</h4>
+          <p>There are no members in this group.</p>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Group Members Table -->
+    <div *ngIf="members.length > 0; else noMembers" class="bg-white shadow rounded-lg p-4 col-span-2">
+      <table class="w-full table-auto text-[15px]">
+        <thead>
+          <tr class="border-b border-gray-300 text-gray-700 font-medium">
+            <th *ngIf="unitRole" class="px-3 py-2 text-left w-[25%]">
+              <a (click)="sortTableBy('student.username')" class="flex items-center gap-1 cursor-pointer">
+                Student ID
+                <mat-icon *ngIf="tableSort.order === 'student.username'" class="text-[18px] -mt-[2px]">
+                  {{ tableSort.reverse ? 'arrow_drop_up' : 'arrow_drop_down' }}
+                </mat-icon>
+              </a>
+            </th>
+            <th class="px-3 py-2 text-left w-[50%]">
+              <a (click)="sortTableBy('student.name')" class="flex items-center gap-1 cursor-pointer">
+                Name
+                <mat-icon *ngIf="tableSort.order === 'student.name'" class="text-[18px] -mt-[2px]">
+                  {{ tableSort.reverse ? 'arrow_drop_up' : 'arrow_drop_down' }}
+                </mat-icon>
+              </a>
+            </th>
+            <th *ngIf="unitRole" class="px-3 py-2 text-left w-[50%]">
+              <a (click)="sortTableBy('targetGrade')" class="flex items-center gap-1 cursor-pointer">
+                Target Grade
+                <mat-icon *ngIf="tableSort.order === 'targetGrade'" class="text-[18px] -mt-[2px]">
+                  {{ tableSort.reverse ? 'arrow_drop_up' : 'arrow_drop_down' }}
+                </mat-icon>
+              </a>
+            </th>
+            <th *ngIf="canRemoveMembers" class="px-3 py-2 text-center w-[25%]">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let member of selectedGroup?.members|orderBy:tableSort.order:tableSort.reverse" class="border-t border-gray-200 hover:bg-gray-50">
+            <td *ngIf="unitRole" class="px-3 py-2 text-gray-900">
+              {{ member?.student?.username || 'N/A' }}
+            </td>
+            <td class="px-3 py-2 text-gray-900">
+              {{ member?.student?.name }}
+            </td>
+            <td *ngIf="unitRole" class="px-3 py-2 text-left">
+              <grade-icon [grade]="member?.targetGrade"></grade-icon>
+            </td>
+            <td *ngIf="canRemoveMembers" class="px-3 py-2 text-center">
+              <div class="flex flex-col items-center gap-1">
+                <button
+                  (click)="removeMember(member)"
+                  *ngIf="!project"
+                  class="inline-flex items-center justify-center bg-[#c45446] hover:bg-[#c9302c] text-white text-[15px] font-medium px-4 py-[6px] rounded-lg shadow-sm h-[36px]"
+                  aria-label="Remove member"
+                >
+                  <mat-icon
+                    class="text-[15px] font-bold leading-none flex items-center"
+                    style="margin-right:-10px; margin-top: 0;"
+                    aria-hidden="true"
+                  >
+                    remove
+                  </mat-icon>
+                  <span class="leading-none">Remove</span>
+                </button>
+                <button
+                  (click)="removeMember(member)"
+                  *ngIf="project && member?.id === project?.id"
+                  class="inline-flex items-center justify-center gap-1 bg-[#d9534f] hover:bg-[#c9302c] text-white text-sm font-medium px-3 py-1 h-[30px] rounded"
+                  aria-label="Leave group"
+                >
+                  <mat-icon class="text-base" aria-hidden="true">remove</mat-icon>
+                  <span class="leading-none">Leave</span>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

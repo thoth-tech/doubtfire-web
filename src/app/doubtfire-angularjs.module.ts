@@ -87,7 +87,7 @@ import 'build/src/app/groups/group-selector/group-selector.js';
 import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
-import 'build/src/app/groups/group-member-list/group-member-list.js';
+//import 'build/src/app/groups/group-member-list/group-member-list.js';
 import 'build/src/app/groups/group-set-selector/group-set-selector.js';
 import 'build/src/app/units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.js';
 import 'build/src/app/units/modals/modals.js';
@@ -170,6 +170,8 @@ import {fPdfViewerComponent} from './common/pdf-viewer/pdf-viewer.component';
 import {PdfViewerPanelComponent} from './common/pdf-viewer-panel/pdf-viewer-panel.component';
 import {StaffTaskListComponent} from './units/states/tasks/inbox/directives/staff-task-list/staff-task-list.component';
 import {StatusIconComponent} from './common/status-icon/status-icon.component';
+import { GroupMemberListComponent } from './groups/group-member-list/group-member-list.component';
+
 import {
   GroupSetService,
   LearningOutcomeService,
@@ -468,6 +470,11 @@ DoubtfireAngularJSModule.directive(
   'statusIcon',
   downgradeComponent({component: StatusIconComponent}),
 );
+DoubtfireAngularJSModule.directive(
+  'groupMemberList',
+  downgradeComponent({ component: GroupMemberListComponent })
+);
+
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
 
 DoubtfireAngularJSModule.directive('unauthorised', downgradeComponent({ component: UnauthorisedComponent }));
