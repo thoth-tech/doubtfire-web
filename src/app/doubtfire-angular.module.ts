@@ -5,7 +5,7 @@ import {NgModule, Injector, DoBootstrap} from '@angular/core';
 import {BrowserModule, DomSanitizer, Title} from '@angular/platform-browser';
 import {UpgradeModule} from '@angular/upgrade/static';
 import {AppInjector, setAppInjector} from './app-injector';
-import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 // Lottie animation module
@@ -15,6 +15,7 @@ import player from 'lottie-web';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatSelectModule} from '@angular/material/select';
 import {MatButtonModule} from '@angular/material/button';
 import {MatMenuModule} from '@angular/material/menu';
@@ -111,6 +112,7 @@ import {StudentTutorialSelectComponent} from './units/states/edit/directives/uni
 import {StudentCampusSelectComponent} from './units/states/edit/directives/unit-students-editor/student-campus-select/student-campus-select.component';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from 'src/environments/environment';
+import {NgxChartsModule} from '@swimlane/ngx-charts';
 import {PickerModule} from '@ctrl/ngx-emoji-mart';
 import {EmojiModule} from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import {EmojiService} from './common/services/emoji.service';
@@ -170,6 +172,7 @@ import {UnitDropdownComponent} from './common/header/unit-dropdown/unit-dropdown
 import {TaskDropdownComponent} from './common/header/task-dropdown/task-dropdown.component';
 import {SplashScreenComponent} from './home/splash-screen/splash-screen.component';
 import {HttpErrorInterceptor} from './common/services/http-error.interceptor';
+import {ProjectDashboardComponent} from './projects/states/dashboard/project-dashboard/project-dashboard.component';
 import {TaskDefinitionService} from './api/services/task-definition.service';
 import {NewTeachingPeriodDialogComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
 import {MatNativeDateModule} from '@angular/material/core';
@@ -192,7 +195,7 @@ import {TaskDashboardComponent} from './projects/states/dashboard/directives/tas
 import {InboxComponent} from './units/states/tasks/inbox/inbox.component';
 import {ProjectProgressBarComponent} from './common/project-progress-bar/project-progress-bar.component';
 import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
-import {FChipComponent} from './common/f-chip/f-chip.component';
+import {FChipComponent} from './common/f-chip/chip.component';
 import {TaskSimilarityViewComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-similarity-view/task-similarity-view.component';
 import {FileViewerComponent} from './common/file-viewer/file-viewer.component';
 import {TaskDefinitionEditorComponent} from './units/states/edit/directives/unit-tasks-editor/task-definition-editor/task-definition-editor.component';
@@ -206,8 +209,8 @@ import {TaskDefinitionOverseerComponent} from './units/states/edit/directives/un
 import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-route.component';
 import {FileDropComponent} from './common/file-drop/file-drop.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
-import {FUsersComponent} from './admin/states/f-users/f-users.component';
-
+import {FUsersComponent} from './admin/states/users/users.component';
+import {ProjectProgressGaugeComponent} from './common/project-progress/project-progress-gauge.component';
 import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
 import {CreateNewUnitModalContentComponent} from './admin/modals/create-new-unit-modal/create-new-unit-modal-content.component';
 import {
@@ -217,13 +220,17 @@ import {
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
 import {TiiActionLogComponent} from './admin/tii-action-log/tii-action-log.component';
 import {TiiActionService} from './api/services/tii-action.service';
-import {FUnitsComponent} from './admin/states/f-units/f-units.component';
-import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-unit-task-list/f-unit-task-list.component';
-import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
-import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
-import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import {FUnitsComponent} from './admin/states/units/units.component';
+import {FUnitTaskListComponent} from './units/task-viewer/directives/unit-task-list/unit-task-list.component';
+import {FTaskDetailsViewComponent} from './units/task-viewer/directives/task-details-view/task-details-view.component';
+import {FTaskSheetViewComponent} from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
+import {UnitRootStateComponent} from './units/unit-root-state.component';
+import {TaskViewerStateComponent} from './units/task-viewer/task-viewer-state.component';
+import {ProjectRootStateComponent} from './projects/states/project-root-state.component';
+import {ProjectProgressDashboardComponent} from './projects/project-progress-dashboard/project-progress-dashboard.component';
+import { OrganizationsComponent } from './admin/organizations/organizations.component';
 
 @NgModule({
   // Components we declare
@@ -272,6 +279,7 @@ import {GradeService} from './common/services/grade.service';
     TaskCommentsViewerComponent,
     UserIconComponent,
     AudioPlayerComponent,
+    ProjectProgressDashboardComponent,
     MarkedPipe,
     HumanizedDatePipe,
     IsActiveUnitRole,
@@ -293,6 +301,7 @@ import {GradeService} from './common/services/grade.service';
     UnitDropdownComponent,
     TaskDropdownComponent,
     SplashScreenComponent,
+    ProjectDashboardComponent,
     ObjectSelectComponent,
     WelcomeComponent,
     AcceptEulaComponent,
@@ -321,10 +330,14 @@ import {GradeService} from './common/services/grade.service';
     FUnitTaskListComponent,
     FTaskDetailsViewComponent,
     FTaskSheetViewComponent,
-    TasksViewerComponent,
+    UnitRootStateComponent,
+    ProjectRootStateComponent,
+    TaskViewerStateComponent,
     FUsersComponent,
+    ProjectProgressGaugeComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    OrganizationsComponent,
   ],
   // Services we provide
   providers: [
@@ -410,6 +423,7 @@ import {GradeService} from './common/services/grade.service';
     DragDropModule,
     ScrollingModule,
     MatToolbarModule,
+    MatSidenavModule,
     MatFormFieldModule,
     MatAutocompleteModule,
     MatInputModule,
@@ -439,7 +453,6 @@ import {GradeService} from './common/services/grade.service';
     MatExpansionModule,
     MatCardModule,
     MatGridListModule,
-    MatSelectModule,
     MatToolbarModule,
     MatTabsModule,
     UpgradeModule,
@@ -450,6 +463,7 @@ import {GradeService} from './common/services/grade.service';
     ReactiveFormsModule,
     PickerModule,
     EmojiModule,
+    NgxChartsModule,
     PdfViewerModule,
     LottieComponent,
     UIRouterUpgradeModule.forRoot({states: doubtfireStates}),

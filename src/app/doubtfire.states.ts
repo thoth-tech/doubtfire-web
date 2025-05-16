@@ -6,8 +6,18 @@ import {SignInComponent} from './sessions/states/sign-in/sign-in.component';
 import {EditProfileComponent} from './account/edit-profile/edit-profile.component';
 import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
-import {FUsersComponent} from './admin/states/f-users/f-users.component';
-import {FUnitsComponent} from './admin/states/f-units/f-units.component';
+import {FUsersComponent} from './admin/states/users/users.component';
+import {FUnitsComponent} from './admin/states/units/units.component';
+import {ProjectDashboardComponent} from './projects/states/dashboard/project-dashboard/project-dashboard.component';
+import {AppInjector} from './app-injector';
+import {ProjectService} from './api/services/project.service';
+import {Observable, first} from 'rxjs';
+import {GlobalStateService} from './projects/states/index/global-state.service';
+import {Project} from './api/models/project';
+import {UnitRootState} from './units/unit-root-state.component';
+import {ProjectRootState} from './projects/states/project-root-state.component';
+import { TaskViewerState } from './units/task-viewer/task-viewer-state.component';
+import { OrganizationsComponent } from './admin/organizations/organizations.component';
 
 /*
  * Use this file to store any states that are sourced by angular components.
@@ -42,6 +52,21 @@ const usersState: NgHybridStateDeclaration = {
   },
   data: {
     pageTitle: 'Administer users',
+    roleWhiteList: ['Admin'],
+  },
+};
+
+const organizationsState: NgHybridStateDeclaration = {
+  name: 'organizations', // This is the name of the state to jump to - so ui-sref="organizations" to jump here
+  url: '/admin/organizations', // You get here with this url
+  views: {
+    main: {
+      // Main body links to angular component
+      component: OrganizationsComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Manage Organizations',
     roleWhiteList: ['Admin'],
   },
 };
@@ -95,7 +120,7 @@ const HomeState: NgHybridStateDeclaration = {
 // };
 
 /**
- * Define the new home state.
+ * Define the new inbox state.
  */
 // const InboxState: NgHybridStateDeclaration = {
 //   name: 'inbox',
@@ -269,6 +294,21 @@ const AdministerUnits: NgHybridStateDeclaration = {
   },
 };
 
+// projectDashboardState which gets the project from the abstract state above
+const ProjectDashboardState: NgHybridStateDeclaration = {
+  name: 'dashboard2',
+  parent: 'projects2',
+  url: '/dashboard2',
+  views: {
+    projectView: {
+      component: ProjectDashboardComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Project Dashboard',
+    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin'],
+  },
+};
 
 const ViewAllUnits: NgHybridStateDeclaration = {
   name: 'view-all-units',
@@ -303,7 +343,12 @@ export const doubtfireStates = [
   EditProfileState,
   EulaState,
   usersState,
+  organizationsState,
   ViewAllProjectsState,
   ViewAllUnits,
   AdministerUnits,
+  ProjectRootState,
+  ProjectDashboardState,
+  UnitRootState,
+  TaskViewerState,
 ];

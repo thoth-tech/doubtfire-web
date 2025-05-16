@@ -3,25 +3,44 @@
     <form #loginForm="ngForm">
       <mat-form-field floatLabel="never" appearance="outline" class="pdf-form-field" ngSubmit>
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput type="text" placeholder="Search PDF" [(ngModel)]="pdfSearchString" (ngModelChange)="searchPdf(pdfSearchString)" name="pdfSearchString" />
+        <input
+          matInput
+          type="text"
+          placeholder="Search PDF"
+          [(ngModel)]="pdfSearchString"
+          (ngModelChange)="searchPdf(pdfSearchString)"
+          name="pdfSearchString"
+        />
 
-        <button matSuffix mat-icon-button type="button" (click)="zoomOut()" aria-label="Zoom in PDF button">
+        <button
+          matSuffix
+          mat-icon-button
+          type="button"
+          (click)="zoomOut()"
+          aria-label="Zoom in PDF button"
+        >
           <mat-icon>zoom_out</mat-icon>
         </button>
-        <button matSuffix mat-icon-button type="button" (click)="zoomIn()" aria-label="Zoom in PDF button">
+        <button
+          matSuffix
+          mat-icon-button
+          type="button"
+          (click)="zoomIn()"
+          aria-label="Zoom in PDF button"
+        >
           <mat-icon>zoom_in</mat-icon>
         </button>
       </mat-form-field>
     </form>
   </div>
   @if (pdfBlobUrl) {
-  <pdf-viewer
-    [zoom]="zoomValue"
-    [src]="pdfBlobUrl"
-    [render-text]="true"
-    [original-size]="false"
-    (after-load-complete)="onLoaded()"
-    (page-rendered)="loaded = true"
-  ></pdf-viewer>
+    <pdf-viewer
+      [zoom]="zoomValue"
+      [src]="pdfBlobUrl"
+      [render-text]="true"
+      [original-size]="false"
+      (after-load-complete)="onLoaded()"
+      (page-rendered)="loaded = true"
+    ></pdf-viewer>
   }
 </div>

@@ -7,6 +7,8 @@ import {
   SimpleChanges,
   OnChanges,
   ViewChild,
+  OnInit,
+  AfterViewInit,
 } from '@angular/core';
 import {PdfViewerComponent} from 'ng2-pdf-viewer';
 import {FileDownloaderService} from '../file-downloader/file-downloader.service';
@@ -17,7 +19,7 @@ import {AlertService} from '../services/alert.service';
   templateUrl: './pdf-viewer.component.html',
   styleUrls: ['./pdf-viewer.component.scss'],
 })
-export class fPdfViewerComponent implements OnDestroy, OnChanges {
+export class fPdfViewerComponent implements OnDestroy, OnChanges, AfterViewInit {
   private _pdfUrl: string;
   public pdfBlobUrl: string;
   @Input() pdfUrl: string;
@@ -36,6 +38,11 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges {
       this.fileDownloader.releaseBlob(this.pdfBlobUrl);
       this.pdfBlobUrl = null;
     }
+  }
+
+  ngAfterViewInit(): void {
+    console.log("pdfUrl");
+    console.log(this.pdfUrl);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

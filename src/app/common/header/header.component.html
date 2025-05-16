@@ -57,6 +57,12 @@
         <mat-icon matListItemIcon>school</mat-icon>
         Manage Units
       </button>
+
+      <button mat-menu-item uiSref="organizations">
+        <mat-icon matListItemIcon>building</mat-icon>
+        Manage Organizations
+      </button>
+
       @if (currentUser.role === 'Admin') {
         <button mat-menu-item uiSref="admin/users">
           <mat-icon matListItemIcon>people</mat-icon>

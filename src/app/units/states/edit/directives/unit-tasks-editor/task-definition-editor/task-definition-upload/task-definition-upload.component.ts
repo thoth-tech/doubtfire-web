@@ -1,7 +1,7 @@
-import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { TaskDefinition, UploadRequirement } from 'src/app/api/models/task-definition';
-import { Unit } from 'src/app/api/models/unit';
+import {Component, Input, OnChanges, SimpleChanges, ViewChild} from '@angular/core';
+import {MatTable, MatTableDataSource} from '@angular/material/table';
+import {TaskDefinition, UploadRequirement} from 'src/app/api/models/task-definition';
+import {Unit} from 'src/app/api/models/unit';
 
 @Component({
   selector: 'f-task-definition-upload',
@@ -10,7 +10,7 @@ import { Unit } from 'src/app/api/models/unit';
 })
 export class TaskDefinitionUploadComponent {
   @Input() public taskDefinition: TaskDefinition;
-  @ViewChild('upreqTable', { static: true }) table: MatTable<any>;
+  @ViewChild('upreqTable', {static: true}) table: MatTable<any>;
 
   public columns: string[] = ['file-name', 'file-type', 'tii-check', 'flag-pct', 'row-actions'];
 
@@ -32,7 +32,7 @@ export class TaskDefinitionUploadComponent {
 
   public removeUpReq(upreq: UploadRequirement) {
     this.taskDefinition.uploadRequirements = this.taskDefinition.uploadRequirements.filter(
-      (anUpReq) => anUpReq.key != upreq.key
+      (anUpReq) => anUpReq.key != upreq.key,
     );
   }
 }
