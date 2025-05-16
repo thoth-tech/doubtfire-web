@@ -1,0 +1,54 @@
+<div class="task-ilo-alignment-rater" [ngClass]="{ 'colorful': colorful }">
+  <div class="rating-area" *ngIf="!compact">
+    <ng-container *ngFor="let i of [].constructor(max); let idx = index">
+      <mat-icon
+      matTooltip="{{ tooltips[idx + 1] }}"
+      matTooltipPosition="above"
+      [matTooltipDisabled]="!showTooltips"
+        (mouseenter)="setHoverValue(idx + 1)"
+        (mouseleave)="setHoverValue(null)"
+        (click)="onRatingChange(idx + 1)"
+        [ngClass]="{
+          'selected': (hoveringOver || ngModel?.rating) >= idx + 1,
+          'unselected': (hoveringOver || ngModel?.rating) < idx + 1
+        }"
+      >
+
+      </mat-icon>
+    </ng-container>
+  </div>
+
+  <div *ngIf="!hideLabels && selectedTooltip && !showTooltips && !compact" class="text-center rating-static-tooltip">
+    <ng-container *ngIf="getCurrentRating() !== 0">
+      <span
+        class="badge"
+        [ngClass]="'rating-' + getCurrentRating()"
+      >
+        {{ tooltips[getCurrentRating()] }}
+      </span>
+    </ng-container>
+
+    <ng-container *ngIf="getCurrentRating() === 0 && unit">
+      <span class="text-muted">
+        {{ tooltips[0] || 'This task is not related to this outcome at all' }}
+      </span>
+    </ng-container>
+  </div>
+
+  <div *ngIf="compact" class="compact-rating-wrapper">
+    <div
+      [ngClass]="ngModel?.rating > 0 ? 'compact-badge rating-' + ngModel.rating : 'compact-badge-empty'"
+      matTooltip="{{ tooltips[ngModel?.rating] }}"
+      matTooltipPosition="above"
+    >
+      <ng-container *ngIf="ngModel?.rating > 0; else zeroCircle">
+        {{ ngModel?.rating }}
+      </ng-container>
+      <ng-template #zeroCircle>
+       <span class="zero-number">0</span>
+      </ng-template>
+    </div>
+  </div>
+
+
+</div>
