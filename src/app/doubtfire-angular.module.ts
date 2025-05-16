@@ -230,6 +230,7 @@ import {UnitRootStateComponent} from './units/unit-root-state.component';
 import {TaskViewerStateComponent} from './units/task-viewer/task-viewer-state.component';
 import {ProjectRootStateComponent} from './projects/states/project-root-state.component';
 import {ProjectProgressDashboardComponent} from './projects/project-progress-dashboard/project-progress-dashboard.component';
+import { OrganizationsComponent } from './admin/organizations/organizations.component';
 
 @NgModule({
   // Components we declare
@@ -336,6 +337,7 @@ import {ProjectProgressDashboardComponent} from './projects/project-progress-das
     ProjectProgressGaugeComponent,
     FTaskBadgeComponent,
     FUnitsComponent,
+    OrganizationsComponent,
   ],
   // Services we provide
   providers: [

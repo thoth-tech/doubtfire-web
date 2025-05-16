@@ -17,6 +17,7 @@ import {Project} from './api/models/project';
 import {UnitRootState} from './units/unit-root-state.component';
 import {ProjectRootState} from './projects/states/project-root-state.component';
 import { TaskViewerState } from './units/task-viewer/task-viewer-state.component';
+import { OrganizationsComponent } from './admin/organizations/organizations.component';
 
 /*
  * Use this file to store any states that are sourced by angular components.
@@ -51,6 +52,21 @@ const usersState: NgHybridStateDeclaration = {
   },
   data: {
     pageTitle: 'Administer users',
+    roleWhiteList: ['Admin'],
+  },
+};
+
+const organizationsState: NgHybridStateDeclaration = {
+  name: 'organizations', // This is the name of the state to jump to - so ui-sref="organizations" to jump here
+  url: '/admin/organizations', // You get here with this url
+  views: {
+    main: {
+      // Main body links to angular component
+      component: OrganizationsComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Manage Organizations',
     roleWhiteList: ['Admin'],
   },
 };
@@ -327,6 +343,7 @@ export const doubtfireStates = [
   EditProfileState,
   EulaState,
   usersState,
+  organizationsState,
   ViewAllProjectsState,
   ViewAllUnits,
   AdministerUnits,
