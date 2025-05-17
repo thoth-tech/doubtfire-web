@@ -11,6 +11,10 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 // Lottie animation module
 // import {LottieModule, LottieCacheModule} from 'ngx-lottie';
+import { FStudentsListComponent } from './units/states/students-list/students-list.component';
+
+
+
 import {provideLottieOptions, LottieComponent} from 'ngx-lottie';
 import player from 'lottie-web';
 import {ClipboardModule} from '@angular/cdk/clipboard';
@@ -271,6 +275,8 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
 @NgModule({
   // Components we declare
   declarations: [
+
+    FStudentsListComponent,
     AlertComponent,
     UnitStudentEnrolmentModalComponent,
     AboutDoubtfireModalContent,
@@ -399,6 +405,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     GroupSetService,
     GroupService,
     UnitService,
+    UserService,
     ProjectService,
     UnitRoleService,
     LearningOutcomeService,
@@ -471,6 +478,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
   ],
   imports: [
     FlexLayoutModule,
+    FormsModule,
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
@@ -479,6 +487,8 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     DragDropModule,
     ScrollingModule,
     MatToolbarModule,
+    MatTableModule,
+    MatPaginatorModule,
     MatSidenavModule,
     MatFormFieldModule,
     MatAutocompleteModule,

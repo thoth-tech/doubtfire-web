@@ -1,0 +1,77 @@
+#students-list {
+  font-family: inherit;
+
+  /* 1) TABLE COLUMN SIZING */
+  table#students-list-table {
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 5%;
+      text-align: right;
+    }
+    th:nth-child(4),
+    td:nth-child(4) {
+      width: 40%;
+      min-width: 250px;
+      max-width: 350px;
+    }
+    th {
+      color: #3b82f6;
+      font-size: 1.25rem;   /* smaller header labels */
+      font-weight: 500;
+    }
+  }
+
+  /* 2) PROGRESS BAR (Stats) */
+  .task-progress {
+    max-width: 350px;      /* cap overall width */
+    /* height, bg-color & border-radius are handled by Tailwind */
+  }
+
+  /* segment colors & text */
+  .not_started,
+  .not-started {
+    background-color: #d1d5db; /* gray */
+    color: #374151;            /* dark text */
+  }
+  .working_on_it,
+  .working-on-it {
+    background-color: #3b82f6; /* blue */
+    color: #fff;
+  }
+  .ready_for_feedback,
+  .ready-for-feedback {
+    background-color: #f59e0b; /* amber */
+    color: #fff;
+  }
+  .complete {
+    background-color: #4caf50; /* green */
+    color: #fff;
+  }
+  .fail {
+    background-color: #dc3545; /* red */
+    color: #fff;
+  }
+
+  .progress-segment {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    line-height: 1;
+    white-space: nowrap;
+    /* corners come from .rounded-full in your HTML */
+  }
+
+  /* 3) FILTER BUTTONS ICON CENTERING */
+  #students-list-search-options {
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+  }
+}
