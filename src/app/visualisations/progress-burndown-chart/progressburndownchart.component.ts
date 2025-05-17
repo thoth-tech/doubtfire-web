@@ -18,12 +18,14 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
   data: any[] = [];
   gaugeData: any[] = [];
   temp: any[] = [];
+  markedPercentage: number = 0;
 
   // options
   legend: boolean = true;
   showLabels: boolean = true;
   animations: boolean = true;
-  colorScheme = { domain: ['#AAAAAA', '#777777', '#0079d8', '#E01B5D'] };
+  // Updated color scheme - changing Marked color from pink to green
+  colorScheme = { domain: ['#AAAAAA', '#777777', '#0079d8', '#28a745'] };
 
   private seriesVisibility: { [key: string]: boolean } = {};
 
@@ -52,6 +54,14 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
     }
   }
 
+  // Custom formatter for the gauge value to avoid the unwanted % sign
+  formatGaugeValue(value: any): string {
+    if (typeof value === 'number') {
+      return `${value.toFixed(1)}%`;
+    }
+    return value;
+  }
+
   generateDates() {
     const startDate: Date = this.project.unit.startDate;
     const endDate: Date = this.project.unit.endDate;
@@ -74,6 +84,14 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
     const chartData = this.project?.burndownChartData;
     const dates = this.generateDates();
 
+    // Target grade mapping - maps grade index to percentage values
+    const targetGradeMapping = {
+      0: 50,  // Pass: 50%
+      1: 60,  // Credit: 60%
+      2: 70,  // Distinction: 70%
+      3: 80   // High Distinction: 80%
+    };
+
     // Create data for line chart (keeping original functionality)
     const formattedData = chartData.map((dataset) => {
       const values = Array(10)
@@ -82,6 +100,16 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
 
       const series = dates.map((date, index) => {
         let value = values[index][1] ?? 0;
+
+        // Special handling for Target Grade - apply our mapping
+        if (dataset.key === 'Target Grade') {
+          // If the value is close to 0, 0.33, 0.66, or 1.0, map it to our percentages
+          if (value < 0.2) value = 0.5; // Pass: 50%
+          else if (value < 0.5) value = 0.6; // Credit: 60%
+          else if (value < 0.8) value = 0.7; // Distinction: 70%
+          else value = 0.8; // High Distinction: 80%
+        }
+
         value = value * 100;
 
         if (value < 0) {
@@ -97,29 +125,35 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
       };
     });
 
-    // Create data for gauge chart
-    // We take the latest value from each series
+    // Create data for gauge chart - apply the same target grade mapping
     const gaugeFormattedData = chartData.map((dataset) => {
       // Get the latest non-zero value
-      // Fix for the TypeScript error
       const latestValues = dataset.values.filter(v => v && Array.isArray(v) && v.length > 1);
       const latestValue = latestValues.length > 0 ?
                           latestValues[latestValues.length - 1][1] : 0;
 
-      // Convert to percentage
-      let value = latestValue * 100;
+      // Convert to percentage, with special handling for Target Grade
+      let value;
+      if (dataset.key === 'Target Grade') {
+        // Map to our fixed percentages based on the target grade
+        value = targetGradeMapping[this.project.targetGrade] || 50;
+      } else {
+        value = latestValue * 100;
+      }
+
       if (value < 0) value = 0;
 
-      // Format name for display
-      let name = dataset.key;
-      if (name === 'To Submit') name = 'ToSubmit';
-      if (name === 'To Complete') name = 'ToComplete';
-
       return {
-        name: name,
+        name: dataset.key,
         value: value
       };
     });
+
+    // Find the Marked data and extract its percentage
+    const markedData = gaugeFormattedData.find(item => item.name === 'Marked');
+    if (markedData) {
+      this.markedPercentage = parseFloat(markedData.value.toFixed(1));
+    }
 
     this.temp = JSON.parse(JSON.stringify(formattedData));
     this.data = formattedData;
@@ -157,6 +191,5 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
 
   public formatPerc(input) {
     return `${input}%`;
-
   }
 }

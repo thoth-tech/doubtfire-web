@@ -386,7 +386,7 @@ export class Project extends Entity {
 
   public refreshBurndownChartData(): void {
     const result: {key: string; values: number[]}[] = [];
-  
+
     // Setup the dictionaries to contain the keys and values
     // key = series name
     // values = array of [ x, y ] values
@@ -394,12 +394,12 @@ export class Project extends Entity {
     const targetGradeResults = {key: 'Target Grade', values: []}; // renamed from targetTaskResults
     const submittedResults = {key: 'Submitted', values: []}; // renamed from doneTaskResults
     const markedResults = {key: 'Marked', values: []}; // renamed from completeTaskResults
-  
+
     result.push(targetGradeResults);
     result.push(estimatedResults);
     result.push(submittedResults);
     result.push(markedResults);
-  
+
     // Get the weeks between start and end date as an array
     const endDateValue = this.unit.endDate.getTime() + MappingFunctions.weeksMs(3);
     const dates = MappingFunctions.step(
@@ -407,33 +407,33 @@ export class Project extends Entity {
       endDateValue,
       MappingFunctions.weeksMs(1),
     ).map((val) => new Date(val));
-  
+
     // Get the target task from the unit's task definitions
     const targetTasks = this.unit.taskDefinitionsForGrade(this.targetGrade);
-  
+
     // get total value of all tasks assigned to this project
     const total = targetTasks
       .map((td) => td.weighting)
       .reduce((prev, current, idx, array) => prev + current, 0);
-  
+
     // exit if no tasks or no weights
     if (targetTasks.length === 0 || total === 0) {
       this.burndownChartData = result;
       return;
     }
-  
+
     const tasks = this.tasks;
-  
+
     // For Marked: tasks that have been marked by a tutor (complete, fail states)
     const markedTasks = tasks.filter((task) =>
       ['complete', 'fail'].includes(task.status),
     );
-  
+
     // For Submitted: tasks that have been submitted (ready_for_feedback, discuss, demonstrate, complete, fail)
     const submittedTasks = tasks.filter((task) =>
       ['ready_for_feedback', 'discuss', 'demonstrate', 'complete', 'fail'].includes(task.status),
     );
-  
+
     // last done task date
     let lastTargetDate: Date;
     if (submittedTasks.length === 0) {
@@ -443,11 +443,11 @@ export class Project extends Entity {
         .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
         .splice(-1)[0].dueDate;
     }
-  
+
     // today is used to determine when to stop adding done tasks
     const today =
       new Date().getTime() > this.unit.endDate.getTime() ? this.unit.endDate : new Date();
-  
+
     // use weekly completion rate to determine estimated progress
     let completionRate: number = 0;
     if (submittedTasks.length > 0) {
@@ -459,23 +459,31 @@ export class Project extends Entity {
         completionRate = submittedTasksWeight / weeksElapsed;
       }
     }
-  
+
     let estimatedRemaining = total;
-  
+
     // Track which values to add
     let addTarget = true;
     let addEstimated = true;
     let addDone = true;
-  
+
+    // Target grade mapping - maps grade index to percentage values
+    const targetGradeMapping = {
+      0: 0.5,  // Pass: 50%
+      1: 0.6,  // Credit: 60%
+      2: 0.7,  // Distinction: 70%
+      3: 0.8   // High Distinction: 80%
+    };
+
     // Iterate over the dates
     dates.forEach((date) => {
       // Target Grade values - representing the target grade the student is aiming for
-      // This could be a constant line showing the percentage needed for their target grade
+      // Use the mapping to get the correct percentage based on target grade
       const targetGradeVal = [
         date.getTime(),
-        this.targetGrade / 3, // Scale the target grade (0-3) to a percentage (0-1)
+        targetGradeMapping[this.targetGrade] || 0.5, // Default to Pass if unknown
       ];
-  
+
       // Submitted values - tasks that have been submitted
       const submittedVal = [
         date.getTime(),
@@ -484,7 +492,7 @@ export class Project extends Entity {
           .map((task) => task.definition.weighting)
           .reduce((prev, current) => prev + current, 0)) / total,
       ];
-  
+
       // Marked values - tasks that have been marked
       const markedVal = [
         date.getTime(),
@@ -493,36 +501,36 @@ export class Project extends Entity {
           .map((task) => task.definition.weighting)
           .reduce((prev, current) => prev + current, 0)) / total,
       ];
-  
+
       // Estimated value - based on current progress rate
-      const estimatedVal = [date.getTime(), 
+      const estimatedVal = [date.getTime(),
         Math.min(1, (total - estimatedRemaining) / total) // Cap at 100%
       ];
-  
+
       // add one week's worth of completion data for estimation
       estimatedRemaining -= completionRate;
       if (estimatedRemaining < 0) estimatedRemaining = 0;
-  
+
       // add values to results if appropriate
       if (addTarget) {
         targetGradeResults.values.push(targetGradeVal);
       }
-      
+
       if (addDone) {
         submittedResults.values.push(submittedVal);
         markedResults.values.push(markedVal);
-        
+
         // stop adding once past today
         addDone = date < today;
       }
-  
+
       if (addEstimated) {
         estimatedResults.values.push(estimatedVal);
         // stop adding projected values once estimated is complete
         addEstimated = estimatedVal[1] < 1;
       }
     });
-  
+
     this.burndownChartData = result;
   }
 }

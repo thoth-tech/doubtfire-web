@@ -7,14 +7,19 @@
     [legendTitle]="''"
     [min]="0"
     [max]="100"
-    [units]="'%'"
+    [units]="''"
     [bigSegments]="10"
     [smallSegments]="5"
     [angleSpan]="240"
     [startAngle]="-120"
     [showAxis]="true"
     [scheme]="colorScheme"
+    [textValue]="markedPercentage + '%'"
+    [valueFormatting]="formatGaugeValue"
     (select)="onSelect($event)"
     >
   </ngx-charts-gauge>
+</div>
+<div class="gauge-instructions">
+  <p>Aim to keep your <strong>Marked</strong> percentage at or above your <strong>Target Grade</strong> line. This shows you're making good progress towards your goal.</p>
 </div>
