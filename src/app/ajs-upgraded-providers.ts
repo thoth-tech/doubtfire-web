@@ -5,7 +5,6 @@ import {InjectionToken} from '@angular/core';
 export const uploadSubmissionModal = new InjectionToken('uploadSubmissionModal');
 export const gradeTaskModal = new InjectionToken('gradeTaskModal');
 export const analyticsService = new InjectionToken('analyticsService');
-export const newUnitService = new InjectionToken('newUnitService');
 export const dateService = new InjectionToken('dateService');
 export const audioRecorder = new InjectionToken('audioRecorder');
 export const audioRecorderService = new InjectionToken('recorderService');
@@ -27,11 +26,7 @@ export const projectProvider = {
   useFactory: (i: any) => i.get('Project'),
   deps: ['$injector'],
 };
-export const newUnitServiceProvider = {
-  provide: newUnitService,
-  useFactory: (i: any) => i.get('newUnitService'),
-  deps: ['$injector'],
-};
+
 
 export const campusServiceProvider = {
   provide: CampusService,

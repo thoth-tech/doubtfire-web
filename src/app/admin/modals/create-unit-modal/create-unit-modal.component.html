@@ -1,24 +1,20 @@
-<div class="create-unit-modal">
-  <form class="form" (ngSubmit)="saveUnit()">
-    <h2 mat-dialog-title>Create Unit</h2>
-    
-    <mat-dialog-content>
-      <div class="form-fields">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Name</mat-label>
-          <input matInput [(ngModel)]="unit.name" name="name" placeholder="Introduction to {{externalName.value}}" required>
-        </mat-form-field>
-        
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Code</mat-label>
-          <input matInput [(ngModel)]="unit.code" name="code" placeholder="COS123456" required>
-        </mat-form-field>
-      </div>
-    </mat-dialog-content>
-    
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="!unit.name || !unit.code">Create</button>
-    </mat-dialog-actions>
-  </form>
-</div>
+<h2 mat-dialog-title>Create Unit</h2>
+
+<form [formGroup]="unitForm" (ngSubmit)="saveUnit()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Unit Name</mat-label>
+<input matInput formControlName="name" placeholder="Introduction to {{ externalName$ | async }}" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Unit Code</mat-label>
+      <input matInput formControlName="code" placeholder="COS123456" />
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="unitForm.invalid">Create</button>
+  </mat-dialog-actions>
+</form>
