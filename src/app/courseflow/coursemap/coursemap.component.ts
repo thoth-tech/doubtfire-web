@@ -22,7 +22,8 @@ import {CourseService} from 'src/app/api/services/course.service';
 import {CourseMapService} from 'src/app/api/services/course-map.service';
 import {UnitDefinitionService} from 'src/app/api/services/unit-definition.service';
 import { CourseMapUnitService } from 'src/app/api/services/course-map-unit.service';
-
+import { MatDialog } from '@angular/material/dialog';
+import { UnitDescriptionModalContentComponent } from 'src/app/admin/modals/unit-description-modal/unit-description-modal-content.component';
 type signInData =
   | {
       username: string;
@@ -66,6 +67,7 @@ export class CoursemapComponent implements OnInit {
     private transition: Transition,
     private globalState: GlobalStateService,
     private alerts: AlertService,
+    private dialog: MatDialog,
     private unitService: UnitService,
     private courseService: CourseService,
     private courseMapService: CourseMapService,
@@ -98,7 +100,6 @@ export class CoursemapComponent implements OnInit {
     version: 'v1.0',
     url: 'http://university.edu/courses/cs101',
   };
-
 
   ngOnInit(): void {
     this.formData = {
@@ -136,6 +137,9 @@ export class CoursemapComponent implements OnInit {
       'Data capture technologies',
       'SIT115',
       '1',
+      1,
+      'ABCD',
+      'EFHG'
     );
     this.formData = {
       username: '',
@@ -158,6 +162,7 @@ export class CoursemapComponent implements OnInit {
     this.unitDefinitionService.getDefinitions().subscribe({
       next: (data: UnitDefinition[]) => {
         this.requiredUnits = data;
+        console.log('Unit Definitions:', data);
         this.errorMessage = null;
       },
       error: (err) => {
@@ -309,10 +314,7 @@ export class CoursemapComponent implements OnInit {
         event.previousIndex,
         event.currentIndex,
       );
-
-
     }
-
   }
 
   fetchUnitByCode(): void {
@@ -338,6 +340,12 @@ export class CoursemapComponent implements OnInit {
       this.errorMessage = 'Unit not found';
       this.unit = null;
     }
+  }
+  openUnitDetailModal(unit: UnitDefinition): void {
+    this.dialog.open(UnitDescriptionModalContentComponent, {
+      width: '600px',
+      data: unit
+    });
   }
 
 }

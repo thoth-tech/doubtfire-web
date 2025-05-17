@@ -1,0 +1,39 @@
+<h3 mat-dialog-title>Unit Details</h3>
+
+<div mat-dialog-content class="pt-4">
+  <p><strong>Unit Code:</strong> {{ unit.code }}</p>
+  <p><strong>Name:</strong> {{ unit.name }}</p>
+  <p>
+    <strong>Description:</strong><br /> {{ unit.description }}
+  </p>
+
+  <!-- Requirements Section -->
+  <div class="requirements-container mt-3">
+    <h3>Requirements</h3>
+
+    <div *ngIf="isLoading" class="loading-indicator">
+      Loading requirements...
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message text-danger">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && requirements.length === 0" class="no-requirements">
+      No requirements found for this unit.
+    </div>
+
+    <div *ngIf="requirements.length > 0" class="requirements-list">
+      <div *ngFor="let requirement of requirements" class="requirement-item mb-2">
+        <div><strong>Type:</strong> {{ requirement.type }}</div>
+        <div><strong>Category:</strong> {{ requirement.category }}</div>
+        <div><strong>Minimum: </strong> {{ requirement.minimum }}</div>
+        <div><strong>Maximum: </strong>{{ requirement.maximum }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

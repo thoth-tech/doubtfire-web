@@ -16,18 +16,18 @@ export class CreateNewUnitModalContentComponent implements OnInit {
     private alerts: AlertService,
   ) {}
   showDates = false;
-  startDate: Date;
+  startDate: Date
   endDate: Date;
   selectedTeachingPeriod: number = null;
+  corequisite: string = "null";
   teachingPeriods: TeachingPeriod[];
-
   ngOnInit(): void {
     this.teachingPeriodsService.fetchAll().subscribe((teachingPeriods) => {
       this.teachingPeriods = teachingPeriods;
     });
   }
 
-  public createUnit(unit: { unitName: string; unitCode: string; selectedTeachingPeriod: number }): void {
+  public createUnit(unit: { unitName: string; unitCode: string; selectedTeachingPeriod: number; creditpoint: number; prerequisite: string }): void {
     let newUnit;
 
     if (this.selectedTeachingPeriod === null) {
@@ -36,12 +36,18 @@ export class CreateNewUnitModalContentComponent implements OnInit {
         name: unit.unitName,
         start_date: this.startDate,
         end_date: this.endDate,
+        creditpoint: unit.creditpoint,
+        prerequisite: unit.prerequisite,
+        corequisite: this.corequisite
       };
     } else {
       newUnit = {
         code: unit.unitCode,
         name: unit.unitName,
         teaching_period_id: this.selectedTeachingPeriod,
+        creditpoint: unit.creditpoint,
+        prerequisite: unit.prerequisite,
+        corequisite: this.corequisite
       };
     }
 
