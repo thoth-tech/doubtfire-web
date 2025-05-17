@@ -36,7 +36,7 @@
 
 .unit {
   padding: 4px;
-  margin: 1px 0 0 5%;
+  margin: 4px;
   background-color: #357bb9a8;
   color: white;
   border-radius: 6px;
@@ -46,10 +46,11 @@
   justify-content: center;
   height: auto;
   min-height: 80px;
-  min-width: 150px;
+  width: calc(100% - 16px); /* Calculate width accounting for padding and margin */
   max-width: 350px;
+  box-sizing: border-box; /* Include padding in width calculation */
+  overflow-wrap: break-word; /* Ensure text wraps within container */
 }
-
 .study-periods-container {
   display: flex;
   flex-direction: column;
@@ -139,8 +140,4 @@ mat-form-field {
     font-size: 1.65vw;
   }
 
-
 }
-
-
-

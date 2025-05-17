@@ -18,9 +18,6 @@
             <mat-icon>more_vert</mat-icon>
           </button>
         </div>
-        <div>
-          <strong>Credit Points:</strong> {{ unit.creditpoint }}
-        </div>
       </div>
     </div>
     <div class="electives-container">
@@ -86,9 +83,6 @@
               <mat-icon>more_vert</mat-icon>
             </button>
           </div>
-          <div>
-            <strong>Credit Points:</strong> {{ unit.creditpoint }}
-          </div>
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 0)">
           <mat-icon>delete</mat-icon>
@@ -113,9 +107,6 @@
               <mat-icon>more_vert</mat-icon>
             </button>
           </div>
-          <div>
-            <strong>Credit Points:</strong> {{ unit.creditpoint }}
-          </div>
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 1)">
           <mat-icon>delete</mat-icon>
@@ -139,9 +130,6 @@
             <button mat-icon-button class="info-button" (click)="openUnitDetailModal(unit)">
               <mat-icon>more_vert</mat-icon>
             </button>
-          </div>
-          <div>
-            <strong>Credit Points:</strong> {{ unit.creditpoint }}
           </div>
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 2)">

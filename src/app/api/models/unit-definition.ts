@@ -1,9 +1,6 @@
 export interface UnitDefinition {
-  id?: number;
+  id: number;
   name: string;
   description: string;
   code: string;
-  creditpoint: number;
-  prerequisite: string;
-  corequisite: string;
 }
