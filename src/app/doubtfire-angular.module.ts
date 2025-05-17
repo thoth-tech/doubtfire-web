@@ -15,6 +15,7 @@ import {provideLottieOptions, LottieComponent} from 'ngx-lottie';
 import player from 'lottie-web';
 import { CreateUnitModalComponent } from './admin/modals/create-unit-modal/create-unit-modal.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import { newUnitServiceProvider } from './ajs-upgraded-providers';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatSidenavModule} from '@angular/material/sidenav';
@@ -394,6 +395,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
   ],
   // Services we provide
   providers: [
+    newUnitServiceProvider,
     AlertService,
     MarkedPipe,
     CampusService,

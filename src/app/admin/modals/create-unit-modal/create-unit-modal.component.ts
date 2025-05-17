@@ -2,8 +2,12 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
 import { AlertService } from 'src/app/common/services/alert.service';
-import { NewUnitService } from 'src/app/api/services/new-unit.service';
-import { AnalyticsService } from 'src/app/common/services/analytics.service';
+import { UnitService } from '../../../api/models/doubtfire-model';
+import { analyticsService } from 'src/app/ajs-upgraded-providers';
+import { newUnitService } from 'src/app/ajs-upgraded-providers';
+import { FormsModule } from '@angular/forms';
+
+
 
 @Component({
   selector: 'create-unit-modal',
@@ -22,10 +26,10 @@ export class CreateUnitModalComponent implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<CreateUnitModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: {units: any},
+    @Inject(newUnitService) private newUnitService: any,
     private doubtfireConstants: DoubtfireConstants,
     private alertService: AlertService,
-    private newUnitService: NewUnitService,
-    private analyticsService: AnalyticsService
+    @Inject(analyticsService) private analyticsService: any
   ) {
     this.units = data.units;
   }
