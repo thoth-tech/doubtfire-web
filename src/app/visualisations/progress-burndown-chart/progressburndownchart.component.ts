@@ -18,13 +18,18 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
   data: any[] = [];
   gaugeData: any[] = [];
   temp: any[] = [];
+  originalGaugeData: any[] = [];
   markedPercentage: number = 0;
+
+  // Track which series are selected (only one at a time)
+  selectedSeries: string | null = null;
+  allSeriesVisible: boolean = true;
 
   // options
   legend: boolean = true;
   showLabels: boolean = true;
   animations: boolean = true;
-  // Updated color scheme - changing Marked color from pink to green
+  // Updated color scheme - Marked is now green
   colorScheme = { domain: ['#AAAAAA', '#777777', '#0079d8', '#28a745'] };
 
   private seriesVisibility: { [key: string]: boolean } = {};
@@ -34,6 +39,7 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
     this.data = [];
     this.gaugeData = [];
     this.temp = [];
+    this.originalGaugeData = [];
   }
 
   ngOnInit(): void {
@@ -42,7 +48,9 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
 
     this.project.refreshBurndownChartData();
     this.updateData();
-    this.data.forEach((item) => {
+
+    // Initialize all series as visible
+    this.gaugeData.forEach((item) => {
       this.seriesVisibility[item.name] = true;
     });
   }
@@ -54,7 +62,7 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
     }
   }
 
-  // Custom formatter for the gauge value to avoid the unwanted % sign
+  // Add this function to fix the error
   formatGaugeValue(value: any): string {
     if (typeof value === 'number') {
       return `${value.toFixed(1)}%`;
@@ -158,38 +166,62 @@ export class ProgressBurndownChartComponent extends ChartBaseComponent implement
     this.temp = JSON.parse(JSON.stringify(formattedData));
     this.data = formattedData;
     this.gaugeData = gaugeFormattedData;
+    // Keep original data for toggling visibility
+    this.originalGaugeData = JSON.parse(JSON.stringify(gaugeFormattedData));
   }
 
+  // Handle legend click events for toggling series visibility - UPDATED VERSION
   onSelect(event): void {
-    if (this.isLegend(event)) {
-      const tempData = JSON.parse(JSON.stringify(this.data));
-      if (this.isDataShown(event)) {
-        tempData.forEach((series) => {
-          if (series.name === event) {
-            series.series.forEach((point) => (point.value = 0));
-          }
+    // Check if this is a legend click (string event)
+    if (typeof event === 'string') {
+      const seriesName = event;
+
+      // If all series are currently visible and user clicks one,
+      // show only that one and hide others
+      if (this.allSeriesVisible) {
+        // Set all series to invisible except the clicked one
+        this.originalGaugeData.forEach(item => {
+          this.seriesVisibility[item.name] = (item.name === seriesName);
         });
-      } else {
-        const originalSeries = this.temp.find((series) => series.name === event);
-        const seriesIndex = tempData.findIndex((series) => series.name === event);
-        if (seriesIndex >= 0) {
-          tempData[seriesIndex] = JSON.parse(JSON.stringify(originalSeries));
-        }
+        this.allSeriesVisible = false;
+        this.selectedSeries = seriesName;
       }
-      this.data = tempData;
+      // If only one series is visible and user clicks the same one again,
+      // show all series
+      else if (this.selectedSeries === seriesName) {
+        // Set all series to visible
+        this.originalGaugeData.forEach(item => {
+          this.seriesVisibility[item.name] = true;
+        });
+        this.allSeriesVisible = true;
+        this.selectedSeries = null;
+      }
+      // If only one series is visible and user clicks a different one,
+      // show only the newly clicked one
+      else {
+        // Set all series to invisible except the clicked one
+        this.originalGaugeData.forEach(item => {
+          this.seriesVisibility[item.name] = (item.name === seriesName);
+        });
+        this.selectedSeries = seriesName;
+      }
+
+      // Update the gauge data based on the new visibility states
+      this.gaugeData = this.originalGaugeData.map(item => {
+        if (!this.seriesVisibility[item.name]) {
+          return { ...item, value: 0 };
+        }
+        return { ...item };
+      });
     }
   }
 
-  isLegend(event: any): boolean {
-    return typeof event === 'string';
+  // Check if a series is currently visible
+  isSeriesVisible(seriesName: string): boolean {
+    return this.seriesVisibility[seriesName];
   }
 
-  isDataShown(name: string): boolean {
-    const series = this.data.find((series) => series.name === name);
-    return series && series.series.some((point) => point.value !== 0);
-  }
-
-  public formatPerc(input) {
+  formatPerc(input) {
     return `${input}%`;
   }
 }

@@ -15,11 +15,23 @@
     [showAxis]="true"
     [scheme]="colorScheme"
     [textValue]="markedPercentage + '%'"
-    [valueFormatting]="formatGaugeValue"
     (select)="onSelect($event)"
     >
   </ngx-charts-gauge>
 </div>
-<div class="gauge-instructions">
-  <p>Aim to keep your <strong>Marked</strong> percentage at or above your <strong>Target Grade</strong> line. This shows you're making good progress towards your goal.</p>
+
+<!-- Legend status indicators to show which series are visible/hidden -->
+<div class="custom-legend">
+  <div class="legend-item" *ngFor="let item of originalGaugeData"
+       [class.active]="isSeriesVisible(item.name)"
+       [class.inactive]="!isSeriesVisible(item.name)"
+       (click)="onSelect(item.name)">
+    <div class="legend-color" [style.background-color]="colorScheme.domain[originalGaugeData.indexOf(item)]"></div>
+    <div class="legend-label">{{ item.name }}</div>
+  </div>
 </div>
+
+
+<p class="legend-instructions text-center">
+  <small>Click on a legend item to view only that indicator. Click it again to show all indicators.</small>
+</p>

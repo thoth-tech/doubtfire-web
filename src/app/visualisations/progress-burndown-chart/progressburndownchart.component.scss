@@ -1,6 +1,6 @@
 .chart-container {
   width: 100%;
-  height: 350px;
+  height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,14 +16,9 @@
       font-size: 35px !important;
       font-weight: bold;
 
-      // A more comprehensive fix for the percentage issue
-      // Only display the first text element (the number with %) and hide all others
-      text {
-        display: none;
-      }
-
-      text:first-child {
-        display: block !important;
+      // Fix for double percentage issue
+      text:nth-child(2), text:nth-child(3) {
+        display: none !important;
       }
     }
 
@@ -45,34 +40,76 @@
     }
   }
 
-  // Style the legend
+  // Hide default legend as we're using a custom one
   ::ng-deep .chart-legend {
-    .legend-labels {
-      background-color: transparent !important;
+    display: none !important;
+  }
+}
 
-      .legend-label-text {
-        font-size: 13px !important;
-        color: #333333;
-      }
+// Custom interactive legend styling
+.custom-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 0 15px;
 
-      .legend-label-color {
-        border-radius: 0 !important;
-      }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin: 0 10px 5px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    &.inactive {
+      opacity: 0.5;
+    }
+
+    // Add just this new style for active state
+    &.active:not(.inactive) {
+      font-weight: bold;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .legend-color {
+      width: 15px;
+      height: 15px;
+      margin-right: 5px;
+      border-radius: 2px;
+    }
+
+    .legend-label {
+      font-size: 12px;
+      color: #333;
     }
   }
 }
 
-// Add some styling for the instructions
+// Instruction text styling
 .gauge-instructions {
-  margin-top: 10px;
+  margin-top: 5px;
   text-align: center;
-  font-size: 0.9rem;
   color: #555;
-
-  strong {
-    font-weight: 600;
-  }
+  font-size: 0.9rem;
+  line-height: 1.4;
+  padding: 0 15px;
 }
-::ng-deep .gauge .gauge-value text tspan:nth-child(3) {
-  display: none !important;
+
+.legend-instructions {
+  margin-top: 0;
+  color: #777;
+  font-size: 0.8rem;
+}
+
+// Handle any ng-deep styling for the gauge itself
+::ng-deep {
+  .gauge-arc.hidden {
+    opacity: 0;
+  }
 }
