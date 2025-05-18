@@ -16,39 +16,33 @@
     }
     th {
       color: #3b82f6;
-      font-size: 1.25rem;   /* smaller header labels */
+      font-size: 1.25rem;
       font-weight: 500;
     }
-  }
-
-  /* 2) PROGRESS BAR (Stats) */
-  .task-progress {
-    max-width: 350px;      /* cap overall width */
-    /* height, bg-color & border-radius are handled by Tailwind */
   }
 
   /* segment colors & text */
   .not_started,
   .not-started {
-    background-color: #d1d5db; /* gray */
-    color: #374151;            /* dark text */
+    background-color: #d1d5db;
+    color: #374151;
   }
   .working_on_it,
   .working-on-it {
-    background-color: #3b82f6; /* blue */
+    background-color: #3b82f6;
     color: #fff;
   }
   .ready_for_feedback,
   .ready-for-feedback {
-    background-color: #f59e0b; /* amber */
+    background-color: #f59e0b;
     color: #fff;
   }
   .complete {
-    background-color: #4caf50; /* green */
+    background-color: #4caf50;
     color: #fff;
   }
   .fail {
-    background-color: #dc3545; /* red */
+    background-color: #dc3545;
     color: #fff;
   }
 
@@ -60,7 +54,6 @@
     font-size: 0.75rem;
     line-height: 1;
     white-space: nowrap;
-    /* corners come from .rounded-full in your HTML */
   }
 
   /* 3) FILTER BUTTONS ICON CENTERING */

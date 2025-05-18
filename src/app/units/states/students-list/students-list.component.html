@@ -19,7 +19,7 @@
     (click)="showSearchOptions = !showSearchOptions"
     aria-label="Toggle search options"
     [attr.aria-expanded]="showSearchOptions"
-    class="w-10 h-10 ml-2 flex items-center justify-center border border-gray-300 rounded focus:outline-none focus:ring-0 bg-white"
+    class="h-full flex items-center justify-center border-1 border-gray-300 rounded-r focus:outline-none focus:ring-0 bg-white"
   >
     <mat-icon>
       {{ showSearchOptions ? 'expand_less' : 'expand_more' }}
@@ -42,10 +42,10 @@
   <div
     *ngIf="showSearchOptions"
     id="students-list-search-options"
-    class="border rounded p-4 mb-4 bg-white shadow-sm"
+    class="border rounded p-4 mb-4 bg-gray-50 shadow-sm"
   >
     <fieldset id="students-list-filter">
-      <legend class="font-medium mb-2">Show Students From…</legend>
+      <legend class="text-s font-medium mb-2">Show Students From…</legend>
       <div class="inline-flex rounded-md shadow-sm" role="group">
         <button
           type="button"
@@ -79,7 +79,7 @@
     </fieldset>
 
     <fieldset id="students-list-flag-sort" class="mt-4">
-      <legend class="font-medium mb-2">Sort Flags By…</legend>
+      <legend class="text-s font-medium mb-2">Sort Flags By…</legend>
       <div class="inline-flex rounded-md shadow-sm" role="group">
         <button
           type="button"
@@ -143,43 +143,43 @@
     <thead class="bg-gray-50">
       <tr>
         <th class="sticky left-0 px-3 py-2"></th>
-        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('student.username')">
+        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('student.username')">
           Username
-          <mat-icon inline *ngIf="tableSort.order==='student.username'">
+          <mat-icon inline *ngIf="tableSort.order==='student.username'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('student.name')">
+        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('student.name')">
           Name
-          <mat-icon inline *ngIf="tableSort.order==='student.name'">
+          <mat-icon inline *ngIf="tableSort.order==='student.name'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('orderScale')">
+        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('orderScale')">
           Stats
-          <mat-icon inline *ngIf="tableSort.order==='orderScale'">
+          <mat-icon inline *ngIf="tableSort.order==='orderScale'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 text-center cursor-pointer" (click)="sortTableBy('flags')">
+        <th class="px-3 py-2 text-center cursor-pointer" font-bold (click)="sortTableBy('flags')">
           Flags
           <mat-icon inline *ngIf="
             tableSort.order==='similarityFlag'||
             tableSort.order==='targetGrade'||
             tableSort.order==='portfolioStatus'
-          ">
+          " class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('campus.name')">
+        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('campus.name')">
           Campus
-          <mat-icon inline *ngIf="tableSort.order==='campus.name'">
+          <mat-icon inline *ngIf="tableSort.order==='campus.name'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('tutorial.abbreviation')">
+        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('tutorial.abbreviation')">
           Tutorial
-          <mat-icon inline *ngIf="tableSort.order==='tutorial.abbreviation'">
+          <mat-icon inline *ngIf="tableSort.order==='tutorial.abbreviation'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
@@ -197,7 +197,7 @@
           <span class="truncate">{{ project.student.name }}</span>
         </td>
         <td class="px-3 py-2" (click)="viewStudent(project)">
-          <div class="task-progress flex w-full bg-gray-200 h-6 rounded-full overflow-hidden">
+          <div class="task-progress flex w-full bg-gray-200 h-8 rounded-full overflow-hidden">
             <div
               *ngFor="let bar of project.taskStats"
               class="progress-segment flex items-center justify-center text-xs"

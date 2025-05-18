@@ -11,7 +11,6 @@ import { UserService } from 'src/app/api/services/user.service';
 })
 export class FStudentsListComponent implements OnInit, AfterViewInit {
   @Input() unit!: Unit;
-  // Removed unused @Input() tutor
 
   @ViewChild('searchInput', { static: false })
   searchInput!: ElementRef<HTMLInputElement>;
@@ -64,7 +63,6 @@ export class FStudentsListComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Keep the existing focus behavior on the search input
     this.searchInput?.nativeElement.focus();
   }
 
@@ -153,10 +151,6 @@ export class FStudentsListComponent implements OnInit, AfterViewInit {
       this.tableSort.reverse = false;
     }
     this.applyFilters();
-  }
-
-  displayOption(option: string): string {
-    return option;
   }
 
   totalProgress(project: Project): number {
