@@ -50,6 +50,8 @@ export class PortfoliosComponent implements OnInit {
   maxSize = 5;
   pageSize = 10;
   filterOptions = { selectedGrade: -1 };
+  portfolioFilter = 'allStudents';
+  studentFilter = 'allStudents';
   gradeResults: GradeResult[] = [
     { name: 'Fail', scores: [0, 10, 20, 30, 40, 44] },
     { name: 'Pass', scores: [50, 53, 55, 57] },
@@ -104,6 +106,9 @@ export class PortfoliosComponent implements OnInit {
     }
   }
 
+  isMyStudent(student: any): boolean {
+    return student.tutorId === this.tutor.id;
+  }
   setActiveTab(tab: Tab): void {
     if (tab === this.activeTab) return;
 
@@ -143,4 +148,42 @@ export class PortfoliosComponent implements OnInit {
   get sortedTabs(): Tab[] {
     return Object.values(this.tabs).sort((a, b) => a.seq - b.seq);
   }
+
+  get filteredStudents() {
+    let filtered = this.students;
+
+    if (this.portfolioFilter === 'withPortfolio') {
+      filtered = filtered.filter(s => s.hasPortfolio);
+    }
+
+    if (this.studentFilter === 'myStudents') {
+      filtered = filtered.filter(s => this.isMyStudent(s));
+    }
+
+    if (this.filterOptions.selectedGrade !== -1) {
+      filtered = filtered.filter(s => s.grade === this.filterOptions.selectedGrade);
+    }
+
+    if (this.search) {
+      const searchLower = this.search.toLowerCase();
+      filtered = filtered.filter(s => s.name.toLowerCase().includes(searchLower) || s.email.toLowerCase().includes(searchLower));
+    }
+
+    return filtered;
+  }
+  filteredTaskStats(student): any[] { // Replace 'any[]' with the correct type if known
+    if (!student?.taskStats) return [];
+    return student.taskStats.filter(this.barLargerZero);
+  }
+
+  private barLargerZero(taskStat: any): boolean { // Replace 'any' with the correct type if known
+    return taskStat.value > 0; // Adjust the condition based on your requirements
+  }
+  statusClass(key: string): string {
+    // your logic here, for example:
+    if (key === 'complete') return 'progress-complete';
+    if (key === 'inProgress') return 'progress-inprogress';
+    return 'progress-default';
+  }
+
 }
