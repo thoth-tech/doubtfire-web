@@ -174,7 +174,8 @@
   <div class="panel-footer clearfix">
     <pagination
       [totalItems]="filteredStudents?.length || 0"
-      [(ngModel)]="currentPage"
+      [currentPage]="currentPage"
+      (pageChanged)="currentPage = $event.page"
       [itemsPerPage]="pageSize"
       [maxSize]="maxSize"
       class="pagination-sm pull-left"
@@ -216,9 +217,6 @@
         *ngIf="project$ | async"
         [project$]="project$">
       </f-project-progress-dashboard>
-
-
-
       </div>
     </div>
 
