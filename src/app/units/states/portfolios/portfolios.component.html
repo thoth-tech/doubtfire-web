@@ -111,18 +111,22 @@
       <p>No portfolios found</p>
     </div>
 
+    <div style="text-align: center; color: #3c80bb; font-weight: bold; margin-bottom: 10px;">
+      Submitted
+    </div>
+
     <table class="table table-condensed table-hover table-pointer" *ngIf="filteredStudents?.length">
       <thead>
         <tr>
-          <th>Student ID</th>
-          <th>Name</th>
-          <th>Tutors</th>
-          <th>Tutorial Description</th>
-          <th>Target Grade</th>
-          <th>Submitted Grade</th>
-          <th>Progress</th>
-          <th *ngIf="portfolioFilter === 'allStudents'">Has Portfolio</th>
-          <th>Grade</th>
+          <th style="color: #3c80bb;">Student</th>
+          <th style="color: #3c80bb;">Name</th>
+          <th style="color: #3c80bb;">Tutor</th>
+          <th style="color: #3c80bb;">Tutorial</th>
+          <th style="color: #3c80bb;">Target</th>
+          <th style="color: #3c80bb;">as</th>
+          <th style="color: #3c80bb;">Stats</th>
+          <th *ngIf="portfolioFilter === 'allStudents'" style="color: #3c80bb;">Portfolio?</th>
+          <th style="color: #3c80bb;">Grade</th>
         </tr>
       </thead>
       <tbody>
@@ -168,8 +172,6 @@
   </div>
 
   <div class="panel-footer clearfix">
-    <!-- Pagination can be uncommented if needed -->
-    <!--
     <pagination
       [totalItems]="filteredStudents?.length || 0"
       [(ngModel)]="currentPage"
@@ -179,7 +181,6 @@
       boundaryLinks="true"
       [rotate]="false"
     ></pagination>
-    -->
     <div class="pull-right">
       <button (click)="downloadGrades()"><i class="fa fa-download"></i> Download Grades</button>
     </div>
@@ -211,7 +212,13 @@
         </div>
       </div>
       <div class="panel-body">
-        <f-project-progress-dashboard *ngIf="project" [project]="project"></f-project-progress-dashboard>
+        <f-project-progress-dashboard
+        *ngIf="project$ | async"
+        [project$]="project$">
+      </f-project-progress-dashboard>
+
+
+
       </div>
     </div>
 

@@ -9,6 +9,7 @@ import {Unit} from 'src/app/api/models/unit';
 import {analyticsService} from 'src/app/ajs-upgraded-providers';
 import {StateService} from '@uirouter/angular';
 import {UnitService} from 'src/app/api/services/unit.service';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 interface Tab {
   title: string;
@@ -65,6 +66,9 @@ export class PortfoliosComponent implements OnInit {
   project: Project | null = null;
   students: any[] = [];
   @Input() unit: Unit | null = null;
+  private projectSubject = new BehaviorSubject<Project | null>(null);
+  project$: Observable<Project | null> = this.projectSubject.asObservable();
+
 
   constructor(
     private userService: UserService,
@@ -138,14 +142,17 @@ export class PortfoliosComponent implements OnInit {
   selectStudent(student: User): void {
     this.selectedStudent = student;
     this.project = null;
+    this.projectSubject.next(null);
 
     this.projectService.loadProject(student.id, this.unit).subscribe({
       next: (project: Project) => {
         this.project = project;
+        this.projectSubject.next(project);
       },
       error: (message: string) => this.alertService.error(message, 6000)
     });
   }
+
 
   downloadGrades(): void {
     if (this.unit?.gradesUrl && this.unit?.code) {
@@ -185,19 +192,17 @@ export class PortfoliosComponent implements OnInit {
 
     return filtered;
   }
-  filteredTaskStats(student): any[] { // Replace 'any[]' with the correct type if known
+  filteredTaskStats(student): any[] {
     if (!student?.taskStats) return [];
     return student.taskStats.filter(this.barLargerZero);
   }
 
-  private barLargerZero(taskStat: any): boolean { // Replace 'any' with the correct type if known
-    return taskStat.value > 0; // Adjust the condition based on your requirements
+  private barLargerZero(taskStat: any): boolean {
+    return taskStat.value > 0;
   }
   statusClass(key: string): string {
-    // your logic here, for example:
     if (key === 'complete') return 'progress-complete';
     if (key === 'inProgress') return 'progress-inprogress';
     return 'progress-default';
   }
-
 }
