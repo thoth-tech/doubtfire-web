@@ -91,9 +91,19 @@ export class PortfoliosComponent implements OnInit {
 
   setUnit(): void {
     if (this.unitId) {
-      this.unitService.get(this.unitId).subscribe({
+      const unitObs = this.unitService.get(this.unitId);
+      if (!unitObs) {
+        console.error('unitService.get returned undefined!');
+        return;
+      }
+      unitObs.subscribe({
         next: (unit) => {
-          this.projectService.loadStudents(unit).subscribe({
+          const studentsObs = this.projectService.loadStudents(unit);
+          if (!studentsObs) {
+            console.error('projectService.loadStudents returned undefined!');
+            return;
+          }
+          studentsObs.subscribe({
             next: (students) => {
               this.unit = unit;
               this.students = students;
@@ -102,9 +112,13 @@ export class PortfoliosComponent implements OnInit {
             },
           });
         },
+        error: (err) => {
+          console.error('Error loading unit:', err);
+        }
       });
     }
   }
+
 
   isMyStudent(student: any): boolean {
     return student.tutorId === this.tutor.id;
