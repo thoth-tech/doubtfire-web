@@ -73,7 +73,6 @@ import 'build/src/app/projects/states/dashboard/directives/directives.js';
 import 'build/src/app/projects/states/dashboard/directives/task-dashboard/task-dashboard.js';
 import 'build/src/app/projects/states/dashboard/dashboard.js';
 import 'build/src/app/projects/states/outcomes/outcomes.js';
-import 'build/src/app/projects/states/portfolio/directives/portfolio-review-step/portfolio-review-step.js';
 import 'build/src/app/projects/states/portfolio/directives/portfolio-learning-summary-report-step/portfolio-learning-summary-report-step.js';
 import 'build/src/app/projects/states/portfolio/directives/portfolio-add-extra-files-step/portfolio-add-extra-files-step.js';
 import 'build/src/app/projects/states/portfolio/directives/portfolio-grade-select-step/portfolio-grade-select-step.js';
@@ -119,6 +118,7 @@ import 'build/src/app/units/states/analytics/analytics.js';
 import 'build/src/app/common/filters/filters.js';
 import 'build/src/app/common/content-editable/content-editable.js';
 import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
+
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
 import 'build/src/app/common/modals/modals.js';
@@ -220,6 +220,7 @@ import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-u
 import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
 import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import {PortfolioReviewStepComponent} from './projects/states/portfolio/directives/portfolio-review-step/portfolio-review-step.component';
 
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
@@ -463,6 +464,11 @@ DoubtfireAngularJSModule.directive(
   downgradeComponent({component: StatusIconComponent}),
 );
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
+
+DoubtfireAngularJSModule.directive(
+  'fportfolioReviewStep',
+  downgradeComponent({component: PortfolioReviewStepComponent}),
+);
 
 // Global configuration
 
