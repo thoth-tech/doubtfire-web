@@ -16,9 +16,12 @@ angular.module('doubtfire.groups.group-set-manager', [])
   controller: ($scope, newGroupService, gradeService, alertService) ->
     if !$scope.unitRole? && !$scope.project?
       throw Error "Group set group manager must have exactly one unit role or project"
+
     # Reset member panel toolbar visibility
-    $scope.newGroupSelected = ->
+    $scope.newGroupSelected = (group) ->
+      $scope.selectedGroup = group
       $scope.showMemberPanelToolbar = false if $scope.unitRole?
+
     $scope.groupMembersLoaded = ->
       $scope.showMemberPanelToolbar = true if $scope.unitRole?
 
@@ -37,8 +40,8 @@ angular.module('doubtfire.groups.group-set-manager', [])
         entity: data
       }).subscribe({
         next: (response) ->
-          alertService.success( "Group changed", 2000)
+          alertService.success("Group changed", 2000)
         error: (response) ->
-          alertService.error( response, 6000)
+          alertService.error(response, 6000)
       })
 )
