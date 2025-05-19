@@ -1,0 +1,160 @@
+.file-uploader {
+  display: block;
+  margin: 2.5em 0;
+
+  // Drop Area Styles
+  .well.drop {
+    border: 2px #bbb dotted;
+    font-size: larger;
+    font-weight: bold;
+    color: #aaa;
+    text-align: center;
+    padding: 1em;
+    border-radius: 6px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+
+    &:hover {
+      border-color: #007bff;
+      color: #007bff;
+      p small {
+        text-decoration: underline;
+      }
+    }
+
+    &.file-over {
+      cursor: copy;
+      border-color: #28a745;
+      color: #28a745;
+    }
+
+    &.file-rejected {
+      border-color: #dc3545;
+      color: #dc3545;
+    }
+
+    p small {
+      display: block;
+    }
+  }
+
+  // Selected Files Styles
+  .selected-files {
+    display: inline-block;
+
+    .selected-file {
+      display: flex;
+      align-items: center;
+      font-size: 1.2em;
+      margin-bottom: 0.5em;
+
+      i.file-type {
+        margin-right: 0.5em;
+        font-size: 1.2em;
+      }
+
+      &.highlight {
+        animation: highlight-selected-file-animation 0.75s;
+      }
+
+      @keyframes highlight-selected-file-animation {
+        0% {
+          background: rgba(33, 150, 243, 0.4);
+          box-shadow: 0 0 6px rgba(33, 150, 243, 1);
+        }
+        100% {
+          box-shadow: 0 0 0px rgba(255, 255, 255, 0);
+        }
+      }
+    }
+  }
+
+  // Clear Upload Button
+  a.clear-upload {
+    margin-left: 0.5em;
+    display: inline-block;
+
+    &:hover i {
+      font-size: 1.2em;
+      color: #dc3545;
+    }
+  }
+
+  // Upload Area / Result Styles
+  .upload-area {
+    .progress-area {
+      .icons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.5em;
+
+        i {
+          flex-basis: auto !important;
+          margin-right: 1ex;
+          font-size: 2em;
+          margin-bottom: 0.5em;
+          animation: wobble 1.5s ease-in-out infinite;
+        }
+
+        .logo {
+          animation: grow 0.75s forwards;
+        }
+      }
+    }
+
+    .progress-striped {
+      background-color: #007bff;
+      background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+      );
+      background-size: 40px 40px;
+      animation: progress-stripes 1s linear infinite;
+      border-radius: 4px;
+      height: 16px;
+    }
+
+    @keyframes progress-stripes {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 40px 0;
+      }
+    }
+
+    @keyframes wobble {
+      0% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-5px);
+      }
+      50% {
+        transform: translateX(5px);
+      }
+      75% {
+        transform: translateX(-5px);
+      }
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes grow {
+      0% {
+        transform: scale(0.8);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+  }
+}

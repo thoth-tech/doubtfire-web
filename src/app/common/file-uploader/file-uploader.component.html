@@ -1,0 +1,147 @@
+<mat-card class="file-uploader p-4 mb-4 rounded-md shadow-md" [ngClass]="{ 'is-uploading': isUploading }">
+  <!-- Begin Upload Button -->
+  <div *ngIf="!showUploader" class="flex justify-center">
+    <button
+      class="bg-green-500 text-white font-semibold py-2 px-6 rounded-md flex items-center gap-2 hover:bg-green-600 shadow-md transition-all duration-200 w-full justify-center"
+      (click)="showUploader = true"
+    >
+      <mat-icon aria-hidden="true" class="text-white text-2xl">upload</mat-icon>
+      Begin Upload
+    </button>
+  </div>
+
+  <!-- File Drop Area -->
+  <div *ngIf="showUploader && !isUploading" class="file-drop-area">
+    <div *ngFor="let upload of shownUploadZones">
+      <!-- Drop Zone Header -->
+      <h5 *ngIf="!singleDropZone && showName" class="text-gray-500 text-lg">
+        {{ uploadZones.length === 1 ? '' : shownUploadZones.indexOf(upload) + 1 + ' -' }} {{ upload.display.name }}
+      </h5>
+      <h5 *ngIf="singleDropZone && showName" class="text-gray-500 text-lg">
+        Select {{ upload.display.name }}
+      </h5>
+
+      <!-- File Drop Area -->
+      <div
+        class="drop well border-2 border-dashed border-gray-300 rounded-md p-4 mb-4 cursor-pointer"
+        [ngClass]="upload.display.error ? 'border-red-500 bg-red-100' : 'hover:border-green-500'"
+        (drop)="handleFileDrop($event, upload)"
+        (dragover)="handleFileDragOver($event)"
+        (click)="handleFileClick($event, upload, fileInput)"
+      >
+        <!-- File Icon and Error Messages -->
+        <mat-icon aria-hidden="true" class="file-type text-3xl mb-2">{{ upload.display.icon }}</mat-icon>
+
+        <!-- Error Message -->
+        <p *ngIf="upload.display.error" class="text-red-500">
+          Invalid file provided
+          <small class="block"> Accepted files: <code>{{ upload.accept.split(',').join(', ') }}</code> </small>
+        </p>
+
+        <!-- File Drop Prompt -->
+        <p *ngIf="dropSupported && !upload.display.error" class="text-gray-600">
+          Drop {{ upload.display.type }} file here
+          <small class="block"> or click to select one </small>
+        </p>
+
+        <p *ngIf="!dropSupported && !upload.display.error" class="text-gray-600">
+          Click to select {{ upload.display.type }} file
+        </p>
+
+        <!-- Hidden File Input for Click Upload -->
+        <input
+          type="file"
+          (change)="modelChanged($event.target.files, upload, fileInput)"
+          style="display: none;"
+          #fileInput
+        />
+      </div>
+
+      <!-- Selected Files Display -->
+      <div *ngIf="upload.model && upload.model.length > 0" class="selected-files flex items-center gap-2">
+        <mat-icon aria-hidden="true" class="file-type text-2xl">{{ upload.display.icon }}</mat-icon>
+        <span class="text-lg">{{ upload.model[0].name }}</span>
+        <button mat-icon-button color="warn" (click)="clearEnqueuedUpload(upload)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Drop Zone Upload Summary -->
+    <div *ngIf="singleDropZone" class="mt-4">
+      <h5 class="text-lg font-semibold">Upload Summary</h5>
+      <div class="selected-files list-group">
+        <div
+          class="selected-file list-group-item flex justify-between items-center p-2 mb-2 rounded-md border border-gray-300"
+          [ngClass]="{ 'bg-green-50': upload.model && upload.model.length > 0 }"
+          *ngFor="let upload of uploadZones"
+        >
+          <div class="flex items-center gap-2">
+            <mat-icon aria-hidden="true" class="file-type text-2xl">{{ upload.display.icon }}</mat-icon>
+            <strong>{{ upload.display.name }}</strong>
+          </div>
+          <div class="text-right">
+            <em *ngIf="upload.model && upload.model.length > 0">{{ upload.model[0].name }}</em>
+            <em *ngIf="!upload.model || upload.model.length === 0" class="text-gray-500">File Pending</em>
+            <button mat-icon-button color="warn" (click)="clearEnqueuedUpload(upload)" *ngIf="upload.model && upload.model.length > 0">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commit Actions -->
+  <!-- Commit Actions -->
+<div *ngIf="showUploader && !isUploading" class="upload-commit-actions flex gap-4 mt-4">
+  <!-- Start Upload Button -->
+  <button
+    mat-raised-button
+    class="bg-[#007bff] text-white font-semibold py-2 px-6 rounded-md flex items-center gap-0 shadow-md transition-all duration-200"
+    (click)="initiateUpload()"
+    *ngIf="showUploadButton && readyToUpload()"
+  >
+    <mat-icon aria-hidden="true" class="text-white text-xl leading-none">upload_file</mat-icon>
+    Start Upload
+  </button>
+
+  <!-- Cancel Upload Button -->
+  <button
+    mat-raised-button
+    class="bg-[#dc3545] text-white font-semibold py-2 px-6 rounded-md flex items-center gap-0 shadow-md transition-all duration-200"
+    (click)="resetUploader()"
+  >
+    <mat-icon aria-hidden="true" class="text-white text-xl leading-none">close</mat-icon>
+    Cancel Upload
+  </button>
+</div>
+
+
+  <!-- Upload Progress and Result -->
+  <!-- Upload Progress Area -->
+<div *ngIf="uploadingInfo && !uploadingInfo.complete" class="progress-area mt-4">
+  <div class="icons flex items-center justify-center gap-4 mb-2">
+    <mat-icon class="text-2xl">description</mat-icon>
+    <mat-icon class="text-2xl">arrow_forward</mat-icon>
+    <mat-icon class="text-2xl logo">auto_graph</mat-icon>
+  </div>
+  <div class="w-full h-4 rounded bg-gray-200 overflow-hidden">
+    <div
+      class="progress-striped"
+      [style.width]="uploadingInfo?.progress + '%'"
+    ></div>
+  </div>
+</div>
+
+
+  <!-- Upload Result Area -->
+  <div *ngIf="uploadingInfo?.complete" class="result-area">
+    <p>
+      <mat-icon aria-hidden="true" [ngClass]="uploadingInfo.success ? 'text-success' : 'text-danger'">
+        {{ uploadingInfo.success ? 'check_circle' : 'error' }}
+      </mat-icon>
+      <strong>File Upload {{ uploadingInfo.success ? 'Successful' : 'Failed' }}</strong>
+    </p>
+  </div>
+</mat-card>
