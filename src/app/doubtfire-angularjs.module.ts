@@ -130,14 +130,13 @@ import 'build/src/app/sessions/sessions.js';
 import 'build/src/app/errors/errors.js';
 import 'build/src/app/errors/states/timeout/timeout.js';
 import 'build/src/app/errors/states/states.js';
-import 'build/src/common/utilService/utilService.js';
+
 import 'build/src/common/i18n/localize.js';
 import 'build/src/i18n/resources-locale_default.js';
 import 'build/src/i18n/resources-locale_en-US.js';
 import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
-
 import {AboutDoubtfireModal} from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {ProjectTasksListComponent} from './tasks/project-tasks-list/project-tasks-list.component';
 import {TaskCommentComposerComponent} from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
@@ -224,6 +223,7 @@ import {GradeService} from './common/services/grade.service';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import {UtilService} from '/workspace/doubtfire-web/src/common/utilService/util.Service';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -260,6 +260,8 @@ DoubtfireAngularJSModule.factory(
   'newTaskDefinitionService',
   downgradeInjectable(TaskDefinitionService),
 );
+DoubtfireAngularJSModule.factory('utilService', downgradeInjectable(UtilService));
+
 DoubtfireAngularJSModule.factory(
   'newTeachingPeriodService',
   downgradeInjectable(TeachingPeriodService),
