@@ -1,0 +1,59 @@
+<group-selector
+  [unit]="unit"
+  [project]="project"
+  [unitRole]="unitRole"
+  [selectedGroupSet]="selectedGroupSet"
+  [selectedGroup]="selectedGroup"
+  [showGroupSetSelector]="showGroupSetSelector"
+  (onSelectGroup)="newGroupSelected($event)">
+</group-selector>
+
+<mat-card *ngIf="selectedGroup" class="panel-group-memberships">
+  <mat-card-header>
+    <div class="flex justify-between items-center">
+      <h4 class="panel-title">
+        Members of
+        <span *ngIf="unitRole || selectedGroupSet?.allowStudentsToManageGroups">
+          <span
+            contenteditable="true"
+            (blur)="updateGroup(selectedGroup)"
+            class="strong"
+          >
+            {{ selectedGroup.name }}
+          </span>
+        </span>
+        <span *ngIf="!unitRole && !selectedGroupSet?.allowStudentsToManageGroups">
+          {{ selectedGroup.name }}
+        </span>
+      </h4>
+      <mat-icon *ngIf="selectedGroup.locked" matTooltip="This group is locked.">lock</mat-icon>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content *ngIf="showMemberPanelToolbar">
+    <form (ngSubmit)="addMember()" class="flex items-center gap-2">
+      <mat-form-field class="flex-grow">
+        <input
+          matInput
+          type="search"
+          placeholder="Enter student name or username..."
+          [(ngModel)]="selectedStudent"
+          name="selectedStudent"
+          autocomplete="off"
+        />
+      </mat-form-field>
+      <button mat-raised-button color="primary" [disabled]="!selectedStudent" type="submit">
+        <mat-icon>person_add</mat-icon> Add Member
+      </button>
+    </form>
+  </mat-card-content>
+
+  <group-member-list
+   [unit]="unit"
+   [unitRole]="unitRole"
+   [project]="project"
+   [selectedGroup]="selectedGroup"
+   (onMembersLoaded)="groupMembersLoaded($event)"
+  >
+  </group-member-list>
+</mat-card>

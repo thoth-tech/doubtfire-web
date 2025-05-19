@@ -1,0 +1,18 @@
+/* group-set-manager.component.scss */
+
+/* Maintain panel-row behavior */
+group-set-manager {
+  display: block;
+}
+
+/* Large screen adjustments */
+@media (min-width: 992px) {
+  group-set-manager {
+    display: block;
+    margin-bottom: 16px;
+    padding: 16px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}

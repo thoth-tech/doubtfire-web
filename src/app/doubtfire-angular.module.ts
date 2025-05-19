@@ -253,6 +253,14 @@ import {ScormExtensionModalComponent} from './common/modals/scorm-extension-moda
 import { GradeIconComponent } from './common/grade-icon/grade-icon.component';
 import { GradeTaskModalComponent } from './tasks/modals/grade-task-modal/grade-task-modal.component';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import { GroupMemberListComponent } from './groups/group-member-list/group-member-list.component';
+import {GroupSetSelectorComponent} from './groups/group-set-selector/group-set-selector.component';
+import {GroupSelectorComponent} from './groups/group-selector/group-selector-component';
+import {GroupSetManagerComponent} from './groups/group-set-manager/group-set-manager.component'
+import {GroupsInTutorialsPipe} from './common/filters/groups-in-tutorial.pipe';
+import {GroupsWithNamePipe} from './common/filters/groups-with-name.pipe'
+import {GroupsForStudentPipe} from './common/filters/groups-for-student.pipe'
+import {PaginateAndSortPipe} from './common/filters/paginate-and-sort.pipe'
 
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
@@ -271,6 +279,10 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
 @NgModule({
   // Components we declare
   declarations: [
+    GroupSetManagerComponent,
+    GroupMemberListComponent,
+    GroupSetSelectorComponent,
+    GroupSelectorComponent,
     AlertComponent,
     UnitStudentEnrolmentModalComponent,
     AboutDoubtfireModalContent,
@@ -392,6 +404,10 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
   ],
   // Services we provide
   providers: [
+    GroupsInTutorialsPipe,
+    GroupsWithNamePipe,
+    GroupsForStudentPipe,
+    PaginateAndSortPipe,
     AlertService,
     MarkedPipe,
     CampusService,
