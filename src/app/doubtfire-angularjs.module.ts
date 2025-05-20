@@ -130,7 +130,7 @@ import 'build/src/app/sessions/sessions.js';
 import 'build/src/app/errors/errors.js';
 import 'build/src/app/errors/states/timeout/timeout.js';
 import 'build/src/app/errors/states/states.js';
-import 'build/src/common/utilService/utilService.js';
+
 import 'build/src/common/i18n/localize.js';
 import 'build/src/i18n/resources-locale_default.js';
 import 'build/src/i18n/resources-locale_en-US.js';
@@ -181,6 +181,8 @@ import {
   UnitService,
   UserService,
 } from './api/models/doubtfire-model';
+
+import {UtilService} from './common/utilService/util.service';
 import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
 import { FileDownloaderService } from './common/file-downloader/file-downloader.service';
 import { CheckForUpdateService } from './sessions/service-worker-updater/check-for-update.service';
