@@ -29,7 +29,7 @@ export abstract class BaseAudioRecorderComponent implements OnInit {
 
   protected init(): void {
     this.blob = new Blob();
-    this.mediaRecorder = new this.mediaRecorderService();
+    this.mediaRecorder = this.mediaRecorderService;
     // Required for recording multiple times
     this.mediaRecorder.config.stopTracksAndCloseCtxWhenFinished = true;
     // Required for visualising the stream
@@ -123,6 +123,7 @@ export abstract class BaseAudioRecorderComponent implements OnInit {
     };
 
     const analyser = this.mediaRecorder.analyserNode;
+    if (!analyser) return;
     analyser.fftSize = 2048;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
