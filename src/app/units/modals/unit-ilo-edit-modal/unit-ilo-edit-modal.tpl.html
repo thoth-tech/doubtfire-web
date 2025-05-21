@@ -20,7 +20,12 @@
         <label class="col-sm-3 control-label">Description</label>
         <div class="col-sm-7">
           <!-- <markdown-editor height="200" placeholder="Enter markdown description..." ng-model="ilo.description"></markdown-editor> -->
-          <div contenteditable ng-model="ilo.description" placeholder="Enter markdown description..." style="border-style: solid; border-width: thin; height: 200px"></div>
+<div
+  contenteditable="true"
+  [(ngModel)]="ilo.description"
+  placeholder="Enter markdown description..."
+  style="border-style: solid; border-width: thin; height: 200px"
+></div>
         </div>
       </div>
     </div>

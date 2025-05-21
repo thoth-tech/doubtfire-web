@@ -1,6 +1,5 @@
 import {interval} from 'rxjs';
 import {take} from 'rxjs/operators';
-import { ContentEditableDirective } from './common/content-editable/content-editable.directive';
 
 import { NgModule, Injector, DoBootstrap } from '@angular/core';
 import { BrowserModule, DomSanitizer, Title } from '@angular/platform-browser';
@@ -268,6 +267,8 @@ const MY_DATE_FORMAT = {
   },
 };
 import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
+import { ContentEditableDirective } from './common/content-editable/content-editable.directive';
+
 
 @NgModule({
   // Components we declare
@@ -390,7 +391,8 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     TaskScormCardComponent,
     ScormExtensionCommentComponent,
     ScormExtensionModalComponent,
-  ],
+    ContentEditableDirective,  
+],
   // Services we provide
   providers: [
     AlertService,
