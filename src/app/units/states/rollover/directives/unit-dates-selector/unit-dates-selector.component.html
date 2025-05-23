@@ -1,134 +1,77 @@
 <div class="unit-dates-selector">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-<<<<<<< Updated upstream
-      <h3 class="panel-title">Copy {{ unit.code }} {{ unit.nameAndPeriod }}</h3>
-      Duplicate this unit by copying it to the indicated teaching period, or a custom start and end date.
+  <div class="border border-primary rounded-md shadow-md">
+    <div class="bg-blue-600 text-white p-4 rounded-t-md">
+      <h3 class="text-lg font-semibold">Create Unit</h3>
+      <p class="text-sm">Duplicate an existing unit by specifying the time period.</p>
     </div>
-    <form [formGroup]="rolloverUnitForm" (ngSubmit)="saveUnit()">
-      <div class="panel-body">
-        <div class="form-group">
-          <label class="col-sm-2 control-label">Teaching Period</label>
-          <div class="col-sm-9">
-            <object-select
-              [source]="teachingPeriodValues"
-              [target]="saveData.toPeriod"
-              (target-change)="teachingPeriodSelected($event)"
-              label="Select Teaching Period"
-            ></object-select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="col-sm-2 control-label">Start Date</label>
-=======
-      <h3 class="panel-title">Create Unit</h3>
-      Duplicate an existing unit by specifying the time period.
-    </div>
-    <form class="form-horizontal" role="form" name="rolloverUnitForm" (ngSubmit)="saveUnit()">
-      <div class="panel-body">
-        <div class="form-group">
-          <label class="col-sm-2 control-label" for="teachingperiod">Teaching Period</label>
-          <div class="col-sm-9">
-            <mat-form-field appearance="outline">
-              <mat-label>Select Teaching Period</mat-label>
-              <mat-select
-                name="toPeriod"
-                [(value)]="saveData.toPeriod"
-                (selectionChange)="teachingPeriodSelected($event)"
-                [compareWith]="compareFn"
-              >
-                @for (element of teachingPeriodValues; track element) {
-                  <mat-option [value]="element.value">
-                    {{ element.text }}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </div>
-        <!--/teaching-period-date-->
-
-        <div class="form-group">
-          <label
-            tooltip="Date for the start of teaching in the unit."
-            class="col-sm-2 control-label"
-            for="startdate"
-            >Start Date</label
-          >
->>>>>>> Stashed changes
-          <div class="col-sm-9">
-            <mat-form-field>
-              <input
-                matInput
-<<<<<<< Updated upstream
-                [matDatepicker]="startDatePicker"
-                formControlName="startDate"
-                placeholder="yyyy-MM-dd"
-                [disabled]="rolloverUnitForm.get('toPeriod').value"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-              <mat-datepicker #startDatePicker></mat-datepicker>
-            </mat-form-field>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="col-sm-2 control-label">End Date</label>
-=======
-                [matDatepicker]="startDate"
-                required="!unit.teachingPeriod"
-                name="unitStartDate"
-                [(ngModel)]="saveData.toPeriod.startDate"
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
-              <mat-datepicker #startDate></mat-datepicker>
-            </mat-form-field>
-          </div>
-        </div>
-        <!--/start-date-->
-
-        <div class="form-group">
-          <label class="col-sm-2 control-label" for="enddate">End Date</label>
->>>>>>> Stashed changes
-          <div class="col-sm-9">
-            <mat-form-field>
-              <input
-                matInput
-<<<<<<< Updated upstream
-                [matDatepicker]="endDatePicker"
-                formControlName="endDate"
-                placeholder="yyyy-MM-dd"
-                [disabled]="rolloverUnitForm.get('toPeriod').value"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-              <mat-datepicker #endDatePicker></mat-datepicker>
-            </mat-form-field>
-          </div>
+    <form class="p-4 space-y-6" name="rolloverUnitForm" (ngSubmit)="saveUnit()">
+      <div>
+        <label class="block text-sm font-medium mb-1" for="teachingperiod">Teaching Period</label>
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Select Teaching Period</mat-label>
+            <mat-select
+              name="toPeriod"
+              [(value)]="saveData.toPeriod"
+              (selectionChange)="teachingPeriodSelected($event)"
+              [compareWith]="compareFn"
+            >
+              @for (element of teachingPeriodValues; track element) {
+                <mat-option [value]="element.value">
+                  {{ element.text }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
-      <div class="panel-footer text-right">
-        <button type="submit" class="btn btn-success" [disabled]="rolloverUnitForm.invalid">
-          Create Unit
-        </button>
-=======
-                [matDatepicker]="endDate"
-                required="!unit.teachingPeriod"
-                name="endDate"
-                [(ngModel)]="saveData.toPeriod.endDate"
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="endDate"></mat-datepicker-toggle>
-              <mat-datepicker #endDate></mat-datepicker>
-            </mat-form-field>
-          </div>
+
+      <div>
+        <label
+          tooltip="Date for the start of teaching in the unit."
+          class="block text-sm font-medium mb-1"
+          for="startdate"
+        >
+          Start Date
+        </label>
+        <div>
+          <mat-form-field class="w-full">
+            <input
+              matInput
+              [matDatepicker]="startDate"
+              required="!unit.teachingPeriod"
+              name="unitStartDate"
+              [(ngModel)]="saveData.toPeriod.startDate"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
+            <mat-datepicker #startDate></mat-datepicker>
+          </mat-form-field>
         </div>
-        <!--/end-date-->
       </div>
-      <div class="panel-footer text-right">
-        <input type="submit" value="Create Unit" class="btn btn-success" />
->>>>>>> Stashed changes
+
+      <div>
+        <label class="block text-sm font-medium mb-1" for="enddate">End Date</label>
+        <div>
+          <mat-form-field class="w-full">
+            <input
+              matInput
+              [matDatepicker]="endDate"
+              required="!unit.teachingPeriod"
+              name="endDate"
+              [(ngModel)]="saveData.toPeriod.endDate"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="endDate"></mat-datepicker-toggle>
+            <mat-datepicker #endDate></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="text-right">
+        <input
+          type="submit"
+          value="Create Unit"
+          class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md"
+        />
       </div>
     </form>
   </div>
