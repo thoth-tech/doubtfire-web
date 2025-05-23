@@ -1,23 +1,13 @@
-<<<<<<< Updated upstream
 .unit-dates-selector {
-  .panel {
-    &-primary {
-      border-color: #007bff;
-    }
-    &-heading {
-      background-color: #007bff;
-      color: #fff;
-    }
-    &-body {
-      padding: 15px;
-    }
-    &-footer {
-      padding: 10px;
-    }
+  @apply max-w-4xl mx-auto mt-6;
+
+  // Optional styling if you want to keep custom spacing or overrides
+  .mat-form-field {
+    @apply w-full;
   }
-=======
-/* Minimal styling needed with Tailwind and Angular Material */
-:host {
-  display: block;
->>>>>>> Stashed changes
+
+  // Remove default margin or paddings from Angular Material if necessary
+  .mat-form-field-infix {
+    padding: 0 !important;
+  }
 }
