@@ -1,20 +1,12 @@
-import { Injectable, NgZone } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Injectable } from '@angular/core';
 
-interface RecordingDetail {
-  ts: number;
-  blobUrl: string;
-  mimeType: string;
-  size: number;
-  blob: Blob;
-}
-
+// Interface for the recording configuration
 interface RecorderConfig {
   broadcastAudioProcessEvents: boolean;
   createAnalyserNode: boolean;
   createDynamicsCompressorNode: boolean;
   forceScriptProcessor: boolean;
-  manualEncoderId: 'wav' | 'ogg';
+  manualEncoderId: string;
   micGain: number;
   processorBufferSize: number;
   stopTracksAndCloseCtxWhenFinished: boolean;
@@ -22,41 +14,62 @@ interface RecorderConfig {
   audioBitsPerSecond: number;
 }
 
-@Injectable({ providedIn: 'root' })
-export class RecorderService {
-  public em = document.createDocumentFragment();
-  public state: 'inactive' | 'recording' = 'inactive';
+// Interface for the recording result
+interface RecordingResult {
+  ts: number;
+  blobUrl: string;
+  mimeType: string;
+  size: number;
+  blob: Blob;
+}
 
+@Injectable({
+  providedIn: 'root'
+})
+export class RecorderService {
+
+  constructor() {
+    return RecorderServiceClass as any;
+  }
+}
+
+class RecorderServiceClass {
+  public em: DocumentFragment = document.createDocumentFragment();
+
+  private state: string = 'inactive';
   private audioCtx: AudioContext | null = null;
+  private chunks: Blob[] = [];
+  private chunkType: string = '';
+  private usingMediaRecorder: boolean = false;
+  private encoderMimeType: string = '';
+
+  // Audio nodes
   private micGainNode: GainNode | null = null;
   private outputGainNode: GainNode | null = null;
-  private dynamicsCompressorNode: DynamicsCompressorNode | null = null;
   private analyserNode: AnalyserNode | null = null;
   private processorNode: ScriptProcessorNode | null = null;
+  private dynamicsCompressorNode: DynamicsCompressorNode | null = null;
   private destinationNode: MediaStreamAudioDestinationNode | AudioDestinationNode | null = null;
-  private encoderWorker: Worker | null = null;
-  private mediaRecorder: MediaRecorder | null = null;
-
-  private micAudioStream: MediaStream | null = null;
   private inputStreamNode: MediaStreamAudioSourceNode | null = null;
-  private slicing: any;
 
-  private chunks: Blob[] = [];
-  private chunkType: string | null = '';
-  private usingMediaRecorder: boolean;
-  private encoderMimeType: string = '';
+  // Media related
+  private micAudioStream: MediaStream | null = null;
+  private mediaRecorder: MediaRecorder | null = null;
+  private encoderWorker: Worker | null = null;
+
+  // Configuration
   private config: RecorderConfig;
 
+  // Optional hook function
+  public onGraphSetupWithInputStream?: (inputNode: MediaStreamAudioSourceNode) => void;
 
-  public onGraphSetupWithInputStream?: (node: MediaStreamAudioSourceNode) => void;
+  constructor() {
+    // Set up AudioContext with fallback for older browsers
+    (window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
 
-  constructor(
-    private zone: NgZone,
-    private sanitizer: DomSanitizer
-  ) {
-    window.AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    //  MediaRecorder support detection
+    this.usingMediaRecorder = !!(window as any).MediaRecorder;
 
-    this.usingMediaRecorder = typeof window.MediaRecorder !== 'undefined';
     if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
       this.usingMediaRecorder = false;
     }
@@ -70,22 +83,20 @@ export class RecorderService {
       micGain: 1.0,
       processorBufferSize: 2048,
       stopTracksAndCloseCtxWhenFinished: true,
-      userMediaConstraints: { audio: true },
-      audioBitsPerSecond: 128000,
+      userMediaConstraints: {
+        audio: true
+      },
+      audioBitsPerSecond: 128000
     };
   }
 
-  /**
-   * Start the recording process.
-   */
-  startRecording(): Promise<void> {
+  public startRecording(): Promise<void> | void {
     if (this.state !== 'inactive') {
-      return Promise.resolve();
+      return;
     }
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      console.error('Missing support for navigator.mediaDevices.getUserMedia');
-      return Promise.resolve();
+    if (!navigator || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return;
     }
 
     this.audioCtx = new AudioContext();
@@ -100,17 +111,11 @@ export class RecorderService {
       this.analyserNode = this.audioCtx.createAnalyser();
     }
 
-    if (
-      this.config.forceScriptProcessor ||
-      this.config.broadcastAudioProcessEvents ||
-      !this.usingMediaRecorder
-    ) {
-      this.processorNode = this.audioCtx.createScriptProcessor(
-        this.config.processorBufferSize,
-        1,
-        1
-      );
+
+    if (this.config.forceScriptProcessor || this.config.broadcastAudioProcessEvents || !this.usingMediaRecorder) {
+      this.processorNode = this.audioCtx.createScriptProcessor(this.config.processorBufferSize, 1, 1);
     }
+
 
     if ((this.audioCtx as any).createMediaStreamDestination) {
       this.destinationNode = (this.audioCtx as any).createMediaStreamDestination();
@@ -121,48 +126,44 @@ export class RecorderService {
     if (!this.usingMediaRecorder) {
       this.encoderWorker = new Worker('/assets/wav-worker.js');
       this.encoderMimeType = 'audio/wav';
-      this.encoderWorker.addEventListener('message', (e: MessageEvent) => {
-        const event = new Event('dataavailable') as BlobEvent;
-        const dataBlob =
-          this.config.manualEncoderId === 'ogg'
+
+      this.encoderWorker.addEventListener('message', (e) => {
+        const event = {
+          data: this.config.manualEncoderId === 'ogg'
             ? e.data
-            : new Blob(e.data, { type: this.encoderMimeType });
-        (event as any).data = dataBlob;
-        this._onDataAvailable(event);
+            : new Blob(e.data, { type: this.encoderMimeType })
+        };
+        this.onDataAvailable(event);
       });
     }
 
-    return navigator.mediaDevices
-      .getUserMedia(this.config.userMediaConstraints)
-      .then((stream) => this._startRecordingWithStream(stream))
-      .catch(() => {});
+    return navigator.mediaDevices.getUserMedia(this.config.userMediaConstraints)
+      .then((stream) => {
+        this.startRecordingWithStream(stream);
+      })
+      .catch(() => {
+        this.em.dispatchEvent(new Event('error'));
+      });
   }
 
-  /**
-   * Adjust microphone gain mid-recording.
-   */
-  setMicGain(newGain: number): void {
+  public setMicGain(newGain: number): void {
     this.config.micGain = newGain;
     if (this.audioCtx && this.micGainNode) {
       this.micGainNode.gain.setValueAtTime(newGain, this.audioCtx.currentTime);
     }
   }
 
-  private _startRecordingWithStream(stream: MediaStream): void {
+  private startRecordingWithStream(stream: MediaStream): void {
     this.micAudioStream = stream;
-    this.inputStreamNode = this.audioCtx!.createMediaStreamSource(stream);
-    this.audioCtx = this.inputStreamNode.context;
+    this.inputStreamNode = this.audioCtx!.createMediaStreamSource(this.micAudioStream);
+    this.audioCtx = this.inputStreamNode.context as AudioContext;
 
     if (this.onGraphSetupWithInputStream) {
       this.onGraphSetupWithInputStream(this.inputStreamNode);
     }
 
-    // Build the audio graph
     this.inputStreamNode.connect(this.micGainNode!);
-    this.micGainNode!.gain.setValueAtTime(
-      this.config.micGain,
-      this.audioCtx.currentTime
-    );
+    this.micGainNode!.gain.setValueAtTime(this.config.micGain, this.audioCtx.currentTime);
 
     let nextNode: AudioNode = this.micGainNode!;
     if (this.dynamicsCompressorNode) {
@@ -175,7 +176,7 @@ export class RecorderService {
     if (this.processorNode) {
       nextNode.connect(this.processorNode);
       this.processorNode.connect(this.outputGainNode!);
-      this.processorNode.onaudioprocess = (e) => this._onAudioProcess(e);
+      this.processorNode.onaudioprocess = (e) => this.onAudioProcess(e);
     } else {
       nextNode.connect(this.outputGainNode!);
     }
@@ -187,138 +188,161 @@ export class RecorderService {
     this.outputGainNode!.connect(this.destinationNode!);
 
     if (this.usingMediaRecorder) {
-      this.mediaRecorder = new MediaRecorder(
-        (this.destinationNode as MediaStreamAudioDestinationNode).stream,
-        { audioBitsPerSecond: this.config.audioBitsPerSecond }
-      );
-      this.mediaRecorder.addEventListener('dataavailable', (evt) =>
-        this._onDataAvailable(evt as BlobEvent)
-      );
-      this.mediaRecorder.addEventListener('error', (evt) => this._onError(evt));
+      const destinationStream = (this.destinationNode as MediaStreamAudioDestinationNode).stream;
+      this.mediaRecorder = new MediaRecorder(destinationStream, { audioBitsPerSecond: this.config.audioBitsPerSecond });
+
+      this.mediaRecorder.addEventListener('dataavailable', (evt) => {
+        this.onDataAvailable(evt);
+      });
+      this.mediaRecorder.addEventListener('error', (evt) => {
+        this.onError(evt);
+      });
+
       this.mediaRecorder.start();
     } else {
-      // Mute output while we manually encode
       this.outputGainNode!.gain.setValueAtTime(0, this.audioCtx.currentTime);
     }
   }
 
-  private _onAudioProcess(e: AudioProcessingEvent): void {
+  private onAudioProcess(e: AudioProcessingEvent): void {
     if (this.config.broadcastAudioProcessEvents) {
-      this.em.dispatchEvent(
-        new CustomEvent('onaudioprocess', {
-          detail: {
-            inputBuffer: e.inputBuffer,
-            outputBuffer: e.outputBuffer,
-          },
-        })
-      );
+      this.em.dispatchEvent(new CustomEvent('onaudioprocess', {
+        detail: {
+          inputBuffer: e.inputBuffer,
+          outputBuffer: e.outputBuffer
+        }
+      }));
     }
 
-    if (!this.usingMediaRecorder && this.state === 'recording') {
-      const buffer =
-        this.config.broadcastAudioProcessEvents
-          ? e.outputBuffer.getChannelData(0)
-          : e.inputBuffer.getChannelData(0);
-      this.encoderWorker!.postMessage(['encode', buffer]);
+    if (!this.usingMediaRecorder) {
+      if (this.state === 'recording') {
+        if (this.config.broadcastAudioProcessEvents) {
+          this.encoderWorker!.postMessage(['encode', e.outputBuffer.getChannelData(0)]);
+        } else {
+          this.encoderWorker!.postMessage(['encode', e.inputBuffer.getChannelData(0)]);
+        }
+      }
     }
   }
 
-  /**
-   * Force a chunk dump.
-   */
-  processChunks(): void {
+  public processChunks(): void {
     if (this.state === 'inactive') {
       return;
     }
-    this._dumpChunks();
+    this.dumpChunks();
   }
 
-  private _dumpChunks(): void {
+  private dumpChunks(): void {
     if (this.usingMediaRecorder) {
       this.mediaRecorder!.requestData();
-    } else {
+    }
+
+    if (!this.usingMediaRecorder) {
       this.encoderWorker!.postMessage(['dump', this.audioCtx!.sampleRate]);
-      clearInterval(this.slicing);
     }
   }
 
-  /**
-   * Stop recording and flush data.
-   */
-  stopRecording(): void {
+  // Called once when the recording has been stopped
+  public stopRecording(): void {
     if (this.state === 'inactive') {
       return;
     }
 
-    this.state = 'inactive';
     if (this.usingMediaRecorder) {
+      this.state = 'inactive';
       this.mediaRecorder!.stop();
     } else {
+      this.state = 'inactive';
       this.encoderWorker!.postMessage(['dump', this.audioCtx!.sampleRate]);
-      clearInterval(this.slicing);
     }
   }
 
-  private _onDataAvailable(evt: BlobEvent): void {
+  // Called each time a chunk of recording becomes available
+  private onDataAvailable(evt: { data: Blob }): void {
     this.chunks.push(evt.data);
     this.chunkType = evt.data.type;
 
-    const blob = new Blob(this.chunks, { type: this.chunkType! });
+    const blob = new Blob(this.chunks, { type: this.chunkType });
     const blobUrl = URL.createObjectURL(blob);
-    const recording: RecordingDetail = {
-      ts: Date.now(),
-      blobUrl,
+
+    const recording: RecordingResult = {
+      ts: new Date().getTime(),
+      blobUrl: blobUrl,
       mimeType: blob.type,
       size: blob.size,
-      blob,
+      blob: blob
     };
 
-    this.em.dispatchEvent(
-      new CustomEvent('recording', { detail: { recording } })
-    );
+    this.em.dispatchEvent(new CustomEvent('recording', { detail: { recording: recording } }));
 
     this.chunks = [];
-    if (this.state === 'inactive') {
-      this._cleanup();
+
+    if (this.state !== 'inactive') {
+      return;
     }
+
+    this.cleanup();
   }
 
-  private _cleanup(): void {
-    this.chunkType = null;
+  private cleanup(): void {
+    this.chunkType = '';
 
-    [
-      'destinationNode',
-      'outputGainNode',
-      'analyserNode',
-      'processorNode',
-      'dynamicsCompressorNode',
-      'micGainNode',
-      'inputStreamNode',
-    ].forEach((field) => {
-      const node = (this as any)[field];
-      if (node) {
-        node.disconnect();
-        (this as any)[field] = null;
-      }
-    });
+    if (this.destinationNode) {
+      this.destinationNode.disconnect();
+      this.destinationNode = null;
+    }
+
+    if (this.outputGainNode) {
+      this.outputGainNode.disconnect();
+      this.outputGainNode = null;
+    }
+
+    if (this.analyserNode) {
+      this.analyserNode.disconnect();
+      this.analyserNode = null;
+    }
+
+    if (this.processorNode) {
+      this.processorNode.disconnect();
+      this.processorNode = null;
+    }
 
     if (this.encoderWorker) {
       this.encoderWorker.postMessage(['close']);
       this.encoderWorker = null;
     }
 
-    if (
-      this.config.stopTracksAndCloseCtxWhenFinished &&
-      this.micAudioStream
-    ) {
-      this.micAudioStream.getTracks().forEach((t) => t.stop());
-      this.micAudioStream = null;
-      this.audioCtx!.close();
-      this.audioCtx = null;
+    if (this.dynamicsCompressorNode) {
+      this.dynamicsCompressorNode.disconnect();
+      this.dynamicsCompressorNode = null;
+    }
+
+    if (this.micGainNode) {
+      this.micGainNode.disconnect();
+      this.micGainNode = null;
+    }
+
+    if (this.inputStreamNode) {
+      this.inputStreamNode.disconnect();
+      this.inputStreamNode = null;
+    }
+
+    if (this.config.stopTracksAndCloseCtxWhenFinished) {
+      if (this.micAudioStream) {
+        this.micAudioStream.getTracks().forEach((track) => {
+          track.stop();
+        });
+        this.micAudioStream = null;
+      }
+
+      if (this.audioCtx) {
+        this.audioCtx.close();
+        this.audioCtx = null;
+      }
     }
   }
 
-  private _onError(_: Event): void {
+  private onError(evt: any): void {
     this.em.dispatchEvent(new Event('error'));
   }
 }
