@@ -448,7 +448,7 @@ DoubtfireAngularJSModule.directive(
 );
 DoubtfireAngularJSModule.directive('fUnits', downgradeComponent({component: FUnitsComponent}));
 
-DoubtfireAngularJSModule.directive('unitDatesSelector', downgradeComponent({component: UnitDatesSelectorComponent}));
+DoubtfireAngularJSModule.directive('funitDatesSelector', downgradeComponent({component: UnitDatesSelectorComponent}));
 
 // Global configuration
 DoubtfireAngularJSModule.directive(
