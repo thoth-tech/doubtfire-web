@@ -1,13 +1,39 @@
 .unit-dates-selector {
   @apply max-w-4xl mx-auto mt-6;
 
-  // Optional styling if you want to keep custom spacing or overrides
   .mat-form-field {
     @apply w-full;
   }
 
-  // Remove default margin or paddings from Angular Material if necessary
   .mat-form-field-infix {
     padding: 0 !important;
   }
+
+  // Optional: Styling for the form container
+  form {
+    @apply p-4 space-y-6;
+  }
+
+  // Optional: Header styling
+  .bg-blue-600 {
+    @apply text-white p-4 rounded-t-md;
+  }
+
+  h3 {
+    @apply text-lg font-semibold;
+  }
+
+  p {
+    @apply text-sm;
+  }
+
+  label {
+    @apply block text-sm font-medium mb-1;
+  }
+
+  input[type='submit'] {
+    @apply bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md;
+  }
+
+  // You can add additional tweaks or media queries here if needed
 }
