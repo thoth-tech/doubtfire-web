@@ -1,0 +1,78 @@
+<div class="unit-dates-selector">
+  <div class="border border-primary rounded-md shadow-md">
+    <div class="bg-blue-600 text-white p-4 rounded-t-md">
+      <h3 class="text-lg font-semibold">Create Unit</h3>
+      <p class="text-sm">Duplicate an existing unit by specifying the time period.</p>
+    </div>
+    <form class="p-4 space-y-6" name="rolloverUnitForm" (ngSubmit)="saveUnit()">
+      <div>
+        <label class="block text-sm font-medium mb-1" for="teachingperiod">Teaching Period</label>
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Select Teaching Period</mat-label>
+            <mat-select
+              name="toPeriod"
+              [(value)]="saveData.toPeriod"
+              (selectionChange)="teachingPeriodSelected($event)"
+              [compareWith]="compareFn"
+            >
+              @for (element of teachingPeriodValues; track element) {
+                <mat-option [value]="element.value">
+                  {{ element.text }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div>
+        <label
+          tooltip="Date for the start of teaching in the unit."
+          class="block text-sm font-medium mb-1"
+          for="startdate"
+        >
+          Start Date
+        </label>
+        <div>
+          <mat-form-field class="w-full">
+            <input
+              matInput
+              [matDatepicker]="startDate"
+              required="!unit.teachingPeriod"
+              name="unitStartDate"
+              [(ngModel)]="saveData.toPeriod.startDate"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
+            <mat-datepicker #startDate></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1" for="enddate">End Date</label>
+        <div>
+          <mat-form-field class="w-full">
+            <input
+              matInput
+              [matDatepicker]="endDate"
+              required="!unit.teachingPeriod"
+              name="endDate"
+              [(ngModel)]="saveData.toPeriod.endDate"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="endDate"></mat-datepicker-toggle>
+            <mat-datepicker #endDate></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="text-right">
+        <input
+          type="submit"
+          value="Create Unit"
+          class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md"
+        />
+      </div>
+    </form>
+  </div>
+</div>
