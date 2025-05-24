@@ -9,7 +9,7 @@ import _ from 'lodash';
 @Component({
   selector: 'f-unit-dates-selector',
   templateUrl: './unit-dates-selector.component.html',
-  //styleUrls: ['./unit-dates-selector.component.scss'],
+  styleUrls: ['./unit-dates-selector.component.scss'],
 })
 export class UnitDatesSelectorComponent implements OnInit {
   @Input() unit: Unit;
