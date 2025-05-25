@@ -182,7 +182,7 @@ import {
   UserService,
 } from './api/models/doubtfire-model';
 
-import {UtilService} from './common/utilService/util.service';
+import {UtilService} from 'src/common/utilService/util.service';
 import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
 import { FileDownloaderService } from './common/file-downloader/file-downloader.service';
 import { CheckForUpdateService } from './sessions/service-worker-updater/check-for-update.service';
@@ -278,6 +278,8 @@ DoubtfireAngularJSModule.factory(
   'newLearningOutcomeService',
   downgradeInjectable(LearningOutcomeService),
 );
+DoubtfireAngularJSModule.factory('utilService', downgradeInjectable(UtilService));
+
 DoubtfireAngularJSModule.factory('emojiService', downgradeInjectable(EmojiService));
 DoubtfireAngularJSModule.factory('gradeService', downgradeInjectable(GradeService));
 DoubtfireAngularJSModule.factory(
