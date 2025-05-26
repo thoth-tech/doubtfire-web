@@ -9,7 +9,7 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {LearningOutcomeService} from 'src/app/api/services/learning-outcome.service';
 import {LearningOutcome} from 'src/app/api/models/doubtfire-model';
 import { TaskOutcomeAlignment } from 'src/app/api/models/doubtfire-model';
-import {Observable, of} from 'rxjs';
+import {Observable, of, Subject} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 
 type Grades = Record<number, number | number[]>;
@@ -37,6 +37,9 @@ interface TaskOutcomeAlignmentContainer {
   providedIn: 'root',
 })
 export class OutcomeService {
+  // Add the event emitter for alignment changes
+  public alignmentChanged = new Subject<void>();
+
   public alignmentLabels: string[] = [
     'The task is not related to this outcome at all',
     'The task is slightly related to this outcome',
@@ -52,6 +55,13 @@ export class OutcomeService {
     private sanitizer: DomSanitizer,
     private learningOutcomeService: LearningOutcomeService,
   ) {}
+
+  /**
+   * Notify subscribers that alignment data has changed
+   */
+  notifyAlignmentChanged(): void {
+    this.alignmentChanged.next();
+  }
 
   getOutcomesForUnit(unitId: number): Observable<readonly LearningOutcome[]> {
     return this.learningOutcomeService.query({
@@ -88,7 +98,6 @@ export class OutcomeService {
    * Returns 1 for the target task's definition ID and 0 for all others
    */
   individualTaskPotentialFactor(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     project: Project,
     task: Task,
   ): (taskDefinitionId: number) => number {
@@ -304,5 +313,51 @@ export class OutcomeService {
     });
 
     return result;
+  }
+
+  /**
+   * Update an alignment rating and notify subscribers
+   * @param alignment The alignment to update
+   * @param rating The new rating value
+   */
+  updateAlignmentRating(alignment: TaskOutcomeAlignment, rating: number): void {
+    if (alignment) {
+      alignment.rating = rating;
+      this.notifyAlignmentChanged();
+    }
+  }
+
+  /**
+   * Delete an alignment and notify subscribers
+   * @param source The container with alignments
+   * @param alignment The alignment to remove
+   */
+  deleteAlignment(source: TaskOutcomeAlignmentContainer, alignment: TaskOutcomeAlignment): void {
+    if (source && source.taskOutcomeAlignments && alignment) {
+      // Find and remove the alignment
+      const alignments = source.taskOutcomeAlignments as TaskOutcomeAlignment[];
+      const index = alignments.findIndex(a =>
+        a.learningOutcome?.id === alignment.learningOutcome?.id &&
+        a.taskDefinition?.id === alignment.taskDefinition?.id
+      );
+
+      if (index !== -1) {
+        alignments.splice(index, 1);
+        this.notifyAlignmentChanged();
+      }
+    }
+  }
+
+  /**
+   * Add a new alignment and notify subscribers
+   * @param source The container with alignments
+   * @param alignment The new alignment to add
+   */
+  addAlignment(source: TaskOutcomeAlignmentContainer, alignment: TaskOutcomeAlignment): void {
+    if (source && source.taskOutcomeAlignments && alignment) {
+      const alignments = source.taskOutcomeAlignments as TaskOutcomeAlignment[];
+      alignments.push(alignment);
+      this.notifyAlignmentChanged();
+    }
   }
 }
