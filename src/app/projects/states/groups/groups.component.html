@@ -1,12 +1,12 @@
-<div class="container" *ngIf="hasGroupwork()">
-  <group-set-manager
-    project="{{ project }}"
-    unit="{{ unit }}"
-    selected-group-set="selectedGroupSet">
-  </group-set-manager>
+<div class="container" *ngIf="!loading && hasGroupWork()">
+  <f-dummy-group-set-manager
+    [project]="project"
+    [unit]="unit"
+    [(selectedGroupSet)]="selectedGroupSet">
+  </f-dummy-group-set-manager>
 </div>
 
-<div class="container" *ngIf="!hasGroupwork()">
+<div class="container" *ngIf="!loading && !hasGroupWork()">
   <div class="large-notice-block">
     <i class="fa fa-2x fa-users"></i>
     <p>No Group Work</p>
