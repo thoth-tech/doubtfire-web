@@ -143,25 +143,25 @@
     <thead class="bg-gray-50">
       <tr>
         <th class="sticky left-0 px-3 py-2"></th>
-        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('student.username')">
+        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('student.username')">
           Username
           <mat-icon inline *ngIf="tableSort.order==='student.username'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('student.name')">
+        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('student.name')">
           Name
           <mat-icon inline *ngIf="tableSort.order==='student.name'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('orderScale')">
+        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('orderScale')">
           Stats
           <mat-icon inline *ngIf="tableSort.order==='orderScale'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 text-center cursor-pointer" font-bold (click)="sortTableBy('flags')">
+        <th class="px-3 py-2 text-center cursor-pointer" (click)="sortTableBy('flags')">
           Flags
           <mat-icon inline *ngIf="
             tableSort.order==='similarityFlag'||
@@ -171,13 +171,13 @@
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('campus.name')">
+        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('campus.name')">
           Campus
           <mat-icon inline *ngIf="tableSort.order==='campus.name'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
           </mat-icon>
         </th>
-        <th class="px-3 py-2 cursor-pointer" font-bold (click)="sortTableBy('tutorial.abbreviation')">
+        <th class="px-3 py-2 cursor-pointer" (click)="sortTableBy('tutorial.abbreviation')">
           Tutorial
           <mat-icon inline *ngIf="tableSort.order==='tutorial.abbreviation'" class="align-middle text-lg font-semibold ml-1">
             {{ tableSort.reverse ? 'expand_more' : 'expand_less' }}
