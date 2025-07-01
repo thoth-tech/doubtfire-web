@@ -138,10 +138,6 @@ export class FStudentsListComponent implements OnInit, AfterViewInit {
     if (column === 'flags') {
       this.showSearchOptions = true;
       setTimeout(() => this.searchInput.nativeElement.focus(), 500);
-      if (['targetGrade', 'similarityFlag', 'portfolioStatus'].includes(this.tableSort.order)) {
-        this.tableSort.reverse = !this.tableSort.reverse;
-        this.applyFilters();
-      }
       return;
     }
     if (this.tableSort.order === column) {

@@ -45,14 +45,14 @@
     class="border rounded p-4 mb-4 bg-gray-50 shadow-sm"
   >
     <fieldset id="students-list-filter">
-      <legend class="text-s font-medium mb-2">Show Students From…</legend>
+      <legend class="text-lg font-semibold mb-2">Show Students From…</legend>
       <div class="inline-flex rounded-md shadow-sm" role="group">
         <button
           type="button"
           id="students-list-filter-all"
           (click)="staffFilterChanged('all')"
           [ngClass]="{
-            'bg-blue-500 text-white': staffFilter==='all',
+            'bg-gray-300 text-gray-800': staffFilter==='all',
             'bg-gray-100 text-gray-800': staffFilter!=='all'
           }"
           [attr.aria-pressed]="staffFilter==='all'"
@@ -66,7 +66,7 @@
           id="students-list-filter-mine"
           (click)="staffFilterChanged('mine')"
           [ngClass]="{
-            'bg-blue-500 text-white': staffFilter==='mine',
+            'bg-gray-300 text-gray-800': staffFilter==='mine',
             'bg-gray-100 text-gray-800': staffFilter!=='mine'
           }"
           [attr.aria-pressed]="staffFilter==='mine'"
@@ -79,18 +79,18 @@
     </fieldset>
 
     <fieldset id="students-list-flag-sort" class="mt-4">
-      <legend class="text-s font-medium mb-2">Sort Flags By…</legend>
+      <legend class="text-lg font-semibold mb-2">Sort Flags By…</legend>
       <div class="inline-flex rounded-md shadow-sm" role="group">
         <button
           type="button"
           id="students-list-sort-grade"
           (click)="sortTableBy('targetGrade')"
           [ngClass]="{
-            'bg-blue-500 text-white': tableSort.order==='targetGrade',
-            'bg-gray-100 text-gray-800': tableSort.order!=='targetGrade'
+            'relative z-10 bg-gray-300 text-gray-800 border-2 border-black': tableSort.order==='targetGrade',
+            'bg-gray-100 text-gray-800 border-gray-300': tableSort.order!=='targetGrade'
           }"
           [attr.aria-pressed]="tableSort.order==='targetGrade'"
-          class="px-4 py-2 border border-gray-300 rounded-l-md"
+          class="px-4 py-2 rounded-l-md"
         >
           <mat-icon inline>check</mat-icon>
           Grade
@@ -100,11 +100,11 @@
           id="students-list-sort-plagiarism"
           (click)="sortTableBy('similarityFlag')"
           [ngClass]="{
-            'bg-blue-500 text-white': tableSort.order==='similarityFlag',
-            'bg-gray-100 text-gray-800': tableSort.order!=='similarityFlag'
+            'relative z-10 bg-gray-300 text-gray-800 border-2 border-black': tableSort.order==='similarityFlag',
+            'bg-gray-100 text-gray-800 border-gray-300': tableSort.order!=='similarityFlag'
           }"
           [attr.aria-pressed]="tableSort.order==='similarityFlag'"
-          class="px-4 py-2 border-t border-b border-gray-300 -ml-px"
+          class="px-4 py-2 -ml-px"
         >
           <mat-icon inline>visibility</mat-icon>
           Plagiarism
@@ -114,17 +114,17 @@
           id="students-list-sort-portfolio"
           (click)="sortTableBy('portfolioStatus')"
           [ngClass]="{
-            'bg-blue-500 text-white': tableSort.order==='portfolioStatus',
-            'bg-gray-100 text-gray-800': tableSort.order!=='portfolioStatus'
+            'relative z-10bg-gray-300 text-gray-800 border-2 border-black': tableSort.order==='portfolioStatus',
+            'bg-gray-100 text-gray-800 border-gray-300': tableSort.order!=='portfolioStatus'
           }"
           [attr.aria-pressed]="tableSort.order==='portfolioStatus'"
-          class="px-4 py-2 border border-gray-300 rounded-r-md -ml-px"
+          class="px-4 py-2rounded-r-md -ml-px"
         >
           <mat-icon inline>menu_book</mat-icon>
           Portfolio Status
         </button>
       </div>
-      <p class="text-sm text-gray-500 mt-2">
+      <p class="text-lg text-gray-500 mt-2 font-medium">
         Click a flag sort button twice to reverse its sort order.
       </p>
     </fieldset>
