@@ -7,6 +7,7 @@ import { confirmationModal, csvResultModalService, csvUploadModalService } from 
 import { TaskDefinition } from 'src/app/api/models/task-definition';
 import { Unit } from 'src/app/api/models/unit';
 import { TaskDefinitionService } from 'src/app/api/services/task-definition.service';
+import { ConfirmationModalService } from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
 import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
@@ -29,9 +30,9 @@ export class UnitTaskEditorComponent implements AfterViewInit {
   constructor(
     private taskDefinitionService: TaskDefinitionService,
     private alerts: AlertService,
+    private confirmationModal: ConfirmationModalService,
     @Inject(csvResultModalService) private csvResultModalService: any,
     @Inject(csvUploadModalService) private csvUploadModal: any,
-    @Inject(confirmationModal) private confirmationModal: any
   ) {}
 
   ngAfterViewInit(): void {

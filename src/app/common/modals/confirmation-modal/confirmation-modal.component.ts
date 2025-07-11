@@ -1,6 +1,6 @@
-import { Component, Input, Inject } from '@angular/core'
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { AlertService } from '../../services/alert.service';
+import {Component, Inject} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {AlertService} from '../../services/alert.service';
 
 export interface ConfirmationModalData {
   title: string;
@@ -26,7 +26,7 @@ export class ConfirmationModalComponent {
   }
 
   cancel(): void {
-    this.dialogRef.close({ cancelled: true });
+    this.dialogRef.close({cancelled: true});
     this.alertService.message(`${this.data.title} action cancelled`, 3000)
   }
 }
