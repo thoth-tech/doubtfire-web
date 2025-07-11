@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
-import { confirmationModal, csvResultModalService, csvUploadModalService } from 'src/app/ajs-upgraded-providers';
+import { csvResultModalService, csvUploadModalService } from 'src/app/ajs-upgraded-providers';
 import { TaskDefinition } from 'src/app/api/models/task-definition';
 import { Unit } from 'src/app/api/models/unit';
 import { TaskDefinitionService } from 'src/app/api/services/task-definition.service';
