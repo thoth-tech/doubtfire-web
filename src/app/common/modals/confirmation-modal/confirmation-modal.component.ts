@@ -9,15 +9,16 @@ export interface ConfirmationModalData {
 }
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'confirmation-modal',
   templateUrl: 'confirmation-modal.component.html',
-  styleUrls: ['confirmation-modal.component.scss']
+  styleUrls: ['confirmation-modal.component.scss'],
 })
 export class ConfirmationModalComponent {
   constructor(
     public dialogRef: MatDialogRef<ConfirmationModalComponent>,
     private alertService: AlertService,
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmationModalData
+    @Inject(MAT_DIALOG_DATA) public data: ConfirmationModalData,
   ) {}
 
   confirm(): void {
@@ -27,6 +28,6 @@ export class ConfirmationModalComponent {
 
   cancel(): void {
     this.dialogRef.close({cancelled: true});
-    this.alertService.message(`${this.data.title} action cancelled`, 3000)
+    this.alertService.message(`${this.data.title} action cancelled`, 3000);
   }
 }
