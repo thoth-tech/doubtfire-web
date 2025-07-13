@@ -1,0 +1,25 @@
+.confirmation-modal {
+  max-width: 600px;
+
+  .confirmation-modal-header {
+    display: flex;
+    gap: 10px;
+
+    h3, h5 {
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  p {
+    font-size: large;
+  }
+
+  button {
+    color: white;
+  }
+
+  .confirm-btn {
+    background-color: #3fcc71;
+  }
+}
