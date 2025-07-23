@@ -64,7 +64,6 @@ import 'build/src/app/config/analytics/analytics.js';
 import 'build/src/app/config/debug/debug.js';
 import 'build/src/app/projects/projects.js';
 import 'build/src/app/projects/project-progress-dashboard/project-progress-dashboard.js';
-import 'build/src/app/projects/states/groups/groups.js';
 import 'build/src/app/projects/states/feedback/feedback.js';
 import 'build/src/app/projects/states/states.js';
 import 'build/src/app/projects/states/dashboard/directives/progress-dashboard/progress-dashboard.js';
@@ -225,6 +224,7 @@ import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {MarkedPipe} from './common/pipes/marked.pipe';
 import {AlertService} from './common/services/alert.service';
 import {GradeService} from './common/services/grade.service';
+import {ProjectsGroupsComponent} from './projects/states/groups/groups.component';
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
   'doubtfire.sessions',
@@ -463,6 +463,11 @@ DoubtfireAngularJSModule.directive(
   downgradeComponent({component: StatusIconComponent}),
 );
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
+
+DoubtfireAngularJSModule.directive(
+  'projectsGroupsComponent',
+  downgradeComponent({component: ProjectsGroupsComponent}),
+);
 
 // Global configuration
 
