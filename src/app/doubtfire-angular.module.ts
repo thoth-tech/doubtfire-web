@@ -224,6 +224,10 @@ import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-
 import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
+import {AutoFillSyncDirective} from 'src/common/utilService/autoFileSync.directive';
+import {HumanizePipe} from 'src/common/utilService/humanize.pipe';
+import {TitleizePipe} from 'src/common/utilService/titleize.pipe';
+import {FromNowPipe} from 'src/common/utilService/fromNow.pipe';
 
 @NgModule({
   // Components we declare
@@ -460,6 +464,10 @@ import {GradeService} from './common/services/grade.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModuleNew,
+    AutoFillSyncDirective,
+    HumanizePipe,
+    TitleizePipe,
+    FromNowPipe,
   ],
 })
 
