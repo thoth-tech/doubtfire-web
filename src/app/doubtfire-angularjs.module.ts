@@ -472,7 +472,12 @@ DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: F
 
 DoubtfireAngularJSModule.directive('unauthorised', downgradeComponent({ component: UnauthorisedComponent }));
 
-DoubtfireAngularJSModule.directive('portfolioWelcomeStep', downgradeComponent({ component: PortfolioWelcomeStepComponent }));
+DoubtfireAngularJSModule.directive(
+  'portfolioWelcomeStep',
+  downgradeComponent({
+    component: PortfolioWelcomeStepComponent,
+  })
+);
 
 // Global configuration
 

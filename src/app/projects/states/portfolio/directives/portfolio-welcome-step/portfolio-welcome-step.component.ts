@@ -6,16 +6,14 @@ import {Component, Input} from "@angular/core";
   templateUrl: './portfolio-welcome-step.component.html',
 })
 export class PortfolioWelcomeStepComponent {
-  @Input() advanceActiveTab!: (step: number) => void;
+  @Input() advanceActiveTab?: (step: number) => void;
+  @Input() externalName: string;
 
   public advanceTab(): void {
-    if (this.advanceActiveTab) {
-      this.advanceActiveTab(1);
-    } else {
-      console.log(
-        'function "advanceActiveTab(advanceBy) unbound"'
-        + '\ncheck portfolio template binds input correctly'
-      )
+    if (!this.advanceActiveTab) {
+      console.warn('advanceActiveTab is not bound. Check parent template.');
+      return;
     }
+    this.advanceActiveTab(1);
   }
 }

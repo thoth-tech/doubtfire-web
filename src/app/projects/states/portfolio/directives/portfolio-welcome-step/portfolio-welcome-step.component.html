@@ -1,8 +1,8 @@
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">Portfolio Preparation</h3>
-  </div>
-  <div class="panel-body">
+<mat-card>
+  <mat-card-header>
+    <h3>Portfolio Preparation</h3>
+  </mat-card-header>
+  <mat-card-content>
     <p>Preparing your portfolio involves 5 steps:</p>
     <ol>
       <li>Select your <strong>Grade</strong> you are applying for</li>
@@ -12,10 +12,10 @@
       <li><strong>Compile</strong> your resources into your portfolio and review</li>
     </ol>
     <p>
-      Once you have completed all of these steps, your portfolio will be prepared by OnTrack<!--{{externalName.value}}--> and you will be notified when it is ready. You can then check your work, and if you want to make any corrections repeat these steps to create a new version of your portfolio.
+      Once you have completed all of these steps, your portfolio will be prepared by {{externalName}} and you will be notified when it is ready. You can then check your work, and if you want to make any corrections repeat these steps to create a new version of your portfolio.
     </p>
-  </div><!--/welcome-step-->
-  <div class="panel-footer clearfix">
+  </mat-card-content><!--/welcome-step-->
+  <mat-card-actions align="end">
     <button class="btn btn-primary pull-right" (click)="advanceTab()">Next <i class="fa fa-arrow-right"></i></button>
-  </div>
-</div>
+  </mat-card-actions>
+</mat-card>
