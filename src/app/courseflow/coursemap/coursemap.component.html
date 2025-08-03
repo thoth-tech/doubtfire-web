@@ -27,7 +27,7 @@
         [id]="electiveUnits"
       >
         <div class="text" *ngFor="let unit of electiveUnits" cdkDrag class="unit">
-          <p >
+          <p>
             <strong>{{ unit.code }}</strong> - {{ unit.name }}
           </p>
         </div>
@@ -36,7 +36,13 @@
         <div>
           <mat-form-field appearance="fill">
             <mat-label>Enter Unit Code</mat-label>
-            <input class="search-bar" matInput [(ngModel)]="unitCode" name="unitCode" id="unitCode"/>
+            <input
+              class="search-bar"
+              matInput
+              [(ngModel)]="unitCode"
+              name="unitCode"
+              id="unitCode"
+            />
           </mat-form-field>
           <button mat-flat-button class="button" color="primary" type="submit">Add Unit</button>
 
@@ -62,7 +68,7 @@
       </div>
       <!-- Trimester 1 -->
       <div
-      *ngIf="year.trimester1"
+        *ngIf="year.trimester1"
         class="trimester-list"
         cdkDropList
         [cdkDropListData]="year.trimester1"
@@ -72,8 +78,18 @@
       >
         <h5 class="trimester-heading">Trimester 1</h5>
 
-        <div *ngFor="let unit of year.trimester1" cdkDrag class="unit">
+        <div
+          *ngFor="let unit of year.trimester1"
+          cdkDrag
+          class="unit unit-container"
+          cdkDrag
+          [ngClass]="{'completed': isCompleted(unit)}"
+          [cdkDragDisabled]="isCompleted(unit)"
+        >
           <strong>{{ unit.code }}</strong> - {{ unit.name }}
+          <mat-checkbox (click)="toggleCompletion(unit)" class="complete-checkbox">
+            Mark as completed
+          </mat-checkbox>
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 0)">
           <mat-icon>delete</mat-icon>
@@ -81,7 +97,7 @@
       </div>
       <!-- Trimester 2 -->
       <div
-      *ngIf="year.trimester2"
+        *ngIf="year.trimester2"
         class="trimester-list"
         cdkDropList
         [cdkDropListData]="year.trimester2"
@@ -91,8 +107,18 @@
       >
         <h5 class="trimester-heading">Trimester 2</h5>
 
-        <div *ngFor="let unit of year.trimester2" cdkDrag class="unit">
+        <div
+          *ngFor="let unit of year.trimester2"
+          cdkDrag
+          class="unit unit-container"
+          cdkDrag
+          [ngClass]="{'completed': isCompleted(unit)}"
+          [cdkDragDisabled]="isCompleted(unit)"
+        >
           <strong>{{ unit.code }}</strong> - {{ unit.name }}
+          <mat-checkbox (click)="toggleCompletion(unit)" class="complete-checkbox">
+            Mark as completed
+          </mat-checkbox>
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 1)">
           <mat-icon>delete</mat-icon>
@@ -100,7 +126,7 @@
       </div>
       <!-- Trimester 3 -->
       <div
-      *ngIf="year.trimester3"
+        *ngIf="year.trimester3"
         cdkDropList
         class="trimester-list"
         [cdkDropListData]="year.trimester3"
@@ -110,8 +136,18 @@
       >
         <h5 class="trimester-heading">Trimester 3</h5>
 
-        <div *ngFor="let unit of year.trimester3" cdkDrag class="unit">
+        <div
+          *ngFor="let unit of year.trimester3"
+          cdkDrag
+          class="unit unit-container"
+          cdkDrag
+          [ngClass]="{'completed': isCompleted(unit)}"
+          [cdkDragDisabled]="isCompleted(unit)"
+        >
           <strong>{{ unit.code }}</strong> - {{ unit.name }}
+          <mat-checkbox (click)="toggleCompletion(unit)" class="complete-checkbox">
+            Mark as completed
+          </mat-checkbox>
         </div>
         <button class="delete-button" mat-icon-button (click)="deleteTrimester(i, 2)">
           <mat-icon>delete</mat-icon>

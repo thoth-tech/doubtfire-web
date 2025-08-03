@@ -92,13 +92,14 @@ export class CoursemapComponent implements OnInit {
   // Temporarily creating a course until database is populated with real data
   testCourse: Course = {
     id: '12345',
-    name: 'Introduction to Programming',
-    code: 'CS101',
+    name: 'Bachelor of Cyber Security',
+    code: 'S334',
     year: 2024,
     version: 'v1.0',
-    url: 'http://university.edu/courses/cs101',
+    url: 'http://example.com',
   };
 
+  completedUnits: Set<string> = new Set(); // Stores completed unit codes
 
   ngOnInit(): void {
     this.formData = {
@@ -123,7 +124,7 @@ export class CoursemapComponent implements OnInit {
     this.courseService.getCourses().subscribe({
       next: (data: Course[]) => {
         this.courses = data;
-        console.log('Courses:', this.courses); // Optional: Log the courses to verify
+        console.log('Courses:', this.testCourse); // Optional: Log the courses to verify
       },
       error: (err) => {
         this.errorMessage = 'Error fetching courses';
@@ -166,7 +167,7 @@ export class CoursemapComponent implements OnInit {
       },
     })
     //temporarily create coursemap with id of 1 until database is loaded
-    this.courseMapService.addCourseMap(1,1);
+    this.courseMapService.addCourseMap(1, 1);
     //add empty units to coursemap to initialise study periods
     this.courseMapUnitService.getCourseMapUnitsById(1).subscribe(
       (data: CourseMapUnit[]) => {
@@ -183,7 +184,7 @@ export class CoursemapComponent implements OnInit {
   populateYearsArray(courseMapUnits: CourseMapUnit[]) {
     this.years = [];
 
-    courseMapUnits.forEach(unit => {
+    courseMapUnits.forEach((unit) => {
       console.log('Processing unit with yearSlot:', unit.yearSlot); // Log the yearSlot value
 
       // Find the year object with the same yearSlot value
@@ -309,10 +310,20 @@ export class CoursemapComponent implements OnInit {
         event.previousIndex,
         event.currentIndex,
       );
-
-
     }
+  }
 
+  // Toggle completion state
+  toggleCompletion(unit: UnitDefinition) {
+    this.completedUnits.has(unit.code)
+      ? this.completedUnits.delete(unit.code)
+      : this.completedUnits.add(unit.code);
+      console.log('Completed units:', this.completedUnits);
+  }
+
+  // Check if a unit is completed
+  isCompleted(unit: UnitDefinition): boolean {
+    return this.completedUnits.has(unit.code);
   }
 
   fetchUnitByCode(): void {
@@ -321,14 +332,14 @@ export class CoursemapComponent implements OnInit {
       return;
     }
 
-    const alreadyAdded = this.electiveUnits.some(unit => unit.code === this.unitCode);
+    const alreadyAdded = this.electiveUnits.some((unit) => unit.code === this.unitCode);
 
     if (alreadyAdded) {
       this.errorMessage = 'Unit already added';
       return;
     }
 
-    const foundUnit = this.units.find(unit => unit.code === this.unitCode);
+    const foundUnit = this.units.find((unit) => unit.code === this.unitCode);
 
     if (foundUnit) {
       this.electiveUnits.push(foundUnit);
@@ -339,5 +350,4 @@ export class CoursemapComponent implements OnInit {
       this.unit = null;
     }
   }
-
 }
