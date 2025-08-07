@@ -122,17 +122,32 @@ export class FStudentsListComponent implements OnInit, AfterViewInit {
   }
 
   private sortProjects(list: Project[]): Project[] {
-    const { order, reverse } = this.tableSort;
-    return [...list].sort((a, b) => {
+  const { order, reverse } = this.tableSort;
+
+  return [...list].sort((a, b) => {
+    let va: any, vb: any;
+
+    if (order === 'similarityFlag') {
+      va = [a.similarityFlag ? 1 : 0, a.student.name];
+      vb = [b.similarityFlag ? 1 : 0, b.student.name];
+    } else if (order === 'portfolioStatus') {
+        va = [a.portfolioStatus ?? '', a.student.name];
+        vb = [b.portfolioStatus ?? '', b.student.name];
+    } else if (order === 'tutorial.abbreviation') {
+      va = a.tutorials?.[0]?.abbreviation ?? '';
+      vb = b.tutorials?.[0]?.abbreviation ?? '';
+    } else {
       const getValue = (obj: any, path: string) =>
-        path.split('.').reduce((o, key) => (o as any)[key], obj);
-      const va = getValue(a, order);
-      const vb = getValue(b, order);
-      if (va < vb) return reverse ? 1 : -1;
-      if (va > vb) return reverse ? -1 : 1;
-      return 0;
-    });
-  }
+        path.split('.').reduce((o, key) => (o as any)?.[key], obj);
+      va = getValue(a, order);
+      vb = getValue(b, order);
+    }
+
+    if (va < vb) return reverse ? 1 : -1;
+    if (va > vb) return reverse ? -1 : 1;
+    return 0;
+  });
+}
 
   sortTableBy(column: string): void {
     if (column === 'flags') {
