@@ -267,6 +267,7 @@ const MY_DATE_FORMAT = {
   },
 };
 import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
+import { GroupMemberListComponent } from './groups/group-member-list/group-member-list.component';
 
 @NgModule({
   // Components we declare
@@ -389,6 +390,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     TaskScormCardComponent,
     ScormExtensionCommentComponent,
     ScormExtensionModalComponent,
+    GroupMemberListComponent,
   ],
   // Services we provide
   providers: [
