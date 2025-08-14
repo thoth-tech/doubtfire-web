@@ -1,0 +1,81 @@
+<!-- Loading -->
+<div class="panel-body panel-loading" *ngIf="!loaded">
+  <i class="fa fa-spinner fa-pulse"></i> Loading Members...
+</div>
+
+<!-- Empty -->
+<div class="panel-body" *ngIf="loaded && (members?.length || 0) === 0">
+  <div class="callout callout-primary">
+    <h4>No members in group</h4>
+    <p>There are no members in this group</p>
+  </div>
+</div>
+
+<!-- Members table -->
+<table class="table table-condensed table-hover table-pointer"
+       *ngIf="loaded && (members?.length || 0) > 0">
+  <thead>
+    <tr>
+      <th *ngIf="unitRole">
+        <button type="button" class="btn btn-link p-0 align-baseline"
+                (click)="sortTableBy('student.username')"
+                (keydown.enter)="sortTableBy('student.username')"
+                (keydown.space)="sortTableBy('student.username')"
+                aria-label="Sort by Student ID">
+          Student ID
+          <i *ngIf="tableSort.order === 'student.username'"
+             class="fa"
+             [ngClass]="{ 'fa-caret-up': tableSort.reverse, 'fa-caret-down': !tableSort.reverse }">
+          </i>
+        </button>
+      </th>
+
+      <th>
+        <button type="button" class="btn btn-link p-0 align-baseline"
+                (click)="sortTableBy('student.name')"
+                (keydown.enter)="sortTableBy('student.name')"
+                (keydown.space)="sortTableBy('student.name')"
+                aria-label="Sort by Name">
+          Name
+          <i *ngIf="tableSort.order === 'student.name'"
+             class="fa"
+             [ngClass]="{ 'fa-caret-up': tableSort.reverse, 'fa-caret-down': !tableSort.reverse }">
+          </i>
+        </button>
+      </th>
+
+      <th *ngIf="unitRole">
+        <button type="button" class="btn btn-link p-0 align-baseline"
+                (click)="sortTableBy('targetGrade')"
+                (keydown.enter)="sortTableBy('targetGrade')"
+                (keydown.space)="sortTableBy('targetGrade')"
+                aria-label="Sort by Target Grade">
+          Target Grade
+          <i *ngIf="tableSort.order === 'targetGrade'"
+             class="fa"
+             [ngClass]="{ 'fa-caret-up': tableSort.reverse, 'fa-caret-down': !tableSort.reverse }">
+          </i>
+        </button>
+      </th>
+
+      <th *ngIf="canRemoveMembers">Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let m of sortedMembers; trackBy: trackByProject">
+      <td *ngIf="unitRole" class="student-id">{{ m?.student?.username || 'N/A' }}</td>
+      <td class="student-name">{{ m?.student?.name }}</td>
+      <td *ngIf="unitRole" class="student-grade text-left">
+        <grade-icon [index]="m?.targetGrade"></grade-icon>
+      </td>
+      <td *ngIf="canRemoveMembers" class="actions">
+        <button class="btn btn-sm btn-danger" (click)="removeMember(m)">
+          <i class="fa fa-minus"></i>
+          <span *ngIf="project && m?.id === project?.id">Leave</span>
+          <span *ngIf="!project || m?.id !== project?.id">Remove</span>
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
