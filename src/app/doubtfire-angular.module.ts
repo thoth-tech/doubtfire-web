@@ -268,6 +268,8 @@ const MY_DATE_FORMAT = {
   },
 };
 import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
+import { StaffGrantExtensionComponent } from './units/states/tasks/staff-grant-extension/staff-grant-extension.component';
+import { StaffGrantExtensionFormComponent } from './units/states/tasks/staff-grant-extension/grant-extension-form/grant-extension-form.component';
 
 @NgModule({
   // Components we declare
@@ -391,6 +393,8 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     ScormExtensionCommentComponent,
     ScormExtensionModalComponent,
     NotificationsButtonComponent,
+    StaffGrantExtensionComponent,
+    StaffTaskListComponent,
   ],
   // Services we provide
   providers: [
@@ -524,6 +528,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     NgxChartsModule,
     PdfViewerModule,
     LottieComponent,
+    StaffGrantExtensionFormComponent,
     UIRouterUpgradeModule.forRoot({states: doubtfireStates}),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
