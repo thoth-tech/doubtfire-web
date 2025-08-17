@@ -1,12 +1,28 @@
-<div class="unit" cdkDrag [cdkDragData]="dragData">
+<div
+  class="unit"
+  [cdkDragDisabled]="isCompleted"
+  cdkDrag
+  [cdkDragData]="dragData"
+  [class.completed]="isCompleted"
+  [class.drag-disabled]="isCompleted"
+>
   <strong>{{ unit.code }}</strong> - {{ unit.name }}
+  <mat-icon *ngIf="isCompleted" class="completion-indicator">check_circle</mat-icon>
 
   <button *ngIf="showMenu" mat-icon-button class="unit-menu-button" [matMenuTriggerFor]="unitMenu">
     <mat-icon>more_vert</mat-icon>
   </button>
 
   <mat-menu #unitMenu="matMenu">
-    <button mat-menu-item (click)="onRemoveUnit()">
+    <button mat-menu-item (click)="onToggleCompletion()">
+      <mat-icon>{{ isCompleted ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+      <span>{{ isCompleted ? 'Mark as Incomplete' : 'Mark as Complete' }}</span>
+    </button>
+    <button mat-menu-item (click)="onShowSkillsSummary()">
+      <mat-icon>lightbulb</mat-icon>
+      <span>Skills Summary</span>
+    </button>
+    <button mat-menu-item (click)="onRemoveUnit()" [disabled]="isCompleted">
       <mat-icon>delete</mat-icon>
       <span>Remove</span>
     </button>

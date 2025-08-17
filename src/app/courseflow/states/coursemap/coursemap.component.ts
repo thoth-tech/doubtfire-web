@@ -2,11 +2,12 @@ import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
+import {MatDialog} from '@angular/material/dialog';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {Subject, takeUntil} from 'rxjs';
 import {CourseMapStateService} from '../../services/course-map-state.service';
 import {CourseMapDragDropService} from '../../services/course-map-drag-drop.service';
-import {CourseMapState} from '../../models/course-map.models';
+import {CourseMapState, CourseUnit} from '../../models/course-map.models';
 import {
   UnitService,
   CourseService,
@@ -23,6 +24,7 @@ import {CourseYearEditorComponent} from './directives/course-year-editor/course-
 import {RequiredUnitsListComponent} from './directives/required-units-list/required-units-list.component';
 import {ElectiveUnitsListComponent} from './directives/elective-units-list/elective-units-list.component';
 import {UnitSearchComponent} from './directives/unit-search/unit-search.component';
+import {SkillsSummaryDialogComponent} from '../../common/skills-summary-dialog/skills-summary-dialog.component';
 
 @Component({
   selector: 'coursemap',
@@ -38,6 +40,7 @@ import {UnitSearchComponent} from './directives/unit-search/unit-search.componen
     RequiredUnitsListComponent,
     ElectiveUnitsListComponent,
     UnitSearchComponent,
+    SkillsSummaryDialogComponent,
   ],
   providers: [
     UnitService,
@@ -71,6 +74,7 @@ export class CoursemapComponent implements OnInit, OnDestroy {
     private courseMapUnitService: CourseMapUnitService,
     private authService: AuthenticationService,
     private alerts: AlertService,
+    private dialog: MatDialog,
   ) {
     this.state = this.stateService.currentState;
   }
@@ -251,5 +255,33 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   trackByYear(index: number, year: any): number {
     return year.year;
+  }
+
+  onShowSkillsSummary(unit: CourseUnit): void {
+    // Collect all units placed in the course map
+    const allPlacedUnits: CourseUnit[] = [];
+
+    this.state.years.forEach(year => {
+      Object.keys(year).forEach(key => {
+        if (key.startsWith('trimester')) {
+          const trimester = year[key as keyof typeof year] as (CourseUnit | null)[];
+          if (trimester) {
+            trimester.forEach(u => {
+              if (u) {
+                allPlacedUnits.push(u);
+              }
+            });
+          }
+        }
+      });
+    });
+
+    this.dialog.open(SkillsSummaryDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      data: {
+        units: allPlacedUnits
+      }
+    });
   }
 }
