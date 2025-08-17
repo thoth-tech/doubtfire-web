@@ -386,4 +386,16 @@ export class CourseMapStateService {
       requiredUnits: units,
     });
   }
+
+  toggleUnitCompletion(unit: CourseUnit): void {
+    // For now, we'll store completion status on the unit object itself
+    // In a real implementation, this might be stored in a service or backend
+    const unitWithCompletion = unit as CourseUnit & {isCompleted?: boolean};
+    unitWithCompletion.isCompleted = !unitWithCompletion.isCompleted;
+
+    // Trigger a state update to ensure components re-render
+    this.updateState({
+      ...this.currentState,
+    });
+  }
 }

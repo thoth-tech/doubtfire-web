@@ -1,0 +1,65 @@
+<div class="skills-summary-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Skills Summary</h2>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content class="dialog-content">
+    <!-- Completed Units Section -->
+    <div class="section" *ngIf="getCompletedUnits().length > 0">
+      <h3 class="section-title">
+        <mat-icon class="section-icon completed">check_circle</mat-icon>
+        Skills Acquired ({{ getCompletedUnits().length }} completed units)
+      </h3>
+      <div class="units-list">
+        <div *ngFor="let unit of getCompletedUnits()" class="unit-item completed">
+          <div class="unit-header">
+            <strong>{{ unit.code }} - {{ unit.name }}</strong>
+            <mat-icon class="status-icon">check_circle</mat-icon>
+          </div>
+          <div class="unit-description" *ngIf="unit.description">
+            {{ unit.description }}
+          </div>
+          <div class="no-description" *ngIf="!unit.description">
+            <em>No skills description available for this unit.</em>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- In Progress Units Section -->
+    <div class="section" *ngIf="getInProgressUnits().length > 0">
+      <h3 class="section-title">
+        <mat-icon class="section-icon in-progress">schedule</mat-icon>
+        Skills in Development ({{ getInProgressUnits().length }} units in progress)
+      </h3>
+      <div class="units-list">
+        <div *ngFor="let unit of getInProgressUnits()" class="unit-item in-progress">
+          <div class="unit-header">
+            <strong>{{ unit.code }} - {{ unit.name }}</strong>
+            <mat-icon class="status-icon">schedule</mat-icon>
+          </div>
+          <div class="unit-description" *ngIf="unit.description">
+            {{ unit.description }}
+          </div>
+          <div class="no-description" *ngIf="!unit.description">
+            <em>No skills description available for this unit.</em>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Units Message -->
+    <div class="no-units" *ngIf="getAllPlacedUnits().length === 0">
+      <mat-icon class="empty-icon">lightbulb_outline</mat-icon>
+      <h3>No Units Selected</h3>
+      <p>Add units to your course plan to see a summary of skills you'll learn.</p>
+    </div>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-raised-button color="primary" (click)="onClose()">Close</button>
+  </div>
+</div>

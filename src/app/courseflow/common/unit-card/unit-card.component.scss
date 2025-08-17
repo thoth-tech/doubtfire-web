@@ -26,6 +26,25 @@
     background-color: #f2f2f2;
     transform: translateY(-2px);
   }
+
+  &.completed {
+    background-color: #e8f5e8;
+    border-color: #4caf50;
+
+    &:hover {
+      background-color: #d4edda;
+    }
+  }
+
+  &.drag-disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+
+    &:hover {
+      transform: none;
+      background-color: #e8f5e8;
+    }
+  }
 }
 
 .unit-menu-button {
@@ -45,4 +64,14 @@
   width: 18px;
   height: 18px;
   line-height: 18px;
+}
+
+.completion-indicator {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  color: #4caf50;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
