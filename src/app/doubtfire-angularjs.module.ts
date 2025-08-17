@@ -51,7 +51,6 @@ import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment.js';
 import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/task-ilo-alignment-modal.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-editor/task-ilo-alignment-editor.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-viewer/task-ilo-alignment-viewer.js';
-import 'build/src/app/config/runtime/runtime.js';
 import 'build/src/app/config/config.js';
 import 'build/src/app/config/root-controller/root-controller.js';
 import 'build/src/app/config/local-storage/local-storage.js';
@@ -138,6 +137,7 @@ import 'build/src/i18n/resources-locale_en-AU.js';
 import 'build/src/i18n/resources-locale_en-GB.js';
 //#endregion
 
+import {RuntimeService} from './config/runtime/runtime';
 import {AboutDoubtfireModal} from 'src/app/common/modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {ProjectTasksListComponent} from './tasks/project-tasks-list/project-tasks-list.component';
 import {TaskCommentComposerComponent} from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
@@ -252,6 +252,7 @@ DoubtfireAngularJSModule.factory(
   'authenticationService',
   downgradeInjectable(AuthenticationService),
 );
+DoubtfireAngularJSModule.factory('runtimeService', downgradeInjectable(RuntimeService));
 DoubtfireAngularJSModule.factory('newUserService', downgradeInjectable(UserService));
 DoubtfireAngularJSModule.factory('newUnitService', downgradeInjectable(UnitService));
 DoubtfireAngularJSModule.factory('newUnitRoleService', downgradeInjectable(UnitRoleService));
@@ -495,3 +496,9 @@ DoubtfireAngularJSModule.directive(
   'fTaskVisualisation',
   downgradeComponent({ component: TaskVisualisationComponent })
 );
+DoubtfireAngularJSModule.run([
+  'runtimeService',
+  function (_runtimeService: unknown) {
+    void _runtimeService; // explicitly use the variable to avoid ESLint error
+  }
+]);
