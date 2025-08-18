@@ -231,7 +231,7 @@ export class FStudentsListComponent implements OnInit, AfterViewInit {
 
   viewStudent(project: Project): void {
     this.router.stateService.go('projects/dashboard', {
-      projectId: project.student.id,
+      projectId: project.id,
       tutor: true,
       taskAbbr: ''
     });
