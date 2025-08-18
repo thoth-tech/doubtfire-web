@@ -91,6 +91,7 @@ MIGRATED:
 - [x] ./src/app/common/services/alert.service.ts
 - [x] ./src/app/sessions/states/sign-in/sign-in.component.ts
 - [x] ./src/app/account/edit-profile/edit-profile.component.ts
+- [x] ./src/app/common/modals/confirmation-modal/confirmation-modal.coffee
 
 TODO:
 
@@ -200,7 +201,6 @@ TODO:
 - [ ] ./src/app/common/filters/filters.coffee
 - [ ] ./src/app/common/content-editable/content-editable.coffee
 - [ ] ./src/app/common/alert-list/alert-list.coffee
-- [ ] ./src/app/common/modals/confirmation-modal/confirmation-modal.coffee
 - [ ] ./src/app/common/modals/comments-modal/comments-modal.coffee
 - [ ] ./src/app/common/modals/modals.coffee
 - [ ] ./src/app/common/modals/csv-result-modal/csv-result-modal.coffee
