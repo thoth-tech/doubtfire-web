@@ -253,6 +253,7 @@ import {ScormExtensionModalComponent} from './common/modals/scorm-extension-moda
 import { GradeIconComponent } from './common/grade-icon/grade-icon.component';
 import { GradeTaskModalComponent } from './tasks/modals/grade-task-modal/grade-task-modal.component';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import {NotificationsButtonComponent} from './common/header/notifications-button/notifications-button.component';
 
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
@@ -267,6 +268,8 @@ const MY_DATE_FORMAT = {
   },
 };
 import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
+import { StaffGrantExtensionComponent } from './units/states/tasks/staff-grant-extension/staff-grant-extension.component';
+import { StaffGrantExtensionFormComponent } from './units/states/tasks/staff-grant-extension/grant-extension-form/grant-extension-form.component';
 
 @NgModule({
   // Components we declare
@@ -389,6 +392,9 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     TaskScormCardComponent,
     ScormExtensionCommentComponent,
     ScormExtensionModalComponent,
+    NotificationsButtonComponent,
+    StaffGrantExtensionComponent,
+    StaffTaskListComponent,
   ],
   // Services we provide
   providers: [
@@ -522,6 +528,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     NgxChartsModule,
     PdfViewerModule,
     LottieComponent,
+    StaffGrantExtensionFormComponent,
     UIRouterUpgradeModule.forRoot({states: doubtfireStates}),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,

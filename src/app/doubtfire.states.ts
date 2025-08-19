@@ -8,6 +8,7 @@ import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
 import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
 import {FUsersComponent} from './admin/states/users/users.component';
 import {FUnitsComponent} from './admin/states/units/units.component';
+import {StaffGrantExtensionComponent} from './units/states/tasks/staff-grant-extension/staff-grant-extension.component';
 import {ProjectDashboardComponent} from './projects/states/dashboard/project-dashboard/project-dashboard.component';
 import {UnitRootState} from './units/unit-root-state.component';
 import {ProjectRootState} from './projects/states/project-root-state.component';
@@ -412,6 +413,24 @@ const ScormPlayerReviewState: NgHybridStateDeclaration = {
 };
 
 /**
+ * Define the Staff Grant Extension state.
+ */
+const StaffGrantExtensionState: NgHybridStateDeclaration = {
+  name: 'staff-grant-extension',
+  url: '/staff-grant-extension',
+  views: {
+    main: {
+      component: StaffGrantExtensionComponent,
+    },
+  },
+
+  data: {
+    pageTitle: 'Staff Grant Extension',
+    roleWhitelist: ['Admin', 'Convenor'],
+  },
+};
+
+/**
  * Export the list of states we have created in angular
  */
 export const doubtfireStates = [
@@ -433,4 +452,5 @@ export const doubtfireStates = [
   ScormPlayerNormalState,
   ScormPlayerReviewState,
   ScormPlayerStudentReviewState,
+  StaffGrantExtensionState,
 ];

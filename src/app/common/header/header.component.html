@@ -34,6 +34,10 @@
 
     <span class="grow"></span>
 
+    @if (currentUser.role === 'Student') {
+      <f-notifications-button></f-notifications-button>
+    }
+
     @if (currentUser.role === 'Admin' || currentUser.role === 'Convenor') {
       <button
         #menuState="matMenuTrigger"
