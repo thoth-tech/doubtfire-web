@@ -1,0 +1,20 @@
+.card {
+  border: 1px solid #ddd;
+  box-shadow: none;
+
+  mat-card-header {
+    background-color: #f5f5f5;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  mat-card-content {
+    border-bottom: solid 1px #ddd;
+    border-top: solid 1px #ddd;
+    padding: 15px 15px;
+  }
+
+  mat-card-actions {
+    background-color: #f5f5f5;
+  }
+}
