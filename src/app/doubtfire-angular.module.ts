@@ -226,6 +226,20 @@ import {
   TeachingPeriodUnitImportDialogComponent,
   TeachingPeriodUnitImportService,
 } from './admin/states/teaching-periods/teaching-period-unit-import/teaching-period-unit-import.dialog';
+import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
+import {TiiActionLogComponent} from './admin/tii-action-log/tii-action-log.component';
+import {TiiActionService} from './api/services/tii-action.service';
+import {FUnitsComponent} from './admin/states/f-units/f-units.component';
+import {FUnitTaskListComponent} from './units/states/tasks/viewer/directives/f-unit-task-list/f-unit-task-list.component';
+import {FTaskDetailsViewComponent} from './units/states/tasks/viewer/directives/f-task-details-view/f-task-details-view.component';
+import {FTaskSheetViewComponent} from './units/states/tasks/viewer/directives/f-task-sheet-view/f-task-sheet-view.component';
+import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-viewer.component';
+import {UnitCodeComponent} from './common/unit-code/unit-code.component';
+import {GradeService} from './common/services/grade.service';
+import {AutoFillSyncDirective} from 'src/common/utilService/autoFileSync.directive';
+import {HumanizePipe} from 'src/common/utilService/humanize.pipe';
+import {TitleizePipe} from 'src/common/utilService/titleize.pipe';
+import {FromNowPipe} from 'src/common/utilService/fromNow.pipe';
 import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
 import { AcceptEulaComponent } from './eula/accept-eula/accept-eula.component';
 import { TiiActionLogComponent } from './admin/tii-action-log/tii-action-log.component';
@@ -530,6 +544,10 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModuleNew,
+    AutoFillSyncDirective,
+    HumanizePipe,
+    TitleizePipe,
+    FromNowPipe,
     NgxChartsModule,
   ],
 })
