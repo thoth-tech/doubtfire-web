@@ -60,7 +60,6 @@ import 'build/src/app/config/vendor-dependencies/vendor-dependencies.js';
 import 'build/src/app/config/analytics/analytics.js';
 import 'build/src/app/projects/projects.js';
 import 'build/src/app/projects/project-progress-dashboard/project-progress-dashboard.js';
-import 'build/src/app/projects/states/groups/groups.js';
 import 'build/src/app/projects/states/feedback/feedback.js';
 import 'build/src/app/projects/states/states.js';
 import 'build/src/app/projects/states/dashboard/directives/progress-dashboard/progress-dashboard.js';
@@ -219,6 +218,7 @@ import {FUnitsComponent} from './admin/states/units/units.component';
 import {AlertService} from './common/services/alert.service';
 
 import {GradeService} from './common/services/grade.service';
+import {ProjectsGroupsComponent} from './projects/states/groups/groups.component';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
@@ -469,6 +469,11 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
 
 DoubtfireAngularJSModule.directive('unauthorised', downgradeComponent({ component: UnauthorisedComponent }));
+
+DoubtfireAngularJSModule.directive(
+  'projectsGroupsComponent',
+  downgradeComponent({component: ProjectsGroupsComponent}),
+);
 
 // Global configuration
 
