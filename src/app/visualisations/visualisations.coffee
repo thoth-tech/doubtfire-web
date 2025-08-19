@@ -1,7 +1,6 @@
 angular.module('doubtfire.visualisations', [
   'doubtfire.visualisations.summary-task-status-scatter'
   'doubtfire.visualisations.progress-burndown-chart'
-  'doubtfire.visualisations.alignment-bar-chart'
   'doubtfire.visualisations.alignment-bullet-chart'
   'doubtfire.visualisations.student-task-status-pie-chart'
   'doubtfire.visualisations.task-status-pie-chart'
