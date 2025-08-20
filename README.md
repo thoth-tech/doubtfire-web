@@ -135,7 +135,6 @@ TODO:
 - [ ] ./src/app/projects/states/all/directives/all-projects-list/all-projects-list.coffee
 - [ ] ./src/app/projects/states/all/all.coffee
 - [ ] ./src/app/projects/states/groups/groups.coffee
-- [ ] ./src/app/projects/states/feedback/feedback.coffee
 - [ ] ./src/app/projects/states/dashboard/directives/directives.coffee
 - [ ] ./src/app/projects/states/dashboard/directives/progress-dashboard/progress-dashboard.coffee
 - [ ] ./src/app/projects/states/dashboard/directives/student-task-list/student-task-list.coffee
