@@ -9,11 +9,15 @@ import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised
 import {FUsersComponent} from './admin/states/users/users.component';
 import {FUnitsComponent} from './admin/states/units/units.component';
 import {ProjectDashboardComponent} from './projects/states/dashboard/project-dashboard/project-dashboard.component';
-import {UnitRootState} from './units/unit-root-state.component';
 import {ProjectRootState} from './projects/states/project-root-state.component';
 import { TaskViewerState } from './units/task-viewer/task-viewer-state.component';
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import { Ng2ViewDeclaration } from '@uirouter/angular';
+import { FStudentsListComponent } from './units/states/students-list/students-list.component';
+import {UnitService} from 'src/app/api/services/unit.service';
+import { UserService }   from 'src/app/api/services/user.service';
+import { Transition }    from '@uirouter/core';
+import { UnitRootState } from './units/unit-root-state.component';
 
 /*
  * Use this file to store any states that are sourced by angular components.
@@ -52,6 +56,41 @@ const usersState: NgHybridStateDeclaration = {
   },
 };
 
+export const studentsListState: NgHybridStateDeclaration = {
+  name:     'units/students/list',
+  parent:   'unit-root-state',
+  url:      '/students',
+
+  views: {
+    unitView: {
+      component: FStudentsListComponent,
+      bindings: {
+        unit:  'unit',
+        tutor: 'tutor'
+      }
+    }
+  },
+
+  resolve: [
+    {
+      token: 'unit',
+      deps:  [UnitService, Transition],
+      resolveFn: (us: UnitService, trans: Transition) =>
+        us.get(trans.params().unitId).toPromise()
+    },
+    {
+      token: 'tutor',
+      deps:  ['unit', UserService],
+      resolveFn: (unit: any, userSvc: UserService) =>
+        !!unit && unit.unitRole?.role === 'Tutor'
+    }
+  ],
+
+  data: {
+    pageTitle:     'Students',
+    roleWhitelist: ['Admin', 'Convenor', 'Tutor', 'Auditor']
+  }
+};
 /**
  * Define the new home state.
  */
@@ -422,6 +461,7 @@ export const doubtfireStates = [
   EditProfileState,
   EulaState,
   usersState,
+  studentsListState,
   ViewAllProjectsState,
   ViewAllUnits,
   AdministerUnits,
