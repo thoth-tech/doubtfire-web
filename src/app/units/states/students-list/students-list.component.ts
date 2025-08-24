@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterViewInit, ViewChild, ElementRef, Injector, Inject } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, ViewChild, ElementRef, Injector, Inject, HostListener } from '@angular/core';
 import { UIRouter } from '@uirouter/angular';
 import { unitStudentEnrolmentModal, analyticsService } from 'src/app/ajs-upgraded-providers';
 import { Project, Unit } from 'src/app/api/models/doubtfire-model';
@@ -60,12 +60,67 @@ export class FStudentsListComponent implements OnInit, AfterViewInit {
 
     this.filteredTypeaheadData = this.unit.studentFilterTypeAheadData.slice(0, 8);
     this.applyFilters();
+    this.restoreLastViewed();
+    this.snapshotStats();
   }
 
   ngAfterViewInit(): void {
     this.searchInput?.nativeElement.focus();
   }
 
+private readonly LAST_VIEWED_KEY = 'studentsList:lastViewedProjectId';
+private readonly LAST_VIEWED_STATS_KEY = 'studentsList:lastViewedProjectStats';
+
+private initialStatsByProject = new Map<number | string, { key: any; value: number }[]>();
+
+private snapshotStats(): void {
+  for (const p of this.unit.students) {
+    const stats = (p.taskStats || []).map(s => ({ key: s.key, value: s.value }));
+    this.initialStatsByProject.set(p.id, stats);
+  }
+}
+
+private restoreLastViewed(): void {
+  const id = sessionStorage.getItem(this.LAST_VIEWED_KEY);
+  if (!id) return;
+
+  const target = this.unit.students.find(s => String(s.id) === id);
+  if (!target) return;
+
+  const raw = sessionStorage.getItem(this.LAST_VIEWED_STATS_KEY);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as { key: any; value: number }[];
+      target.taskStats = (parsed || []).map(s => ({ key: s.key, value: s.value }));
+    } catch {
+      const snap = this.initialStatsByProject.get(target.id);
+      if (snap) target.taskStats = snap.map(s => ({ key: s.key, value: s.value }));
+    }
+  } else {
+    const snap = this.initialStatsByProject.get(target.id);
+    if (snap) target.taskStats = snap.map(s => ({ key: s.key, value: s.value }));
+  }
+
+  // Clear once used to avoid stale restores later
+  sessionStorage.removeItem(this.LAST_VIEWED_STATS_KEY);
+}
+
+private restoreBlankStats(): void {
+  for (const p of this.unit.students) {
+    const stats = p.taskStats || [];
+    const noStats = !stats.length;
+    const hasNonNumbers = stats.some(s => s == null || typeof s.value !== 'number' || Number.isNaN(s.value));
+    const total = stats.reduce((acc, s) => acc + (typeof s.value === 'number' ? s.value : 0), 0);
+    const looksBlank = noStats || hasNonNumbers || total === 0;
+
+    if (looksBlank) {
+      const snap = this.initialStatsByProject.get(p.id);
+      if (snap) {
+        p.taskStats = snap.map(s => ({ key: s.key, value: s.value }));
+      }
+    }
+  }
+}
   onSearchTextChange(value: string): void {
     this.searchText = value;
     const term = value.trim().toLowerCase();
@@ -73,6 +128,12 @@ export class FStudentsListComponent implements OnInit, AfterViewInit {
       .filter((t) => t.toLowerCase().includes(term))
       .slice(0, 8);
     this.applyFilters();
+  }
+  @HostListener('window:popstate')
+    onPopState(): void {
+      this.restoreLastViewed();
+      this.restoreBlankStats();
+      this.applyFilters();
   }
 
   staffFilterChanged(newFilter: 'all' | 'mine'): void {
@@ -230,6 +291,9 @@ export class FStudentsListComponent implements OnInit, AfterViewInit {
   }
 
   viewStudent(project: Project): void {
+    sessionStorage.setItem(this.LAST_VIEWED_KEY, String(project.id));
+    const snap = (project.taskStats || []).map(s => ({ key: s.key, value: s.value }));
+    sessionStorage.setItem(this.LAST_VIEWED_STATS_KEY, JSON.stringify(snap));
     this.router.stateService.go('projects/dashboard', {
       projectId: project.id,
       tutor: true,
