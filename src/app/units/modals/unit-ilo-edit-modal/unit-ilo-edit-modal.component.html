@@ -1,0 +1,78 @@
+<div class="unit-ilo-edit-modal">
+  <form (ngSubmit)="saveILO()" role="form">
+    <div mat-dialog-title>
+      <h3>{{ isNew ? 'Create Learning Outcome' : 'Edit Learning Outcome: ' + ilo.iloNumber }}</h3>
+    </div>
+
+    <div mat-dialog-content>
+      <!-- Name -->
+      <div fxLayout="row" fxLayoutAlign="start start" style="margin-bottom: 16px;">
+        <div fxFlex="20%" class="text-right font-bold pr-8">
+          <label for="ilo-name">Name</label>
+        </div>
+        <div fxFlex="80%">
+          <mat-form-field appearance="outline" style="width: 100%">
+            <input
+              matInput
+              id="ilo-name"
+              [(ngModel)]="ilo.name"
+              placeholder="Outcome Name"
+              name="name"
+              required
+            />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Abbreviation -->
+      <div fxLayout="row" fxLayoutAlign="start start" style="margin-bottom: 16px;">
+        <div fxFlex="20%" class="text-right font-bold pr-8">
+          <label for="ilo-abbreviation">Abbreviation</label>
+        </div>
+        <div fxFlex="80%">
+          <mat-form-field appearance="outline" style="width: 100%">
+            <input
+              matInput
+              id="ilo-abbreviation"
+              [(ngModel)]="ilo.abbreviation"
+              placeholder="ABBR"
+              name="abbreviation"
+              required
+            />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div fxLayout="row" fxLayoutAlign="start start" style="margin-bottom: 0;">
+        <div fxFlex="20%" class="text-right font-bold pr-8">
+          <label for="ilo-description">Description</label>
+        </div>
+        <div fxFlex="80%">
+          <mat-form-field appearance="outline" style="width: 100%">
+            <textarea
+              matInput
+              id="ilo-description"
+              [(ngModel)]="ilo.description"
+              placeholder="Enter markdown description..."
+              name="description"
+              style="min-height: 120px"
+              required
+            ></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div mat-dialog-actions align="end">
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!ilo.name || !ilo.abbreviation || !ilo.description"
+      >
+        {{ isNew ? 'Create' : 'Update' }}
+      </button>
+    </div>
+  </form>
+</div>
