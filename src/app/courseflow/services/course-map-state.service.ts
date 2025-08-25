@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {CourseYear, CourseMapState, CourseUnit, TRIMESTER_KEYS} from '../models/course-map.models';
-import {Unit, UnitDefinition} from 'src/app/api/models/doubtfire-model';
+import {Unit, UnitDefinition, CourseMapUnit} from 'src/app/api/models/doubtfire-model';
 
 @Injectable({
   providedIn: 'root', // provide 1 instance throughout the entire application -> singleton
@@ -220,7 +220,7 @@ export class CourseMapStateService {
     updatedYears[yearIndex] = updatedYear;
 
     // Return the required unit (if yes) to the required unit list
-    let updatedRequiredUnits = [...currentState.requiredUnits];
+    const updatedRequiredUnits = [...currentState.requiredUnits];
     if (this.isRequiredUnit(unitToRemove)) {
       if (!updatedRequiredUnits.some((reqUnit) => reqUnit.id === unitToRemove.id)) {
         updatedRequiredUnits.push(unitToRemove as Unit);
@@ -265,9 +265,10 @@ export class CourseMapStateService {
 
   private isRequiredUnit(unit: CourseUnit): boolean {
     /**
-     * Check if a unit is a required unit
+     * Check if a unit is a required unit by comparing codes (not IDs)
+     * since Unit instances and UnitDefinitions may have different IDs for the same course
      */
-    return this.currentState.allRequiredUnits.some((reqUnit) => reqUnit.id === unit.id);
+    return this.currentState.allRequiredUnits.some((reqUnit) => reqUnit.code === unit.code);
   }
 
   private isElectiveInSlots(unit: Unit): boolean {
@@ -319,23 +320,51 @@ export class CourseMapStateService {
 
   // Initialize state from coursemap data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initializeFromCourseMapUnits(courseMapUnits: any[], allRequiredUnits: Unit[]): void {
+  initializeFromCourseMapUnits(
+    courseMapUnits: CourseMapUnit[],
+    allRequiredUnitDefinitions: UnitDefinition[],
+    unitDefinitions?: UnitDefinition[],
+  ): void {
     const years: CourseYear[] = [];
     const placedUnitIds: number[] = [];
+    const missingUnitIds: number[] = [];
 
-    // Create a map of unitId to Unit for quick lookup
+    // Create a map of unitId to Unit for quick lookup (for existing required units)
     const unitMap = new Map<number, Unit>();
-    allRequiredUnits.forEach((unit) => {
-      unitMap.set(unit.id, unit);
+    // Note: We don't populate unitMap since we're not using actual Unit instances for required units anymore
+
+    // Create a map of unitDefinitionId to UnitDefinition for quick lookup
+    const unitDefinitionMap = new Map<number, UnitDefinition>();
+    if (unitDefinitions) {
+      unitDefinitions.forEach((unitDef) => {
+        if (unitDef.id !== undefined) {
+          unitDefinitionMap.set(unitDef.id, unitDef);
+        }
+      });
+    }
+
+    // Also add the required unit definitions to the map
+    allRequiredUnitDefinitions.forEach((unitDef) => {
+      if (unitDef.id !== undefined) {
+        unitDefinitionMap.set(unitDef.id, unitDef);
+      }
     });
 
     // Process course map units into years/trimesters
     courseMapUnits.forEach((courseMapUnit) => {
-      // Find the corresponding unit
-      const unit = unitMap.get(courseMapUnit.unitId);
+      let unit: CourseUnit | null = null;
+
+      // First try to find an existing unit with matching ID
+      unit = unitMap.get(courseMapUnit.unitId) || null;
+
+      // If not found, try to find a unit definition with matching ID
+      if (!unit && unitDefinitionMap.has(courseMapUnit.unitId)) {
+        unit = unitDefinitionMap.get(courseMapUnit.unitId)!;
+      }
 
       if (!unit) {
-        console.warn(`Unit not found for unitId: ${courseMapUnit.unitId}`);
+        // Track missing units for reporting but don't spam console
+        missingUnitIds.push(courseMapUnit.unitId);
         return; // Skip this unit if we can't find its definition
       }
 
@@ -363,27 +392,37 @@ export class CourseMapStateService {
       }
     });
 
+    // Report missing units once if any were found
+    if (missingUnitIds.length > 0) {
+      console.warn(
+        `Course map initialization: ${missingUnitIds.length} units were referenced but not found in the available units list. Unit IDs: ${missingUnitIds.join(', ')}`,
+      );
+      console.info(
+        'This may indicate that some units are no longer available or were moved. The course map will continue to load with the available units.',
+      );
+    }
+
     // Sort years by year value
     years.sort((a, b) => a.year - b.year);
 
-    // Filter required units to only include those not already placed
-    const unplacedRequiredUnits = allRequiredUnits.filter(
-      (unit) => !placedUnitIds.includes(unit.id),
+    // Filter required unit definitions to only include those not already placed
+    const unplacedRequiredUnits = allRequiredUnitDefinitions.filter(
+      (unitDef) => !placedUnitIds.includes(unitDef.id!),
     );
 
     this.updateState({
       ...this.currentState,
       years: years.length > 0 ? years : this.initialState.years,
       requiredUnits: unplacedRequiredUnits,
-      allRequiredUnits: allRequiredUnits,
+      allRequiredUnits: allRequiredUnitDefinitions,
       electiveUnits: [], // Start with no elective units
     });
   }
 
-  updateRequiredUnits(units: Unit[]): void {
+  updateRequiredUnits(unitDefinitions: UnitDefinition[]): void {
     this.updateState({
       ...this.currentState,
-      requiredUnits: units,
+      requiredUnits: unitDefinitions,
     });
   }
 

@@ -40,7 +40,6 @@ import {SkillsSummaryDialogComponent} from '../../common/skills-summary-dialog/s
     RequiredUnitsListComponent,
     ElectiveUnitsListComponent,
     UnitSearchComponent,
-    SkillsSummaryDialogComponent,
   ],
   providers: [
     UnitService,
@@ -150,7 +149,7 @@ export class CoursemapComponent implements OnInit, OnDestroy {
 
   private loadData(): void {
     this.loadUnits();
-    // this.loadUnitDefinitions();
+    this.loadUnitDefinitions();
   }
 
   private loadCourseMap(): void {
@@ -177,20 +176,20 @@ export class CoursemapComponent implements OnInit, OnDestroy {
     });
   }
 
-  // private loadUnitDefinitions(): void {
-  //   this.unitDefinitionService.getDefinitions().subscribe({
-  //     next: (data: UnitDefinition[]) => {
-  //       this.unitDefinitions = data;
-  //       this.errorMessage = null;
-  //       this.initializeMap();
-  //       console.log('Unit Definitions:', this.unitDefinitions);
-  //     },
-  //     error: (err) => {
-  //       this.errorMessage = 'Error fetching unit definitions';
-  //       console.error('Error fetching unit definitions:', err);
-  //     },
-  //   });
-  // }
+  private loadUnitDefinitions(): void {
+    this.unitDefinitionService.getDefinitions().subscribe({
+      next: (data: UnitDefinition[]) => {
+        this.unitDefinitions = data;
+        this.errorMessage = null;
+        this.initializeMap();
+        console.log('Unit Definitions:', this.unitDefinitions);
+      },
+      error: (err) => {
+        this.errorMessage = 'Error fetching unit definitions';
+        console.error('Error fetching unit definitions:', err);
+      },
+    });
+  }
 
   private loadCourseMapUnits(): void {
     if (!this.currentCourseMapId) {
@@ -202,12 +201,17 @@ export class CoursemapComponent implements OnInit, OnDestroy {
       next: (data: CourseMapUnit[]) => {
         this.courseMapUnits = data;
 
-        const requiredUnitIds = new Set(this.courseMapUnits.map((cmu) => cmu.unitId));
-        this.requiredUnits = this.units.filter((u) => requiredUnitIds.has(u.id));
+        // Use unit definitions as required units (course templates for the map)
+        // and keep actual units separate for electives
+        this.requiredUnits = [];
+        if (this.unitDefinitions) {
+          // Use unit definitions as the basis for required units
+          this.requiredUnits = this.unitDefinitions.map((unitDef) => unitDef as Unit);
+        }
 
         this.initializeMap();
         console.log('Course Map Units:', this.courseMapUnits);
-        console.log('All Required Units:', this.requiredUnits);
+        console.log('All Required Units (from unit definitions):', this.requiredUnits);
       },
       error: (err) => {
         this.errorMessage = 'Error fetching course map units';
@@ -217,11 +221,15 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   private initializeMap(): void {
-    if (this.courseMapUnits && this.requiredUnits) {
-      this.stateService.initializeFromCourseMapUnits(this.courseMapUnits, this.requiredUnits);
+    if (this.courseMapUnits && this.unitDefinitions) {
+      this.stateService.initializeFromCourseMapUnits(
+        this.courseMapUnits,
+        this.unitDefinitions, // Pass unit definitions as required units
+        this.unitDefinitions || undefined,
+      );
       console.log('Course map initialized with:', {
         courseMapUnits: this.courseMapUnits,
-        requiredUnits: this.requiredUnits,
+        unitDefinitions: this.unitDefinitions,
       });
     }
   }
@@ -236,8 +244,9 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   getAvailableUnits(): Unit[] {
-    const allRequiredIds = new Set(this.state.allRequiredUnits.map((u) => u.id));
-    return this.units.filter((unit) => !allRequiredIds.has(unit.id));
+    // Return actual Unit instances (not UnitDefinitions) for elective selection
+    // These are running courses that can be added as electives
+    return this.units || [];
   }
 
   getRemainingElectiveSlots(): number {
@@ -253,20 +262,19 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  trackByYear(index: number, year: any): number {
+  trackByYear(_index: number, year: any): number {
     return year.year;
   }
 
-  onShowSkillsSummary(unit: CourseUnit): void {
-    // Collect all units placed in the course map
+  onShowSkillsSummary(_unit: CourseUnit): void {
+    // Extract all units placed in the course map
     const allPlacedUnits: CourseUnit[] = [];
-
-    this.state.years.forEach(year => {
-      Object.keys(year).forEach(key => {
-        if (key.startsWith('trimester')) {
-          const trimester = year[key as keyof typeof year] as (CourseUnit | null)[];
+    this.state.years.forEach((year) => {
+      Object.keys(year).forEach((key) => {
+        if (key.startsWith('trimester') && year[key]) {
+          const trimester = year[key] as (CourseUnit | null)[];
           if (trimester) {
-            trimester.forEach(u => {
+            trimester.forEach((u) => {
               if (u) {
                 allPlacedUnits.push(u);
               }
@@ -276,12 +284,17 @@ export class CoursemapComponent implements OnInit, OnDestroy {
       });
     });
 
-    this.dialog.open(SkillsSummaryDialogComponent, {
+    console.log('Opening skills summary with units:', allPlacedUnits);
+    const dialogRef = this.dialog.open(SkillsSummaryDialogComponent, {
       width: '800px',
-      maxWidth: '90vw',
+      height: '600px',
       data: {
-        units: allPlacedUnits
-      }
+        units: allPlacedUnits,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      console.log('Skills summary dialog closed');
     });
   }
 }
