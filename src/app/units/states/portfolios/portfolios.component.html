@@ -1,0 +1,278 @@
+<div id="student-portfolios" class="container">
+  <!-- Tabs -->
+  <ul class="nav nav-tabs">
+    <li
+    *ngFor="let tab of sortedTabs"
+    class="nav-item"
+    [ngClass]="{ 'active': tab.active, 'disabled': !selectedStudent }"
+  >
+
+      <a
+        class="nav-link"
+        (click)="selectedStudent && setActiveTab(tab)"
+        (keydown.enter)="selectedStudent && setActiveTab(tab)"
+        tabindex="0"
+      >
+        {{ tab.title }}
+      </a>
+    </li>
+  </ul>
+
+<!-- Select Student Panel -->
+<div class="panel panel-primary" *ngIf="activeTab === tabs.selectStudent">
+  <div class="panel-heading clearfix">
+    <div class="pull-left">
+      <h4 class="panel-title">Mark Portfolios</h4>
+      Assess student portfolios
+    </div>
+    <div class="pull-right toolbar">
+      <!-- Filters and Buttons -->
+      <div class="buttons">
+        <div class="btn-group">
+          <label class="btn btn-default" [class.active]="portfolioFilter === 'allStudents'">
+            <input type="radio" name="portfolioFilter" [(ngModel)]="portfolioFilter" value="allStudents" class="hidden-radio" />
+            <i class="fa fa-globe" title="Show all students"></i>
+          </label>
+          <label class="btn btn-default" [class.active]="portfolioFilter === 'withPortfolio'">
+            <input type="radio" name="portfolioFilter" [(ngModel)]="portfolioFilter" value="withPortfolio" class="hidden-radio" />
+            <i class="fa fa-book" title="Only students with portfolios"></i>
+          </label>
+        </div>
+
+        <div class="btn-group">
+          <label class="btn btn-default" [class.active]="studentFilter === 'allStudents'">
+            <input type="radio" name="studentFilter" [(ngModel)]="studentFilter" value="allStudents" class="hidden-radio" />
+            <i class="fa fa-university" title="All students"></i>
+          </label>
+          <label class="btn btn-default" [class.active]="studentFilter === 'myStudents'">
+            <input type="radio" name="studentFilter" [(ngModel)]="studentFilter" value="myStudents" class="hidden-radio" />
+            <i class="fa fa-pencil" title="My students only"></i>
+          </label>
+        </div>
+
+        <div class="btn-group btn-group-sm select-portfolio-grade">
+          <!-- 'All' button -->
+          <label
+            class="btn btn-default"
+            [ngClass]="{ 'active': filterOptions.selectedGrade === -1 }"
+            btn-radio="-1"
+            style="margin-right: 10px;"
+          >
+            <input
+              type="radio"
+              name="gradeFilter"
+              [value]="-1"
+              [(ngModel)]="filterOptions.selectedGrade"
+              class="hidden-radio"
+            />
+            <grade-icon [index]="'all'" [title]="'Show all portfolios'"></grade-icon>
+          </label>
+
+          <!-- Grade buttons -->
+          <ng-container *ngFor="let grade of gradeResults; let i = index">
+            <label
+              class="btn btn-default"
+              [ngClass]="{ 'active': filterOptions.selectedGrade === i }"
+              *ngIf="i !== 4"
+            >
+              <input
+                type="radio"
+                [(ngModel)]="filterOptions.selectedGrade"
+                [value]="i"
+                class="hidden-radio"
+              />
+              <grade-icon [index]="i" [title]="'Show ' + grade.name"></grade-icon>
+            </label>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Search bar -->
+      <form role="search" class="form-inline" (submit)="$event.preventDefault()">
+        <input
+          id="searchbar"
+          class="form-control"
+          placeholder="Search..."
+          type="search"
+          [(ngModel)]="search"
+          name="search"
+          autocomplete="off"
+        />
+        <p *ngIf="filteredStudents?.length && filteredStudents.length < unit?.students?.length">
+          Showing {{ filteredStudents.length }} of {{ unit?.students?.length }} students enrolled.
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <div class="panel-body unit-student-list">
+    <div class="panel-body large-notice-block" *ngIf="!filteredStudents?.length">
+      <i class="fa fa-book"></i>
+      <p>No portfolios found</p>
+    </div>
+
+    <div style="text-align: center; color: #3c80bb; font-weight: bold; margin-bottom: 10px;">
+      Submitted
+    </div>
+
+    <table class="table table-condensed table-hover table-pointer" *ngIf="filteredStudents?.length">
+      <thead>
+        <tr>
+          <th style="color: #3c80bb;">Student</th>
+          <th style="color: #3c80bb;">Name</th>
+          <th style="color: #3c80bb;">Tutor</th>
+          <th style="color: #3c80bb;">Tutorial</th>
+          <th style="color: #3c80bb;">Target</th>
+          <th style="color: #3c80bb;">as</th>
+          <th style="color: #3c80bb;">Stats</th>
+          <th *ngIf="portfolioFilter === 'allStudents'" style="color: #3c80bb;">Portfolio?</th>
+          <th style="color: #3c80bb;">Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container
+          *ngFor="
+            let student of filteredStudents
+              | orderBy: sortOrder : reverse
+              | slice: (currentPage - 1) * pageSize : currentPage * pageSize
+          "
+        >
+          <tr
+            class="task-progress-row"
+            [class.info]="selectedStudent === student"
+            (click)="selectStudent(student)"
+          >
+            <td>{{ student.student?.studentId || student.student?.username }}</td>
+            <td>{{ student.student?.firstName }} {{ student.student?.lastName }}</td>
+            <td>{{ student.tutorNames() }}</td>
+            <td>{{ student.shortTutorialDescription() }}</td>
+            <td><grade-icon [index]="student.targetGrade"></grade-icon></td>
+            <td><grade-icon [index]="student.submittedGrade"></grade-icon></td>
+            <td class="task-progress-bar">
+              <div class="progress">
+                <div
+                class="progress-bar"
+                *ngFor="let bar of filteredTaskStats(student)"
+                [style.width.%]="bar.value"
+                [ngClass]="statusClass(bar.key)"
+              >
+                <span *ngIf="bar.value >= 10">{{ bar.value }}%</span>
+              </div>
+
+              </div>
+            </td>
+            <td *ngIf="portfolioFilter === 'allStudents'">
+              {{ student.hasPortfolio ? 'Yes' : 'No' }}
+            </td>
+            <td>{{ student.grade }}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel-footer clearfix">
+    <pagination
+      [totalItems]="filteredStudents?.length || 0"
+      [currentPage]="currentPage"
+      (pageChanged)="currentPage = $event.page"
+      [itemsPerPage]="pageSize"
+      [maxSize]="maxSize"
+      class="pagination-sm pull-left"
+      boundaryLinks="true"
+      [rotate]="false"
+    ></pagination>
+    <div class="pull-right">
+      <button (click)="downloadGrades()"><i class="fa fa-download"></i> Download Grades</button>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Portfolio Details Message -->
+  <div class="panel panel-primary" *ngIf="activeTab !== tabs.selectStudent && !selectedStudent">
+    <div class="panel-heading clearfix">
+      <div class="pull-left">
+        <h4 class="panel-title">Portfolio Details</h4>
+        Review portfolio and assign grade.
+      </div>
+    </div>
+    <div class="panel-body large-notice-block">
+      <i class="fa fa-book"></i>
+      <p>Select student to view portfolio and assign grade</p>
+    </div>
+  </div>
+
+  <!-- Student Selected Tabs -->
+  <div *ngIf="selectedStudent">
+    <!-- View Progress -->
+    <div class="panel panel-primary" *ngIf="activeTab === tabs.viewProgress">
+      <div class="panel-heading clearfix">
+        <div class="pull-left">
+          <h3 class="panel-title">Review Progress of {{ selectedStudent.name }}</h3>
+        </div>
+      </div>
+      <div class="panel-body">
+        <f-project-progress-dashboard
+        *ngIf="project$ | async"
+        [project$]="project$">
+      </f-project-progress-dashboard>
+      </div>
+    </div>
+
+    <!-- View Portfolio -->
+    <div class="panel panel-primary" *ngIf="activeTab === tabs.viewPortfolio">
+      <div class="panel-heading clearfix">
+        <div class="pull-left">
+          <h3 class="panel-title">Review Portfolio of {{ selectedStudent.name }}</h3>
+        </div>
+      </div>
+      <div class="panel-body large-notice-block" *ngIf="!project?.portfolioAvailable">
+        <i class="fa fa-book"></i>
+        <p>No Portfolio Submitted</p>
+      </div>
+      <div class="panel-body flex flex-col h-screen" *ngIf="project?.portfolioAvailable">
+        <f-pdf-viewer class="flex flex-grow" [pdfUrl]="project.preloadedUrl"></f-pdf-viewer>
+      </div>
+    </div>
+
+    <!-- Assess Portfolio -->
+    <div class="panel panel-primary" *ngIf="activeTab === tabs.assessPortfolio">
+      <div class="panel-heading clearfix">
+        <div class="pull-left">
+          <h4 class="panel-title">Grade for {{ selectedStudent.name }}</h4>
+        </div>
+      </div>
+      <div class="panel-body alignment-rater">
+        <div class="col-sm-12 rationale-wrapper">
+          <textarea id="gradeRationale" style="height: 160px" class="form-control" [(ngModel)]="project.gradeRationale"></textarea>
+        </div>
+
+        <div *ngFor="let results of gradeResults">
+          <h5 class="col-sm-2">{{ results.name }}</h5>
+          <p class="btn-group col-sm-10">
+            <button
+              *ngFor="let resultScore of results.scores"
+              class="btn col-sm-2 text-center"
+              [class.btn-primary]="project.grade === resultScore"
+              [class.btn-default]="project.grade !== resultScore"
+              (click)="project.assignGrade(resultScore, project.gradeRationale)"
+              [disabled]="!project.gradeRationale"
+            >
+              {{ resultScore }}
+            </button>
+          </p>
+        </div>
+
+        <div>
+          <button
+            class="btn btn-primary pull-right col-md-3"
+            (click)="project.assignGrade(project.grade, project.gradeRationale)"
+            [disabled]="!project.gradeRationale"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
