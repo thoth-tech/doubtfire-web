@@ -46,7 +46,8 @@
       <mat-card-content>
         <div class="w-full h-full flex items-center justify-center">
           <!-- <f-project-progress-gauge [project]="project"></f-project-progress-gauge> -->
-          <f-progress-burndown-chart [project]="project" [unit]="project.unit" [grade]="project.targetGrade"></f-progress-burndown-chart>
+          <!--<f-progress-burndown-chart [project]="project" [unit]="project.unit" [grade]="project.targetGrade"></f-progress-burndown-chart> -->
+          <f-progress-gauge-chart [project]="project" [grade]="project.targetGrade"></f-progress-gauge-chart>
           <f-task-visualisation
             [project]="project"
             [grade]="project.targetGrade">
