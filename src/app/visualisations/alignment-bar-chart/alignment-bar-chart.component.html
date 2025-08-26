@@ -1,0 +1,69 @@
+<div class="chart-container">
+  <h3 class="chart-title">ILO Alignment Bar Chart</h3>
+
+  <ng-container *ngIf="!isLoading && !hasError && chartData && chartData.length > 0">
+    <div class="chart-controls">
+      <div class="control">
+        <label>
+          <input type="radio" name="chartType" [checked]="!stacked" (change)="setChartType(false)" id="groupedOption">
+          <span>Grouped View</span>
+        </label>
+      </div>
+      <div class="control">
+        <label>
+          <input type="radio" name="chartType" [checked]="stacked" (change)="setChartType(true)" id="stackedOption">
+          <span>Stacked View</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="chart-area">
+      <!-- Stacked vertical chart -->
+      <div *ngIf="stacked" class="chart-wrapper stacked-chart">
+        <ngx-charts-bar-vertical-stacked
+          [results]="chartData"
+          [gradient]="gradient"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="showLegend"
+          [showXAxisLabel]="showXAxisLabel"
+          [showYAxisLabel]="showYAxisLabel"
+          [xAxisLabel]="xAxisLabel"
+          [yAxisLabel]="yAxisLabel"
+          [scheme]="colorScheme"
+          [animations]="animations"
+          [view]="view"
+          [tooltipDisabled]="tooltipDisabled"
+          [noBarWhenZero]="false"
+          [showYAxisLabel]="false"
+          [yAxisTicks]="[]"
+          (select)="onSelect($event)">
+        </ngx-charts-bar-vertical-stacked>
+      </div>
+
+      <!-- Grouped vertical chart -->
+      <div *ngIf="!stacked" class="chart-wrapper grouped-chart">
+        <ngx-charts-bar-vertical-2d
+          [results]="chartData"
+          [gradient]="gradient"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="showLegend"
+          [showXAxisLabel]="showXAxisLabel"
+          [showYAxisLabel]="showYAxisLabel"
+          [xAxisLabel]="xAxisLabel"
+          [yAxisLabel]="yAxisLabel"
+          [scheme]="colorScheme"
+          [animations]="animations"
+          [view]="view"
+          [tooltipDisabled]="tooltipDisabled"
+          [noBarWhenZero]="false"
+          [showYAxisLabel]="false"
+          [yAxisTicks]="[]"
+          (select)="onSelect($event)">
+        </ngx-charts-bar-vertical-2d>
+      </div>
+    </div>
+  </ng-container>
+
+</div>
