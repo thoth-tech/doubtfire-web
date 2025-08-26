@@ -106,7 +106,7 @@ import 'build/src/app/units/states/rollover/directives/unit-dates-selector/unit-
 import 'build/src/app/units/states/rollover/directives/directives.js';
 import 'build/src/app/units/states/rollover/rollover.js';
 import 'build/src/app/units/states/index/index.js';
-import 'build/src/app/units/states/students-list/students-list.js';
+import { FStudentsListComponent } from './units/states/students-list/students-list.component';
 import 'build/src/app/units/states/analytics/analytics.js';
 import 'build/src/app/common/filters/filters.js';
 import 'build/src/app/common/content-editable/content-editable.js';
@@ -443,6 +443,14 @@ DoubtfireAngularJSModule.directive(
   downgradeComponent({component: TaskSubmissionHistoryComponent}),
 );
 DoubtfireAngularJSModule.directive('fUnits', downgradeComponent({component: FUnitsComponent}));
+
+DoubtfireAngularJSModule.directive(
+  'fStudentsList',
+  downgradeComponent({
+    component: FStudentsListComponent,
+    inputs: ['unit', 'tutor']
+  })
+)
 
 // Global configuration
 DoubtfireAngularJSModule.directive(
