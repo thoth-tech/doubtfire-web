@@ -390,18 +390,17 @@ export class Project extends Entity {
     // Setup the dictionaries to contain the keys and values
     // key = series name
     // values = array of [ x, y ] values
-    const projectedResults = {key: 'Projected', values: []};
-    const targetTaskResults = {key: 'Target', values: []};
-    const doneTaskResults = {key: 'To Submit', values: []};
-    const completeTaskResults = {key: 'To Complete', values: []};
+    const estimatedResults = {key: 'Estimated', values: []}; // renamed from projectedResults
+    const targetGradeResults = {key: 'Target Grade', values: []}; // renamed from targetTaskResults
+    const submittedResults = {key: 'Submitted', values: []}; // renamed from doneTaskResults
+    const markedResults = {key: 'Marked', values: []}; // renamed from completeTaskResults
 
-    result.push(targetTaskResults);
-    result.push(projectedResults);
-    result.push(doneTaskResults);
-    result.push(completeTaskResults);
+    result.push(targetGradeResults);
+    result.push(estimatedResults);
+    result.push(submittedResults);
+    result.push(markedResults);
 
     // Get the weeks between start and end date as an array
-    // dates = unit.start_date.to_date.step(unit.end_date.to_date + 1.week, step=7).to_a
     const endDateValue = this.unit.endDate.getTime() + MappingFunctions.weeksMs(3);
     const dates = MappingFunctions.step(
       this.unit.startDate.getTime(),
@@ -425,26 +424,22 @@ export class Project extends Entity {
 
     const tasks = this.tasks;
 
-    const readyOrCompleteTasks = tasks.filter((task) =>
-      ['ready_for_feedback', 'discuss', 'demonstrate', 'complete'].includes(task.status),
+    // For Marked: tasks that have been marked by a tutor (complete, fail states)
+    const markedTasks = tasks.filter((task) =>
+      ['complete', 'fail'].includes(task.status),
     );
+
+    // For Submitted: tasks that have been submitted (ready_for_feedback, discuss, demonstrate, complete, fail)
+    const submittedTasks = tasks.filter((task) =>
+      ['ready_for_feedback', 'discuss', 'demonstrate', 'complete', 'fail'].includes(task.status),
+    );
+
+    // last done task date
     let lastTargetDate: Date;
-
-    const completedTasks = tasks.filter((task) => task.status === 'complete');
-
-    // Get the tasks currently marked as done (or ready to mark)
-    const doneTasks = tasks.filter(
-      (t) =>
-        !['working_on_it', 'not_started', 'fix_and_resubmit', 'redo', 'need_help'].includes(
-          t.status,
-        ),
-    );
-
-    // last done task date)
-    if (readyOrCompleteTasks.length === 0) {
+    if (submittedTasks.length === 0) {
       lastTargetDate = this.unit.startDate;
     } else {
-      lastTargetDate = readyOrCompleteTasks
+      lastTargetDate = submittedTasks
         .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
         .splice(-1)[0].dueDate;
     }
@@ -453,84 +448,86 @@ export class Project extends Entity {
     const today =
       new Date().getTime() > this.unit.endDate.getTime() ? this.unit.endDate : new Date();
 
-    // use weekly completion rate to determine projected progress
+    // use weekly completion rate to determine estimated progress
     let completionRate: number = 0;
-    if (readyOrCompleteTasks.length > 0) {
+    if (submittedTasks.length > 0) {
       const weeksElapsed = MappingFunctions.weeksBetween(this.unit.startDate, today);
       if (weeksElapsed > 0) {
-        const completedTasksWeight = readyOrCompleteTasks
+        const submittedTasksWeight = submittedTasks
           .map((t) => t.definition.weighting)
           .reduce((prev, current, idx, arr) => prev + current, 0);
-        completionRate = completedTasksWeight / weeksElapsed;
+        completionRate = submittedTasksWeight / weeksElapsed;
       }
     }
 
-    let projectedRemaining = total;
+    let estimatedRemaining = total;
 
     // Track which values to add
     let addTarget = true;
-    let addProjected = true;
+    let addEstimated = true;
     let addDone = true;
+
+    // Target grade mapping - maps grade index to percentage values
+    const targetGradeMapping = {
+      0: 0.5,  // Pass: 50%
+      1: 0.6,  // Credit: 60%
+      2: 0.7,  // Distinction: 70%
+      3: 0.8   // High Distinction: 80%
+    };
 
     // Iterate over the dates
     dates.forEach((date) => {
-      // get the target values - those from the task definitions
-      // amount remaining is the sum of all tasks due after the date
-      const targetVal = [
+      // Target Grade values - representing the target grade the student is aiming for
+      // Use the mapping to get the correct percentage based on target grade
+      const targetGradeVal = [
         date.getTime(),
-        (targetTasks
-          .filter((taskDef) => taskDef.targetDate >= date)
-          .map((td) => td.weighting)
-          .reduce((prev, current) => prev + current, 0) || 0) / total,
+        targetGradeMapping[this.targetGrade] || 0.5, // Default to Pass if unknown
       ];
 
-      // get the done values - those done up to today, or the end of the unit
-      const doneVal = [
+      // Submitted values - tasks that have been submitted
+      const submittedVal = [
         date.getTime(),
-        (total -
-          doneTasks
-            .filter((task) => task.submissionDate && task.submissionDate <= date)
-            .map((task) => task.definition.weighting)
-            .reduce((prev, current) => prev + current, 0)) /
-          total,
+        (submittedTasks
+          .filter((task) => task.submissionDate && task.submissionDate <= date)
+          .map((task) => task.definition.weighting)
+          .reduce((prev, current) => prev + current, 0)) / total,
       ];
 
-      // get the completed values - those signed off
-      const completeVal = [
+      // Marked values - tasks that have been marked
+      const markedVal = [
         date.getTime(),
-        (total -
-          completedTasks
-            .filter((task) => task.completionDate <= date)
-            .map((task) => task.definition.weighting)
-            .reduce((prev, current) => prev + current, 0)) /
-          total,
+        (markedTasks
+          .filter((task) => task.completionDate && task.completionDate <= date)
+          .map((task) => task.definition.weighting)
+          .reduce((prev, current) => prev + current, 0)) / total,
       ];
 
-      // projected value is based on amount done
-      const projectedVal = [date.getTime(), projectedRemaining / total];
+      // Estimated value - based on current progress rate
+      const estimatedVal = [date.getTime(),
+        Math.min(1, (total - estimatedRemaining) / total) // Cap at 100%
+      ];
 
-      // add one week's worth of completion data
-      projectedRemaining -= completionRate;
+      // add one week's worth of completion data for estimation
+      estimatedRemaining -= completionRate;
+      if (estimatedRemaining < 0) estimatedRemaining = 0;
 
-      // add target, done and projected if appropriate
+      // add values to results if appropriate
       if (addTarget) {
-        targetTaskResults.values.push(targetVal);
-
-        // stop adding the target values once zero target value is reached
-        addTarget = targetVal[1] > 0;
+        targetGradeResults.values.push(targetGradeVal);
       }
-      if (addDone) {
-        doneTaskResults.values.push(doneVal);
-        completeTaskResults.values.push(completeVal);
 
-        // stop adding the done tasks once past date - (add once for tasks done this week, hence after adding)
+      if (addDone) {
+        submittedResults.values.push(submittedVal);
+        markedResults.values.push(markedVal);
+
+        // stop adding once past today
         addDone = date < today;
       }
 
-      if (addProjected) {
-        projectedResults.values.push(projectedVal);
-        // stop adding projected values once projected is complete
-        addProjected = projectedVal[1] > 0;
+      if (addEstimated) {
+        estimatedResults.values.push(estimatedVal);
+        // stop adding projected values once estimated is complete
+        addEstimated = estimatedVal[1] < 1;
       }
     });
 

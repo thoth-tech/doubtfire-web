@@ -11,6 +11,8 @@ import {downgradeInjectable, downgradeComponent} from '@angular/upgrade/static';
 // Here are the old angular node modules, previously loaded via grunt
 //#region
 import 'angular-cookies/angular-cookies.js';
+// filepath: /workspace/doubtfire-web/src/app/doubtfire-angularjs.module.ts
+import 'build/src/app/common/content-editable/content-editable.js';
 import 'angular-local-storage/dist/angular-local-storage.js';
 import 'angular-resource/angular-resource.js';
 import 'angular-ui-bootstrap/ui-bootstrap-tpls.js';
@@ -109,7 +111,6 @@ import 'build/src/app/units/states/index/index.js';
 import 'build/src/app/units/states/students-list/students-list.js';
 import 'build/src/app/units/states/analytics/analytics.js';
 import 'build/src/app/common/filters/filters.js';
-import 'build/src/app/common/content-editable/content-editable.js';
 import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
 import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
