@@ -222,6 +222,7 @@ import {GradeService} from './common/services/grade.service';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import { EditUnitStateService } from './units/states/edit/edit';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -302,7 +303,7 @@ DoubtfireAngularJSModule.factory('CreateNewUnitModal', downgradeInjectable(Creat
 DoubtfireAngularJSModule.factory('GradeTaskModal', downgradeInjectable(GradeTaskModalService));
 DoubtfireAngularJSModule.factory('UnitStudentEnrolmentModal', downgradeInjectable(UnitStudentEnrolmentModalService));
 DoubtfireAngularJSModule.factory('PrivacyPolicy', downgradeInjectable(PrivacyPolicy));
-
+DoubtfireAngularJSModule.factory('EditUnitStateService', downgradeInjectable (EditUnitStateService));
 // directive -> component
 DoubtfireAngularJSModule.directive(
   'fProjectTasksList',
@@ -466,6 +467,7 @@ DoubtfireAngularJSModule.directive(
   'statusIcon',
   downgradeComponent({component: StatusIconComponent}),
 );
+
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
 
 DoubtfireAngularJSModule.directive('unauthorised', downgradeComponent({ component: UnauthorisedComponent }));
@@ -493,3 +495,4 @@ DoubtfireAngularJSModule.directive(
   'fTaskVisualisation',
   downgradeComponent({ component: TaskVisualisationComponent })
 );
+
