@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy, IterableDiffers, IterableDiffer, DoCheck } from '@angular/core';
 import { Group } from 'src/app/api/models/doubtfire-model';
 import { Project } from 'src/app/api/models/project';
 import { Unit } from 'src/app/api/models/unit';
@@ -11,7 +11,7 @@ type SortKey = 'student.username' | 'student.name' | 'targetGrade';
   templateUrl: './group-member-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GroupMemberListComponent implements OnChanges {
+export class GroupMemberListComponent implements OnChanges, DoCheck {
   // Inputs from AngularJS parent (group-set-manager)
   @Input() unit: Unit;
   @Input() project: Project;
@@ -23,24 +23,39 @@ export class GroupMemberListComponent implements OnChanges {
   @Output() unitRoleChange = new EventEmitter<UnitRole>();
 
 
+
   loaded = false;
 
   members: Project[] = [];
   sortedMembers: Project[] = [];
   canRemoveMembers = false;
+  private membersDiffer: IterableDiffer<Project> | null = null;
 
   tableSort: { order: SortKey; reverse: boolean } = {
     order: 'student.username',
     reverse: false,
   };
 
-  constructor(private changeDetectorRef: ChangeDetectorRef) {}
+  constructor(private changeDetectorRef: ChangeDetectorRef, private differs: IterableDiffers) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('selectedGroup' in changes && this.selectedGroup?.id) {
+      const current = (this.selectedGroup.members as Project[]) ?? [];
+      this.membersDiffer = this.differs.find(current).create<Project>();
       this.fetchMembers();
     }
   }
+
+  ngDoCheck(): void {
+  if (this.membersDiffer && this.selectedGroup) {
+    const diff = this.membersDiffer.diff(this.selectedGroup.members as Project[]);
+    if (diff) {
+      this.members = [...(this.selectedGroup.members as Project[])];
+      this.resort();
+      this.changeDetectorRef.markForCheck();
+    }
+  }
+}
 
   private resort(): void {
     const list = Array.isArray(this.members) ? [...this.members] : [];
