@@ -1,0 +1,90 @@
+<div class="max-w-md mx-auto p-5 font-sans">
+  <h2 class="text-3xl mb-4 text-left">Timer</h2>
+
+  <div class="text-6xl font-bold mb-2 text-center">
+    <span>{{ formatNumber(hours) }}</span>:<span>{{ formatNumber(minutes) }}</span>:<span>{{ formatNumber(seconds) }}</span>
+  </div>
+
+  <div class="flex justify-center text-base mb-6 gap-[50px]">
+    <span>Hr</span>
+    <span>Min</span>
+    <span>Sec</span>
+  </div>
+
+  <div class="flex justify-around mb-6">
+    <button mat-flat-button color="primary" class="bg-green-300 disabled:bg-gray-300 text-black px-6 py-3 text-xl rounded" (click)="startTimer()" [disabled]="isRunning">
+      Start
+    </button>
+    <button mat-flat-button color="accent" class="bg-sky-300 disabled:bg-gray-300 text-black px-6 py-3 text-xl rounded" (click)="stopTimer()" [disabled]="!isRunning">
+      Stop
+    </button>
+    <button mat-flat-button color="warn" class="bg-red-500 text-white px-6 py-3 text-xl rounded" (click)="resetTimer()">
+      Reset
+    </button>
+  </div>
+
+  <div class="mb-6 text-left space-y-5">
+    <h3 class="text-2xl font-semibold">Manual Time Input</h3>
+
+    <!-- Start Time -->
+    <div>
+      <label class="block text-2xl font-bold text-black-700 mb-2">Start:</label>
+      <div class="flex gap-5">
+        <mat-form-field appearance="fill" class="w-28">
+          <mat-label>Hr</mat-label>
+          <input matInput type="number" [(ngModel)]="manualHours" min="0" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-28">
+          <mat-label>Min</mat-label>
+          <input matInput type="number" [(ngModel)]="manualMinutes" min="0" max="59" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-28">
+          <mat-label>Sec</mat-label>
+          <input matInput type="number" [(ngModel)]="manualSeconds" min="0" max="59" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Finish Time -->
+    <div>
+      <label class="block text-2xl font-bold text-black-700 mb-2">Finish:</label>
+      <div class="flex gap-5">
+        <mat-form-field appearance="fill" class="w-28">
+          <mat-label>Hr</mat-label>
+          <input matInput type="number" [(ngModel)]="manualFinishHours" min="0" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-28">
+          <mat-label>Min</mat-label>
+          <input matInput type="number" [(ngModel)]="manualFinishMinutes" min="0" max="59" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-28">
+          <mat-label>Sec</mat-label>
+          <input matInput type="number" [(ngModel)]="manualFinishSeconds" min="0" max="59" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <p *ngIf="errorMessage" class="text-red-500 text-base mb-2">{{ errorMessage }}</p>
+
+    <!-- Manual Buttons -->
+    <div class="flex gap-4">
+      <button mat-flat-button class="bg-blue-300 text-black px-5 py-2 text-xl rounded" (click)="saveManualTime()">Save</button>
+      <button mat-flat-button class="bg-gray-400 disabled:bg-gray-200 text-black px-5 py-2 text-xl rounded" (click)="applyManualTime()" [disabled]="!isSaved">Apply</button>
+    </div>
+
+    <!-- Saved Time Display -->
+    <div *ngIf="isSaved" class="mt-4 text-base">
+      <p>Saved Start Time: {{ formatTime(savedStartSeconds) }}</p>
+      <p>Saved Finish Time: {{ formatTime(savedFinishSeconds) }}</p>
+    </div>
+  </div>
+
+  <div class="text-left mt-4">
+    <p class="text-xl font-medium">The Total Time Spent Is: {{ formatNumber(hours) }}:{{ formatNumber(minutes) }}:{{ formatNumber(seconds) }}</p>
+  </div>
+</div>

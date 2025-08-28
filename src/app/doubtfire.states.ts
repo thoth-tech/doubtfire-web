@@ -8,7 +8,8 @@ import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teach
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
-
+import {TutorTimesComponent} from './units/states/tutor-times/tutor-times.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 /*
  * Use this file to store any states that are sourced by angular components.
  */
@@ -30,6 +31,17 @@ const institutionSettingsState: NgHybridStateDeclaration = {
     roleWhiteList: ['Admin'],
   },
 };
+const adminDashboardState: NgHybridStateDeclaration = {
+  name: 'adminDashboard',
+  url: '/admin/admin-dashboard',
+  views: { main: { component: AdminDashboardComponent } },
+  data: {
+    pageTitle: 'Admin Dashboard',
+    roleWhitelist: ['Admin'],
+    roleWhiteList: ['Admin']
+  }
+};
+
 
 const usersState: NgHybridStateDeclaration = {
   name: 'admin/users', // This is the name of the state to jump to - so ui-sref="users" to jump here
@@ -290,7 +302,20 @@ const ViewAllUnits: NgHybridStateDeclaration = {
     roleWhitelist: ['Tutor', 'Convenor', 'Admin'],
   },
 };
-
+const TutorTimesState: NgHybridStateDeclaration = {
+  name: 'units/tutor-times', // Unique ID for this "place"
+  url: '/units/:unitId/tutor-times', // URL pattern, :unitId is a parameter
+  views: {
+    main: {
+      component: TutorTimesComponent, // What to show
+    },
+  },
+  data: {
+    pageTitle: 'Tutor Times', // Sets the browser title
+    roleWhitelist: ['Tutor', 'Convenor', 'Admin'], // Who can access
+    task: 'Tutor Times', // Tells the dropdown what to display
+  },
+};
 /**
  * Export the list of states we have created in angular
  */
@@ -306,4 +331,6 @@ export const doubtfireStates = [
   ViewAllProjectsState,
   ViewAllUnits,
   AdministerUnits,
+  TutorTimesState,
+  adminDashboardState
 ];
