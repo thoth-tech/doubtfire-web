@@ -1,0 +1,141 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Review Portfolio</h3>
+  </div>
+
+  <div class="panel-body portfolio-review-step">
+    <!-- Error Card -->
+    <div class="card border-danger mb-3" *ngIf="!(hasLSR && hasTasksSelected)">
+      <div class="card-header bg-danger text-white">
+        <i class="fa fa-warning"></i> There are issues with your portfolio
+      </div>
+      <div class="card-body">
+        <p *ngIf="!hasLSR">
+          Your portfolio <strong>must</strong> include a learning summary report. Upload this before
+          you schedule your portfolio to be compiled.
+        </p>
+        <p *ngIf="!hasTasksSelected"></p>
+        <p *ngIf="unit?.ilos?.length">
+          Your portfolio <strong>must</strong> include tasks aligned to the unit's
+          <strong>{{ unit.ilos.length }} intended learning outcomes</strong>. Please indicate which
+          tasks you think align to the unit's learning outcomes before you schedule your portfolio
+          to be compiled.
+        </p>
+        <p *ngIf="!unit?.ilos?.length">
+          Your portfolio <strong>must</strong> include tasks that you have completed this teaching
+          period. Please indicate which tasks you would like to include in your portfolio before you
+          schedule your portfolio to be compiled.
+        </p>
+      </div>
+    </div>
+
+    <!-- Portfolio compiling status -->
+    <div class="card card-default" *ngIf="portfolioIsCompiling">
+      <div class="card-header">
+        <h4>Portfolio Processing</h4>
+      </div>
+      <div class="card-body">
+        <p>
+          Your portfolio compilation is scheduled with
+          {{ doubtfireConstants.ExternalName | async }}. This process will take some time, check
+          back soon to see if your portfolio is available.
+        </p>
+      </div>
+    </div>
+
+    <!-- File and Task Summary -->
+    <div *ngIf="canCompilePortfolio">
+      <p>
+        {{ doubtfireConstants.ExternalName | async }} will create your portfolio once you are happy
+        with your submissions so far.
+      </p>
+
+      <!-- Extra Files Section -->
+      <div *ngIf="extraFiles().length > 0">
+        <p>
+          You have attached
+          <strong
+            >{{ extraFiles().length }} extra file{{ extraFiles().length > 1 ? 's' : '' }}</strong
+          >
+          to your portfolio. You may add more files or remove
+          {{ extraFiles().length > 1 ? 'these' : 'this' }}
+          file{{ extraFiles().length > 1 ? 's' : '' }} in the previous step. Each file is listed in
+          order of attachment below:
+        </p>
+        <ol>
+          <li *ngFor="let file of extraFiles()">
+            <i class="fa fa-file-{{ file.kind }}-o"></i> {{ file.name }}
+          </li>
+        </ol>
+      </div>
+
+      <!-- Selected Tasks Section -->
+      <div *ngIf="selectedTasks().length > 0">
+        <p>
+          You have included
+          <strong
+            >{{ selectedTasks().length }} task{{ selectedTasks().length > 1 ? 's' : '' }}</strong
+          >
+          in your portfolio. If you wish to add or remove some of these tasks, please review the
+          <em>Select Tasks</em> step to adjust your alignments of each task to the unit's learning
+          outcomes. Each task will be attached in the order below:
+        </p>
+        <ol>
+          <li *ngFor="let task of selectedTasks()">
+            <span class="label label-info">{{ task.definition.abbreviation }}</span>
+            {{ task.definition.name }}
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Create Portfolio -->
+    <div class="card card-default" *ngIf="canCompilePortfolio">
+      <div class="card-header">
+        <h4>Create Your Portfolio</h4>
+      </div>
+      <div class="card-body">
+        <p>
+          Once you click Create Portfolio, the construction of your portfolio will be scheduled with
+          {{ doubtfireConstants.ExternalName | async }}. This process will take some time, and you
+          will be emailed when your portfolio is ready to review if you have enabled portfolio
+          notifications.
+        </p>
+        <p class="fw-bold">
+          If you would like to make any further changes after you have created your portfolio, you
+          will need to delete and recreate your portfolio.
+        </p>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-success w-100" (click)="toggleCompileProject()">
+          <i class="fa fa-book"></i> Create My Portfolio
+        </button>
+      </div>
+    </div>
+
+    <!-- Download/Delete Portfolio -->
+    <div class="card card-default" *ngIf="project?.portfolioAvailable">
+      <div class="card-header">
+        <h4>Download Portfolio</h4>
+      </div>
+      <div class="card-body">
+        This is the <strong>exact same document</strong> your assessor will see
+      </div>
+      <div class="card-footer d-flex justify-content-between">
+        <button class="btn btn-danger" (click)="deletePortfolio()">
+          <i class="fa fa-trash-o"></i> Delete Portfolio
+        </button>
+        <button class="btn btn-success" (click)="downloadPortfolio()">
+          <i class="fa fa-download"></i> Download Portfolio
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Buttons -->
+  <div class="panel-footer clearfix">
+    <button class="btn btn-primary pull-left" (click)="goToPreviousStep()">
+      <i class="fa fa-arrow-left"></i> Back
+    </button>
+  </div>
+</div>
