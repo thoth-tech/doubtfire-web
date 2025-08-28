@@ -225,7 +225,9 @@ import {TasksViewerComponent} from './units/states/tasks/tasks-viewer/tasks-view
 import {UnitCodeComponent} from './common/unit-code/unit-code.component';
 import {GradeService} from './common/services/grade.service';
 import { TutorTimesComponent } from './units/states/tutor-times/tutor-times.component';
-
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+import { DashboardChartsComponent } from './admin-dashboard/dashboard-charts/dashboard-charts.component';
+import { DashboardFiltersComponent } from './admin-dashboard/dashboard-filters/dashboard-filters.component';
 
 @NgModule({
   // Components we declare
@@ -328,6 +330,10 @@ import { TutorTimesComponent } from './units/states/tutor-times/tutor-times.comp
     FTaskBadgeComponent,
     FUnitsComponent,
     TutorTimesComponent,
+    AdminDashboardComponent,
+    DashboardChartsComponent,
+    DashboardFiltersComponent
+
   ],
   // Services we provide
   providers: [

@@ -9,7 +9,7 @@ import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
 import {FUnitsComponent} from './admin/states/f-units/f-units.component';
 import {TutorTimesComponent} from './units/states/tutor-times/tutor-times.component';
-
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 /*
  * Use this file to store any states that are sourced by angular components.
  */
@@ -31,6 +31,17 @@ const institutionSettingsState: NgHybridStateDeclaration = {
     roleWhiteList: ['Admin'],
   },
 };
+const adminDashboardState: NgHybridStateDeclaration = {
+  name: 'adminDashboard',
+  url: '/admin/admin-dashboard',
+  views: { main: { component: AdminDashboardComponent } },
+  data: {
+    pageTitle: 'Admin Dashboard',
+    roleWhitelist: ['Admin'],
+    roleWhiteList: ['Admin']
+  }
+};
+
 
 const usersState: NgHybridStateDeclaration = {
   name: 'admin/users', // This is the name of the state to jump to - so ui-sref="users" to jump here
@@ -320,5 +331,6 @@ export const doubtfireStates = [
   ViewAllProjectsState,
   ViewAllUnits,
   AdministerUnits,
-  TutorTimesState
+  TutorTimesState,
+  adminDashboardState
 ];

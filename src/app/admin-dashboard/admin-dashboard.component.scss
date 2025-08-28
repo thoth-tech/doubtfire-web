@@ -1,0 +1,29 @@
+.admin-dashboard-container {
+  padding: 24px;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+mat-form-field {
+  width: 200px;
+}
+
+.chart-section,
+.table-section {
+  margin-top: 20px;
+  padding: 16px;
+}
+
+.full-width-table {
+  width: 100%;
+}
