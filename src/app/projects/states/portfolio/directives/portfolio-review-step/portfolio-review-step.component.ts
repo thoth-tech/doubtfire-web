@@ -7,10 +7,9 @@ import { confirmationModal } from 'src/app/ajs-upgraded-providers';
 import {Injector} from '@angular/core';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'portfolio-review-step',
   templateUrl: './portfolio-review-step.component.html',
-  //styleUrls: ['./portfolio-review-step.component.css'],
+  styleUrls: ['./portfolio-review-step.component.scss'],
 })
 export class PortfolioReviewStepComponent implements OnInit {
   @Input() project!: {
@@ -30,10 +29,10 @@ export class PortfolioReviewStepComponent implements OnInit {
   @Input() unit!: unknown;
   private $scope: any;
 
-  hasLSR = false;
-  hasTasksSelected = false;
-  portfolioIsCompiling = false;
-  canCompilePortfolio = false;
+  hasLSR: boolean = false;
+  hasTasksSelected: boolean = false;
+  portfolioIsCompiling: boolean = false;
+  canCompilePortfolio: boolean = false;
 
   constructor(
     public doubtfireConstants: DoubtfireConstants,
