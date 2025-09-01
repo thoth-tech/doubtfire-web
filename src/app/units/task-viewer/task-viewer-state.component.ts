@@ -34,8 +34,8 @@ export class TaskViewerStateComponent {
 }
 
 export const TaskViewerState: NgHybridStateDeclaration = {
-  name: 'units2/tasks',
-  url: '/tasks/:taskDefId',
+  name: 'units/tasks/viewer',
+  url: '/units/:unitId/tasks/viewer',
   parent: 'unit-root-state',
   data: {
     pageTitle: 'Unit Tasks',
