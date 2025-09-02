@@ -14,7 +14,7 @@
       <div class="vertical-spacer"></div>
 
       <!-- Panel 2 -->
-      <div class="vertical-panel w-full h-full">
+      <div class="vertical-panel w-full">
         <div class="flex flex-col h-full" *ngIf="selectedTaskDefinition$ | async as selectedTaskDef">
           <div class="shrink">
             <f-task-details-view [taskDef]="selectedTaskDef" [unit]="unit"></f-task-details-view>
