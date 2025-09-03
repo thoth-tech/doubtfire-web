@@ -18,6 +18,10 @@
       <mat-icon>{{ isCompleted ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
       <span>{{ isCompleted ? 'Mark as Incomplete' : 'Mark as Complete' }}</span>
     </button>
+    <button mat-menu-item (click)="onShowUnitDetails()">
+      <mat-icon>info</mat-icon>
+      <span>Unit Details</span>
+    </button>
     <button mat-menu-item (click)="onShowSkillsSummary()">
       <mat-icon>lightbulb</mat-icon>
       <span>Skills Summary</span>

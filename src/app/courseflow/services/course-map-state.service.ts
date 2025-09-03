@@ -322,18 +322,22 @@ export class CourseMapStateService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initializeFromCourseMapUnits(
     courseMapUnits: CourseMapUnit[],
-    allRequiredUnitDefinitions: UnitDefinition[],
+    allRequiredUnits: Unit[], // Changed from UnitDefinition[] to Unit[]
     unitDefinitions?: UnitDefinition[],
   ): void {
     const years: CourseYear[] = [];
     const placedUnitIds: number[] = [];
     const missingUnitIds: number[] = [];
 
-    // Create a map of unitId to Unit for quick lookup (for existing required units)
+    // Create a map of unit ID to actual Unit instance for quick lookup
     const unitMap = new Map<number, Unit>();
-    // Note: We don't populate unitMap since we're not using actual Unit instances for required units anymore
+    allRequiredUnits.forEach((unit) => {
+      if (unit.id !== undefined) {
+        unitMap.set(unit.id, unit);
+      }
+    });
 
-    // Create a map of unitDefinitionId to UnitDefinition for quick lookup
+    // Create a map of unitDefinitionId to UnitDefinition for quick lookup (fallback)
     const unitDefinitionMap = new Map<number, UnitDefinition>();
     if (unitDefinitions) {
       unitDefinitions.forEach((unitDef) => {
@@ -342,13 +346,6 @@ export class CourseMapStateService {
         }
       });
     }
-
-    // Also add the required unit definitions to the map
-    allRequiredUnitDefinitions.forEach((unitDef) => {
-      if (unitDef.id !== undefined) {
-        unitDefinitionMap.set(unitDef.id, unitDef);
-      }
-    });
 
     // Process course map units into years/trimesters
     courseMapUnits.forEach((courseMapUnit) => {
@@ -405,24 +402,24 @@ export class CourseMapStateService {
     // Sort years by year value
     years.sort((a, b) => a.year - b.year);
 
-    // Filter required unit definitions to only include those not already placed
-    const unplacedRequiredUnits = allRequiredUnitDefinitions.filter(
-      (unitDef) => !placedUnitIds.includes(unitDef.id!),
+    // Filter required units to only include those not already placed
+    const unplacedRequiredUnits = allRequiredUnits.filter(
+      (unit) => !placedUnitIds.includes(unit.id!),
     );
 
     this.updateState({
       ...this.currentState,
       years: years.length > 0 ? years : this.initialState.years,
       requiredUnits: unplacedRequiredUnits,
-      allRequiredUnits: allRequiredUnitDefinitions,
+      allRequiredUnits: allRequiredUnits,
       electiveUnits: [], // Start with no elective units
     });
   }
 
-  updateRequiredUnits(unitDefinitions: UnitDefinition[]): void {
+  updateRequiredUnits(units: Unit[]): void {
     this.updateState({
       ...this.currentState,
-      requiredUnits: unitDefinitions,
+      requiredUnits: units,
     });
   }
 

@@ -22,6 +22,7 @@ export class TrimesterEditorComponent {
   @Output() dropEvent = new EventEmitter<any>();
   @Output() deleteTrimester = new EventEmitter<void>();
   @Output() showSkillsSummary = new EventEmitter<CourseUnit>();
+  @Output() showUnitDetails = new EventEmitter<CourseUnit>();
 
   readonly slotIndices = [0, 1, 2, 3];
 
@@ -47,6 +48,10 @@ export class TrimesterEditorComponent {
 
   onShowSkillsSummary(unit: CourseUnit): void {
     this.showSkillsSummary.emit(unit);
+  }
+
+  onShowUnitDetails(unit: CourseUnit): void {
+    this.showUnitDetails.emit(unit);
   }
 
   trackBySlotIndex(index: number): number {

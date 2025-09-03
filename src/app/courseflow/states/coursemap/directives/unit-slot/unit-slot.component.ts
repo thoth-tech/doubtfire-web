@@ -31,6 +31,7 @@ export class UnitSlotComponent {
   @Output() removeUnit = new EventEmitter<void>();
   @Output() toggleCompletion = new EventEmitter<CourseUnit>();
   @Output() showSkillsSummary = new EventEmitter<CourseUnit>();
+  @Output() showUnitDetails = new EventEmitter<CourseUnit>();
 
   get dropListId(): string {
     return `${this.trimesterKey}-${this.yearIndex}-slot-${this.slotIndex}`;
@@ -70,5 +71,9 @@ export class UnitSlotComponent {
 
   onShowSkillsSummary(unit: CourseUnit): void {
     this.showSkillsSummary.emit(unit);
+  }
+
+  onShowUnitDetails(unit: CourseUnit): void {
+    this.showUnitDetails.emit(unit);
   }
 }

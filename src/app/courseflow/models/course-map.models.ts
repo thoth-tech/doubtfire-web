@@ -17,8 +17,8 @@ export interface CourseYear {
 
 export interface CourseMapState {
   years: CourseYear[];
-  requiredUnits: UnitDefinition[]; // Course templates for planning
-  allRequiredUnits: UnitDefinition[]; // All available course templates
+  requiredUnits: Unit[]; // Actual Unit instances for course requirements
+  allRequiredUnits: Unit[]; // All available Unit instances
   electiveUnits: Unit[]; // Actual course instances for electives
   maxElectiveUnits: number;
 }

@@ -20,6 +20,7 @@ export class CourseYearEditorComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Output() dropEvent = new EventEmitter<any>();
   @Output() showSkillsSummary = new EventEmitter<CourseUnit>();
+  @Output() showUnitDetails = new EventEmitter<CourseUnit>();
 
   readonly trimesterKeys = TRIMESTER_KEYS;
 
@@ -50,5 +51,9 @@ export class CourseYearEditorComponent {
 
   onShowSkillsSummary(unit: CourseUnit): void {
     this.showSkillsSummary.emit(unit);
+  }
+
+  onShowUnitDetails(unit: CourseUnit): void {
+    this.showUnitDetails.emit(unit);
   }
 }

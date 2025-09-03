@@ -25,6 +25,7 @@ import {RequiredUnitsListComponent} from './directives/required-units-list/requi
 import {ElectiveUnitsListComponent} from './directives/elective-units-list/elective-units-list.component';
 import {UnitSearchComponent} from './directives/unit-search/unit-search.component';
 import {SkillsSummaryDialogComponent} from '../../common/skills-summary-dialog/skills-summary-dialog.component';
+import {UnitDetailsOverlayComponent} from '../../common/unit-details-overlay/unit-details-overlay.component';
 
 @Component({
   selector: 'coursemap',
@@ -201,17 +202,34 @@ export class CoursemapComponent implements OnInit, OnDestroy {
       next: (data: CourseMapUnit[]) => {
         this.courseMapUnits = data;
 
-        // Use unit definitions as required units (course templates for the map)
-        // and keep actual units separate for electives
+        // Map courseMapUnits to actual Unit instances by finding units with matching unit_definition_id
         this.requiredUnits = [];
-        if (this.unitDefinitions) {
-          // Use unit definitions as the basis for required units
-          this.requiredUnits = this.unitDefinitions.map((unitDef) => unitDef as Unit);
+        if (this.units && this.courseMapUnits) {
+          // Create a map of unit definition code to Unit instance
+          const unitMap = new Map<string, Unit>();
+          this.units.forEach((unit) => {
+            if (unit.code) {
+              unitMap.set(unit.code, unit);
+            }
+          });
+
+          // Find actual Unit instances for the course map units
+          this.courseMapUnits.forEach((courseMapUnit) => {
+            // Find the unit definition first
+            const unitDef = this.unitDefinitions?.find((def) => def.id === courseMapUnit.unitId);
+            if (unitDef && unitDef.code) {
+              // Then find the corresponding Unit instance
+              const unit = unitMap.get(unitDef.code);
+              if (unit && !this.requiredUnits.some((existing) => existing.id === unit.id)) {
+                this.requiredUnits.push(unit);
+              }
+            }
+          });
         }
 
         this.initializeMap();
         console.log('Course Map Units:', this.courseMapUnits);
-        console.log('All Required Units (from unit definitions):', this.requiredUnits);
+        console.log('Required Units (actual Unit instances):', this.requiredUnits);
       },
       error: (err) => {
         this.errorMessage = 'Error fetching course map units';
@@ -221,15 +239,15 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   private initializeMap(): void {
-    if (this.courseMapUnits && this.unitDefinitions) {
+    if (this.courseMapUnits && this.requiredUnits) {
       this.stateService.initializeFromCourseMapUnits(
         this.courseMapUnits,
-        this.unitDefinitions, // Pass unit definitions as required units
+        this.requiredUnits, // Pass actual Unit instances instead of UnitDefinitions
         this.unitDefinitions || undefined,
       );
       console.log('Course map initialized with:', {
         courseMapUnits: this.courseMapUnits,
-        unitDefinitions: this.unitDefinitions,
+        requiredUnits: this.requiredUnits,
       });
     }
   }
@@ -295,6 +313,19 @@ export class CoursemapComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(() => {
       console.log('Skills summary dialog closed');
+    });
+  }
+
+  onShowUnitDetails(unit: CourseUnit): void {
+    console.log('Opening unit details for:', unit);
+    const dialogRef = this.dialog.open(UnitDetailsOverlayComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      data: unit,
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      console.log('Unit details dialog closed');
     });
   }
 }
