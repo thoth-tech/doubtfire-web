@@ -1,0 +1,221 @@
+.credit-points-summary {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  // Status colors
+  &.early {
+    --status-color: #f59e0b;
+    --status-bg: #fef3c7;
+    --status-border: #fcd34d;
+  }
+
+  &.moderate {
+    --status-color: #3b82f6;
+    --status-bg: #dbeafe;
+    --status-border: #93c5fd;
+  }
+
+  &.on-track {
+    --status-color: #10b981;
+    --status-bg: #d1fae5;
+    --status-border: #6ee7b7;
+  }
+
+  &.complete {
+    --status-color: #059669;
+    --status-bg: #a7f3d0;
+    --status-border: #34d399;
+  }
+
+  &.overloaded {
+    --status-color: #dc2626;
+    --status-bg: #fee2e2;
+    --status-border: #fca5a5;
+  }
+
+  // Default variant
+  &.default .default-display {
+    padding: 16px;
+    background: white;
+    border: 2px solid var(--status-border);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .points-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+
+      .credit-icon {
+        color: var(--status-color);
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .points-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    .points-value {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 12px;
+
+      .current {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--status-color);
+      }
+
+      .separator {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #9ca3af;
+      }
+
+      .total {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #6b7280;
+      }
+
+      .unit {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #9ca3af;
+        margin-left: 4px;
+      }
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #f3f4f6;
+      border-radius: 4px;
+      overflow: hidden;
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--status-color),
+          color-mix(in srgb, var(--status-color), white 20%)
+        );
+        border-radius: 4px;
+        transition: width 0.5s ease;
+      }
+    }
+  }
+
+  // Compact variant
+  &.compact .compact-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--status-bg);
+    border: 1px solid var(--status-border);
+    border-radius: 20px;
+
+    .credit-icon {
+      color: var(--status-color);
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .points-text {
+      font-weight: 600;
+      color: var(--status-color);
+      font-size: 0.875rem;
+    }
+  }
+
+  // Header variant
+  &.header .header-display {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+
+      .credit-icon {
+        color: var(--status-color);
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      .header-text {
+        display: flex;
+        flex-direction: column;
+
+        .points-main {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: var(--status-color);
+          line-height: 1.2;
+        }
+
+        .points-unit {
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: #6b7280;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+      }
+    }
+
+    .header-progress {
+      height: 4px;
+      background: #f3f4f6;
+
+      .progress-fill {
+        height: 100%;
+        background: var(--status-color);
+        transition: width 0.5s ease;
+      }
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 640px) {
+    &.default .default-display {
+      padding: 12px;
+
+      .points-value {
+        .current {
+          font-size: 1.75rem;
+        }
+
+        .separator,
+        .total {
+          font-size: 1.25rem;
+        }
+      }
+    }
+
+    &.header .header-display .header-content {
+      padding: 10px 12px;
+
+      .header-text .points-main {
+        font-size: 1.125rem;
+      }
+    }
+  }
+}

@@ -4,16 +4,42 @@
   </div>
 
   <div class="slots-container">
-    <unit-slot
-      *ngFor="let slotIndex of slotIndices; trackBy: trackBySlotIndex"
-      [unit]="trimester[slotIndex]"
-      [yearIndex]="yearIndex"
-      [trimesterKey]="trimesterKey"
-      [slotIndex]="slotIndex"
-      (dropEvent)="onSlotDrop($event)"
-      (removeUnit)="onRemoveUnit(slotIndex)"
-    >
-    </unit-slot>
+    <div class="slots-wrapper">
+      <div class="slot-item" *ngFor="let slotIndex of slotIndices; trackBy: trackBySlotIndex">
+        <unit-slot
+          [unit]="trimester[slotIndex]"
+          [yearIndex]="yearIndex"
+          [trimesterKey]="trimesterKey"
+          [slotIndex]="slotIndex"
+          [class.overloaded-slot]="slotIndex >= 4"
+          (dropEvent)="onSlotDrop($event)"
+          (removeUnit)="onRemoveUnit(slotIndex)"
+        >
+        </unit-slot>
+
+        <!-- Remove slot button for overloaded slots - positioned in middle -->
+        <button
+          *ngIf="slotIndex >= 4 && canRemoveSlot(slotIndex) && !trimester[slotIndex]"
+          class="remove-slot-button"
+          mat-icon-button
+          (click)="onRemoveSlot(slotIndex)"
+          title="Remove this overload slot"
+        >
+          <mat-icon>remove_circle_outline</mat-icon>
+        </button>
+      </div>
+
+      <!-- Add slot button - appears after the last slot -->
+      <button
+        *ngIf="slotIndices.length <= 4"
+        class="add-slot-button"
+        mat-icon-button
+        (click)="onAddSlot()"
+        title="Overload trimester"
+      >
+        <mat-icon>add_circle_outline</mat-icon>
+      </button>
+    </div>
   </div>
 
   <!-- Delete button for this specific trimester -->

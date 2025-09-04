@@ -1,0 +1,43 @@
+<div
+  class="credit-points-summary"
+  [ngClass]="[variant, statusClass]"
+  [matTooltip]="tooltipText"
+  matTooltipPosition="below"
+>
+  <!-- Default variant -->
+  <div *ngIf="variant === 'default'" class="default-display">
+    <div class="points-header">
+      <mat-icon *ngIf="showIcon" class="credit-icon">school</mat-icon>
+      <span class="points-label">Credit Points</span>
+    </div>
+    <div class="points-value">
+      <span class="current">{{ currentPoints }}</span>
+      <span class="separator">/</span>
+      <span class="total">{{ totalPoints }}</span>
+      <span class="unit">CP</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="Math.min(progressPercentage, 100)"></div>
+    </div>
+  </div>
+
+  <!-- Compact variant -->
+  <div *ngIf="variant === 'compact'" class="compact-display">
+    <mat-icon *ngIf="showIcon" class="credit-icon">school</mat-icon>
+    <span class="points-text"> {{ currentPoints }}/{{ totalPoints }} CP</span>
+  </div>
+
+  <!-- Header variant -->
+  <div *ngIf="variant === 'header'" class="header-display">
+    <div class="header-content">
+      <mat-icon *ngIf="showIcon" class="credit-icon">school</mat-icon>
+      <div class="header-text">
+        <span class="points-main">{{ currentPoints }}/{{ totalPoints }}</span>
+        <span class="points-unit">Credit Points</span>
+      </div>
+    </div>
+    <div class="header-progress">
+      <div class="progress-fill" [style.width.%]="Math.min(progressPercentage, 100)"></div>
+    </div>
+  </div>
+</div>

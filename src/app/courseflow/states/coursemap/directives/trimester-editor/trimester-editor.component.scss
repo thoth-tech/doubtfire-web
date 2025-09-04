@@ -8,6 +8,7 @@
   border-radius: 8px;
   margin: 10px 0;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-width: 956px;
 }
 
 .trimester-heading {
@@ -29,10 +30,88 @@
 
 .slots-container {
   display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0; // Allow container to shrink
+}
+
+.slots-wrapper {
+  display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 10px;
-  flex: 1;
+  overflow-x: auto;
+  padding: 2px; // Small padding to prevent scrollbar from hiding content
+
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+
+    &:hover {
+      background: #a8a8a8;
+    }
+  }
+}
+
+.slot-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+
+  // Dynamic width based on content with reasonable bounds
+  width: fit-content;
+  max-width: 200px;
+
+  // Dynamic height based on content
+  height: auto;
+  min-height: fit-content;
+
+  // Prevent content overflow
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
+.add-slot-button {
+  flex-shrink: 0;
+  align-self: center;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.remove-slot-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #f44336;
+  transition: all 0.2s ease;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .delete-button {
