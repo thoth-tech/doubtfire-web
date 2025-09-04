@@ -4,11 +4,21 @@
     <input
       class="search-bar"
       matInput
-      [(ngModel)]="unitCode"
+      [formControl]="unitCodeControl"
+      [matAutocomplete]="auto"
       name="unitCode"
       id="unitCode"
-      placeholder="e.g., CS101"
+      placeholder="e.g., JDB001"
     />
+    <mat-autocomplete 
+      #auto="matAutocomplete" 
+      [displayWith]="displayUnit"
+      (optionSelected)="onUnitSelected($event.option.value)">
+      <mat-option *ngFor="let unit of filteredUnits | async" [value]="unit">
+        <span class="unit-code">{{ unit.code }}</span>
+        <span class="unit-name"> - {{ unit.name }}</span>
+      </mat-option>
+    </mat-autocomplete>
     <button mat-flat-button class="add-unit-button" color="primary" type="submit" matSuffix>
       Add
     </button>

@@ -38,3 +38,24 @@
   gap: 8px;
   font-weight: 800;
 }
+
+// Autocomplete option styling
+.unit-code {
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.unit-name {
+  color: #666;
+  font-style: italic;
+}
+
+::ng-deep .mat-autocomplete-panel {
+  max-height: 300px;
+}
+
+::ng-deep .mat-option {
+  line-height: 1.4 !important;
+  height: auto !important;
+  padding: 12px 16px !important;
+}

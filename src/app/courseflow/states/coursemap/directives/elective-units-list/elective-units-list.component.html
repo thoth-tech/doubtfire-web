@@ -14,10 +14,11 @@
   class="units-list"
 >
   <unit-card
-    *ngFor="let unit of units"
+    *ngFor="let unit of units; let i = index"
     [unit]="unit"
     [dragData]="getDragData(unit)"
-    [showMenu]="false"
+    [showMenu]="true"
+    (removeUnit)="onRemoveUnit(i)"
   >
   </unit-card>
 </div>

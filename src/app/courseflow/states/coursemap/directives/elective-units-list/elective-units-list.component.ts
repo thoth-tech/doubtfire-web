@@ -17,10 +17,15 @@ export class ElectiveUnitsListComponent {
   @Input() maxElectiveUnits!: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Output() dropEvent = new EventEmitter<any>();
+  @Output() removeUnit = new EventEmitter<number>(); // Emit the index of the unit to remove
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onDrop(event: any): void {
     this.dropEvent.emit(event);
+  }
+
+  onRemoveUnit(index: number): void {
+    this.removeUnit.emit(index);
   }
 
   getDragData(unit: Unit) {

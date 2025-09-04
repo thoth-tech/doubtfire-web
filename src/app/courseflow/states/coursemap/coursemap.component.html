@@ -11,10 +11,14 @@
         [remainingSlots]="getRemainingElectiveSlots()"
         [maxElectiveUnits]="state.maxElectiveUnits"
         (dropEvent)="handleDrop($event)"
+        (removeUnit)="removeElectiveUnit($event)"
       >
       </elective-units-list>
 
-      <unit-search [availableUnits]="getAvailableUnits()" (unitAdded)="addElectiveUnit($event)">
+      <unit-search 
+        [availableUnits]="getAvailableUnits()" 
+        [addedUnits]="getAllAddedUnits()"
+        (unitAdded)="addElectiveUnit($event)">
       </unit-search>
     </div>
   </div>
