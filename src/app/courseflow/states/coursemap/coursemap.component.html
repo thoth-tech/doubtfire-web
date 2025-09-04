@@ -14,8 +14,7 @@
       >
       </elective-units-list>
 
-      <unit-search [availableUnits]="getAvailableUnits()" (unitAdded)="addElectiveUnit($event)">
-      </unit-search>
+      <unit-search></unit-search>
     </div>
   </div>
 
@@ -23,6 +22,16 @@
   <div class="study-periods-container">
     <div class="study-periods-header">
       <h3 class="study-periods-title">Study Periods</h3>
+
+      <!-- Credit Points Summary -->
+      <div class="credit-points-container">
+        <credit-points-summary
+          [currentPoints]="getTotalPlannedCreditPoints()"
+          [totalPoints]="24"
+          variant="compact"
+          [showIcon]="true"
+        ></credit-points-summary>
+      </div>
     </div>
 
     <course-year-editor

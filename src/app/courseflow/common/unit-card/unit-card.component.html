@@ -1,5 +1,11 @@
 <div class="unit" cdkDrag [cdkDragData]="dragData">
-  <strong>{{ unit.code }}</strong> - {{ unit.name }}
+  <div class="unit-header">
+    <strong>{{ unit.code }}</strong> | Level {{ getUnitLevel() }} | {{ unit.credit_points }} points
+  </div>
+
+  <div class="unit-name">
+    {{ unit.name }}
+  </div>
 
   <button *ngIf="showMenu" mat-icon-button class="unit-menu-button" [matMenuTriggerFor]="unitMenu">
     <mat-icon>more_vert</mat-icon>
