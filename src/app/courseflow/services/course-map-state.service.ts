@@ -197,6 +197,22 @@ export class CourseMapStateService {
     return true;
   }
 
+  removeElectiveUnit(index: number): void {
+    const currentState = this.currentState;
+    // index validation
+    if (index < 0 || index >= currentState.electiveUnits.length) {
+      return; 
+    }
+
+    const updatedElectiveUnits = [...currentState.electiveUnits];
+    updatedElectiveUnits.splice(index, 1);
+
+    this.updateState({
+      ...currentState,
+      electiveUnits: updatedElectiveUnits,
+    });
+  }
+
   removeUnitFromSlot(
     yearIndex: number,
     trimesterKey: 'trimester1' | 'trimester2' | 'trimester3',

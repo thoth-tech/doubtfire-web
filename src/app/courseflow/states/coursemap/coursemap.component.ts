@@ -231,9 +231,17 @@ export class CoursemapComponent implements OnInit, OnDestroy {
     return this.stateService.addElectiveUnit(unit);
   }
 
+  removeElectiveUnit(index: number): void {
+    this.stateService.removeElectiveUnit(index);
+  }
+
   getAvailableUnits(): Unit[] {
     const allRequiredIds = new Set(this.state.allRequiredUnits.map((u) => u.id));
     return this.units.filter((unit) => !allRequiredIds.has(unit.id));
+  }
+
+  getAllAddedUnits(): Unit[] {
+    return [...this.state.allRequiredUnits, ...this.state.electiveUnits];
   }
 
   getRemainingElectiveSlots(): number {
