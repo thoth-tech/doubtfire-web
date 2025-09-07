@@ -30,6 +30,23 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
   sortedMembers: Project[] = [];
   canRemoveMembers = false;
   private membersDiffer: IterableDiffer<Project> | null = null;
+  private removedByGroup = new Map<string, Set<string>>();
+
+  private applyRemovedFilter(list: Project[], groupId: number | string): Project[] {
+    const key = String(groupId);
+    const removed = this.removedByGroup.get(key);
+    return removed?.size ? list.filter(m => !removed.has(String(m.id))) : list;
+  }
+
+  private maybeClearRemoved(group: Group): void {
+    const key = String(group.id);
+    const removed = this.removedByGroup.get(key);
+    if (!removed?.size) return;
+    const stillPresent = [...removed].some(id =>
+      (group.members as Project[]).some(m => String (m?.id) === id)
+    );
+    if (!stillPresent) this.removedByGroup.delete(key);
+  }
 
   tableSort: { order: SortKey; reverse: boolean } = {
     order: 'student.username',
@@ -50,8 +67,11 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
   if (this.membersDiffer && this.selectedGroup) {
     const diff = this.membersDiffer.diff(this.selectedGroup.members as Project[]);
     if (diff) {
-      this.members = [...(this.selectedGroup.members as Project[])];
+      const gid = String(this.selectedGroup.id);
+      const raw = [...(this.selectedGroup.members as Project[])];
+      this.members = this.applyRemovedFilter(raw, gid);
       this.resort();
+      this.maybeClearRemoved(this.selectedGroup);
       this.changeDetectorRef.markForCheck();
     }
   }
@@ -75,18 +95,20 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
 
   private fetchMembers(): void {
     this.loaded = false;
+    const g = this.selectedGroup!;
+    // if (this.selectedGroup?.projectsCache?.clear) {
+    //   this.selectedGroup.projectsCache.clear();
+    // }
 
-    if (this.selectedGroup?.projectsCache?.clear) {
-      this.selectedGroup.projectsCache.clear();
-    }
-
-    this.selectedGroup.getMembers().subscribe({
+    g.getMembers().subscribe({
       next: () => {
-        this.members = Array.isArray(this.selectedGroup?.members) ? this.selectedGroup.members : [];
+        const raw = Array.isArray(g.members) ? [...(g.members as Project[])] : [];
+        this.members = this.applyRemovedFilter(raw, String(g.id));
         this.resort();
         this.loaded = true;
         this.updateCanRemoveMembers();
         this.membersLoaded.emit();
+        this.maybeClearRemoved(g)
         this.changeDetectorRef.markForCheck();
       },
       error: () => {
@@ -117,10 +139,16 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
     this.changeDetectorRef.markForCheck();
   }
 
-  trackByProject = (_: number, p: Project) => p?.id ?? _;
+  trackByProject = (_: number, p: Project) => String(p?.id ?? _);
 
-  removeMember(member: any): void {
-      this.selectedGroup?.removeMember(member);
+  removeMember(member: Project): void {
+      if(!this.selectedGroup) return;
+      this.selectedGroup.removeMember(member);
+      const gKey = String(this.selectedGroup.id);
+      const set = this.removedByGroup.get(gKey) ?? new Set<string>();
+      set.add(String(member?.id));
+      this.removedByGroup.set(gKey, set);
+
       this.members = this.members.filter(m => m.id !== member.id);
       this.resort();
       this.changeDetectorRef.markForCheck();
