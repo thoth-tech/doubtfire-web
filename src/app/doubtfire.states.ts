@@ -426,7 +426,7 @@ const StaffGrantExtensionState: NgHybridStateDeclaration = {
   },
   views: {
     main: {
-      component: FUnitsComponent, // Todo @SGE team: Replace with SGE component - accept `unitID` as @Input
+      component: StaffGrantExtensionComponent,
     },
   },
   data: {
@@ -436,23 +436,6 @@ const StaffGrantExtensionState: NgHybridStateDeclaration = {
   },
 };
 
-/**
- * Define the Staff Grant Extension state.
- */
-const StaffGrantExtensionState: NgHybridStateDeclaration = {
-  name: 'staff-grant-extension',
-  url: '/staff-grant-extension',
-  views: {
-    main: {
-      component: StaffGrantExtensionComponent,
-    },
-  },
-
-  data: {
-    pageTitle: 'Staff Grant Extension',
-    roleWhitelist: ['Admin', 'Convenor'],
-  },
-};
 
 /**
  * Export the list of states we have created in angular
