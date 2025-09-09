@@ -1,3 +1,20 @@
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: start;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  button {
+    margin-top: 8px;
+    height: 56px;
+  }
+}
+
 .search-form {
   width: 100%;
   margin: 5px 0;
