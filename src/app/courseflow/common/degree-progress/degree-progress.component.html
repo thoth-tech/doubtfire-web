@@ -1,0 +1,59 @@
+<div class="degree-progress-container">
+  <!-- Overall Progress -->
+  <div class="progress-section">
+    <h3>Overall Degree Progress</h3>
+    <div class="progress-bar-container">
+      <div class="progress-bar" [style.width.%]="metrics?.overallProgress || 0">
+        {{metrics?.overallProgress | number:'1.0-0'}}%
+      </div>
+    </div>
+  </div>
+
+  <!-- Core vs Elective Progress -->
+  <div class="progress-section">
+    <h3>Unit Type Breakdown</h3>
+    <div class="unit-type-progress">
+      <div class="progress-item">
+        <label>Core Units</label>
+        <div class="progress-bar-container">
+          <div class="progress-bar core" [style.width.%]="metrics?.coreUnitsProgress || 0">
+            {{metrics?.coreUnitsProgress | number:'1.0-0'}}%
+          </div>
+        </div>
+      </div>
+      <div class="progress-item">
+        <label>Elective Units</label>
+        <div class="progress-bar-container">
+          <div class="progress-bar elective" [style.width.%]="metrics?.electiveUnitsProgress || 0">
+            {{metrics?.electiveUnitsProgress | number:'1.0-0'}}%
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Year Level Progress -->
+  <div class="progress-section">
+    <h3>Progress by Year Level</h3>
+    <div class="year-progress">
+      <div class="progress-item" *ngFor="let year of metrics?.yearLevelProgress | keyvalue">
+        <label>Year {{year.key}}</label>
+        <div class="progress-bar-container">
+          <div class="progress-bar year" [style.width.%]="year.value">
+            {{year.value | number:'1.0-0'}}%
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prerequisites Chain Progress -->
+  <div class="progress-section">
+    <h3>Prerequisites Completion</h3>
+    <div class="progress-bar-container">
+      <div class="progress-bar prereq" [style.width.%]="metrics?.prerequisiteChainProgress || 0">
+        {{metrics?.prerequisiteChainProgress | number:'1.0-0'}}%
+      </div>
+    </div>
+  </div>
+</div>
