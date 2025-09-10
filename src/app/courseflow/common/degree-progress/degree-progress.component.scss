@@ -1,0 +1,67 @@
+.degree-progress-container {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  .progress-section {
+    margin-bottom: 2rem;
+
+    h3 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    height: 24px;
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+  }
+
+  .progress-bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: width 0.3s ease;
+    background-color: #4CAF50;
+
+    &.core {
+      background-color: #2196F3;
+    }
+
+    &.elective {
+      background-color: #9C27B0;
+    }
+
+    &.year {
+      background-color: #FF9800;
+    }
+
+    &.prereq {
+      background-color: #E91E63;
+    }
+  }
+
+  .unit-type-progress,
+  .year-progress {
+    .progress-item {
+      margin-bottom: 1rem;
+
+      label {
+        display: block;
+        margin-bottom: 0.3rem;
+        color: #666;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
