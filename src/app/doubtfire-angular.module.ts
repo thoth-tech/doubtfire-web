@@ -257,6 +257,7 @@ import {ScormExtensionModalComponent} from './common/modals/scorm-extension-moda
 import {GradeIconComponent} from './common/grade-icon/grade-icon.component';
 import {GradeTaskModalComponent} from './tasks/modals/grade-task-modal/grade-task-modal.component';
 import {PrivacyPolicy} from './config/privacy-policy/privacy-policy';
+import {AchievementCustomBarChartComponent} from './visualisations/achievement-custom-bar-chart/achievement-custom-bar-chart/achievement-custom-bar-chart.component';
 
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
@@ -276,6 +277,7 @@ import {OutcomeService} from './api/services/outcome.service';
 @NgModule({
   // Components we declare
   declarations: [
+    AchievementCustomBarChartComponent,
     AlertComponent,
     UnitStudentEnrolmentModalComponent,
     AboutDoubtfireModalContent,

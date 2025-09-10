@@ -224,6 +224,7 @@ import {TaskScormCardComponent} from './projects/states/dashboard/directives/tas
 import {UnitStudentEnrolmentModalService} from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import {PrivacyPolicy} from './config/privacy-policy/privacy-policy';
 import {OutcomeService} from './api/services/outcome.service';
+import {AchievementCustomBarChartComponent} from './visualisations/achievement-custom-bar-chart/achievement-custom-bar-chart/achievement-custom-bar-chart.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -310,6 +311,10 @@ DoubtfireAngularJSModule.factory(
 DoubtfireAngularJSModule.factory('PrivacyPolicy', downgradeInjectable(PrivacyPolicy));
 
 // directive -> component
+DoubtfireAngularJSModule.directive(
+  'fAchievementCustomBarChart',
+  downgradeComponent({component: AchievementCustomBarChartComponent}),
+);
 DoubtfireAngularJSModule.directive(
   'fProjectTasksList',
   downgradeComponent({component: ProjectTasksListComponent}),

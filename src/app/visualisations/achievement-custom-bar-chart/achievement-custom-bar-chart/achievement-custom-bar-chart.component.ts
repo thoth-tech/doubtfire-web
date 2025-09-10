@@ -1,12 +1,8 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'f-achievement-custom-bar-chart',
-  standalone: true,
-  imports: [],
   templateUrl: './achievement-custom-bar-chart.component.html',
-  styleUrl: './achievement-custom-bar-chart.component.css'
+  styleUrl: './achievement-custom-bar-chart.component.scss',
 })
-export class AchievementCustomBarChartComponent {
-
-}
+export class AchievementCustomBarChartComponent {}
