@@ -1,0 +1,25 @@
+{
+  "requirement_sets": [
+    {
+      "id": "1",
+      "requirement_set_group_id": 1,
+      "description": "Core programming skills",
+      "unit_id": 1,
+      "requirement_id": 1
+    },
+    {
+      "id": "2",
+      "requirement_set_group_id": 1,
+      "description": "Advanced programming concepts",
+      "unit_id": 1,
+      "requirement_id": 2
+    },
+    {
+      "id": "3",
+      "requirement_set_group_id": 2,
+      "description": "Database fundamentals",
+      "unit_id": 2,
+      "requirement_id": 3
+    }
+  ]
+}
