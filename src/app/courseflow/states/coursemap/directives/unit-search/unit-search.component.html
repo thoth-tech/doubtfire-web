@@ -1,3 +1,47 @@
+<div class="filters">
+  <mat-form-field appearance="outline">
+    <mat-label>Level</mat-label>
+    <mat-select [(ngModel)]="selectedLevel">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option *ngFor="let level of levels" [value]="level">
+        Level {{ level }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Year</mat-label>
+    <mat-select [(ngModel)]="selectedYear">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option *ngFor="let year of years" [value]="year">
+        {{ year }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Teaching Period</mat-label>
+    <mat-select [(ngModel)]="selectedTeachingPeriod">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option *ngFor="let period of teachingPeriods" [value]="period">
+        {{ period.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Specialization</mat-label>
+    <mat-select [(ngModel)]="selectedSpecialization">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option *ngFor="let spec of specializations" [value]="spec">
+        {{ spec }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-stroked-button (click)="clearFilters()">Clear Filters</button>
+</div>
+
 <form class="search-form" (ngSubmit)="onSubmit()">
   <mat-form-field appearance="outline" class="search-field">
     <mat-label>Enter Unit Code</mat-label>

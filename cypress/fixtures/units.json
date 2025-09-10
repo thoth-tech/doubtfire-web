@@ -1,0 +1,32 @@
+{
+  "units": [
+    {
+      "code": "COS10001",
+      "id": 1,
+      "name": "Introduction to Programming",
+      "my_role": "Admin",
+      "main_convenor_user_id": 2
+    },
+    {
+      "code": "COS20007",
+      "id": 2,
+      "name": "Object Oriented Programming",
+      "my_role": "Admin",
+      "main_convenor_user_id": 2
+    },
+    {
+      "code": "COS30046",
+      "id": 3,
+      "name": "Artificial Intelligence for Games",
+      "my_role": "Admin",
+      "main_convenor_user_id": 4
+    },
+    {
+      "code": "COS30243",
+      "id": 4,
+      "name": "Game Programming",
+      "my_role": "Admin",
+      "main_convenor_user_id": 4
+    }
+  ]
+}
