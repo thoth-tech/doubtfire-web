@@ -39,7 +39,6 @@ import 'build/src/app/visualisations/task-status-pie-chart.js';
 import 'build/src/app/visualisations/task-completion-box-plot.js';
 import 'build/src/app/visualisations/visualisations.js';
 import 'build/src/app/visualisations/alignment-bullet-chart.js';
-import 'build/src/app/visualisations/achievement-custom-bar-chart.js';
 import 'build/src/app/visualisations/alignment-bar-chart.js';
 import 'build/src/app/visualisations/achievement-box-plot.js';
 import 'build/src/app/tasks/modals/upload-submission-modal/upload-submission-modal.js';
