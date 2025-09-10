@@ -306,6 +306,7 @@ import {CodeEditorModule} from '@ngstack/code-editor';
 import {UploadGradesComponent} from './units/states/portfolios/upload-grades/upload-grades.component';
 import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
 import {GradeTaskModalComponent} from './tasks/modals/grade-task-modal/grade-task-modal.component';
+import { TaskDefinitionTutorialEnrolmentComponent } from './units/states/edit/directives/unit-tasks-editor/task-definition-editor/task-definition-tutorial-enrolment/task-definition-tutorial-enrolment.component';
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
   parse: {
@@ -498,6 +499,7 @@ import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
     ChartBaseComponent,
     ProgressBurndownChartComponent,
     TaskVisualisationComponent,
+    TaskDefinitionTutorialEnrolmentComponent,
   ],
   providers: [
     // Services we provide

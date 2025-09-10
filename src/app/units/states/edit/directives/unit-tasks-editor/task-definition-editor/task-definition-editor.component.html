@@ -79,6 +79,18 @@
   }
 
   <mat-step>
+    <ng-template matStepLabel>Tutorial Enrolment</ng-template>
+    <div class="pt-[12px]">
+      <p class="font-normal text-gray-500 pb-2">
+        Select the tutorial stream(s) that allow students to enrol in tutorials from
+      </p>
+      <f-task-definition-tutorial-enrolment
+        [taskDefinition]="taskDefinition"
+      ></f-task-definition-tutorial-enrolment>
+    </div>
+  </mat-step>
+
+  <mat-step>
     <ng-template matStepLabel>SCORM Test</ng-template>
     <div class="pt-[12px]">
       <p class="font-normal text-gray-500 pb-2">
