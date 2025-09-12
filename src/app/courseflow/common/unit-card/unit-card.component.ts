@@ -18,8 +18,24 @@ export class UnitCardComponent {
   @Input() dragData!: any;
   @Input() showMenu = false;
   @Output() removeUnit = new EventEmitter<void>();
+  @Output() toggleCompletion = new EventEmitter<void>();
+
+  // Track completion status locally if not available on the unit
+  get isCompleted(): boolean {
+    // Check if unit has a completion property, otherwise use local storage or default to false
+    const unitWithCompletion = this.unit as CourseUnit & {isCompleted?: boolean};
+    return unitWithCompletion.isCompleted || false;
+  }
 
   onRemoveUnit(): void {
+    // Don't allow removal of completed units
+    if (this.isCompleted) {
+      return;
+    }
     this.removeUnit.emit();
+  }
+
+  onToggleCompletion(): void {
+    this.toggleCompletion.emit();
   }
 }

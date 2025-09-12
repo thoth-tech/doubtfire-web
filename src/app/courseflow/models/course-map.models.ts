@@ -1,6 +1,6 @@
 import {Unit, UnitDefinition} from 'src/app/api/models/doubtfire-model';
 
-export type CourseUnit = Unit;
+export type CourseUnit = Unit | UnitDefinition;
 
 export interface SlotContext {
   yearIndex: number;
@@ -17,9 +17,9 @@ export interface CourseYear {
 
 export interface CourseMapState {
   years: CourseYear[];
-  requiredUnits: Unit[];
-  allRequiredUnits: Unit[];
-  electiveUnits: Unit[];
+  requiredUnits: Unit[]; // Actual Unit instances for course requirements
+  allRequiredUnits: Unit[]; // All available Unit instances
+  electiveUnits: Unit[]; // Actual course instances for electives
   maxElectiveUnits: number;
 }
 

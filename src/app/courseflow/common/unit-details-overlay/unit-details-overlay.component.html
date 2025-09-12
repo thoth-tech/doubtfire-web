@@ -1,0 +1,208 @@
+<div class="unit-details-overlay">
+  <div mat-dialog-title class="dialog-header">
+    <div class="unit-header">
+      <mat-icon class="unit-icon">school</mat-icon>
+      <div class="unit-title">
+        <h2>{{ unitCode }} - {{ unitName }}</h2>
+        @if (creditPoints !== null) {
+          <span class="credit-points">{{ creditPoints }} Credit Points</span>
+        }
+      </div>
+    </div>
+    <button mat-icon-button (click)="onClose()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content class="dialog-content">
+    <!-- Unit Description -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>description</mat-icon>
+          Description
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ unitDescription }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Learning Outcomes (ILOs) -->
+    @if (learningOutcomes.length > 0) {
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>psychology</mat-icon>
+            Learning Outcomes ({{ learningOutcomes.length }})
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list>
+            @for (outcome of learningOutcomes; track outcome.id) {
+              <mat-list-item>
+                <div matListItemTitle>
+                  <strong>{{ outcome.abbreviation }}</strong> - {{ outcome.name }}
+                </div>
+                <div matListItemLine class="outcome-description">
+                  {{ outcome.description }}
+                </div>
+              </mat-list-item>
+              @if (!$last) {
+                <mat-divider></mat-divider>
+              }
+            }
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Task Definitions and Alignments -->
+    @if (taskDefinitions.length > 0) {
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>assignment</mat-icon>
+            Assessment Tasks ({{ taskDefinitions.length }})
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list>
+            @for (task of taskDefinitions; track task.id) {
+              <mat-list-item>
+                <div matListItemTitle>
+                  <strong>{{ task.abbreviation }}</strong> - {{ task.name }}
+                </div>
+                <div matListItemLine class="task-details">
+                  <span class="task-grade">Target Grade: {{ task.targetGrade }}</span>
+                  @if (task.dueDate) {
+                    <span class="task-due">Due: {{ task.dueDate | date }}</span>
+                  }
+                </div>
+        @if (getTaskAlignments(task.id).length > 0) {
+          <div matListItemLine class="task-alignments">
+            <mat-chip-listbox>
+              @for (alignment of getTaskAlignments(task.id); track alignment.id) {
+                <mat-chip-option>
+                  {{ alignment.learningOutcome.abbreviation }} ({{ alignment.rating }}/5)
+                </mat-chip-option>
+              }
+            </mat-chip-listbox>
+          </div>
+        }
+              </mat-list-item>
+              @if (!$last) {
+                <mat-divider></mat-divider>
+              }
+            }
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Requirements/Prerequisites -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>rule</mat-icon>
+          Unit Requirements
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isUnitDefinition) {
+          <p><em>Requirements information is available for active unit instances only.</em></p>
+        } @else {
+          <div class="requirements-section">
+            @if (requirementsLoading) {
+              <div class="loading-indicator">
+                <mat-icon>hourglass_empty</mat-icon>
+                <span>Loading requirements...</span>
+              </div>
+            } @else if (requirementsError) {
+              <div class="error-message">
+                <mat-icon>error</mat-icon>
+                <span>{{ requirementsError }}</span>
+              </div>
+            } @else {
+              <!-- Prerequisites Section -->
+              <h4>Prerequisites</h4>
+              @if (hasPrerequisites) {
+                <mat-chip-listbox>
+                  @for (prereq of prerequisites; track prereq) {
+                    <mat-chip-option>{{ prereq }}</mat-chip-option>
+                  }
+                </mat-chip-listbox>
+              } @else {
+                <p><em>No prerequisites required</em></p>
+              }
+
+              <!-- Unit-specific Requirements -->
+              @if (unitRequirements.length > 0) {
+                <h4>Unit Requirements</h4>
+                <div class="requirements-list">
+                  @for (requirement of unitRequirements; track requirement.id) {
+                    <div class="requirement-item">
+                      <strong>{{ requirement.category | titlecase }}:</strong>
+                      {{ requirement.description }}
+                      @if (requirement.minimum || requirement.maximum) {
+                        <span class="requirement-count">
+                          ({{ requirement.minimum }}{{ requirement.maximum && requirement.maximum !== requirement.minimum ? '-' + requirement.maximum : '' }})
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Course-level Requirements -->
+              @if (courseRequirements.length > 0) {
+                <h4 class="course-rules-title">Course Requirements</h4>
+                <div class="requirements-list">
+                  @for (requirement of courseRequirements; track requirement.id) {
+                    <div class="requirement-item">
+                      <strong>{{ requirement.category | titlecase }}:</strong>
+                      {{ requirement.description }}
+                      @if (requirement.minimum || requirement.maximum) {
+                        <span class="requirement-count">
+                          ({{ requirement.minimum }}{{ requirement.maximum && requirement.maximum !== requirement.minimum ? '-' + requirement.maximum : '' }})
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+              } @else {
+                <h4 class="course-rules-title">Course Rules</h4>
+                <p>
+                  <em>
+                    Course-level requirements and rules are managed through the courseflow system.
+                    This includes credit point requirements, level restrictions, and capstone options.
+                  </em>
+                </p>
+              }
+
+              <!-- Unit Information -->
+              <div class="unit-info">
+                <h4>Unit Information</h4>
+                <p><strong>Unit Code:</strong> {{ unitCode }}</p>
+                <p><strong>Credit Points:</strong> {{ creditPoints || 'Not specified' }}</p>
+                @if (unitAsUnit?.teachingPeriod) {
+                  <p>
+                    <strong>Teaching Period:</strong> {{ unitAsUnit.teachingPeriod.period }}
+                    {{ unitAsUnit.teachingPeriod.year }}
+                  </p>
+                }
+                @if (unitAsUnit?.active !== undefined) {
+                  <p><strong>Status:</strong> {{ unitAsUnit.active ? 'Active' : 'Inactive' }}</p>
+                }
+              </div>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-raised-button color="primary" (click)="onClose()">Close</button>
+  </div>
+</div>
