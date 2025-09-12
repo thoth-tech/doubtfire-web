@@ -200,17 +200,12 @@ export class CoursemapComponent implements OnInit, OnDestroy {
       next: (data: CourseMapUnit[]) => {
         this.courseMapUnits = data;
 
-        // Use unit definitions as required units (course templates for the map)
-        // and keep actual units separate for electives
-        this.requiredUnits = [];
-        if (this.unitDefinitions) {
-          // Use unit definitions as the basis for required units
-          this.requiredUnits = this.unitDefinitions.map((unitDef) => unitDef as Unit);
-        }
+        // Initialize required units from actual units, not unit definitions
+        this.requiredUnits = this.units || [];
 
         this.initializeMap();
         console.log('Course Map Units:', this.courseMapUnits);
-        console.log('All Required Units (from unit definitions):', this.requiredUnits);
+        console.log('Required Units (from actual units):', this.requiredUnits);
       },
       error: (err) => {
         this.errorMessage = 'Error fetching course map units';
@@ -220,14 +215,15 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   private initializeMap(): void {
-    if (this.courseMapUnits && this.unitDefinitions) {
+    if (this.courseMapUnits && this.units) {
       this.stateService.initializeFromCourseMapUnits(
         this.courseMapUnits,
-        this.unitDefinitions, // Pass unit definitions as required units
+        this.units, // Pass actual units array instead of unit definitions
         this.unitDefinitions || undefined,
       );
       console.log('Course map initialized with:', {
         courseMapUnits: this.courseMapUnits,
+        units: this.units,
         unitDefinitions: this.unitDefinitions,
       });
     }
