@@ -148,8 +148,8 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
       const set = this.removedByGroup.get(gKey) ?? new Set<string>();
       set.add(String(member?.id));
       this.removedByGroup.set(gKey, set);
-
       this.members = this.members.filter(m => m.id !== member.id);
+      this.sortedMembers = this.sortedMembers.filter(m => m.id !== member.id);
       this.resort();
       this.changeDetectorRef.markForCheck();
   }
