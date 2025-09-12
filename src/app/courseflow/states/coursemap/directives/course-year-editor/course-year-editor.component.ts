@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
-import {CourseYear, CourseUnit, TRIMESTER_KEYS} from '../../../../models/course-map.models';
+import {CourseYear, TRIMESTER_KEYS} from '../../../../models/course-map.models';
 import {CourseMapStateService} from '../../../../services/course-map-state.service';
 import {TrimesterEditorComponent} from '../trimester-editor/trimester-editor.component';
 
@@ -19,8 +19,6 @@ export class CourseYearEditorComponent {
   @Input() stateService!: CourseMapStateService;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Output() dropEvent = new EventEmitter<any>();
-  @Output() showSkillsSummary = new EventEmitter<CourseUnit>();
-  @Output() showUnitDetails = new EventEmitter<CourseUnit>();
 
   readonly trimesterKeys = TRIMESTER_KEYS;
 
@@ -47,13 +45,5 @@ export class CourseYearEditorComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onTrimesterDrop(event: any): void {
     this.dropEvent.emit(event);
-  }
-
-  onShowSkillsSummary(unit: CourseUnit): void {
-    this.showSkillsSummary.emit(unit);
-  }
-
-  onShowUnitDetails(unit: CourseUnit): void {
-    this.showUnitDetails.emit(unit);
   }
 }

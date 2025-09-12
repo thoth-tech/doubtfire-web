@@ -7,7 +7,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import {Subject, takeUntil} from 'rxjs';
 import {CourseMapStateService} from '../../services/course-map-state.service';
 import {CourseMapDragDropService} from '../../services/course-map-drag-drop.service';
-import {CourseMapState, CourseUnit} from '../../models/course-map.models';
+import {CourseMapState} from '../../models/course-map.models';
 import {
   UnitService,
   CourseService,
@@ -24,8 +24,6 @@ import {CourseYearEditorComponent} from './directives/course-year-editor/course-
 import {RequiredUnitsListComponent} from './directives/required-units-list/required-units-list.component';
 import {ElectiveUnitsListComponent} from './directives/elective-units-list/elective-units-list.component';
 import {UnitSearchComponent} from './directives/unit-search/unit-search.component';
-import {SkillsSummaryDialogComponent} from '../../common/skills-summary-dialog/skills-summary-dialog.component';
-import {UnitDetailsOverlayComponent} from '../../common/unit-details-overlay/unit-details-overlay.component';
 
 @Component({
   selector: 'coursemap',
@@ -202,34 +200,17 @@ export class CoursemapComponent implements OnInit, OnDestroy {
       next: (data: CourseMapUnit[]) => {
         this.courseMapUnits = data;
 
-        // Map courseMapUnits to actual Unit instances by finding units with matching unit_definition_id
+        // Use unit definitions as required units (course templates for the map)
+        // and keep actual units separate for electives
         this.requiredUnits = [];
-        if (this.units && this.courseMapUnits) {
-          // Create a map of unit definition code to Unit instance
-          const unitMap = new Map<string, Unit>();
-          this.units.forEach((unit) => {
-            if (unit.code) {
-              unitMap.set(unit.code, unit);
-            }
-          });
-
-          // Find actual Unit instances for the course map units
-          this.courseMapUnits.forEach((courseMapUnit) => {
-            // Find the unit definition first
-            const unitDef = this.unitDefinitions?.find((def) => def.id === courseMapUnit.unitId);
-            if (unitDef && unitDef.code) {
-              // Then find the corresponding Unit instance
-              const unit = unitMap.get(unitDef.code);
-              if (unit && !this.requiredUnits.some((existing) => existing.id === unit.id)) {
-                this.requiredUnits.push(unit);
-              }
-            }
-          });
+        if (this.unitDefinitions) {
+          // Use unit definitions as the basis for required units
+          this.requiredUnits = this.unitDefinitions.map((unitDef) => unitDef as Unit);
         }
 
         this.initializeMap();
         console.log('Course Map Units:', this.courseMapUnits);
-        console.log('Required Units (actual Unit instances):', this.requiredUnits);
+        console.log('All Required Units (from unit definitions):', this.requiredUnits);
       },
       error: (err) => {
         this.errorMessage = 'Error fetching course map units';
@@ -239,15 +220,15 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   private initializeMap(): void {
-    if (this.courseMapUnits && this.requiredUnits) {
+    if (this.courseMapUnits && this.unitDefinitions) {
       this.stateService.initializeFromCourseMapUnits(
         this.courseMapUnits,
-        this.requiredUnits, // Pass actual Unit instances instead of UnitDefinitions
+        this.unitDefinitions, // Pass unit definitions as required units
         this.unitDefinitions || undefined,
       );
       console.log('Course map initialized with:', {
         courseMapUnits: this.courseMapUnits,
-        requiredUnits: this.requiredUnits,
+        unitDefinitions: this.unitDefinitions,
       });
     }
   }
@@ -282,50 +263,5 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   trackByYear(_index: number, year: any): number {
     return year.year;
-  }
-
-  onShowSkillsSummary(_unit: CourseUnit): void {
-    // Extract all units placed in the course map
-    const allPlacedUnits: CourseUnit[] = [];
-    this.state.years.forEach((year) => {
-      Object.keys(year).forEach((key) => {
-        if (key.startsWith('trimester') && year[key]) {
-          const trimester = year[key] as (CourseUnit | null)[];
-          if (trimester) {
-            trimester.forEach((u) => {
-              if (u) {
-                allPlacedUnits.push(u);
-              }
-            });
-          }
-        }
-      });
-    });
-
-    console.log('Opening skills summary with units:', allPlacedUnits);
-    const dialogRef = this.dialog.open(SkillsSummaryDialogComponent, {
-      width: '800px',
-      height: '600px',
-      data: {
-        units: allPlacedUnits,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(() => {
-      console.log('Skills summary dialog closed');
-    });
-  }
-
-  onShowUnitDetails(unit: CourseUnit): void {
-    console.log('Opening unit details for:', unit);
-    const dialogRef = this.dialog.open(UnitDetailsOverlayComponent, {
-      width: '800px',
-      maxHeight: '90vh',
-      data: unit,
-    });
-
-    dialogRef.afterClosed().subscribe(() => {
-      console.log('Unit details dialog closed');
-    });
   }
 }

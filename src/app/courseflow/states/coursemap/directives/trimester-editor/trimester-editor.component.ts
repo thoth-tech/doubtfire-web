@@ -21,8 +21,6 @@ export class TrimesterEditorComponent {
   @Input() stateService!: CourseMapStateService;
   @Output() dropEvent = new EventEmitter<any>();
   @Output() deleteTrimester = new EventEmitter<void>();
-  @Output() showSkillsSummary = new EventEmitter<CourseUnit>();
-  @Output() showUnitDetails = new EventEmitter<CourseUnit>();
 
   readonly slotIndices = [0, 1, 2, 3];
 
@@ -44,14 +42,6 @@ export class TrimesterEditorComponent {
 
   onToggleCompletion(unit: CourseUnit): void {
     this.stateService.toggleUnitCompletion(unit);
-  }
-
-  onShowSkillsSummary(unit: CourseUnit): void {
-    this.showSkillsSummary.emit(unit);
-  }
-
-  onShowUnitDetails(unit: CourseUnit): void {
-    this.showUnitDetails.emit(unit);
   }
 
   trackBySlotIndex(index: number): number {

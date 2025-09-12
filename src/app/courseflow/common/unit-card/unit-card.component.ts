@@ -19,8 +19,6 @@ export class UnitCardComponent {
   @Input() showMenu = false;
   @Output() removeUnit = new EventEmitter<void>();
   @Output() toggleCompletion = new EventEmitter<void>();
-  @Output() showSkillsSummary = new EventEmitter<CourseUnit>();
-  @Output() showUnitDetails = new EventEmitter<CourseUnit>();
 
   // Track completion status locally if not available on the unit
   get isCompleted(): boolean {
@@ -39,13 +37,5 @@ export class UnitCardComponent {
 
   onToggleCompletion(): void {
     this.toggleCompletion.emit();
-  }
-
-  onShowSkillsSummary(): void {
-    this.showSkillsSummary.emit(this.unit);
-  }
-
-  onShowUnitDetails(): void {
-    this.showUnitDetails.emit(this.unit);
   }
 }
