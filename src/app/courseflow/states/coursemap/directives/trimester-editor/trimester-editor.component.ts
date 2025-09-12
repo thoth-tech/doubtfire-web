@@ -40,6 +40,10 @@ export class TrimesterEditorComponent {
     this.stateService.removeUnitFromSlot(this.yearIndex, this.trimesterKey, slotIndex);
   }
 
+  onToggleCompletion(unit: CourseUnit): void {
+    this.stateService.toggleUnitCompletion(unit);
+  }
+
   trackBySlotIndex(index: number): number {
     return index;
   }

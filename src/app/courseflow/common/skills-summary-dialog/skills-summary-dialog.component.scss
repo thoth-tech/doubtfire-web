@@ -1,0 +1,143 @@
+.skills-summary-dialog {
+  max-width: 800px;
+  width: 100%;
+  max-height: 80vh;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px 0;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .close-button {
+    color: #666;
+  }
+}
+
+.dialog-content {
+  padding: 0 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.section {
+  margin-bottom: 30px;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 18px;
+    font-weight: 500;
+
+    .section-icon {
+      margin-right: 8px;
+
+      &.completed {
+        color: #4caf50;
+      }
+
+      &.in-progress {
+        color: #ff9800;
+      }
+    }
+  }
+}
+
+.units-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.unit-item {
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background-color: #fafafa;
+
+  &.completed {
+    border-left: 4px solid #4caf50;
+    background-color: #f3f9f3;
+  }
+
+  &.in-progress {
+    border-left: 4px solid #ff9800;
+    background-color: #fff8f0;
+  }
+
+  .unit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+
+    strong {
+      color: #333;
+      font-size: 16px;
+    }
+
+    .status-icon {
+      font-size: 20px;
+
+      &.completed {
+        color: #4caf50;
+      }
+
+      &.in-progress {
+        color: #ff9800;
+      }
+    }
+  }
+
+  .unit-description {
+    color: #555;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .no-description {
+    color: #999;
+    font-style: italic;
+    font-size: 14px;
+  }
+}
+
+.no-units {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+
+  .empty-icon {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 12px 0;
+    color: #555;
+  }
+
+  p {
+    margin: 0;
+    color: #777;
+  }
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+}

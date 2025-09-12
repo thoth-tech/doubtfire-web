@@ -2,6 +2,7 @@ import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
+import {MatDialog} from '@angular/material/dialog';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {Subject, takeUntil} from 'rxjs';
 import {CourseMapStateService} from '../../services/course-map-state.service';
@@ -71,6 +72,7 @@ export class CoursemapComponent implements OnInit, OnDestroy {
     private courseMapUnitService: CourseMapUnitService,
     private authService: AuthenticationService,
     private alerts: AlertService,
+    private dialog: MatDialog,
   ) {
     this.state = this.stateService.currentState;
   }
@@ -146,7 +148,7 @@ export class CoursemapComponent implements OnInit, OnDestroy {
 
   private loadData(): void {
     this.loadUnits();
-    // this.loadUnitDefinitions();
+    this.loadUnitDefinitions();
   }
 
   private loadCourseMap(): void {
@@ -173,20 +175,20 @@ export class CoursemapComponent implements OnInit, OnDestroy {
     });
   }
 
-  // private loadUnitDefinitions(): void {
-  //   this.unitDefinitionService.getDefinitions().subscribe({
-  //     next: (data: UnitDefinition[]) => {
-  //       this.unitDefinitions = data;
-  //       this.errorMessage = null;
-  //       this.initializeMap();
-  //       console.log('Unit Definitions:', this.unitDefinitions);
-  //     },
-  //     error: (err) => {
-  //       this.errorMessage = 'Error fetching unit definitions';
-  //       console.error('Error fetching unit definitions:', err);
-  //     },
-  //   });
-  // }
+  private loadUnitDefinitions(): void {
+    this.unitDefinitionService.getDefinitions().subscribe({
+      next: (data: UnitDefinition[]) => {
+        this.unitDefinitions = data;
+        this.errorMessage = null;
+        this.initializeMap();
+        console.log('Unit Definitions:', this.unitDefinitions);
+      },
+      error: (err) => {
+        this.errorMessage = 'Error fetching unit definitions';
+        console.error('Error fetching unit definitions:', err);
+      },
+    });
+  }
 
   private loadCourseMapUnits(): void {
     if (!this.currentCourseMapId) {
@@ -198,12 +200,12 @@ export class CoursemapComponent implements OnInit, OnDestroy {
       next: (data: CourseMapUnit[]) => {
         this.courseMapUnits = data;
 
-        const requiredUnitIds = new Set(this.courseMapUnits.map((cmu) => cmu.unitId));
-        this.requiredUnits = this.units.filter((u) => requiredUnitIds.has(u.id));
+        // Initialize required units from actual units, not unit definitions
+        this.requiredUnits = this.units || [];
 
         this.initializeMap();
         console.log('Course Map Units:', this.courseMapUnits);
-        console.log('All Required Units:', this.requiredUnits);
+        console.log('Required Units (from actual units):', this.requiredUnits);
       },
       error: (err) => {
         this.errorMessage = 'Error fetching course map units';
@@ -213,11 +215,16 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   private initializeMap(): void {
-    if (this.courseMapUnits && this.requiredUnits) {
-      this.stateService.initializeFromCourseMapUnits(this.courseMapUnits, this.requiredUnits);
+    if (this.courseMapUnits && this.units) {
+      this.stateService.initializeFromCourseMapUnits(
+        this.courseMapUnits,
+        this.units, // Pass actual units array instead of unit definitions
+        this.unitDefinitions || undefined,
+      );
       console.log('Course map initialized with:', {
         courseMapUnits: this.courseMapUnits,
-        requiredUnits: this.requiredUnits,
+        units: this.units,
+        unitDefinitions: this.unitDefinitions,
       });
     }
   }
@@ -232,8 +239,9 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   getAvailableUnits(): Unit[] {
-    const allRequiredIds = new Set(this.state.allRequiredUnits.map((u) => u.id));
-    return this.units.filter((unit) => !allRequiredIds.has(unit.id));
+    // Return actual Unit instances (not UnitDefinitions) for elective selection
+    // These are running courses that can be added as electives
+    return this.units || [];
   }
 
   getRemainingElectiveSlots(): number {
@@ -249,7 +257,7 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  trackByYear(index: number, year: any): number {
+  trackByYear(_index: number, year: any): number {
     return year.year;
   }
 }

@@ -62,3 +62,9 @@ export * from '../services/teaching-period-break.service';
 export * from '../services/learning-outcome.service';
 export * from '../services/group-set.service';
 export * from '../services/task-similarity.service';
+
+// Courseflow models and services
+export * from './requirement';
+export * from './requirement-set';
+export * from '../services/requirement.service';
+export * from '../services/requirement-set.service';

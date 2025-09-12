@@ -1,18 +1,127 @@
-<form class="search-form" (ngSubmit)="onSubmit()">
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Enter Unit Code</mat-label>
-    <input
-      class="search-bar"
-      matInput
-      [(ngModel)]="unitCode"
-      name="unitCode"
-      id="unitCode"
-      placeholder="e.g., CS101"
-    />
-    <button mat-flat-button class="add-unit-button" color="primary" type="submit" matSuffix>
-      Add
-    </button>
-  </mat-form-field>
-</form>
+<div class="unit-search-container">
+  <!-- Filter Controls -->
+  <div class="filter-controls">
+    <div class="filter-row">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Level</mat-label>
+        <mat-select [(value)]="filters.level" (selectionChange)="applyFilters()">
+          <mat-option value="">All Levels</mat-option>
+          <mat-option value="1">Level 1</mat-option>
+          <mat-option value="2">Level 2</mat-option>
+          <mat-option value="3">Level 3</mat-option>
+          <mat-option value="4">Level 4</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-<div *ngIf="errorMessage" class="error"><mat-icon>error</mat-icon> {{ errorMessage }}</div>
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Year</mat-label>
+        <mat-select [(value)]="filters.year" (selectionChange)="applyFilters()">
+          <mat-option value="">All Years</mat-option>
+          <mat-option *ngFor="let year of availableYears" [value]="year">{{ year }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Teaching Period</mat-label>
+        <mat-select [(value)]="filters.period" (selectionChange)="applyFilters()">
+          <mat-option value="">All Periods</mat-option>
+          <mat-option *ngFor="let period of availablePeriods" [value]="period">{{ period }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [(value)]="filters.active" (selectionChange)="applyFilters()">
+          <mat-option value="">All</mat-option>
+          <mat-option value="true">Active</mat-option>
+          <mat-option value="false">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Specialization Filter (Future Enhancement) -->
+      <mat-form-field appearance="outline" class="filter-field" matTooltip="Specialization filtering coming soon">
+        <mat-label>Specialization</mat-label>
+        <mat-select [(value)]="filters.specialization" disabled>
+          <mat-option value="">All Specializations</mat-option>
+          <!-- TODO: Implement specialization filtering when Unit-Specialization relationship is established -->
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="filter-row">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Units</mat-label>
+        <input
+          matInput
+          [(ngModel)]="filters.searchText"
+          (ngModelChange)="applyFilters()"
+          placeholder="Search by code or name..."
+        />
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <button
+        mat-stroked-button
+        color="primary"
+        (click)="clearFilters()"
+        class="clear-filters-btn"
+      >
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Unit Selection -->
+  <div class="unit-selection">
+    <div class="unit-list" *ngIf="filteredUnits.length > 0">
+      <div
+        *ngFor="let unit of filteredUnits"
+        class="unit-item"
+        (click)="selectUnit(unit)"
+        [class.selected]="selectedUnit?.id === unit.id"
+      >
+        <div class="unit-code">{{ unit.code }}</div>
+        <div class="unit-name">{{ unit.name }}</div>
+        <div class="unit-details">
+          <span class="teaching-period" *ngIf="unit.teachingPeriod">
+            {{ unit.teachingPeriod.year }} {{ unit.teachingPeriod.period }}
+          </span>
+          <span class="status" [class.active]="unit.active" [class.inactive]="!unit.active">
+            {{ unit.active ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-units" *ngIf="filteredUnits.length === 0 && availableUnits.length > 0">
+      <mat-icon>search_off</mat-icon>
+      <p>No units match the current filters</p>
+    </div>
+
+    <div class="no-units" *ngIf="availableUnits.length === 0">
+      <mat-icon>school</mat-icon>
+      <p>No units available</p>
+    </div>
+  </div>
+
+  <!-- Add Unit Button -->
+  <div class="add-unit-section" *ngIf="selectedUnit">
+    <div class="selected-unit-info">
+      <strong>{{ selectedUnit.code }}</strong> - {{ selectedUnit.name }}
+    </div>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="addSelectedUnit()"
+      class="add-unit-button"
+    >
+      Add Unit
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error">
+    <mat-icon>error</mat-icon>
+    {{ errorMessage }}
+  </div>
+</div>
