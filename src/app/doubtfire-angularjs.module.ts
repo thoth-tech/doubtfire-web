@@ -222,6 +222,7 @@ import {GradeService} from './common/services/grade.service';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import {TaskTutorialEnrolmentCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-tutorial-enrolment-card/task-tutorial-enrolment-card.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -492,4 +493,9 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'fTaskVisualisation',
   downgradeComponent({ component: TaskVisualisationComponent })
+);
+
+DoubtfireAngularJSModule.directive(
+  'fTaskTutorialEnrolmentCard',
+  downgradeComponent({component: TaskTutorialEnrolmentCardComponent}),
 );
