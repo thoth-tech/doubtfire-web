@@ -1,0 +1,36 @@
+<div class="p-4 overflow-x-auto">
+  <h2 class="text-xl font-bold mb-4">Tutor Time Dashboard</h2>
+
+  <table class="table-auto w-full border border-gray-300" *ngIf="paginatedSessions.length > 0">
+    <thead>
+      <tr class="bg-blue-600 text-white">
+        <th class="p-2 cursor-pointer" (click)="sortBy('start')">Start</th>
+        <th class="p-2 cursor-pointer" (click)="sortBy('end')">End</th>
+        <th class="p-2 cursor-pointer" (click)="sortBy('duration')">Duration</th>
+        <th class="p-2 cursor-pointer" (click)="sortBy('unitCode')">Unit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of paginatedSessions" class="border-b hover:bg-gray-100">
+        <td class="p-2 whitespace-nowrap">{{ s.start }}</td>
+        <td class="p-2 whitespace-nowrap">{{ s.end }}</td>
+        <td class="p-2">{{ s.duration }}</td>
+        <td class="p-2">{{ s.unitCode }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="sessions.length === 0">No sessions found.</p>
+
+  <div class="flex items-center justify-center mt-4 space-x-2 bg-gray-100 p-2 rounded"
+      *ngIf="sessions.length > pageSize">
+    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1"
+            class="px-3 py-1 bg-gray-300 rounded disabled:opacity-50">← Prev</button>
+
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+
+    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages"
+            class="px-3 py-1 bg-gray-300 rounded disabled:opacity-50">Next →</button>
+  </div>
+
+</div>
