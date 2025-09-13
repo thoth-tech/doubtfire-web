@@ -92,6 +92,7 @@ MIGRATED:
 - [x] ./src/app/sessions/states/sign-in/sign-in.component.ts
 - [x] ./src/app/account/edit-profile/edit-profile.component.ts
 - [x] .src/app/groups/group-member-list/group-member-list.component.ts
+- [x] ./src/app/admin/modals/create-unit-modal/create-unit-modal.ts
 
 TODO:
 
@@ -156,7 +157,6 @@ TODO:
 - [ ] ./src/app/projects/states/tutorials/tutorials.coffee
 - [ ] ./src/app/projects/project-outcome-alignment/project-outcome-alignment.coffee
 - [ ] ./src/app/admin/modals/modals.coffee
-- [ ] ./src/app/admin/modals/create-unit-modal/create-unit-modal.coffee
 - [ ] ./src/app/admin/states/states.coffee
 - [ ] ./src/app/admin/states/units/units.coffee
 - [ ] ./src/app/admin/states/users/users.coffee

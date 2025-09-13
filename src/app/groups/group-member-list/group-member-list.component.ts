@@ -1,8 +1,20 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy, IterableDiffers, IterableDiffer, DoCheck } from '@angular/core';
-import { Group } from 'src/app/api/models/doubtfire-model';
-import { Project } from 'src/app/api/models/project';
-import { Unit } from 'src/app/api/models/unit';
-import { UnitRole } from 'src/app/api/models/unit-role';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  IterableDiffers,
+  IterableDiffer,
+  DoCheck,
+} from '@angular/core';
+import {Group} from 'src/app/api/models/doubtfire-model';
+import {Project} from 'src/app/api/models/project';
+import {Unit} from 'src/app/api/models/unit';
+import {UnitRole} from 'src/app/api/models/unit-role';
 
 type SortKey = 'student.username' | 'student.name' | 'targetGrade';
 
@@ -22,8 +34,6 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
   @Output() membersLoaded = new EventEmitter<void>();
   @Output() unitRoleChange = new EventEmitter<UnitRole>();
 
-
-
   loaded = false;
 
   members: Project[] = [];
@@ -35,25 +45,28 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
   private applyRemovedFilter(list: Project[], groupId: number | string): Project[] {
     const key = String(groupId);
     const removed = this.removedByGroup.get(key);
-    return removed?.size ? list.filter(m => !removed.has(String(m.id))) : list;
+    return removed?.size ? list.filter((m) => !removed.has(String(m.id))) : list;
   }
 
   private maybeClearRemoved(group: Group): void {
     const key = String(group.id);
     const removed = this.removedByGroup.get(key);
     if (!removed?.size) return;
-    const stillPresent = [...removed].some(id =>
-      (group.members as Project[]).some(m => String (m?.id) === id)
+    const stillPresent = [...removed].some((id) =>
+      (group.members as Project[]).some((m) => String(m?.id) === id),
     );
     if (!stillPresent) this.removedByGroup.delete(key);
   }
 
-  tableSort: { order: SortKey; reverse: boolean } = {
+  tableSort: {order: SortKey; reverse: boolean} = {
     order: 'student.username',
     reverse: false,
   };
 
-  constructor(private changeDetectorRef: ChangeDetectorRef, private differs: IterableDiffers) {}
+  constructor(
+    private changeDetectorRef: ChangeDetectorRef,
+    private differs: IterableDiffers,
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('selectedGroup' in changes && this.selectedGroup?.id) {
@@ -64,41 +77,61 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
   }
 
   ngDoCheck(): void {
-  if (this.membersDiffer && this.selectedGroup) {
-    const diff = this.membersDiffer.diff(this.selectedGroup.members as Project[]);
-    if (diff) {
-      const gid = String(this.selectedGroup.id);
-      const raw = [...(this.selectedGroup.members as Project[])];
-      this.members = this.applyRemovedFilter(raw, gid);
-      this.resort();
-      this.maybeClearRemoved(this.selectedGroup);
-      this.changeDetectorRef.markForCheck();
+    if (this.membersDiffer && this.selectedGroup) {
+      const diff = this.membersDiffer.diff(this.selectedGroup.members as Project[]);
+      if (diff) {
+        const gid = String(this.selectedGroup.id);
+        const raw = [...(this.selectedGroup.members as Project[])];
+        this.members = this.applyRemovedFilter(raw, gid);
+        this.resort();
+        this.maybeClearRemoved(this.selectedGroup);
+        this.changeDetectorRef.markForCheck();
+      }
     }
   }
-}
+
+  /**
+   * Sorts the current list of group members (`this.members`)
+   * based on the column chosen in `this.tableSort.order`
+   * (e.g. "student.username", "student.name", "targetGrade").
+   *
+   * Works with nested fields (like student.username) and
+   * compares values in a way that handles both text and numbers.
+   * Applies ascending or descending order depending on `this.tableSort.reverse`.
+   * Updates `this.sortedMembers` with the newly sorted list.
+   *
+   * In short,this takes the list of members
+   * and arranges them alphabetically (or numerically if applicable)
+   * by the selected property, so the UI can display them in the right order.
+   */
 
   private resort(): void {
-    const list = Array.isArray(this.members) ? [...this.members] : [];
-    const path = this.tableSort.order.split('.');
-    const val = (obj: any) => path.reduce((a, k) => (a == null ? a : a[k]), obj);
+    const memberList = Array.isArray(this.members) ? [...this.members] : [];
+    const propertyPath = this.tableSort.order.split('.');
 
-    list.sort((a, b) => {
-      const va = val(a), vb = val(b);
-      if (va == null && vb == null) return 0;
-      if (va == null) return -1;
-      if (vb == null) return 1;
-      return String(va).localeCompare(String(vb), undefined, { numeric: true, sensitivity: 'base' });
+    const getValueByPath = (obj: any) =>
+      propertyPath.reduce((current, key) => (current == null ? current : current[key]), obj);
+
+    memberList.sort((memberA, memberB) => {
+      const valueA = getValueByPath(memberA);
+      const valueB = getValueByPath(memberB);
+
+      if (valueA == null && valueB == null) return 0;
+      if (valueA == null) return -1;
+      if (valueB == null) return 1;
+
+      return String(valueA).localeCompare(String(valueB), undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      });
     });
 
-    this.sortedMembers = this.tableSort.reverse ? list.reverse() : list;
+    this.sortedMembers = this.tableSort.reverse ? memberList.reverse() : memberList;
   }
 
   private fetchMembers(): void {
     this.loaded = false;
     const g = this.selectedGroup!;
-    // if (this.selectedGroup?.projectsCache?.clear) {
-    //   this.selectedGroup.projectsCache.clear();
-    // }
 
     g.getMembers().subscribe({
       next: () => {
@@ -108,7 +141,7 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
         this.loaded = true;
         this.updateCanRemoveMembers();
         this.membersLoaded.emit();
-        this.maybeClearRemoved(g)
+        this.maybeClearRemoved(g);
         this.changeDetectorRef.markForCheck();
       },
       error: () => {
@@ -125,7 +158,7 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
   private updateCanRemoveMembers(): void {
     const g = this.selectedGroup;
     this.canRemoveMembers =
-     !!this.unitRole || (!!g?.groupSet?.allowStudentsToManageGroups && !g?.locked);
+      !!this.unitRole || (!!g?.groupSet?.allowStudentsToManageGroups && !g?.locked);
   }
 
   sortTableBy(column: SortKey): void {
@@ -142,15 +175,34 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
   trackByProject = (_: number, p: Project) => String(p?.id ?? _);
 
   removeMember(member: Project): void {
-      if(!this.selectedGroup) return;
-      this.selectedGroup.removeMember(member);
-      const gKey = String(this.selectedGroup.id);
-      const set = this.removedByGroup.get(gKey) ?? new Set<string>();
-      set.add(String(member?.id));
-      this.removedByGroup.set(gKey, set);
-      this.members = this.members.filter(m => m.id !== member.id);
-      this.sortedMembers = this.sortedMembers.filter(m => m.id !== member.id);
-      this.resort();
-      this.changeDetectorRef.markForCheck();
+    if (!this.selectedGroup) return;
+
+    this.selectedGroup.removeMember(member);
+
+    const gKey = String(this.selectedGroup.id);
+    const set = this.removedByGroup.get(gKey) ?? new Set<string>();
+    set.add(String(member?.id));
+    this.removedByGroup.set(gKey, set);
+
+    const fresh = Array.isArray(this.selectedGroup.members)
+      ? [...(this.selectedGroup.members as Project[])]
+      : [];
+
+    this.members = this.filterMovedMembers(this.applyRemovedFilter(fresh, gKey), gKey);
+
+    this.sortedMembers = this.sortedMembers.filter((m) => m.id !== member.id);
+    this.resort();
+    this.changeDetectorRef.markForCheck();
+  }
+
+  private filterMovedMembers(list: Project[], currentGroupId: string): Project[] {
+    return list.filter((member) => {
+      for (const [gid, removed] of this.removedByGroup.entries()) {
+        if (gid !== currentGroupId && removed.has(String(member.id))) {
+          return false;
+        }
+      }
+      return true;
+    });
   }
 }
