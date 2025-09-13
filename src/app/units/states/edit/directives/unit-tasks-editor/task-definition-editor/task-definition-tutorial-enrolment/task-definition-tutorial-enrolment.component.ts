@@ -24,7 +24,7 @@ export class TaskDefinitionTutorialEnrolmentComponent implements OnInit {
     const tutorialStreams = this.taskDefinition.unit.tutorialStreamsCache.currentValues;
     console.log(tutorialStreams);
     for (const stream of tutorialStreams) {
-      console.log(stream);
+     
       this._tutorialStreams.push(stream);
     }
   }
