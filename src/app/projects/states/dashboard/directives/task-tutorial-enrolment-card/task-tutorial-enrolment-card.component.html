@@ -1,0 +1,23 @@
+@if (!isSubmitted) {
+  <mat-card appearance="outlined" [hidden]="!tutorialEnrolmentEnabled">
+    <mat-card-header>
+      <mat-card-title>Tutorial Enrolment</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="pt-2">
+        This task allows you to select a tutorial to enrol in for the semester. Depending on which
+        tutorial you pick from, you will be assigned to the corresponding tutor that will mark your
+        work throughout the teaching period.
+      </p>
+      <p>To complete this task, you must enrol into a tutorial from the provided list.</p>
+    </mat-card-content>
+    <mat-card-actions class="space-x-2 px-5 pt-0">
+      <button mat-stroked-button (click)="launchTutorialEnrolment()" [disabled]="isNotStudent()">
+        <mat-icon style="width: 20px; height: 20px; font-size: 20px" aria-label="Launch icon">
+          launch
+        </mat-icon>
+        Begin enrolment
+      </button>
+    </mat-card-actions>
+  </mat-card>
+}

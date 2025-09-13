@@ -236,8 +236,8 @@ import {FeedbackTemplateService} from './api/services/feedback-template.service'
 import {StaffNotesComponent} from './projects/states/staff-notes/staff-notes.component';
 import {SidekiqProgressModalService} from './common/modals/sidekiq-progress-modal/sidekiq-progress-modal.service';
 import {TaskPrerequisitesCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-prerequisites-card/task-prerequisites-card.component';
-// import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
-// import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
+import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
 import {UnitStaffEditorComponent} from './units/states/edit/directives/unit-staff-editor/unit-staff-editor.component';
 import {GroupSetSelectorComponent} from './groups/group-set-selector/group-set-selector.component';
 import {UnitDetailsEditorComponent} from './units/states/edit/directives/unit-details-editor/unit-details-editor.component';
@@ -246,6 +246,7 @@ import {PortfolioIncludedTasksComponent} from './projects/states/portfolio/direc
 import {TaskSimilarityViewComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-similarity-view/task-similarity-view.component';
 import {UploadGradesComponent} from './units/states/portfolios/upload-grades/upload-grades.component';
 import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
+import {TaskTutorialEnrolmentCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-tutorial-enrolment-card/task-tutorial-enrolment-card.component';
 
 export const DoubtfireAngularJSModule = angular
   .module('doubtfire', [
@@ -597,4 +598,9 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'fUploadGrades',
   downgradeComponent({component: UploadGradesComponent}),
+);
+
+DoubtfireAngularJSModule.directive(
+  'fTaskTutorialEnrolmentCard',
+  downgradeComponent({component: TaskTutorialEnrolmentCardComponent}),
 );
