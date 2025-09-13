@@ -9,9 +9,9 @@
         <mat-label
           >Tutorial Streams - Which stream students can enrol into a tutorial from?</mat-label
         >
-        <mat-select [formControl]="tutoralStreamControl" multiple>
+        <mat-select [formControl]="tutoralStreamControl" [selectionchange]="onSelectStream()">
           @for (stream of unit.tutorialStreams; track stream) {
-            <mat-option [value]="stream.key"
+            <mat-option [value]="stream"
               >{{ stream.name }} — ({{
                 stream.tutorialsIn(taskDefinition.unit).length
               }}

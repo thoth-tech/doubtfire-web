@@ -47,6 +47,7 @@ export class TaskDefinition extends Entity {
   scormTimeDelayEnabled: boolean;
   scormAttemptLimit: number = 0;
   tutorialSelfEnrolmentEnabled: boolean;
+  tutorialSelfEnrolmentStream: TutorialStream = null;
   hasTaskAssessmentResources: boolean;
   hasTaskAssessmentScript: boolean;
   isGraded: boolean;
