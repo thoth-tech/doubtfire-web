@@ -255,6 +255,7 @@ import { GradeTaskModalComponent } from './tasks/modals/grade-task-modal/grade-t
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
 import { TaskDefinitionTutorialEnrolmentComponent } from './units/states/edit/directives/unit-tasks-editor/task-definition-editor/task-definition-tutorial-enrolment/task-definition-tutorial-enrolment.component';
 import {TaskTutorialEnrolmentCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-tutorial-enrolment-card/task-tutorial-enrolment-card.component';
+import { TutorialEnrolmentModalComponent } from './common/modals/tutorial-enrolment-modal/tutorial-enrolment-modal.component';
 
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
@@ -393,6 +394,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     ScormExtensionModalComponent,
     TaskDefinitionTutorialEnrolmentComponent,
     TaskTutorialEnrolmentCardComponent,
+    TutorialEnrolmentModalComponent,
   ],
   // Services we provide
   providers: [
