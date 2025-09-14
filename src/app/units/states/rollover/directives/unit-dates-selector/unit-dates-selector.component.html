@@ -1,0 +1,110 @@
+<div class="unit-dates-selector">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Create Unit</h3>
+      <p>Duplicate an existing unit by specifying the time period.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="saveUnit()" class="form-horizontal">
+      <div class="panel-body">
+
+        <!-- Teaching Period -->
+        <div class="form-group row">
+          <label for="teachingperiod" class="col-sm-2 col-form-label">Teaching Period</label>
+          <div class="col-sm-9">
+            <!-- Replace with your custom select component -->
+            <object-select
+              [source]="teachingPeriodValues"
+              [target]="form.get('toPeriod')?.value"
+              (targetChange)="form.get('toPeriod')?.setValue($event)"
+              label="Select Teaching Period">
+            </object-select>
+          </div>
+        </div>
+
+        <!-- Start Date -->
+        <div class="form-group row">
+          <label for="startdate" class="col-sm-2 col-form-label" title="Date for the start of teaching in the unit.">
+            Start Date
+          </label>
+          <div class="col-sm-9">
+            <div class="input-group col-sm-4">
+              <ng-container *ngIf="!form.get('toPeriod')?.value; else displayStart">
+                <input
+                  id="startdate"
+                  type="date"
+                  class="form-control"
+                  formControlName="startDate"
+                  placeholder="yyyy-MM-dd"
+                />
+              </ng-container>
+
+              <ng-template #displayStart>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="form.get('toPeriod')?.value?.startDate | date: 'yyyy-MM-dd'"
+                  disabled
+                />
+              </ng-template>
+
+              <span class="input-group-btn">
+                <button
+                  type="button"
+                  class="btn btn-default"
+                  (click)="openPicker('start')"
+                  [disabled]="form.get('toPeriod')?.value"
+                >
+                  <i class="fa fa-calendar"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- End Date -->
+        <div class="form-group row">
+          <label for="enddate" class="col-sm-2 col-form-label">End Date</label>
+          <div class="col-sm-9">
+            <div class="input-group col-sm-4">
+              <ng-container *ngIf="!form.get('toPeriod')?.value; else displayEnd">
+                <input
+                  id="enddate"
+                  type="date"
+                  class="form-control"
+                  formControlName="endDate"
+                  placeholder="yyyy-MM-dd"
+                />
+              </ng-container>
+
+              <ng-template #displayEnd>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="form.get('toPeriod')?.value?.endDate | date: 'yyyy-MM-dd'"
+                  disabled
+                />
+              </ng-template>
+
+              <span class="input-group-btn">
+                <button
+                  type="button"
+                  class="btn btn-default"
+                  (click)="openPicker('end')"
+                  [disabled]="form.get('toPeriod')?.value"
+                >
+                  <i class="fa fa-calendar"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="panel-footer text-right">
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">Create Unit</button>
+      </div>
+    </form>
+  </div>
+</div>

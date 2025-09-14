@@ -36,7 +36,6 @@
               "src/styles.scss",
               "./node_modules/bootstrap/dist/css/bootstrap.css",
               "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
-              "./build/assets/doubtfire.css",
               "./build/assets/node_modules/angular-xeditable/dist/css/xeditable.css",
               "./build/assets/node_modules/codemirror/lib/codemirror.css",
               "./build/assets/node_modules/codemirror/theme/xq-light.css",
