@@ -270,7 +270,7 @@ const MY_DATE_FORMAT = {
 import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
 import { StaffGrantExtensionComponent } from './units/states/tasks/staff-grant-extension/staff-grant-extension.component';
 import { StaffGrantExtensionFormComponent } from './units/states/tasks/staff-grant-extension/grant-extension-form/grant-extension-form.component';
-
+import { StaffGrantExtensionSummaryComponent } from './units/states/tasks/staff-grant-extension/staff-grant-extension-summary/staff-grant-extension-summary.component';
 @NgModule({
   // Components we declare
   declarations: [
@@ -394,6 +394,7 @@ import { StaffGrantExtensionFormComponent } from './units/states/tasks/staff-gra
     ScormExtensionModalComponent,
     NotificationsButtonComponent,
     StaffGrantExtensionComponent,
+    StaffGrantExtensionSummaryComponent,
     StaffTaskListComponent,
   ],
   // Services we provide
