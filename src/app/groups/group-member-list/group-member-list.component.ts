@@ -15,8 +15,7 @@ import {Group} from 'src/app/api/models/doubtfire-model';
 import {Project} from 'src/app/api/models/project';
 import {Unit} from 'src/app/api/models/unit';
 import {UnitRole} from 'src/app/api/models/unit-role';
-
-
+import {AlertService} from 'src/app/common/services/alert.service';
 
 type SortKey = 'student.username' | 'student.name' | 'targetGrade';
 
@@ -69,6 +68,7 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
     private differs: IterableDiffers,
+    private alertService: AlertService,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -153,6 +153,7 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
         this.members = [];
         this.sortedMembers = [];
         this.canRemoveMembers = false;
+        this.alertService.error('Failed to load group members. Please try again later.');
         this.changeDetectorRef.markForCheck();
       },
     });

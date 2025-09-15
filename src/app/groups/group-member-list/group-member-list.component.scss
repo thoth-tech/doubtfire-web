@@ -1,4 +1,29 @@
-// This is for mat-spinner color
+/* General header cell styles */
+::ng-deep .mat-mdc-header-cell {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/*header buttons blue */
+::ng-deep .mat-mdc-header-cell button.mat-mdc-button {
+  color: #1976d2 !important;
+  font-weight: 600;
+  text-transform: none;
+}
+
+/* Also make the icons (sort arrows) blue */
+::ng-deep .mat-mdc-header-cell button.mat-mdc-button mat-icon {
+  color: #1976d2 !important;
+}
+
+/*make the Actions header black */
+::ng-deep th.mat-mdc-header-cell:last-child,
+::ng-deep th.mat-mdc-header-cell:last-child button.mat-mdc-button,
+::ng-deep th.mat-mdc-header-cell:last-child button.mat-mdc-button mat-icon {
+  color: black !important;
+}
+
+/* mat-spinner color */
 :host ::ng-deep .mat-mdc-progress-spinner circle {
   stroke: gray;
 }
