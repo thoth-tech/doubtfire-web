@@ -2,8 +2,6 @@
 import {Component, Input} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {TaskDefinition, Unit} from 'src/app/api/models/doubtfire-model';
-import {NgHybridStateDeclaration} from '@uirouter/angular-hybrid';
-
 @Component({
   selector: 'f-task-viewer-state',
   templateUrl: './task-viewer-state.component.html',
@@ -32,18 +30,3 @@ export class TaskViewerStateComponent {
     this.selectedTaskDefinition$.next(null);
   }
 }
-
-export const TaskViewerState: NgHybridStateDeclaration = {
-  name: 'units/tasks/viewer',
-  url: '/units/:unitId/tasks/viewer',
-  parent: 'unit-root-state',
-  data: {
-    pageTitle: 'Unit Tasks',
-    roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
-  },
-  views: {
-    unitView: {
-      component: TaskViewerStateComponent,
-    },
-  },
-};
