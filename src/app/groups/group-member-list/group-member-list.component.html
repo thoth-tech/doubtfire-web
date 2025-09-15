@@ -5,7 +5,7 @@
 </div>
 
 <!-- Empty -->
-<div class="panel-body" *ngIf="loaded && (members?.length || 0) === 0">
+<div class="panel-body" *ngIf="loaded && (!members || members.length === 0)">
   <mat-card class="p-2">
     <mat-card-title>No members in group</mat-card-title>
     <mat-card-content>
@@ -18,7 +18,7 @@
 <table mat-table [dataSource]="sortedMembers" class="mat-elevation-z1" *ngIf="loaded && (members?.length || 0) > 0">
 
   <!-- Student ID Column -->
-  <ng-container matColumnDef="studentId" *ngIf="unitRole">
+  <ng-container matColumnDef="studentId">
     <th mat-header-cell *matHeaderCellDef>
       <button mat-button (click)="sortTableBy('student.username')" aria-label="Sort by Student ID">
         Student ID
@@ -44,7 +44,7 @@
   </ng-container>
 
   <!-- Target Grade Column -->
-  <ng-container matColumnDef="targetGrade" *ngIf="unitRole">
+  <ng-container matColumnDef="targetGrade">
     <th mat-header-cell *matHeaderCellDef>
       <button mat-button (click)="sortTableBy('targetGrade')" aria-label="Sort by Target Grade">
         Target Grade
@@ -59,10 +59,10 @@
   </ng-container>
 
   <!-- Actions Column -->
-  <ng-container matColumnDef="actions" *ngIf="canRemoveMembers">
+  <ng-container matColumnDef="actions" *ngIf="displayedColumns.includes('actions')">
     <th mat-header-cell *matHeaderCellDef>Actions</th>
     <td mat-cell *matCellDef="let m">
-      <button mat-raised-button color="warn" (click)="removeMember(m)">
+      <button mat-raised-button color="warn" (click)="removeMember(m)" [disabled]="selectedGroup?.locked">
         <mat-icon>remove_circle</mat-icon>
         <span *ngIf="project && m?.id === project?.id">Leave</span>
         <span *ngIf="!project || m?.id !== project?.id">Remove</span>
@@ -72,6 +72,6 @@
   </ng-container>
 
   <!-- Render Header & Rows -->
-  <tr mat-header-row *matHeaderRowDef="['studentId','name','targetGrade','actions']; sticky: true"></tr>
-  <tr mat-row *matRowDef="let row; columns: ['studentId','name','targetGrade','actions'];"></tr>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
