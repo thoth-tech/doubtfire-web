@@ -40,7 +40,7 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
 
   members: Project[] = [];
   sortedMembers: Project[] = [];
-  canRemoveMembers = false;
+  displayedColumns: string[] = [];
   private membersDiffer: IterableDiffer<Project> | null = null;
   private removedByGroup = new Map<string, Set<string>>();
 
@@ -53,11 +53,19 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
   private maybeClearRemoved(group: Group): void {
     const key = String(group.id);
     const removed = this.removedByGroup.get(key);
+
     if (!removed?.size) return;
-    const stillPresent = [...removed].some((id) =>
+
+    // Keep removed IDs until the server truly confirms they are gone
+    const stillPresent = [...removed].filter((id) =>
       (group.members as Project[]).some((m) => String(m?.id) === id),
     );
-    if (!stillPresent) this.removedByGroup.delete(key);
+
+    if (stillPresent.length === 0) {
+      this.removedByGroup.delete(key);
+    } else {
+      this.removedByGroup.set(key, new Set(stillPresent));
+    }
   }
 
   tableSort: {order: SortKey; reverse: boolean} = {
@@ -85,11 +93,15 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
       if (diff) {
         const gid = String(this.selectedGroup.id);
         const raw = [...(this.selectedGroup.members as Project[])];
-        this.members = this.applyRemovedFilter(raw, gid);
+        this.members = this.filterMovedMembers(this.applyRemovedFilter(raw, gid), gid);
         this.resort();
         this.maybeClearRemoved(this.selectedGroup);
         this.changeDetectorRef.markForCheck();
       }
+    }
+    if (this.selectedGroup) {
+      this.updateDisplayedColumns();
+      this.changeDetectorRef.markForCheck();
     }
   }
 
@@ -138,11 +150,11 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
 
     g.getMembers().subscribe({
       next: () => {
+        const gid = String(g.id);
         const raw = Array.isArray(g.members) ? [...(g.members as Project[])] : [];
-        this.members = this.applyRemovedFilter(raw, String(g.id));
+        this.members = this.filterMovedMembers(this.applyRemovedFilter(raw, gid), gid);
         this.resort();
         this.loaded = true;
-        this.updateCanRemoveMembers();
         this.membersLoaded.emit();
         this.maybeClearRemoved(g);
         this.changeDetectorRef.markForCheck();
@@ -152,17 +164,19 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
         this.selectedGroup = null;
         this.members = [];
         this.sortedMembers = [];
-        this.canRemoveMembers = false;
         this.alertService.error('Failed to load group members. Please try again later.');
         this.changeDetectorRef.markForCheck();
       },
     });
   }
 
-  private updateCanRemoveMembers(): void {
+  private updateDisplayedColumns(): void {
     const g = this.selectedGroup;
-    this.canRemoveMembers =
-      !!this.unitRole || (!!g?.groupSet?.allowStudentsToManageGroups && !g?.locked);
+    const canShowActions = !!this.unitRole || !!g?.groupSet?.allowStudentsToManageGroups;
+
+    this.displayedColumns = canShowActions
+      ? ['studentId', 'name', 'targetGrade', 'actions']
+      : ['studentId', 'name', 'targetGrade'];
   }
 
   sortTableBy(column: SortKey): void {
@@ -180,6 +194,11 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
 
   removeMember(member: Project): void {
     if (!this.selectedGroup) return;
+
+    if (this.selectedGroup.locked) {
+      this.alertService.error('This group is locked. Members cannot be removed.');
+      return;
+    }
 
     this.selectedGroup.removeMember(member);
 
