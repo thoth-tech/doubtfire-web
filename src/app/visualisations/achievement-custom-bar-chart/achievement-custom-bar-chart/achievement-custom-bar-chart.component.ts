@@ -142,6 +142,7 @@ export class AchievementCustomBarChartComponent implements OnChanges, AfterViewI
   }
 
   private renderChart() {
+    if (!this.svg) return;
     if (!this.achievementData || this.achievementData.length === 0) return;
     const margin = {top: 20, right: 20, bottom: 50, left: 60};
     const w = this.width - margin.left - margin.right;
