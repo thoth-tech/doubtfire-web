@@ -1,21 +1,4 @@
-:host {
-  display: block;
-
-  table {
-    th.student-id {
-      width: 25%;
-    }
-
-    th.student-name {
-      width: 50%;
-    }
-
-    th.actions {
-      width: 25%;
-    }
-
-    th.student-grade {
-      width: 50%;
-    }
-  }
+// This is for mat-spinner color
+:host ::ng-deep .mat-mdc-progress-spinner circle {
+  stroke: gray;
 }

@@ -16,11 +16,14 @@ import {Project} from 'src/app/api/models/project';
 import {Unit} from 'src/app/api/models/unit';
 import {UnitRole} from 'src/app/api/models/unit-role';
 
+
+
 type SortKey = 'student.username' | 'student.name' | 'targetGrade';
 
 @Component({
   selector: 'group-member-list',
   templateUrl: './group-member-list.component.html',
+  styleUrls: ['./group-member-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GroupMemberListComponent implements OnChanges, DoCheck {
@@ -98,7 +101,7 @@ export class GroupMemberListComponent implements OnChanges, DoCheck {
    * Works with nested fields (like student.username) and
    * compares values in a way that handles both text and numbers.
    * Applies ascending or descending order depending on `this.tableSort.reverse`.
-   * Updates `this.sortedMembers` with the newly sorted list.
+   * then updates `this.sortedMembers` with the newly sorted list.
    *
    * In short,this takes the list of members
    * and arranges them alphabetically (or numerically if applicable)
