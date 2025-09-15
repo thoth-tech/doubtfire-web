@@ -1,0 +1,10 @@
+<div class="achievement-chart-container">
+  <svg width="100%" height="100%"></svg>
+  <div
+    class="achievement-tooltip"
+    [style.display]="tooltip.visible ? 'block' : 'none'"
+    [style.left.px]="tooltip.x"
+    [style.top.px]="tooltip.y"
+    [innerHTML]="tooltip.content"
+  ></div>
+</div>
