@@ -11,7 +11,7 @@ import {FUnitsComponent} from './admin/states/units/units.component';
 import {ProjectDashboardComponent} from './projects/states/dashboard/project-dashboard/project-dashboard.component';
 import {UnitRootState} from './units/unit-root-state.component';
 import {ProjectRootState} from './projects/states/project-root-state.component';
-import { TaskViewerState } from './units/task-viewer/task-viewer-state.component';
+import { TaskViewerStateComponent } from './units/task-viewer/task-viewer-state.component';
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import { Ng2ViewDeclaration } from '@uirouter/angular';
 
@@ -408,6 +408,21 @@ const ScormPlayerReviewState: NgHybridStateDeclaration = {
   data: {
     pageTitle: 'Preview Scorm Test',
     roleWhitelist: ['Tutor', 'Convenor', 'Admin'],
+  },
+};
+
+export const TaskViewerState: NgHybridStateDeclaration = {
+  name: 'units/tasks/viewer',
+  url: '/units/:unitId/tasks/viewer',
+  parent: 'unit-root-state',
+  data: {
+    pageTitle: 'Unit Tasks',
+    roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
+  },
+  views: {
+    unitView: {
+      component: TaskViewerStateComponent,
+    },
   },
 };
 
