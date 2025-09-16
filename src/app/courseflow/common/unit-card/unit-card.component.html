@@ -1,5 +1,32 @@
-<div class="unit" cdkDrag [cdkDragData]="dragData">
-  <strong>{{ unit.code }}</strong> - {{ unit.name }}
+<div
+  class="unit"
+  [class.has-warnings]="hasPrerequisiteWarnings"
+  cdkDrag
+  [cdkDragData]="dragData"
+  [matTooltip]="warningTooltip"
+  [matTooltipDisabled]="!hasPrerequisiteWarnings"
+>
+  <div class="unit-header">
+    <div class="unit-code-section">
+      <strong>{{ unit.code }}</strong> | Level {{ getUnitLevel() }} | {{ unit.credit_points }}
+      points
+    </div>
+  </div>
+
+  <div class="unit-name">
+    {{ unit.name }}
+  </div>
+
+  @if (hasPrerequisiteWarnings) {
+    <div class="prerequisite-warnings">
+      @for (warning of validationResult?.warnings; track warning) {
+        <div class="warning-text">
+          <mat-icon class="warning-icon-small">warning</mat-icon>
+          {{ warning }}
+        </div>
+      }
+    </div>
+  }
 
   <button *ngIf="showMenu" mat-icon-button class="unit-menu-button" [matMenuTriggerFor]="unitMenu">
     <mat-icon>more_vert</mat-icon>

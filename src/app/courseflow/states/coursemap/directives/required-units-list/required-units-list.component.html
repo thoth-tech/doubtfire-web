@@ -10,12 +10,13 @@
     (cdkDropListDropped)="onDrop($event)"
     class="units-list"
   >
-    <unit-card
+    <f-unit-card
       *ngFor="let unit of units"
       [unit]="unit"
       [dragData]="getDragData(unit)"
       [showMenu]="false"
+      [showValidation]="false"
     >
-    </unit-card>
+    </f-unit-card>
   </div>
 </div>

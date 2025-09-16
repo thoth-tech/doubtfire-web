@@ -1,16 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {Injectable} from '@angular/core';
-import {
-  CdkDragDrop,
-  DragDropModule,
-  moveItemInArray,
-  transferArrayItem,
-  CdkDrag,
-} from '@angular/cdk/drag-drop';
+import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {CourseMapStateService} from './course-map-state.service';
 import {DraggedUnitData, DropResult} from '../models/drag-drop.models';
 import {SlotContext, CourseUnit} from '../models/course-map.models';
-import {Unit, UnitDefinition} from 'src/app/api/models/doubtfire-model';
+import {Unit} from 'src/app/api/models/doubtfire-model';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +19,6 @@ export class CourseMapDragDropService {
     const currentIndex = event.currentIndex;
 
     const draggedData = event.item.data as DraggedUnitData;
-    const unitToMove = draggedData.unit;
     const targetContainerData = currentContainer.data;
 
     // If unit is dragged to the same container
@@ -132,12 +125,25 @@ export class CourseMapDragDropService {
   private placeUnitInEmptySlot(
     draggedData: DraggedUnitData,
     targetContext: SlotContext,
-    sourceList: CourseUnit[],
+    _sourceList: CourseUnit[],
     previousIndex: number,
     sourceIsSlot: boolean,
   ): DropResult {
     const currentState = this.stateService.currentState;
     const {yearIndex, trimesterKey, slotIndex} = targetContext;
+
+    // Validate the placement before actually placing the unit
+    const validationResult = this.stateService.validateUnitPlacement(
+      draggedData.unit,
+      yearIndex,
+      trimesterKey,
+      slotIndex,
+    );
+
+    if (!validationResult.isValid) {
+      // Log warnings but still allow the placement
+      console.warn('Unit placed with prerequisite warnings:', validationResult.warnings);
+    }
 
     // Update the slot
     const updatedYears = [...currentState.years];
@@ -169,7 +175,7 @@ export class CourseMapDragDropService {
       }
     }
 
-    this.stateService['updateState'](newState);
+    this.stateService.updateState(newState);
     return {success: true};
   }
 
@@ -227,7 +233,7 @@ export class CourseMapDragDropService {
       newElectiveUnits.push(existingUnitInSlot as Unit);
     }
 
-    this.stateService['updateState']({
+    this.stateService.updateState({
       ...currentState,
       years: updatedYears,
       requiredUnits: newRequiredUnits,

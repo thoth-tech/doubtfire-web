@@ -23,9 +23,10 @@ import {CourseYearEditorComponent} from './directives/course-year-editor/course-
 import {RequiredUnitsListComponent} from './directives/required-units-list/required-units-list.component';
 import {ElectiveUnitsListComponent} from './directives/elective-units-list/elective-units-list.component';
 import {UnitSearchComponent} from './directives/unit-search/unit-search.component';
+import {CreditPointsSummaryComponent} from '../../common/credit-points-summary/credit-points-summary.component';
 
 @Component({
-  selector: 'coursemap',
+  selector: 'f-coursemap',
   templateUrl: './coursemap.component.html',
   styleUrls: ['./coursemap.component.scss'],
   standalone: true,
@@ -38,6 +39,7 @@ import {UnitSearchComponent} from './directives/unit-search/unit-search.componen
     RequiredUnitsListComponent,
     ElectiveUnitsListComponent,
     UnitSearchComponent,
+    CreditPointsSummaryComponent,
   ],
   providers: [
     UnitService,
@@ -227,13 +229,24 @@ export class CoursemapComponent implements OnInit, OnDestroy {
     this.stateService.addYear();
   }
 
-  addElectiveUnit(unit: Unit): boolean {
-    return this.stateService.addElectiveUnit(unit);
-  }
+  getTotalPlannedCreditPoints(): number {
+    let totalPoints = 0;
 
-  getAvailableUnits(): Unit[] {
-    const allRequiredIds = new Set(this.state.allRequiredUnits.map((u) => u.id));
-    return this.units.filter((unit) => !allRequiredIds.has(unit.id));
+    // Sum up credit points from all placed units in all years and trimesters
+    this.state.years.forEach((year) => {
+      ['trimester1', 'trimester2', 'trimester3'].forEach((trimesterKey) => {
+        const trimester = year[trimesterKey as keyof typeof year] as (unknown | null)[];
+        if (trimester) {
+          trimester.forEach((unit) => {
+            if (unit && (unit as {credit_points?: number}).credit_points) {
+              totalPoints += (unit as {credit_points: number}).credit_points;
+            }
+          });
+        }
+      });
+    });
+
+    return totalPoints;
   }
 
   getRemainingElectiveSlots(): number {
@@ -249,7 +262,7 @@ export class CoursemapComponent implements OnInit, OnDestroy {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  trackByYear(index: number, year: any): number {
+  trackByYear(_index: number, year: any): number {
     return year.year;
   }
 }
