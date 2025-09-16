@@ -1,7 +1,11 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {CourseYear, CourseMapState, CourseUnit, TRIMESTER_KEYS} from '../models/course-map.models';
-import {Unit, UnitDefinition} from 'src/app/api/models/doubtfire-model';
+import {Unit} from 'src/app/api/models/doubtfire-model';
+import {
+  PrerequisiteValidationService,
+  PrerequisiteValidationResult,
+} from './prerequisite-validation.service';
 
 @Injectable({
   providedIn: 'root', // provide 1 instance throughout the entire application -> singleton
@@ -28,8 +32,68 @@ export class CourseMapStateService {
   private stateSubject = new BehaviorSubject<CourseMapState>(this.initialState);
   public state$: Observable<CourseMapState> = this.stateSubject.asObservable();
 
+  constructor(private prerequisiteValidationService: PrerequisiteValidationService) {}
+
   get currentState(): CourseMapState {
     return this.stateSubject.value;
+  }
+
+  // Add a subject to track validation results
+  private validationResultsSubject = new BehaviorSubject<Map<string, PrerequisiteValidationResult>>(
+    new Map(),
+  );
+  public validationResults$ = this.validationResultsSubject.asObservable();
+
+  get currentValidationResults(): Map<string, PrerequisiteValidationResult> {
+    return this.validationResultsSubject.value;
+  }
+
+  // Add validation method
+  validateUnitPlacement(
+    unit: Unit,
+    yearIndex: number,
+    trimesterKey: 'trimester1' | 'trimester2' | 'trimester3',
+    slotIndex: number,
+  ): PrerequisiteValidationResult {
+    const year = this.currentState.years[yearIndex];
+    if (!year) {
+      return {isValid: false, missingPrerequisites: [], warnings: ['Invalid year']};
+    }
+
+    const trimesterNumber = this.getTrimesterNumber(trimesterKey);
+
+    return this.prerequisiteValidationService.validateUnitPlacement(
+      unit,
+      year.year,
+      trimesterNumber,
+      slotIndex + 1, // Convert to 1-based index
+      this.currentState,
+    );
+  }
+
+  // Validate all units and update validation results
+  private validateAllUnits(): void {
+    const validationResults = this.prerequisiteValidationService.validateAllUnitsInCourseMap(
+      this.currentState,
+    );
+    this.validationResultsSubject.next(validationResults);
+  }
+
+  // Override updateState to trigger validation
+  updateState(newState: CourseMapState): void {
+    this.stateSubject.next(newState);
+    // Trigger validation after state update
+    setTimeout(() => this.validateAllUnits(), 0);
+  }
+
+  getValidationResultForPosition(
+    unitCode: string,
+    year: number,
+    trimester: number,
+    slot: number,
+  ): PrerequisiteValidationResult | null {
+    const key = `${unitCode}-${year}-${trimester}-${slot}`;
+    return this.currentValidationResults.get(key) || null;
   }
 
   // Year Management
@@ -254,13 +318,6 @@ export class CourseMapStateService {
     const currentState = this.currentState;
     const totalElectivesUsed = currentState.electiveUnits.length + this.countElectivesInSlots();
     return Math.max(0, currentState.maxElectiveUnits - totalElectivesUsed);
-  }
-
-  private updateState(newState: CourseMapState): void {
-    /**
-     * Update the current state
-     */
-    this.stateSubject.next(newState);
   }
 
   private isRequiredUnit(unit: CourseUnit): boolean {

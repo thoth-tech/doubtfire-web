@@ -6,12 +6,16 @@
   [cdkDropListData]="dropListData"
   (cdkDropListDropped)="onDrop($event)"
 >
-  <unit-card
+  <f-unit-card
     *ngIf="unit"
     [unit]="unit"
     [dragData]="dragData"
     [showMenu]="true"
+    [yearIndex]="yearIndex"
+    [trimesterKey]="trimesterKey"
+    [slotIndex]="slotIndex"
+    [showValidation]="true"
     (removeUnit)="onRemoveUnit()"
   >
-  </unit-card>
+  </f-unit-card>
 </div>
