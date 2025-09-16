@@ -267,6 +267,7 @@ const MY_DATE_FORMAT = {
   },
 };
 import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.component';
+import { UnitDatesSelectorComponent } from './units/states/rollover/directives/unit-dates-selector/unit-dates-selector';
 
 @NgModule({
   // Components we declare
@@ -309,6 +310,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     TaskDefinitionOverseerComponent,
     TaskDefinitionScormComponent,
     UnitAnalyticsComponent,
+    UnitDatesSelectorComponent,
     StudentTutorialSelectComponent,
     StudentCampusSelectComponent,
     TaskListItemComponent,
