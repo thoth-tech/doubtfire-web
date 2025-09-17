@@ -62,8 +62,8 @@
   <ng-container matColumnDef="actions" *ngIf="displayedColumns.includes('actions')">
     <th mat-header-cell *matHeaderCellDef>Actions</th>
     <td mat-cell *matCellDef="let m">
-      <button mat-raised-button color="warn" (click)="removeMember(m)" [disabled]="selectedGroup?.locked">
-        <mat-icon>remove_circle</mat-icon>
+      <button mat-raised-button color="warn" class="remove-btn" (click)="removeMember(m)" [disabled]="selectedGroup?.locked">
+        <mat-icon>delete_outline</mat-icon>
         <span *ngIf="project && m?.id === project?.id">Leave</span>
         <span *ngIf="!project || m?.id !== project?.id">Remove</span>
 

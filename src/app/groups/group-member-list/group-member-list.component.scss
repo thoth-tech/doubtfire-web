@@ -27,3 +27,18 @@
 :host ::ng-deep .mat-mdc-progress-spinner circle {
   stroke: gray;
 }
+
+.remove-btn {
+  color: white !important;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .mat-icon {
+    color: white !important;
+  }
+
+  .mat-mdc-button-label {
+    color: white !important;
+  }
+}
