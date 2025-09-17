@@ -1,0 +1,55 @@
+// Registration form styles - inherits from sign-in styles
+.welcome {
+  min-height: 100vh;
+}
+
+.container {
+  padding: 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.subcontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.welcome-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.sign-in-form {
+  gap: 1rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+button {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.mat-mdc-button-base {
+  margin-bottom: 0.5rem;
+}
+
+.mat-hint {
+  font-size: 12px;
+  color: #666;
+}
+

@@ -3,6 +3,9 @@ import {InstitutionSettingsComponent} from './admin/institution-settings/institu
 import {HomeComponent} from './home/states/home/home.component';
 import {WelcomeComponent} from './welcome/welcome.component';
 import {SignInComponent} from './sessions/states/sign-in/sign-in.component';
+import {RegisterComponent} from './sessions/states/register/register.component';
+import {ForgotPasswordComponent} from './sessions/states/forgot-password/forgot-password.component';
+import {ResetPasswordComponent} from './sessions/states/reset-password/reset-password.component';
 import {EditProfileComponent} from './account/edit-profile/edit-profile.component';
 import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
@@ -186,6 +189,54 @@ const SignInState: NgHybridStateDeclaration = {
 };
 
 /**
+ * Define the Register state.
+ */
+const RegisterState: NgHybridStateDeclaration = {
+  name: 'register',
+  url: '/register',
+  views: {
+    main: {
+      component: RegisterComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Create Account',
+  },
+};
+
+/**
+ * Define the Forgot Password state.
+ */
+const ForgotPasswordState: NgHybridStateDeclaration = {
+  name: 'forgot-password',
+  url: '/forgot-password',
+  views: {
+    main: {
+      component: ForgotPasswordComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Forgot Password',
+  },
+};
+
+/**
+ * Define the Reset Password state.
+ */
+const ResetPasswordState: NgHybridStateDeclaration = {
+  name: 'reset-password',
+  url: '/reset-password?token',
+  views: {
+    main: {
+      component: ResetPasswordComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Reset Password',
+  },
+};
+
+/**
  * Define the Edit Profile state.
  */
 const EditProfileState: NgHybridStateDeclaration = {
@@ -300,6 +351,9 @@ export const doubtfireStates = [
   HomeState,
   WelcomeState,
   SignInState,
+  RegisterState,
+  ForgotPasswordState,
+  ResetPasswordState,
   EditProfileState,
   EulaState,
   usersState,

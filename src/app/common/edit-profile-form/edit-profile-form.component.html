@@ -87,6 +87,19 @@
         <input type="email" matInput [(ngModel)]="user.email" name="email" required />
       </mat-form-field>
 
+      @if (showPasswordManagement) {
+        <div fxLayout="row" fxFlexFill style="margin-top: 20px;">
+          <button 
+            mat-stroked-button 
+            color="primary" 
+            (click)="openChangePasswordDialog()"
+            type="button">
+            <mat-icon>lock</mat-icon>
+            Change Password
+          </button>
+        </div>
+      }
+
       @if (canSeeSystemRole) {
       <mat-form-field fxFlexFill appearance="outline">
         <mat-label>System Role</mat-label>

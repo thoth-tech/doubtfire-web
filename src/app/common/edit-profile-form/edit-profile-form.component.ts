@@ -1,11 +1,12 @@
 import { Component, Inject, Input, OnInit, Optional } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StateService } from '@uirouter/core';
 import { User } from 'src/app/api/models/user/user';
 import { AuthenticationService } from 'src/app/api/services/authentication.service';
 import { UserService } from 'src/app/api/services/user.service';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
+import { ChangePasswordDialogComponent } from '../change-password-dialog/change-password-dialog.component';
 
 @Component({
   selector: 'f-edit-profile-form',
@@ -19,7 +20,8 @@ export class EditProfileFormComponent implements OnInit {
     private state: StateService,
     private authService: AuthenticationService,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { user: User; mode: 'edit' | 'create' | 'new' },
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.user = data?.user || this.userService.currentUser;
   }
@@ -78,6 +80,11 @@ export class EditProfileFormComponent implements OnInit {
     return this.constants.IsTiiEnabled.value;
   }
 
+  public get showPasswordManagement(): boolean {
+    // Show password management if user is authenticated and not in create mode
+    return this.authService.isAuthenticated() && this.mode !== 'create';
+  }
+
   public submit(): void {
     this.user.pronouns = this.customPronouns ? this.user.pronouns : this.formPronouns.pronouns;
     this.user.hasRunFirstTimeSetup = true;
@@ -117,5 +124,22 @@ export class EditProfileFormComponent implements OnInit {
         error: (error) => console.log(error),
       });
     }
+  }
+
+  public openChangePasswordDialog(): void {
+    const dialogRef = this.dialog.open(ChangePasswordDialogComponent, {
+      width: '500px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this._snackBar.open('Password changed successfully', 'dismiss', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+        });
+      }
+    });
   }
 }

@@ -137,4 +137,12 @@ export class SignInComponent implements OnInit {
       },
     });
   }
+
+  goToForgotPassword(): void {
+    this.state.go('forgot-password');
+  }
+
+  goToRegister(): void {
+    this.state.go('register');
+  }
 }

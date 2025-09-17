@@ -1,0 +1,91 @@
+<section class="welcome flex flex-row custom-md-h-screen">
+  <f-hero-sidebar class="sidebar self-start flex-col h-full"></f-hero-sidebar>
+  <section class="content flex flex-col custom-md-h-screen">
+    <div class="container">
+      <div class="subcontainer">
+        <div class="wordmark flex-row place-content-start">
+          <img src="../../../assets/images/logo-bw.svg" width="40px" alt="Homepage Logo" />
+          <p>Create Account</p>
+        </div>
+        <h1 class="welcome-heading flex flex-row place-content-start">
+          Create Your Account
+        </h1>
+        <form
+          #form="ngForm"
+          (ngSubmit)="register()"
+          class="sign-in-form flex flex-col"
+        >
+          <mat-form-field appearance="outline" class="flex-1 h-full w-full">
+            <mat-label>Username</mat-label>
+            <input matInput name="username" required [(ngModel)]="formData.username" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1 h-full w-full">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" name="email" required [(ngModel)]="formData.email" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1 h-full w-full">
+            <mat-label>First Name</mat-label>
+            <input matInput name="firstName" required [(ngModel)]="formData.firstName" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1 h-full w-full">
+            <mat-label>Last Name</mat-label>
+            <input matInput name="lastName" required [(ngModel)]="formData.lastName" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1 h-full w-full">
+            <mat-label>Nickname (Optional)</mat-label>
+            <input matInput name="nickname" [(ngModel)]="formData.nickname" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1 h-full w-full">
+            <mat-label>Password</mat-label>
+            <input
+              type="password"
+              matInput
+              name="password"
+              required
+              [(ngModel)]="formData.password"
+            />
+            <mat-hint>Password must be at least 8 characters long</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1 h-full w-full">
+            <mat-label>Confirm Password</mat-label>
+            <input
+              type="password"
+              matInput
+              name="passwordConfirmation"
+              required
+              [(ngModel)]="formData.passwordConfirmation"
+            />
+          </mat-form-field>
+
+          <button
+            class="w-full"
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || registering"
+          >
+            {{ registering ? 'Creating Account...' : 'Create Account' }}
+          </button>
+
+          <button
+            type="button"
+            class="w-full mt-2"
+            mat-stroked-button
+            color="primary"
+            (click)="goToLogin()"
+            [disabled]="registering"
+          >
+            Already have an account? Sign In
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+</section>
+
