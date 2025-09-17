@@ -91,7 +91,9 @@ MIGRATED:
 - [x] ./src/app/common/services/alert.service.ts
 - [x] ./src/app/sessions/states/sign-in/sign-in.component.ts
 - [x] ./src/app/account/edit-profile/edit-profile.component.ts
-- [x] ./src/app/admin/modals/create-unit-modal/create-unit-modal.coffee
+- [x] .src/app/groups/group-member-list/group-member-list.component.ts
+- [x] ./src/app/admin/modals/create-unit-modal/create-unit-modal.ts
+
 
 TODO:
 
@@ -163,7 +165,6 @@ TODO:
 - [ ] ./src/app/groups/group-selector/group-selector.coffee
 - [ ] ./src/app/groups/group-set-manager/group-set-manager.coffee
 - [ ] ./src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.coffee
-- [ ] ./src/app/groups/group-member-list/group-member-list.coffee
 - [ ] ./src/app/groups/group-set-selector/group-set-selector.coffee
 - [ ] ./src/app/groups/tutor-group-manager/tutor-group-manager.coffee
 - [ ] ./src/app/groups/groups.coffee
