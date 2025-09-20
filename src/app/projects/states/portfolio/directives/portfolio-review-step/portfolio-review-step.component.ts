@@ -1,38 +1,39 @@
-import { Component, Input, OnInit, Inject } from '@angular/core';
+import { Component, Input, OnInit, Inject, DoCheck } from '@angular/core';
 import { AlertService } from 'src/app/common/services/alert.service';
 import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
 import { FileDownloaderService } from 'src/app/common/file-downloader/file-downloader.service';
 import { ProjectService } from 'src/app/api/services/project.service';
 import { confirmationModal } from 'src/app/ajs-upgraded-providers';
 import {Injector} from '@angular/core';
-
+import { Project } from 'src/app/api/models/project';
 @Component({
   selector: 'portfolio-review-step',
   templateUrl: './portfolio-review-step.component.html',
   styleUrls: ['./portfolio-review-step.component.scss'],
 })
-export class PortfolioReviewStepComponent implements OnInit {
-  @Input() project!: {
-    portfolioFiles: any;
-    compilePortfolio?: boolean;
-    portfolioAvailable?: boolean;
-    portfolioStatus?: number;
-    learningSummaryReport?: unknown;
-    portfolioUrl: (download: boolean) => string;
-    deletePortfolio: () => { subscribe: (cb: () => void) => void };
-    extraFiles: unknown[];
-    selectedTasks: unknown[];
-    student?: { username: string };
+export class PortfolioReviewStepComponent implements OnInit, DoCheck {
+  @Input() project!: Project;
+  @Input() unit!: Unit;
+  private $scope: unknown;
 
-  };
+  hasLSR = false;
+  hasTasksSelected = false;
+  portfolioIsCompiling = false;
+  canCompilePortfolio = false;
+  private lastActiveTab: unknown;
 
-  @Input() unit!: unknown;
-  private $scope: any;
+  // Expose scope variables for template access
+  get activeTab() {
+    return (this.$scope as { activeTab?: unknown })?.activeTab;
+  }
 
-  hasLSR: boolean = false;
-  hasTasksSelected: boolean = false;
-  portfolioIsCompiling: boolean = false;
-  canCompilePortfolio: boolean = false;
+  get tabs() {
+    return (this.$scope as { tabs?: unknown })?.tabs;
+  }
+
+  get isVisible() {
+    return (this.$scope as { activeTab?: unknown; tabs?: { reviewStep?: unknown } })?.activeTab === (this.$scope as { tabs?: { reviewStep?: unknown } })?.tabs?.reviewStep;
+  }
 
   constructor(
     public doubtfireConstants: DoubtfireConstants,
@@ -44,7 +45,7 @@ export class PortfolioReviewStepComponent implements OnInit {
       show: (title: string, message: string, action: () => void) => void;
     },
   ) {
-    this.$scope = this.injector.get('$scope');
+    this.$scope = this.injector.get('$scope', null);
   }
 
   ngOnInit(): void {
@@ -95,11 +96,13 @@ export class PortfolioReviewStepComponent implements OnInit {
   }
 
   extraFiles(): unknown[] {
-    return this.project.extraFiles || [];
+    return this.project.portfolioFiles?.filter((file: { idx: number }) => file.idx !== 0) || [];
   }
 
   selectedTasks(): unknown[] {
-    return this.project.selectedTasks || [];
+    if (!this.project.tasks) return [];
+    const tasksToInclude = this.project.tasks.filter((task: unknown) => (task as { includeInPortfolio: boolean }).includeInPortfolio);
+    return tasksToInclude;
   }
 
   projectHasLearningSummaryReport(): boolean {
@@ -107,9 +110,23 @@ export class PortfolioReviewStepComponent implements OnInit {
   }
 
   goToPreviousStep(): void {
-    if (typeof this.$scope?.advanceActiveTab === 'function') {
-      this.$scope.advanceActiveTab(-1);
+    if (typeof (this.$scope as { advanceActiveTab?: (step: number) => void })?.advanceActiveTab === 'function') {
+      (this.$scope as { advanceActiveTab: (step: number) => void }).advanceActiveTab(-1);
     }
+  }
 
+  refreshPortfolioState(): void {
+    this.evaluatePortfolioState();
+  }
+
+  ngDoCheck(): void {
+    // Check if the active tab has changed and refresh state when this tab becomes visible
+    const currentActiveTab = this.activeTab;
+    if (currentActiveTab !== this.lastActiveTab) {
+      this.lastActiveTab = currentActiveTab;
+      if (this.isVisible) {
+        this.evaluatePortfolioState();
+      }
+    }
   }
 }
