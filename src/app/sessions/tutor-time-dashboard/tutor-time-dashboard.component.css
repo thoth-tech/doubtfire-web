@@ -1,0 +1,42 @@
+:host {
+  --tt-primary: #1976d2;
+  --tt-text: #1f2937;
+}
+
+.h-title {
+  color: var(--tt-primary);
+  font-weight: 600;
+}
+
+.text-muted {
+  color: var(--tt-text);
+  opacity: 0.75;
+}
+
+.summary-card h3 {
+  font-weight: 700;
+}
+
+.summary-card p {
+  font-weight: 400;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  font-weight: bold;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+td {
+  padding: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+tr:hover {
+  background-color: #f9fafb;
+}

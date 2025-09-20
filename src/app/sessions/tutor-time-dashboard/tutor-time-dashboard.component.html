@@ -1,0 +1,118 @@
+<div class="p-4 overflow-x-auto">
+  <h2 class="h-title text-xl mb-4">Tutor Time Dashboard</h2>
+
+  <!-- Summary Cards -->
+  <div *ngIf="dashboardStats.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="summary-card text-center">
+      <h3 class="h-title m-0 text-2xl font-bold">{{ dashboardStats[0].sessionsTotal }}</h3>
+      <p class="text-muted">Total Sessions</p>
+    </div>
+    <div class="summary-card text-center">
+      <h3 class="h-title m-0 text-2xl font-bold">{{ dashboardStats[0].minutesTotal }} mins</h3>
+      <p class="text-muted">Total Time Spent</p>
+    </div>
+    <div class="summary-card text-center">
+      <h3 class="h-title m-0 text-2xl font-bold">{{ dashboardStats[0].tasksReviewed }}</h3>
+      <p class="text-muted">Tasks Reviewed</p>
+    </div>
+    <div class="summary-card text-center">
+      <h3 class="h-title m-0 text-2xl font-bold">
+        {{ (dashboardStats[0].minutesTotal / dashboardStats[0].tasksReviewed) | number:'1.0-0' }} mins
+      </h3>
+      <p class="text-muted">Avg Time per Task</p>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="my-8">
+    <h3 class="h-title text-lg mb-4">Time Spent per Task</h3>
+    <ngx-charts-bar-vertical
+      [view]="view"
+      [scheme]="colorScheme"
+      [results]="taskChartData">
+    </ngx-charts-bar-vertical>
+  </div>
+
+  <!-- Task Details Table -->
+  <div class="mt-8">
+    <h3 class="h-title text-lg mb-4">Task Details</h3>
+    <table class="table-auto w-full border border-gray-300" *ngIf="taskSummary.length > 0">
+      <thead>
+        <tr>
+          <th class="p-2">Task</th>
+          <th class="p-2">Time Spent (mins)</th>
+          <th class="p-2">Assessments</th>
+          <th class="p-2">Avg Time/Assessment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of taskSummary" class="border-b hover:bg-gray-100">
+          <td class="p-2">{{ t.taskLabel }}</td>
+          <td class="p-2">{{ t.minutesSpent }}</td>
+          <td class="p-2">{{ t.reviewCount }}</td>
+          <td class="p-2">{{ t.avgPerReview | number:'1.0-0' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Sessions -->
+  <div class="my-8">
+    <h3 class="h-title text-lg mb-4">Recent Sessions</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div *ngFor="let s of recentSessions" class="border p-4 rounded shadow">
+        <p class="font-semibold">Session #{{ s.id }}</p>
+        <p>{{ s.startTime | date:'short' }}</p>
+        <p>{{ s.durationMinutes }} mins</p>
+        <p>
+          Status:
+          <span [ngClass]="s.isActive ? 'text-green-600' : 'text-gray-500'">
+            {{ s.isActive ? 'Active' : 'Completed' }}
+          </span>
+        </p>
+        <button class="mt-2 px-3 py-1 bg-blue-600 text-white rounded"
+                (click)="openDetails(s.id)">View Details</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Details -->
+  <div *ngIf="showDetails && selectedSessionId" class="my-8 border p-4 rounded shadow">
+    <h3 class="h-title text-lg mb-4">Session Details - #{{ selectedSessionId }}</h3>
+    <button (click)="closeDetails()" class="mb-4 px-3 py-1 bg-gray-300 rounded">Close</button>
+
+    <!-- Activities -->
+    <h4 class="font-semibold mb-2">Session Activities</h4>
+    <div *ngFor="let ev of sessionEvents" class="border-l-4 border-blue-600 pl-2 mb-2">
+      <p>
+        <strong>{{ ev.action }}</strong>
+        <span *ngIf="ev.durationMinutes"> ({{ formatMinutes(ev.durationMinutes) }})</span>
+        <span class="ml-2 text-sm text-gray-600">{{ ev.createdAt | date:'short' }}</span>
+      </p>
+      <p *ngIf="ev.projectId">Project: {{ ev.projectId }} | Task: {{ ev.taskId }}</p>
+    </div>
+
+    <!-- Assessments -->
+    <h4 class="font-semibold mt-4 mb-2">Assessments in this Session</h4>
+    <table class="table-auto w-full border border-gray-300" *ngIf="sessionAssessments.length > 0">
+      <thead>
+        <tr>
+          <th class="p-2">Student</th>
+          <th class="p-2">Task</th>
+          <th class="p-2">Duration</th>
+          <th class="p-2">Start</th>
+          <th class="p-2">End</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of sessionAssessments" class="border-b hover:bg-gray-100">
+          <td class="p-2">{{ a.student }}</td>
+          <td class="p-2">{{ a.task }}</td>
+          <td class="p-2">{{ formatMinutes(a.durationMinutes) }}</td>
+          <td class="p-2">{{ a.start | date:'short' }}</td>
+          <td class="p-2">{{ a.end | date:'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
