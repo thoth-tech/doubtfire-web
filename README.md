@@ -144,7 +144,6 @@ TODO:
 - [ ] ./src/app/projects/states/dashboard/directives/task-dashboard/task-dashboard.coffee
 - [ ] ./src/app/projects/states/dashboard/dashboard.coffee
 - [ ] ./src/app/projects/states/outcomes/outcomes.coffee
-- [ ] ./src/app/projects/states/portfolio/directives/portfolio-review-step/portfolio-review-step.coffee
 - [ ] ./src/app/projects/states/portfolio/directives/directives.coffee
 - [ ] ./src/app/projects/states/portfolio/directives/portfolio-learning-summary-report-step/portfolio-learning-summary-report-step.coffee
 - [ ] ./src/app/projects/states/portfolio/directives/portfolio-add-extra-files-step/portfolio-add-extra-files-step.coffee
@@ -200,7 +199,6 @@ TODO:
 - [ ] ./src/app/common/filters/filters.coffee
 - [ ] ./src/app/common/content-editable/content-editable.coffee
 - [ ] ./src/app/common/alert-list/alert-list.coffee
-- [ ] ./src/app/common/modals/confirmation-modal/confirmation-modal.coffee
 - [ ] ./src/app/common/modals/comments-modal/comments-modal.coffee
 - [ ] ./src/app/common/modals/modals.coffee
 - [ ] ./src/app/common/modals/csv-result-modal/csv-result-modal.coffee

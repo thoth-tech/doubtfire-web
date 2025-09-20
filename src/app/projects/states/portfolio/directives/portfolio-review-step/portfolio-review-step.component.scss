@@ -1,6 +1,8 @@
+// Fallback if globals aren’t loaded here
+$brand-primary: #337ab7 !default; // Bootstrap 3 default
+
 .project-portfolio-wizard .panel-body .portfolio-review-step {
   &.expanded {
-    // override with !important to override mixins in project-portfolio-wizard.scss
     margin: 0 auto !important;
     width: 100% !important;
     float: none !important;
