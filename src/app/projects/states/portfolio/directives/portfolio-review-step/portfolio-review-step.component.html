@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+<div class="panel panel-default" *ngIf="isVisible">
   <div class="panel-heading">
     <h3 class="panel-title">Review Portfolio</h3>
   </div>
@@ -14,7 +14,9 @@
           Your portfolio <strong>must</strong> include a learning summary report. Upload this before
           you schedule your portfolio to be compiled.
         </p>
-        <p *ngIf="!hasTasksSelected"></p>
+        <p *ngIf="!hasTasksSelected">
+          Your portfolio <strong>must</strong> include tasks that you have completed. Please go back to the previous steps to select tasks to include in your portfolio.
+        </p>
         <p *ngIf="unit?.ilos?.length">
           Your portfolio <strong>must</strong> include tasks aligned to the unit's
           <strong>{{ unit.ilos.length }} intended learning outcomes</strong>. Please indicate which
