@@ -472,7 +472,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
   imports: [
     FlexLayoutModule,
     BrowserModule,
-    BrowserAnimationsModule,
+    BrowserAnimationsModule, 
     FormsModule,
     HttpClientModule,
     ClipboardModule,

@@ -1,18 +1,35 @@
+:host {
+  --tt-primary: #1976d2;
+  --tt-text: #1f2937;
+}
+
+.h-title {
+  color: var(--tt-primary);
+  font-weight: 600;
+}
+
+.text-muted {
+  color: var(--tt-text);
+  opacity: 0.75;
+}
+
+.summary-card h3 {
+  font-weight: 700;
+}
+
+.summary-card p {
+  font-weight: 400;
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
-}
-
-thead tr {
-  background-color: #2563eb;
-  color: white;
 }
 
 th {
   font-weight: bold;
   padding: 0.75rem;
   text-align: left;
-  cursor: pointer;
 }
 
 td {
@@ -22,33 +39,4 @@ td {
 
 tr:hover {
   background-color: #f9fafb;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #f3f4f6;
-  border-radius: 0.375rem;
-}
-
-.pagination-container button {
-  background-color: #e5e7eb;
-  padding: 0.25rem 0.75rem;
-  margin: 0 0.25rem;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.pagination-container button:hover:not(:disabled) {
-  background-color: #d1d5db;
-}
-
-.pagination-container button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }

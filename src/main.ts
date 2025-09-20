@@ -11,21 +11,32 @@ import { DoubtfireAngularModule } from './app/doubtfire-angular.module';
 
 import { UIRouter, UrlService } from '@uirouter/core';
 
+// Import Browser Animations Module for ngx-charts tooltips
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 if (environment.production) {
   enableProdMode();
 }
 
 // Using AngularJS config block, call `deferIntercept()`.
 // This tells UI-Router to delay the initial URL sync (until all bootstrapping is complete)
-DoubtfireAngularJSModule.config(['$urlServiceProvider', ($urlService: UrlService) => $urlService.deferIntercept()]);
+DoubtfireAngularJSModule.config([
+  '$urlServiceProvider',
+  ($urlService: UrlService) => $urlService.deferIntercept()
+]);
 
 // Manually bootstrap the Angular app
 platformBrowserDynamic()
-  .bootstrapModule(DoubtfireAngularModule)
+  .bootstrapModule(DoubtfireAngularModule, {
+    // Ensure BrowserAnimationsModule is available to the root module
+    ngZone: 'zone.js',
+  })
   .then((platformRef) => {
-    // Intialize the Angular Module
+    // Initialize the Angular Module
     // get() the UIRouter instance from DI to initialize the router
-    const urlService: UrlService = platformRef.injector.get<UIRouter>(UIRouter as Type<UIRouter>).urlService;
+    const urlService: UrlService = platformRef.injector.get<UIRouter>(
+      UIRouter as Type<UIRouter>
+    ).urlService;
 
     // Instruct UIRouter to listen to URL changes
     function startUIRouter() {
@@ -34,4 +45,5 @@ platformBrowserDynamic()
     }
 
     platformRef.injector.get<NgZone>(NgZone).run(startUIRouter);
-  });
+  })
+  .catch((err) => console.error(err));
