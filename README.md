@@ -14,7 +14,7 @@ A modern, lightweight learning management system.
 
 SUMMARY:
 
-73 / 132 components migrated
+74 / 132 components migrated
 
 MIGRATED:
 
@@ -91,7 +91,7 @@ MIGRATED:
 - [x] ./src/app/common/services/alert.service.ts
 - [x] ./src/app/sessions/states/sign-in/sign-in.component.ts
 - [x] ./src/app/account/edit-profile/edit-profile.component.ts
-- [x] ./src/app/admin/modals/create-unit-modal/create-unit-modal.coffee
+- [x] ./src/app/config/runtime/runtime.ts
 
 TODO:
 
@@ -121,7 +121,6 @@ TODO:
 - [ ] ./src/app/tasks/task-ilo-alignment/task-ilo-alignment-viewer/task-ilo-alignment-viewer.coffee
 - [ ] ./src/app/config/privacy-policy/privacy-policy.coffee
 - [ ] ./src/app/config/config.coffee
-- [ ] ./src/app/config/runtime/runtime.coffee
 - [ ] ./src/app/config/root-controller/root-controller.coffee
 - [ ] ./src/app/config/local-storage/local-storage.coffee
 - [ ] ./src/app/config/routing/routing.coffee
