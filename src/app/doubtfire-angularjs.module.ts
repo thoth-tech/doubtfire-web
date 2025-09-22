@@ -63,7 +63,6 @@ import 'build/src/app/projects/project-progress-dashboard/project-progress-dashb
 import 'build/src/app/projects/states/groups/groups.js';
 import 'build/src/app/projects/states/feedback/feedback.js';
 import 'build/src/app/projects/states/states.js';
-import 'build/src/app/projects/states/dashboard/directives/progress-dashboard/progress-dashboard.js';
 import 'build/src/app/projects/states/dashboard/directives/student-task-list/student-task-list.js';
 import 'build/src/app/projects/states/dashboard/directives/directives.js';
 import 'build/src/app/projects/states/dashboard/directives/task-dashboard/task-dashboard.js';
@@ -86,7 +85,6 @@ import 'build/src/app/groups/group-set-manager/group-set-manager.js';
 import 'build/src/app/groups/groups.js';
 import 'build/src/app/groups/group-member-contribution-assigner/group-member-contribution-assigner.js';
 import 'build/src/app/groups/group-member-list/group-member-list.js';
-import 'build/src/app/groups/group-set-selector/group-set-selector.js';
 import 'build/src/app/units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.js';
 import 'build/src/app/units/modals/modals.js';
 import 'build/src/app/units/units.js';
@@ -98,7 +96,6 @@ import 'build/src/app/units/states/groups/groups.js';
 import 'build/src/app/units/states/states.js';
 import 'build/src/app/units/states/edit/directives/unit-group-set-editor/unit-group-set-editor.js';
 import 'build/src/app/units/states/edit/directives/unit-details-editor/unit-details-editor.js';
-import 'build/src/app/units/states/edit/directives/unit-staff-editor/unit-staff-editor.js';
 import 'build/src/app/units/states/edit/directives/unit-ilo-editor/unit-ilo-editor.js';
 import 'build/src/app/units/states/edit/directives/directives.js';
 import 'build/src/app/units/states/edit/edit.js';
@@ -120,9 +117,7 @@ import 'build/src/app/common/services/listener-service.js';
 import 'build/src/app/common/services/outcome-service.js';
 import 'build/src/app/common/services/services.js';
 import 'build/src/app/common/services/recorder-service.js';
-import 'build/src/app/common/services/media-service.js';
 import 'build/src/app/common/services/analytics-service.js';
-import 'build/src/app/common/services/date-service.js';
 import 'build/src/app/sessions/auth/http-auth-injector.js';
 import 'build/src/app/sessions/sessions.js';
 import 'build/src/app/errors/errors.js';
@@ -156,6 +151,7 @@ import {TutorialStreamService} from './api/services/tutorial-stream.service';
 import {UnitStudentsEditorComponent} from './units/states/edit/directives/unit-students-editor/unit-students-editor.component';
 import {CampusService} from './api/services/campus.service';
 import {WebcalService} from './api/services/webcal.service';
+import {DateService} from './common/services/date.service';
 import {StudentTutorialSelectComponent} from './units/states/edit/directives/unit-students-editor/student-tutorial-select/student-tutorial-select.component';
 import {StudentCampusSelectComponent} from './units/states/edit/directives/unit-students-editor/student-campus-select/student-campus-select.component';
 import {EmojiService} from './common/services/emoji.service';
@@ -168,6 +164,7 @@ import {fPdfViewerComponent} from './common/pdf-viewer/pdf-viewer.component';
 import {PdfViewerPanelComponent} from './common/pdf-viewer-panel/pdf-viewer-panel.component';
 import {StaffTaskListComponent} from './units/states/tasks/inbox/directives/staff-task-list/staff-task-list.component';
 import {StatusIconComponent} from './common/status-icon/status-icon.component';
+import {TaskStatusPieChartComponent} from './visualisations/task-status-pie-chart/taskstatuspiechart.component';
 import {
   GroupSetService,
   LearningOutcomeService,
@@ -179,41 +176,42 @@ import {
   UnitService,
   UserService,
 } from './api/models/doubtfire-model';
-import { UnauthorisedComponent } from './errors/states/unauthorised/unauthorised.component';
-import { FileDownloaderService } from './common/file-downloader/file-downloader.service';
-import { CheckForUpdateService } from './sessions/service-worker-updater/check-for-update.service';
-import { TaskSubmissionService } from './common/services/task-submission.service';
-import { TaskAssessmentModalService } from './common/modals/task-assessment-modal/task-assessment-modal.service';
-import { TaskSubmissionHistoryComponent } from './tasks/task-submission-history/task-submission-history.component';
-import { HeaderComponent } from './common/header/header.component';
-import { SplashScreenComponent } from './home/splash-screen/splash-screen.component';
-import { GlobalStateService } from './projects/states/index/global-state.service';
-import { TransitionHooksService } from './sessions/transition-hooks.service';
-import { GradeIconComponent } from './common/grade-icon/grade-icon.component';
-import { GradeTaskModalService } from './tasks/modals/grade-task-modal/grade-task-modal.service';
-import { AuthenticationService } from './api/services/authentication.service';
-import { ProjectService } from './api/services/project.service';
-import { ObjectSelectComponent } from './common/obect-select/object-select.component';
-import { TaskDefinitionService } from './api/services/task-definition.service';
-import { EditProfileDialogService } from './common/modals/edit-profile-dialog/edit-profile-dialog.service';
-import { GroupService } from './api/services/group.service';
-import { UserBadgeComponent } from './common/user-badge/user-badge.component';
-import { TaskStatusCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-status-card/task-status-card.component';
-import { TaskDueCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-due-card/task-due-card.component';
-import { FooterComponent } from './common/footer/footer.component';
-import { TaskAssessmentCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-assessment-card/task-assessment-card.component';
-import { TaskSubmissionCardComponent } from './projects/states/dashboard/directives/task-dashboard/directives/task-submission-card/task-submission-card.component';
-import { InboxComponent } from './units/states/tasks/inbox/inbox.component';
-import { TaskDefinitionEditorComponent } from './units/states/edit/directives/unit-tasks-editor/task-definition-editor/task-definition-editor.component';
-import { UnitAnalyticsComponent } from './units/states/analytics/unit-analytics-route.component';
-import { UnitTaskEditorComponent } from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
-import { CreateNewUnitModal } from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
-import { FUsersComponent } from './admin/states/users/users.component';
-import { FUnitTaskListComponent } from './units/task-viewer/directives/unit-task-list/unit-task-list.component';
-import { FTaskDetailsViewComponent } from './units/task-viewer/directives/task-details-view/task-details-view.component';
-import { FTaskSheetViewComponent } from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
-import { ProgressBurndownChartComponent } from './visualisations/progress-burndown-chart/progressburndownchart.component';
-import { TaskVisualisationComponent } from './visualisations/task-visualisation/taskvisualisation.component';
+import {UnauthorisedComponent} from './errors/states/unauthorised/unauthorised.component';
+import {FileDownloaderService} from './common/file-downloader/file-downloader.service';
+import {CheckForUpdateService} from './sessions/service-worker-updater/check-for-update.service';
+import {TaskSubmissionService} from './common/services/task-submission.service';
+import {TaskAssessmentModalService} from './common/modals/task-assessment-modal/task-assessment-modal.service';
+import {TaskSubmissionHistoryComponent} from './tasks/task-submission-history/task-submission-history.component';
+import {HeaderComponent} from './common/header/header.component';
+import {SplashScreenComponent} from './home/splash-screen/splash-screen.component';
+import {GlobalStateService} from './projects/states/index/global-state.service';
+import {TransitionHooksService} from './sessions/transition-hooks.service';
+import {GradeIconComponent} from './common/grade-icon/grade-icon.component';
+import {GradeTaskModalService} from './tasks/modals/grade-task-modal/grade-task-modal.service';
+import {AuthenticationService} from './api/services/authentication.service';
+import {ProjectService} from './api/services/project.service';
+import {ObjectSelectComponent} from './common/obect-select/object-select.component';
+import {TaskDefinitionService} from './api/services/task-definition.service';
+import {EditProfileDialogService} from './common/modals/edit-profile-dialog/edit-profile-dialog.service';
+import {GroupService} from './api/services/group.service';
+import {UserBadgeComponent} from './common/user-badge/user-badge.component';
+import {TaskStatusCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-status-card/task-status-card.component';
+import {TaskDueCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-due-card/task-due-card.component';
+import {FooterComponent} from './common/footer/footer.component';
+import {TaskAssessmentCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-assessment-card/task-assessment-card.component';
+import {TaskSubmissionCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-submission-card/task-submission-card.component';
+import {InboxComponent} from './units/states/tasks/inbox/inbox.component';
+import {TaskDefinitionEditorComponent} from './units/states/edit/directives/unit-tasks-editor/task-definition-editor/task-definition-editor.component';
+import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-route.component';
+import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
+import {CreateNewUnitModal} from './admin/modals/create-new-unit-modal/create-new-unit-modal.component';
+import {FUsersComponent} from './admin/states/users/users.component';
+import {FUnitTaskListComponent} from './units/task-viewer/directives/unit-task-list/unit-task-list.component';
+import {FTaskDetailsViewComponent} from './units/task-viewer/directives/task-details-view/task-details-view.component';
+import {FTaskSheetViewComponent} from './units/task-viewer/directives/task-sheet-view/task-sheet-view.component';
+import {ProgressBurndownChartComponent} from './visualisations/progress-burndown-chart/progressburndownchart.component';
+import {TaskVisualisationComponent} from './visualisations/task-visualisation/taskvisualisation.component';
+import {ProgressDashboardComponent} from './projects/states/dashboard/directives/progress-dashboard/progress-dashboard.component';
 
 import {FUnitsComponent} from './admin/states/units/units.component';
 import {AlertService} from './common/services/alert.service';
@@ -222,6 +220,8 @@ import {GradeService} from './common/services/grade.service';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { UnitStudentEnrolmentModalService } from './units/modals/unit-student-enrolment-modal/unit-student-enrolment-modal.service';
 import { PrivacyPolicy } from './config/privacy-policy/privacy-policy';
+import { UnitStaffEditorComponent } from './units/states/edit/directives/unit-staff-editor/unit-staff-editor.component';
+import {GroupSetSelectorComponent} from './groups/group-set-selector/group-set-selector.component';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -298,12 +298,24 @@ DoubtfireAngularJSModule.factory(
   'EditProfileService',
   downgradeInjectable(EditProfileDialogService),
 );
+DoubtfireAngularJSModule.factory('dateService', downgradeInjectable(DateService));
 DoubtfireAngularJSModule.factory('CreateNewUnitModal', downgradeInjectable(CreateNewUnitModal));
 DoubtfireAngularJSModule.factory('GradeTaskModal', downgradeInjectable(GradeTaskModalService));
-DoubtfireAngularJSModule.factory('UnitStudentEnrolmentModal', downgradeInjectable(UnitStudentEnrolmentModalService));
+DoubtfireAngularJSModule.factory(
+  'UnitStudentEnrolmentModal',
+  downgradeInjectable(UnitStudentEnrolmentModalService),
+);
 DoubtfireAngularJSModule.factory('PrivacyPolicy', downgradeInjectable(PrivacyPolicy));
 
 // directive -> component
+DoubtfireAngularJSModule.directive(
+  'fTaskStatusPieChart',
+  downgradeComponent({component: TaskStatusPieChartComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'fProgressDashboard',
+  downgradeComponent({component: ProgressDashboardComponent}),
+);
 DoubtfireAngularJSModule.directive(
   'fProjectTasksList',
   downgradeComponent({component: ProjectTasksListComponent}),
@@ -468,7 +480,11 @@ DoubtfireAngularJSModule.directive(
 );
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
 
-DoubtfireAngularJSModule.directive('unauthorised', downgradeComponent({ component: UnauthorisedComponent }));
+DoubtfireAngularJSModule.directive('unitStaffEditor', downgradeComponent({ component: UnitStaffEditorComponent }));
+DoubtfireAngularJSModule.directive(
+  'unauthorised',
+  downgradeComponent({component: UnauthorisedComponent}),
+);
 
 // Global configuration
 
@@ -483,13 +499,17 @@ const otherwiseConfigBlock = [
 ];
 DoubtfireAngularJSModule.config(otherwiseConfigBlock);
 
-
 DoubtfireAngularJSModule.directive(
   'fProgressBurndownChart',
-  downgradeComponent({ component: ProgressBurndownChartComponent })
+  downgradeComponent({component: ProgressBurndownChartComponent}),
 );
 
 DoubtfireAngularJSModule.directive(
   'fTaskVisualisation',
-  downgradeComponent({ component: TaskVisualisationComponent })
+  downgradeComponent({component: TaskVisualisationComponent}),
+);
+
+DoubtfireAngularJSModule.directive(
+  'groupSetSelector',
+  downgradeComponent({component: GroupSetSelectorComponent}),
 );
