@@ -14,6 +14,7 @@ import {ProjectRootState} from './projects/states/project-root-state.component';
 import { TaskViewerState } from './units/task-viewer/task-viewer-state.component';
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import { Ng2ViewDeclaration } from '@uirouter/angular';
+import {TutorTimesComponent} from './units/states/tutor-times/tutor-times.component';
 
 /*
  * Use this file to store any states that are sourced by angular components.
@@ -411,6 +412,20 @@ const ScormPlayerReviewState: NgHybridStateDeclaration = {
   },
 };
 
+const TutorTimesState: NgHybridStateDeclaration = {
+  name: 'units/tutor-times', // Unique ID for this "place"
+  url: '/units/:unitId/tutor-times', // URL pattern, :unitId is a parameter
+  views: {
+    main: {
+      component: TutorTimesComponent, // What to show
+    },
+  },
+  data: {
+    pageTitle: 'Tutor Times', // Sets the browser title
+    roleWhitelist: ['Tutor', 'Convenor', 'Admin'], // Who can access
+    task: 'Tutor Times', // Tells the dropdown what to display
+  },
+};
 /**
  * Export the list of states we have created in angular
  */
@@ -433,4 +448,5 @@ export const doubtfireStates = [
   ScormPlayerNormalState,
   ScormPlayerReviewState,
   ScormPlayerStudentReviewState,
+  TutorTimesState,
 ];

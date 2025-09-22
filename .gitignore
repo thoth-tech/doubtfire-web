@@ -17,3 +17,5 @@ dist/
 .angulardoc.json
 .nx
 .idea
+package-lock.json
+package-lock.json
