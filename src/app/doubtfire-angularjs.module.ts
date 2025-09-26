@@ -7,6 +7,7 @@
 
 import * as angular from 'angular';
 import {downgradeInjectable, downgradeComponent} from '@angular/upgrade/static';
+import { CsvDialogsService } from './common/modals/csv-result-modal/csv-modals.component';
 
 // Here are the old angular node modules, previously loaded via grunt
 //#region
@@ -26,6 +27,36 @@ import 'angular-markdown-filter/markdown.js';
 import 'angulartics/dist/angulartics.min.js';
 import 'angulartics-google-analytics/lib/angulartics-google-analytics.js';
 import 'angular-md5/angular-md5.js';
+
+// Legacy bridge: provides 'doubtfire.common.modals.csv-result-modal' for ng1.
+// Keep this BEFORE any build/* imports that require it
+const csvModalsNg1 = angular.module('doubtfire.common.modals.csv-result-modal', []);
+
+csvModalsNg1.factory('CsvDialogsService', downgradeInjectable(CsvDialogsService));
+
+csvModalsNg1.factory('CsvResultModal', ['CsvDialogsService', (dlg: CsvDialogsService) => ({
+  show: (title: string, response: any) => dlg.openResult({ title, response }),
+})]);
+
+csvModalsNg1.factory('CsvUploadModal', ['CsvDialogsService', (dlg: CsvDialogsService) => ({
+  // keep legacy signature (incl. batchFiles) for callers
+  show: (
+    title: string,
+    message: string,
+    batchFiles: any,
+    url: string,
+    onSuccess?: (payload: unknown) => void
+  ) =>
+    dlg.openUpload({
+      title,
+      message,
+      url,
+      onSuccess: (payload: unknown) => {
+        if (typeof onSuccess === 'function') onSuccess(payload);
+      },
+    }),
+})]);
+
 
 // Ok... here is what we need to convert!
 
@@ -112,7 +143,6 @@ import 'build/src/app/common/filters/filters.js';
 import 'build/src/app/common/content-editable/content-editable.js';
 import 'build/src/app/common/modals/confirmation-modal/confirmation-modal.js';
 import 'build/src/app/common/modals/comments-modal/comments-modal.js';
-import 'build/src/app/common/modals/csv-result-modal/csv-result-modal.js';
 import 'build/src/app/common/modals/modals.js';
 import 'build/src/app/common/file-uploader/file-uploader.js';
 import 'build/src/app/common/common.js';

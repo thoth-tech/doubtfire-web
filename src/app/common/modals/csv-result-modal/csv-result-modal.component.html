@@ -1,0 +1,134 @@
+<div class="csv-modal csv-result-modal" role="dialog" aria-modal="true">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="icon"><i class="fa fa-file-excel-o" aria-hidden="true"></i></div>
+    <div class="titles">
+      <h3 class="modal-title">{{ title }}</h3>
+      <div class="subtitle">Response details</div>
+    </div>
+  </div>
+
+  <!-- Segmented tabs -->
+  <div class="segmented">
+    <button
+      type="button"
+      class="btn seg"
+      [class.is-active]="activeTab==='success'"
+      [class.success]="true"
+      (click)="$event.stopPropagation(); setTab('success')"
+      (keydown.enter)="$event.preventDefault(); setTab('success')"
+      (keydown.space)="$event.preventDefault(); setTab('success')"
+      [attr.aria-pressed]="activeTab==='success'">
+      Success <span class="badge">{{ count('success') }}</span>
+    </button>
+
+    <button
+      type="button"
+      class="btn seg"
+      [class.is-active]="activeTab==='errors'"
+      [class.error]="true"
+      (click)="$event.stopPropagation(); setTab('errors')"
+      (keydown.enter)="$event.preventDefault(); setTab('errors')"
+      (keydown.space)="$event.preventDefault(); setTab('errors')"
+      [attr.aria-pressed]="activeTab==='errors'">
+      Errors <span class="badge">{{ count('errors') }}</span>
+    </button>
+
+    <button
+      type="button"
+      class="btn seg"
+      [class.is-active]="activeTab==='ignored'"
+      [class.warn]="true"
+      (click)="$event.stopPropagation(); setTab('ignored')"
+      (keydown.enter)="$event.preventDefault(); setTab('ignored')"
+      (keydown.space)="$event.preventDefault(); setTab('ignored')"
+      [attr.aria-pressed]="activeTab==='ignored'">
+      Ignored <span class="badge">{{ count('ignored') }}</span>
+    </button>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="count(activeTab) === 0" class="callout">No data to show.</div>
+
+  <!-- Table -->
+  <div *ngIf="count(activeTab) > 0" class="table-wrap">
+    <table class="table csv-table">
+      <thead>
+        <tr>
+          <th scope="col">Message</th>
+          <!-- CSV: canonical keys; ZIP: just 'Data' -->
+          <th scope="col" *ngFor="let k of displayedKeys">{{ pretty[k] || k }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of pageRows()">
+          <td class="message-cell"><pre>{{ row.message }}</pre></td>
+          <td *ngFor="let k of displayedKeys">
+            <span class="csv-cell">{{ row.values[k] }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pager -->
+  <div class="pager" *ngIf="count(activeTab) > 0">
+    <button
+      class="btn link"
+      type="button"
+      (click)="$event.stopPropagation(); goFirst()"
+      (keydown.enter)="$event.preventDefault(); goFirst()"
+      (keydown.space)="$event.preventDefault(); goFirst()"
+      [disabled]="currentPage===1">First</button>
+
+    <button
+      class="btn link"
+      type="button"
+      (click)="$event.stopPropagation(); goPrev()"
+      (keydown.enter)="$event.preventDefault(); goPrev()"
+      (keydown.space)="$event.preventDefault(); goPrev()"
+      [disabled]="currentPage===1">Previous</button>
+
+    <ng-container *ngFor="let p of pageNumbers(); let i = index">
+      <button
+        *ngIf="p !== '…'; else dots"
+        type="button"
+        class="btn page"
+        [class.current]="$any(p) === currentPage"
+        (click)="$event.stopPropagation(); goTo($any(p))"
+        (keydown.enter)="$event.preventDefault(); goTo($any(p))"
+        (keydown.space)="$event.preventDefault(); goTo($any(p))">
+        {{ p }}
+      </button>
+      <ng-template #dots><span class="dots">…</span></ng-template>
+    </ng-container>
+
+    <button
+      class="btn link"
+      type="button"
+      (click)="$event.stopPropagation(); goNext()"
+      (keydown.enter)="$event.preventDefault(); goNext()"
+      (keydown.space)="$event.preventDefault(); goNext()"
+      [disabled]="currentPage===totalPages">Next</button>
+
+    <button
+      class="btn link"
+      type="button"
+      (click)="$event.stopPropagation(); goLast()"
+      (keydown.enter)="$event.preventDefault(); goLast()"
+      (keydown.space)="$event.preventDefault(); goLast()"
+      [disabled]="currentPage===totalPages">Last</button>
+  </div>
+
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button
+      class="btn primary"
+      type="button"
+      (click)="$event.stopPropagation(); close()"
+      (keydown.enter)="$event.preventDefault(); close()"
+      (keydown.space)="$event.preventDefault(); close()">
+      Done
+    </button>
+  </div>
+</div>

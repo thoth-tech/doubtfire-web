@@ -1,0 +1,77 @@
+<div class="csv-modal csv-upload-modal" role="dialog" aria-modal="true">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="icon">
+      <i class="fa" [ngClass]="isZip ? 'fa-file-archive-o' : 'fa-file-excel-o'" aria-hidden="true"></i>
+    </div>
+    <div class="titles">
+      <h3 class="modal-title">{{ data.title }}</h3>
+      <div class="subtitle">Response details</div>
+    </div>
+  </div>
+
+  <div class="modal-body">
+    <div class="field-label">
+      {{ fileKind === 'ZIP' ? 'Task Sheets and Resources ZIP' : 'Task Definition CSV Data' }}
+    </div>
+
+    <!-- Stage: ready -->
+    <div *ngIf="stage==='ready'">
+      <div
+        *ngIf="!file"
+        class="dropzone"
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="'Drop ' + fileKind + ' file here or press Enter to select'"
+        (click)="fileInput.click()"
+        (keydown.enter)="fileInput.click()"
+        (keydown.space)="fileInput.click()"
+        (dragover)="onDragOver($event)"
+        (drop)="onFileDrop($event)">
+        <div class="dz-content">
+          <i class="fa" [ngClass]="isZip ? 'fa-file-archive-o dz-icon' : 'fa-file-excel-o dz-icon'" aria-hidden="true"></i>
+          <div class="dz-title">Drop {{ fileKind }} file here</div>
+          <div class="dz-sub">or click to select one</div>
+        </div>
+      </div>
+
+      <input
+        #fileInput
+        type="file"
+        class="hidden-file"
+        [attr.accept]="data.accept || (isZip ? '.zip' : '.csv')"
+        (change)="onFileChange($event)" />
+
+      <div class="file-row" *ngIf="file">
+        <i class="fa fa-file-o" aria-hidden="true"></i>
+        <span class="name">{{ file?.name }}</span>
+        <button
+          class="btn icon remove"
+          type="button"
+          (click)="clearFile()"
+          (keydown.enter)="clearFile()"
+          (keydown.space)="clearFile()"
+          aria-label="Remove file">×</button>
+        <button class="btn start" type="button" (click)="startUpload()">Start Upload</button>
+      </div>
+
+      <div class="error" *ngIf="errorText">{{ errorText }}</div>
+    </div>
+
+    <!-- Stage: uploading -->
+    <div *ngIf="stage==='uploading'" class="uploading">
+      <div class="icons">
+        <i class="fa" [ngClass]="isZip ? 'fa-file-archive-o' : 'fa-file-excel-o'" aria-hidden="true"></i>
+        <span class="arrow">⇢</span>
+        <i class="fa fa-university" aria-hidden="true"></i>
+      </div>
+      <div class="progress">
+        <div class="bar" [style.width.%]="progress"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn primary" type="button" (click)="close()">Done</button>
+  </div>
+</div>

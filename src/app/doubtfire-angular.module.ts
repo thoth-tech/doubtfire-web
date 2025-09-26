@@ -96,6 +96,11 @@ import {ExtensionCommentComponent} from './tasks/task-comments-viewer/extension-
 import {CampusListComponent} from './admin/institution-settings/campuses/campus-list/campus-list.component';
 import {ExtensionModalComponent} from './common/modals/extension-modal/extension-modal.component';
 import {CalendarModalComponent} from './common/modals/calendar-modal/calendar-modal.component';
+import {
+  CsvDialogsService,
+  CsvResultModalComponent,
+  CsvUploadModalComponent
+} from './common/modals/csv-result-modal/csv-modals.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatOptionModule} from '@angular/material/core';
@@ -389,6 +394,8 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     TaskScormCardComponent,
     ScormExtensionCommentComponent,
     ScormExtensionModalComponent,
+    CsvResultModalComponent,
+    CsvUploadModalComponent,
   ],
   // Services we provide
   providers: [
@@ -421,6 +428,7 @@ import { UnitStudentEnrolmentModalComponent } from './units/modals/unit-student-
     FileDownloaderService,
     CheckForUpdateService,
     TaskOutcomeAlignmentService,
+    CsvDialogsService,
     visualisationsProvider,
     commentsModalProvider,
     rootScopeProvider,
