@@ -15,11 +15,11 @@ jobs:
     permissions:
       contents: write
     outputs:
-	  sync_message: ${{ steps.ghsync.outputs.ghsync-out }}
+	  sync_message: ${{ steps.ghsync.outputs.ghsync_out }}
     steps:
       - name: Sync branch with upstream
 	    id: ghsync
-        run: echo "ghsync-out=$(gh repo sync $REPOSITORY -b $BRANCH_NAME)" >> $GITHUB_OUTPUT
+        run: echo "ghsync_out=$(gh repo sync $REPOSITORY -b $BRANCH_NAME)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY: ${{ github.repository }}
