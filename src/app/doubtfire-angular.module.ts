@@ -241,7 +241,8 @@ import {ScormExtensionCommentComponent} from './tasks/task-comments-viewer/scorm
 import {ScormExtensionModalComponent} from './common/modals/scorm-extension-modal/scorm-extension-modal.component';
 import { D2lTransferComponent, D2lTransferModal } from './units/states/portfolios/d2l-transfer-modal/d2l-transfer.component';
 import { SuccessCloseComponent } from './common/success-close/success-close.component';
-
+import {TaskIloAlignmentModalComponent} from './tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/task-ilo-alignment-modal.component';
+import {TaskIloAlignmentModalService} from './tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/task-ilo-alignment-modal.service';
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
   parse: {
@@ -364,6 +365,7 @@ const MY_DATE_FORMAT = {
     TaskScormCardComponent,
     ScormExtensionCommentComponent,
     ScormExtensionModalComponent,
+    TaskIloAlignmentModalComponent,
   ],
   // Services we provide
   providers: [
@@ -397,6 +399,7 @@ const MY_DATE_FORMAT = {
     FileDownloaderService,
     CheckForUpdateService,
     TaskOutcomeAlignmentService,
+    TaskIloAlignmentModalService,
     visualisationsProvider,
     commentsModalProvider,
     rootScopeProvider,

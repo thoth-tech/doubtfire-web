@@ -49,8 +49,8 @@ import 'build/src/app/tasks/tasks.js';
 import 'build/src/app/tasks/project-tasks-list/project-tasks-list.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-rater/task-ilo-alignment-rater.js';
-import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment.js';
-import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/task-ilo-alignment-modal.js';
+// import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment.js';
+// import 'build/src/app/tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/task-ilo-alignment-modal.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-editor/task-ilo-alignment-editor.js';
 import 'build/src/app/tasks/task-ilo-alignment/task-ilo-alignment-viewer/task-ilo-alignment-viewer.js';
 import 'build/src/app/config/privacy-policy/privacy-policy.js';
@@ -227,6 +227,7 @@ import {GradeService} from './common/services/grade.service';
 import {TaskScormCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-scorm-card/task-scorm-card.component';
 import { D2lUnitDetailsModal } from './units/states/edit/directives/unit-details-editor/d2l-details-form/d2l-unit-details-form.component';
 import { D2lTransferModal } from './units/states/portfolios/d2l-transfer-modal/d2l-transfer.component';
+import {TaskIloAlignmentModalService} from './tasks/task-ilo-alignment/modals/task-ilo-alignment-modal/task-ilo-alignment-modal.service';
 
 export const DoubtfireAngularJSModule = angular.module('doubtfire', [
   'doubtfire.config',
@@ -309,6 +310,10 @@ DoubtfireAngularJSModule.factory(
   downgradeInjectable(EditProfileDialogService),
 );
 DoubtfireAngularJSModule.factory('CreateNewUnitModal', downgradeInjectable(CreateNewUnitModal));
+DoubtfireAngularJSModule.factory(
+  'TaskILOAlignmentModal',
+  downgradeInjectable(TaskIloAlignmentModalService),
+);
 
 // directive -> component
 DoubtfireAngularJSModule.directive(
@@ -472,6 +477,9 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive('newFUnits', downgradeComponent({component: FUnitsComponent}));
 
 // Global configuration
+// To compensate for rest unmigrated components
+angular.module('doubtfire.tasks.task-ilo-alignment.modals', []);
+angular.module('doubtfire.tasks.task-ilo-alignment.modals.task-ilo-alignment-modal', []);
 
 // If the user enters a URL that doesn't match any known URL (state), send them to `/home`
 const otherwiseConfigBlock = [
