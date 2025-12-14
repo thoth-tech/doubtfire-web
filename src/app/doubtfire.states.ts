@@ -1,14 +1,27 @@
-import {NgHybridStateDeclaration} from '@uirouter/angular-hybrid';
-import {InstitutionSettingsComponent} from './admin/institution-settings/institution-settings.component';
-import {HomeComponent} from './home/states/home/home.component';
-import {WelcomeComponent} from './welcome/welcome.component';
-import {SignInComponent} from './sessions/states/sign-in/sign-in.component';
-import {EditProfileComponent} from './account/edit-profile/edit-profile.component';
-import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
-import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
-import {FUsersComponent} from './admin/states/f-users/f-users.component';
-import {FUnitsComponent} from './admin/states/f-units/f-units.component';
+import { InstitutionSettingsComponent } from './admin/institution-settings/institution-settings.component';
+import { HomeComponent } from './home/states/home/home.component';
+import { WelcomeComponent } from './welcome/welcome.component';
+import { EditProfileComponent } from './account/edit-profile/edit-profile.component';
+import { TeachingPeriodListComponent } from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
+import { AcceptEulaComponent } from './eula/accept-eula/accept-eula.component';
+import { FUsersComponent } from './admin/states/f-users/f-users.component';
+import { FUnitsComponent } from './admin/states/f-units/f-units.component';
+import { NgHybridStateDeclaration } from '@uirouter/angular-hybrid';
+import { SignInComponent } from './sessions/states/sign-in/sign-in.component';
 
+const loginState: NgHybridStateDeclaration = {
+  name: 'login',
+  url: '/login',
+  component: SignInComponent
+};
+
+const homeState: NgHybridStateDeclaration = {
+  name: 'home',
+  url: '/',
+  redirectTo: 'login'
+};
+
+export const doubtfireStates = [loginState, homeState];
 /*
  * Use this file to store any states that are sourced by angular components.
  */

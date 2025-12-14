@@ -8,19 +8,19 @@ import { GlobalStateService } from 'src/app/projects/states/index/global-state.s
 
 type signInData =
   | {
-      username: string;
-      password: string;
-      remember: boolean;
-      autoLogin: boolean;
-      auth_token?: string;
-    }
+    username: string;
+    password: string;
+    remember: boolean;
+    autoLogin: boolean;
+    auth_token?: string;
+  }
   | {
-      auth_token: string;
-      username: string;
-      remember: boolean;
-      password?: string;
-      autoLogin?: boolean;
-    };
+    auth_token: string;
+    username: string;
+    remember: boolean;
+    password?: string;
+    autoLogin?: boolean;
+  };
 @Component({
   selector: 'f-sign-in',
   templateUrl: './sign-in.component.html',
@@ -43,7 +43,7 @@ export class SignInComponent implements OnInit {
     private transition: Transition,
     private globalState: GlobalStateService,
     private alerts: AlertService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.formData = {

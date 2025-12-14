@@ -8,6 +8,9 @@ import { MappingFunctions } from './mapping-fn';
 
 @Injectable()
 export class TeachingPeriodService extends CachedEntityService<TeachingPeriod> {
+  query() {
+    throw new Error('Method not implemented.');
+  }
   protected readonly endpointFormat = 'teaching_periods/:id:';
 
   public static readonly rolloverEndpointFormat = 'teaching_periods/:id:/rollover';

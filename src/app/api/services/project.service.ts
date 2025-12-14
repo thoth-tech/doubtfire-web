@@ -12,9 +12,14 @@ import { GroupService } from './group.service';
 
 @Injectable()
 export class ProjectService extends CachedEntityService<Project> {
+  [x: string]: any;
+  query(undefined: undefined, arg1: { params: { include_in_active: boolean; }; }) {
+    throw new Error('Method not implemented.');
+  }
   protected readonly endpointFormat = 'projects/:id:';
 
   public readonly studentEndpointFormat = 'students';
+  cache: EntityCache<Project>;
 
   constructor(
     httpClient: HttpClient,
@@ -95,7 +100,7 @@ export class ProjectService extends CachedEntityService<Project> {
             },
             {
               key: "working_on_it",
-              value: Math.round((values['orange_pct'] ||  0) * 100),
+              value: Math.round((values['orange_pct'] || 0) * 100),
             },
             {
               key: "ready_for_feedback",
@@ -155,7 +160,7 @@ export class ProjectService extends CachedEntityService<Project> {
         keys: 'groups',
         toEntityOp: (data: object, key: string, project: Project, params?: any) => {
           data[key].forEach((group) => {
-            const theGroup = project.unit.groupSetsCache.get(group.group_set_id).groupsCache.getOrCreate(group.id, this.groupService, group, {constructorParams: project.unit});
+            const theGroup = project.unit.groupSetsCache.get(group.group_set_id).groupsCache.getOrCreate(group.id, this.groupService, group, { constructorParams: project.unit });
 
             project.groupCache.add(theGroup);
             theGroup.projectsCache.add(project);
@@ -170,7 +175,7 @@ export class ProjectService extends CachedEntityService<Project> {
         toEntityOp: (data: object, key: string, project: Project, params?: any) => {
           // create tasks from json
           data['tasks'].forEach(taskData => {
-            project.taskCache.getOrCreate(taskData['id'], this.taskService, taskData, {constructorParams: project});
+            project.taskCache.getOrCreate(taskData['id'], this.taskService, taskData, { constructorParams: project });
           });
 
           project.unit.setupTasksForStudent(project);

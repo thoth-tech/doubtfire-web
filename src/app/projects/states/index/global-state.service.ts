@@ -1,8 +1,7 @@
-import {Inject, Injectable, OnDestroy} from '@angular/core';
-import {MediaObserver} from 'ng-flex-layout';
-import {UIRouter} from '@uirouter/angular';
-import {EntityCache} from 'ngx-entity-service';
-import {BehaviorSubject, Observable, Subject, skip, take} from 'rxjs';
+import { Inject, Injectable, OnDestroy } from '@angular/core';
+import { UIRouter } from '@uirouter/angular';
+import { EntityCache } from 'ngx-entity-service';
+import { BehaviorSubject, Observable, Subject, skip, take } from 'rxjs';
 import {
   CampusService,
   Project,
@@ -14,8 +13,8 @@ import {
   UnitService,
   UserService,
 } from 'src/app/api/models/doubtfire-model';
-import {AuthenticationService} from 'src/app/api/services/authentication.service';
-import {AlertService} from 'src/app/common/services/alert.service';
+import { AuthenticationService } from 'src/app/api/services/authentication.service';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 /**
  * The different types of views that can be shown. Used by the header to determine details to show.
@@ -256,7 +255,7 @@ export class GlobalStateService implements OnDestroy {
       next: (_unitRoles: UnitRole[]) => {
         // unit roles are now in the cache
 
-        this.projectService.query(undefined, {params: {include_in_active: false}}).subscribe({
+        this.projectService.query(undefined, { params: { include_in_active: false } }).subscribe({
           next: (_projects: Project[]) => {
             // projects updated in cache
 
@@ -299,7 +298,7 @@ export class GlobalStateService implements OnDestroy {
    * Switch to a new view, and its associated entity object
    */
   public setView(kind: ViewType, entity?: Project | Unit | UnitRole): void {
-    this.currentViewAndEntitySubject$.next({viewType: kind, entity: entity});
+    this.currentViewAndEntitySubject$.next({ viewType: kind, entity: entity });
   }
 
   /**

@@ -13,6 +13,7 @@ export class UserService extends CachedEntityService<User> {
   private readonly tutorEndpointFormat = '/users/tutors';
 
   public readonly csvURL: string;
+  cache: any;
 
   constructor(httpClient: HttpClient) {
     super(httpClient, API_URL);

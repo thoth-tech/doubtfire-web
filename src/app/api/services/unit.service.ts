@@ -22,6 +22,7 @@ export type IloStats = {
 export class UnitService extends CachedEntityService<Unit> {
   protected readonly endpointFormat = 'units/:id:';
   public readonly rolloverEndpoint = 'units/:id:/rollover';
+  cache: EntityCache<Unit>;
 
   constructor(
     httpClient: HttpClient,
@@ -84,7 +85,7 @@ export class UnitService extends CachedEntityService<Unit> {
       {
         keys: ['teachingPeriod', 'teaching_period_id'],
         toEntityFn: (data, key, entity) => {
-          if ( data['teaching_period_id'] ) {
+          if (data['teaching_period_id']) {
             const teachingPeriod = this.teachingPeriodService.cache.get(data['teaching_period_id']);
             teachingPeriod?.unitsCache.add(entity);
             return teachingPeriod;
@@ -142,7 +143,7 @@ export class UnitService extends CachedEntityService<Unit> {
         keys: 'tutorialStreams',
         toEntityOp: (data, key, entity) => {
           data['tutorial_streams'].forEach((streamJson: object) => {
-            entity.tutorialStreamsCache.add(this.tutorialStreamService.buildInstance(streamJson, {constructorParams: entity}));
+            entity.tutorialStreamsCache.add(this.tutorialStreamService.buildInstance(streamJson, { constructorParams: entity }));
           });
         }
       },
@@ -151,7 +152,7 @@ export class UnitService extends CachedEntityService<Unit> {
         toEntityOp: (data, key, entity) => {
           data['tutorials'].forEach((tutorialJson: object) => {
             if (tutorialJson) {
-              entity.tutorialsCache.add(this.tutorialService.buildInstance(tutorialJson, {constructorParams: entity}));
+              entity.tutorialsCache.add(this.tutorialService.buildInstance(tutorialJson, { constructorParams: entity }));
             }
           });
         }
@@ -161,7 +162,7 @@ export class UnitService extends CachedEntityService<Unit> {
         keys: 'groupSets',
         toEntityOp: (data, key, unit) => {
           data[key].forEach((groupSetJson: object) => {
-            unit.groupSetsCache.add(this.groupSetService.buildInstance(groupSetJson, {constructorParams: unit}));
+            unit.groupSetsCache.add(this.groupSetService.buildInstance(groupSetJson, { constructorParams: unit }));
           });
         }
       },
@@ -169,7 +170,7 @@ export class UnitService extends CachedEntityService<Unit> {
         keys: 'groups',
         toEntityOp: (data, key, unit) => {
           data[key].forEach((groupJson: object) => {
-            const group = this.groupService.buildInstance(groupJson, {constructorParams: unit});
+            const group = this.groupService.buildInstance(groupJson, { constructorParams: unit });
             group.groupSet.groupsCache.add(group);
           });
         }
@@ -179,7 +180,7 @@ export class UnitService extends CachedEntityService<Unit> {
         toEntityOp: (data, key, unit) => {
           var seq: number = 0;
           data['task_definitions'].forEach((taskDefinitionJson: object) => {
-            const td = unit.taskDefinitionCache.getOrCreate(taskDefinitionJson['id'], this.taskDefinitionService, taskDefinitionJson, {constructorParams: unit});
+            const td = unit.taskDefinitionCache.getOrCreate(taskDefinitionJson['id'], this.taskDefinitionService, taskDefinitionJson, { constructorParams: unit });
             td.seq = seq++;
           });
         }
@@ -196,7 +197,7 @@ export class UnitService extends CachedEntityService<Unit> {
       {
         keys: 'taskOutcomeAlignments',
         toEntityOp: (data: object, jsonKey: string, unit: Unit) => {
-          data[jsonKey].forEach( (alignment) => {
+          data[jsonKey].forEach((alignment) => {
             unit.taskOutcomeAlignmentsCache.getOrCreate(
               alignment['id'],
               this.taskOutcomeAlignmentService,

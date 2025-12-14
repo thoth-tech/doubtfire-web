@@ -4,9 +4,16 @@
   section {
     padding: 8px;
   }
+
   .form-field {
     margin: 5px;
   }
+}
+
+.welcome-heading {
+  font-size: 2.5rem;
+  color: #1a202c;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .subcontainer {

@@ -6,6 +6,9 @@ import API_URL from 'src/app/config/constants/apiURL';
 
 @Injectable()
 export class CampusService extends CachedEntityService<Campus> {
+  query() {
+    throw new Error('Method not implemented.');
+  }
   protected readonly endpointFormat = 'campuses/:id:';
 
   constructor(httpClient: HttpClient) {

@@ -1,55 +1,56 @@
-<section class="welcome flex flex-row custom-md-h-screen">
+<section class="welcome flex flex-row custom-md-h-screen bg-gradient-to-r from-blue-500 to-teal-400">
   <f-hero-sidebar class="sidebar self-start flex-col h-full"></f-hero-sidebar>
-  <section class="content flex flex-col custom-md-h-screen">
-    <div class="container">
-      <div class="subcontainer">
-        <div class="wordmark flex-row place-content-start">
-          <img src="../../../assets/images/logo-bw.svg" width="40px" alt="Homepage Logo" />
-          <p>{{ externalName.value }}</p>
-        </div>
-        <h1 class="welcome-heading flex flex-row place-content-start">
-          Welcome to {{ externalName.value }}
-        </h1>
-        <form
-          #form="ngForm"
-          (ngSubmit)="signIn({username: formData.username, password: formData.password})"
-          class="sign-in-form flex flex-col"
-        >
-          @if (showCredentials) {
-            <mat-form-field appearance="outline" class="flex-1 h-full w-full">
-              <mat-label>Username</mat-label>
-              <input matInput name="username" required [(ngModel)]="formData.username" />
-            </mat-form-field>
-          }
-
-          @if (showCredentials) {
-            <mat-form-field appearance="outline" class="flex-1 h-full w-full">
-              <mat-label>Password</mat-label>
-              <input
-                type="password"
-                matInput
-                name="password"
-                required
-                [(ngModel)]="formData.password"
-              />
-            </mat-form-field>
-          }
-          @if (!showCredentials) {
-            <mat-checkbox matInput name="autoLogin" [(ngModel)]="formData.autoLogin"
-              >Login via Institution</mat-checkbox
-            >
-          }
-          <button
-            class="w-full"
-            mat-flat-button
-            color="primary"
-            type="form"
-            [disabled]="form.invalid"
-          >
-            Sign In
-          </button>
-        </form>
+  <section class="content flex flex-col custom-md-h-screen items-center justify-center">
+    <div class="container w-full max-w-md bg-white p-8 rounded shadow-md">
+      <!-- Logo -->
+      <div class="wordmark flex flex-col items-center mb-6">
+        <img src="../../../assets/images/logo-bw.svg" width="60px" alt="Homepage Logo" />
+        <p class="text-lg font-semibold">{{ externalName.value }}</p>
       </div>
+
+      <!-- Heading -->
+      <h1 class="welcome-heading text-2xl font-bold text-center mb-4">
+        Welcome to {{ externalName.value }}
+      </h1>
+
+      <!-- Login Form -->
+      <form #form="ngForm" (ngSubmit)="signIn({username: formData.username, password: formData.password})"
+        class="sign-in-form flex flex-col gap-4">
+        @if (showCredentials) {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Username</mat-label>
+          <input matInput name="username" required [(ngModel)]="formData.username" />
+        </mat-form-field>
+        }
+
+        @if (showCredentials) {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Password</mat-label>
+          <input type="password" matInput name="password" required [(ngModel)]="formData.password" />
+        </mat-form-field>
+        }
+
+        @if (!showCredentials) {
+        <mat-checkbox matInput name="autoLogin" [(ngModel)]="formData.autoLogin">
+          Login via Institution
+        </mat-checkbox>
+        }
+
+        <button class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-300"
+          type="submit" [disabled]="form.invalid">
+          Sign In
+        </button>
+        <div class="container w-full max-w-md bg-white p-8 rounded shadow-md">
+        </div>
+        <!-- Forgot Password -->
+        <a href="#" class="text-blue-600 hover:underline text-sm text-center mt-2">
+          Forgot password?
+        </a>
+      </form>
     </div>
+
+    <!-- Footer -->
+    <footer class="text-white mt-6 text-sm">
+      © 2025 Doubtfire Project
+    </footer>
   </section>
-</section>

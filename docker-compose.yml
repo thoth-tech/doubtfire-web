@@ -1,4 +1,3 @@
-version: '3'
 services:
   doubtfire-api:
     container_name: web-doubtfire-api

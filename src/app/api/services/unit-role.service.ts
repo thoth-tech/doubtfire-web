@@ -7,7 +7,11 @@ import API_URL from 'src/app/config/constants/apiURL';
 
 @Injectable()
 export class UnitRoleService extends CachedEntityService<UnitRole> {
+  query() {
+    throw new Error('Method not implemented.');
+  }
   protected readonly endpointFormat = 'unit_roles/:id:';
+  cache: EntityCache<UnitRole>;
 
   constructor(
     httpClient: HttpClient,
