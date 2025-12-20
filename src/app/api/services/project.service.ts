@@ -187,7 +187,8 @@ export class ProjectService extends CachedEntityService<Project> {
           data[key].forEach(alignment => {
             project.taskOutcomeAlignmentsCache.getOrCreate(
               alignment['id'],
-              taskOutcomeAlignmentService,
+              taskOutcome
+              AlignmentService,
               alignment,
               {
                 constructorParams: project
