@@ -97,7 +97,6 @@ import 'build/src/app/common/services/analytics-service.js';
 import 'build/src/app/errors/errors.js';
 import 'build/src/app/errors/states/timeout/timeout.js';
 import 'build/src/app/errors/states/states.js';
-import 'build/src/common/utilService/utilService.js';
 import 'build/src/common/i18n/localize.js';
 import 'build/src/i18n/resources-locale_default.js';
 import 'build/src/i18n/resources-locale_en-US.js';
