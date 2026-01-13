@@ -357,13 +357,12 @@ angular.module('doubtfire.units.states.portfolios', [])
   $scope.transferToD2L = ->
     D2lTransferModal.open $scope.unit
 
-  #
-  # Open the student's project dashboard in a new tab
-  #
- $scope.openProject = ($event, project) ->
-  $event.stopPropagation()
+  $scope.openProject = ($event, student) ->
+    $event.stopPropagation()
 
-  link = document.createElement('a')
-  link.href = "/projects/#{project.id}/dashboard/?tutor=true"
-  link.target = '_blank'
-  link.click()
+    # HACK: avoids using window.open() to prevent AngularJS error
+    link = document.createElement('a')
+    link.href = "/projects/#{student.projectId}/dashboard/?tutor=true"
+    link.target = '_blank'
+    link.click()
+
