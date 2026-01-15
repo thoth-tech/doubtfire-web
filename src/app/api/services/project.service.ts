@@ -148,7 +148,7 @@ export class ProjectService extends CachedEntityService<Project> {
         keys: 'tutorialEnrolments',
         toEntityOp: (data: object, key: string, project: Project, params?: any) => {
           const unit: Unit = project.unit;
-          data[key].forEach((tutorialEnrolment: { tutorial_id: number; }) => {
+          data[key]?.forEach((tutorialEnrolment: {tutorial_id: number}) => {
             if (tutorialEnrolment.tutorial_id) {
               const tutorial = unit.tutorialsCache.get(tutorialEnrolment.tutorial_id);
               project.tutorialEnrolmentsCache.add(tutorial);
@@ -164,7 +164,7 @@ export class ProjectService extends CachedEntityService<Project> {
 
             project.groupCache.add(theGroup);
             theGroup.projectsCache.add(project);
-          })
+          });
         },
         toJsonFn: (entity: Project, key: string) => {
           return entity.unit?.id;
@@ -184,15 +184,15 @@ export class ProjectService extends CachedEntityService<Project> {
       {
         keys: 'taskOutcomeAlignments',
         toEntityOp: (data: object, key: string, project: Project, params?: any) => {
-          data[key].forEach(alignment => {
+          data[key]?.forEach((alignment) => {
             project.taskOutcomeAlignmentsCache.getOrCreate(
               alignment['id'],
               taskOutcome
               AlignmentService,
               alignment,
               {
-                constructorParams: project
-              }
+                constructorParams: project,
+              },
             );
           });
         }

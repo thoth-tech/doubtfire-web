@@ -40,7 +40,7 @@ const institutionSettingsState: NgHybridStateDeclaration = {
   },
   data: {
     pageTitle: 'Institution Settings',
-    roleWhiteList: ['Admin'],
+    roleWhitelist: ['Admin'],
   },
 };
 
@@ -55,7 +55,7 @@ const usersState: NgHybridStateDeclaration = {
   },
   data: {
     pageTitle: 'Administer users',
-    roleWhiteList: ['Admin'],
+    roleWhitelist: ['Admin'],
   },
 };
 
@@ -71,8 +71,7 @@ const HomeState: NgHybridStateDeclaration = {
     },
   },
   data: {
-    pageTitle: 'Home Page',
-    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
+    pageTitle: 'Home Page'
   },
 };
 
@@ -108,7 +107,7 @@ const HomeState: NgHybridStateDeclaration = {
 // };
 
 /**
- * Define the new home state.
+ * Define the new inbox state.
  */
 // const InboxState: NgHybridStateDeclaration = {
 //   name: 'inbox',
@@ -177,8 +176,7 @@ const WelcomeState: NgHybridStateDeclaration = {
     },
   },
   data: {
-    pageTitle: 'Welcome',
-    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
+    pageTitle: 'Welcome'
   },
 };
 
@@ -210,22 +208,7 @@ const EditProfileState: NgHybridStateDeclaration = {
     },
   },
   data: {
-    pageTitle: 'Edit Profile',
-    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
-  },
-};
-
-const TeachingPeriodsState: NgHybridStateDeclaration = {
-  name: 'teaching_periods',
-  url: '/admin/teachingperiods',
-  views: {
-    main: {
-      component: TeachingPeriodListComponent,
-    },
-  },
-  data: {
-    pageTitle: 'Teaching Periods',
-    roleWhitelist: ['Convenor', 'Admin'],
+    pageTitle: 'Edit Profile'
   },
 };
 
@@ -238,8 +221,7 @@ const EulaState: NgHybridStateDeclaration = {
     },
   },
   data: {
-    pageTitle: 'Teaching Periods',
-    roleWhitelist: ['Convenor', 'Admin'],
+    pageTitle: 'End User License Agreement'
   },
 };
 
@@ -257,8 +239,7 @@ const ViewAllProjectsState: NgHybridStateDeclaration = {
     },
   },
   data: {
-    pageTitle: 'Teaching Periods',
-    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin'],
+    pageTitle: 'All Units'
   },
 };
 
@@ -278,10 +259,24 @@ const AdministerUnits: NgHybridStateDeclaration = {
   },
   data: {
     pageTitle: 'Administer units',
-    roleWhiteList: ['Admin'],
+    roleWhitelist: ['Admin', 'Convenor', 'Auditor'],
   },
 };
 
+// projectDashboardState which gets the project from the abstract state above
+const ProjectDashboardState: NgHybridStateDeclaration = {
+  name: 'dashboard2',
+  parent: 'projects2',
+  url: '/dashboard2',
+  views: {
+    projectView: {
+      component: ProjectDashboardComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Unit Dashboard',
+  },
+};
 
 const ViewAllUnits: NgHybridStateDeclaration = {
   name: 'view-all-units',
@@ -298,9 +293,194 @@ const ViewAllUnits: NgHybridStateDeclaration = {
     },
   },
   data: {
-    pageTitle: 'Teaching Periods',
+    pageTitle: 'View Units',
     mode: 'tutor',
+    roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
+  },
+};
+
+const UnauthoriedState: NgHybridStateDeclaration = {
+  name: 'unauthorised',
+  url: '/unauthorised', // You get here with this url
+  views: {
+    // These are the 2 views - the header and main from the body of DF
+    header: {
+      // Header is still angularjs
+      controller: 'BasicHeaderCtrl', // This is the angularjs controller
+      templateUrl: 'common/header/header.tpl.html', // and the related template html
+    } as unknown as Ng2ViewDeclaration, // Need dodgy cast to get compiler to ignore type data
+    main: {
+      // Main body links to angular component
+      component: UnauthorisedComponent,
+    },
+  },
+  data: {
+    // Add data used by header
+    pageTitle: 'Unauthorised'
+  },
+};
+/**
+ * Define the SCORM Player state.
+ */
+const ScormPlayerNormalState: NgHybridStateDeclaration = {
+  name: 'scorm-player-normal',
+  url: '/projects/:project_id/task_def_id/:task_definition_id/scorm-player/normal',
+  resolve: {
+    projectId: [
+      '$stateParams',
+      function ($stateParams: {project_id: number}) {
+        return $stateParams.project_id;
+      }
+    ],
+    taskDefId: [
+      '$stateParams',
+      function ($stateParams: {task_definition_id: number}) {
+        return $stateParams.task_definition_id;
+      }
+    ],
+    mode: function () {
+      return 'normal';
+    },
+  },
+  views: {
+    main: {
+      component: ScormPlayerComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Knowledge Check',
+    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin'],
+  },
+};
+
+/**
+ * Define the SCORM Player state.
+ */
+const ScormPlayerStudentReviewState: NgHybridStateDeclaration = {
+  name: 'scorm-player-student-review',
+  url: '/projects/:project_id/task_def_id/:task_definition_id/scorm-player/review/:test_attempt_id',
+  resolve: {
+    projectId: [
+      '$stateParams',
+      function ($stateParams) {
+        return $stateParams.project_id;
+      }
+    ],
+    taskDefId: [
+      '$stateParams',
+      function ($stateParams) {
+        return $stateParams.task_definition_id;
+      }
+    ],
+    testAttemptId: [
+      '$stateParams',
+      function ($stateParams) {
+        return $stateParams.test_attempt_id;
+      }
+    ],
+    mode: function () {
+      return 'review';
+    },
+  },
+  views: {
+    main: {
+      component: ScormPlayerComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Review Knowledge Check',
+    roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
+  },
+};
+
+const ScormPlayerReviewState: NgHybridStateDeclaration = {
+  name: 'scorm-preview',
+  url: '/task_def_id/:task_definition_id/preview-scorm',
+  resolve: {
+    taskDefId: [
+      '$stateParams',
+      function ($stateParams) {
+        return $stateParams.task_definition_id;
+      }
+    ],
+    mode: function () {
+      return 'preview';
+    },
+  },
+  views: {
+    main: {
+      component: ScormPlayerComponent,
+    },
+  },
+  data: {
+    pageTitle: 'Preview Scorm Test',
     roleWhitelist: ['Tutor', 'Convenor', 'Admin'],
+  },
+};
+
+const TutorialState: NgHybridStateDeclaration = {
+  name: 'projects/tutorials',
+  url: '/tutorials/project/:projectId',
+  views: {
+    main: {
+      component: TutorialsComponent, // Link to the Angular component
+    },
+  },
+  resolve: {
+    projectId: ['$stateParams', ($stateParams) => $stateParams.projectId], // Resolve the project object
+  },
+  data: {
+    task: 'Tutorial List',
+    pageTitle: '_Home_',
+    roleWhiteList: ['Tutor', 'Convenor', 'Admin', 'Student', 'Auditor'], // Roles allowed to access this state
+  },
+};
+
+// TODO 10.0.x: this will need to go under the unit parent state
+const PortfoliosState: NgHybridStateDeclaration = {
+  name: 'units/students/portfolios',
+  url: '/units/:unitId/students/portfolios',
+  resolve: {
+    unitId: [
+      '$stateParams',
+      function ($stateParams) {
+        return $stateParams.unitId;
+      },
+    ],
+  },
+  views: {
+    main: {
+      component: PortfoliosComponent,
+    },
+  },
+  data: {
+    task: 'Student Portfolios',
+    pageTitle: 'Student Portfolios',
+    roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
+  },
+};
+
+
+const RolloverState: NgHybridStateDeclaration = {
+  name: 'units/rollover',
+  url: '/units/:unitId/rollover',
+  resolve: {
+    unitId: [
+      '$stateParams',
+      function ($stateParams) {
+        return $stateParams.unitId;
+      },
+    ],
+  },
+  views: {
+    main: {
+      component: RolloverComponent,
+    },
+  },
+  data: {
+    task: 'Unit Rollover',
+    pageTitle: 'Unit Rollover',
+    roleWhitelist: ['Convenor', 'Admin'],
   },
 };
 
@@ -309,7 +489,6 @@ const ViewAllUnits: NgHybridStateDeclaration = {
  */
 export const doubtfireStates = [
   institutionSettingsState,
-  TeachingPeriodsState,
   HomeState,
   WelcomeState,
   SignInState,
@@ -319,4 +498,15 @@ export const doubtfireStates = [
   ViewAllProjectsState,
   ViewAllUnits,
   AdministerUnits,
+  UnauthoriedState,
+  ProjectRootState,
+  ProjectDashboardState,
+  UnitRootState,
+  TaskViewerState,
+  ScormPlayerNormalState,
+  ScormPlayerReviewState,
+  ScormPlayerStudentReviewState,
+  TutorialState,
+  PortfoliosState,
+  RolloverState,
 ];
