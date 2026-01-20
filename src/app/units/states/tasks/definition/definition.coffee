@@ -8,8 +8,8 @@ angular.module('doubtfire.units.states.tasks.definition', [])
     parent: 'units/tasks'
     url: '/definition/{taskKey:any}'
 
-    # Use a dedicated template for definition state (still reuses inbox internally)
-    templateUrl: "units/states/tasks/definition/definition.tpl.html"
+    # Reuse the inbox UI directly (controller handles definition-specific behaviour)
+    templateUrl: "units/states/tasks/inbox/inbox.tpl.html"
     controller: "TaskDefinitionStateCtrl"
 
     params:
@@ -27,20 +27,25 @@ angular.module('doubtfire.units.states.tasks.definition', [])
   # Ensure taskData exists (prevents "Cannot set property 'source' of undefined")
   $scope.taskData ?= {}
 
-  # Reuse the inbox controller behaviour by swapping the data source
+  # Swap the data source to definition-based query, while reusing inbox UI
   $scope.taskData.source = newTaskService.queryTasksForTaskExplorer.bind(newTaskService)
   $scope.taskData.taskDefMode = true
 
   # Show inbox search UI options on the Task Explorer view
   $scope.showSearchOptions = true
 
-  # Initialise filters safely (handles unit/taskDefinitions loading later)
+  # Ensure filters exists (safe when navigating directly before unit loads)
   $scope.filters ?= {}
-  $scope.filters.taskDefinitionIdSelected ?= _.first($scope.unit?.taskDefinitions)?.id
 
-  # If taskDefinitions load after controller init, set a default once
-  $scope.$watch('unit.taskDefinitions', (defs) ->
+  setDefaultDefId = (defs) ->
+    return if $scope.filters.taskDefinitionIdSelected?
     return unless defs? and defs.length > 0
-    $scope.filters.taskDefinitionIdSelected ?= defs[0].id
-  )
+    $scope.filters.taskDefinitionIdSelected = defs[0].id
+
+  # If already loaded
+  setDefaultDefId($scope.unit?.taskDefinitions)
+
+  # If loaded later
+  $scope.$watch 'unit.taskDefinitions', (defs) ->
+    setDefaultDefId(defs)
 )
