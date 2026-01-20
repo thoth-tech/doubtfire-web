@@ -1,0 +1,37 @@
+<div class="p-6 bg-white shadow-md rounded-md">
+    <!-- Page Heading -->
+    <h1 class="text-2xl font-bold mb-4 text-gray-800">Projects Index</h1>
+
+    <!-- Project Info -->
+    <div *ngIf="project; else loadingOrError">
+        <p class="text-gray-700">
+            <span class="font-semibold">Project:</span> {{ project.name }}
+        </p>
+        <p class="text-gray-700">
+            <span class="font-semibold">Unit:</span> {{ unit?.name }}
+        </p>
+
+        <!-- Tasks Section -->
+        <h2 class="text-xl font-semibold mt-6 mb-2 text-gray-800">Tasks</h2>
+
+        <ul *ngIf="project?.tasks?.length > 0; else noTasks" class="space-y-2">
+            <li *ngFor="let task of project.tasks"
+                class="flex items-center justify-between bg-gray-100 p-3 rounded shadow-sm">
+                <span class="text-gray-700">
+                    {{ task.name }} – Status:
+                    <span class="font-medium">{{ task.status }}</span>
+                </span>
+            </li>
+        </ul>
+
+        <!-- No Tasks -->
+        <ng-template #noTasks>
+            <p class="text-gray-500 italic">No tasks found for this project.</p>
+        </ng-template>
+    </div>
+
+    <!-- Loading / Error States -->
+    <ng-template #loadingOrError>
+        <div *ngIf="isLoading" class="text-gray-500">Loading project...</div>
+        <div *ngIf="hasError" class="text-red-600">Error loading project.</div>
+    </ng-template>
