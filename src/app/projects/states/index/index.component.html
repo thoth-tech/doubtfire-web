@@ -21,10 +21,6 @@
                     {{ task.name }} – Status:
                     <span class="font-medium">{{ task.status }}</span>
                 </span>
-                <button class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                    (click)="completeTask(task)">
-                    Complete
-                </button>
             </li>
         </ul>
 
@@ -39,8 +35,3 @@
         <div *ngIf="isLoading" class="text-gray-500">Loading project...</div>
         <div *ngIf="hasError" class="text-red-600">Error loading project.</div>
     </ng-template>
-</div>
-<ng-template #loadingOrError>
-    <div *ngIf="isLoading">Loading project...</div>
-    <div *ngIf="hasError">Error loading project.</div>
-</ng-template>

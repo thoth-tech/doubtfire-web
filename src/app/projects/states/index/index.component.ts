@@ -1,11 +1,26 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, EMPTY } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { GlobalStateService } from './global-state.service';
 import { ProjectService } from '../../services/project.service';
-import { ListenerService } from '../../services/listener.service';
 import { ViewType } from '../../common/types/view-type';
+
+// ----------------------
+// Added Interfaces
+// ----------------------
+interface Unit {
+  id: number;
+  name: string;
+  taskDefinitions?: any[];
+}
+
+interface Project {
+  id: number;
+  name: string;
+  tasks?: any[];
+  unit?: Unit;
+}
 
 @Component({
   selector: 'app-projects-index',
@@ -14,8 +29,8 @@ import { ViewType } from '../../common/types/view-type';
 })
 export class ProjectsIndexComponent implements OnInit, OnDestroy {
   projectId!: number;
-  project: any;
-  unit: any;
+  project: Project | null = null;
+  unit: Unit | null = null;
   isLoading = true;
   hasError = false;
 
@@ -25,7 +40,6 @@ export class ProjectsIndexComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private projectService: ProjectService,
-    private listenerService: ListenerService,
     private globalStateService: GlobalStateService
   ) { }
 
@@ -43,8 +57,8 @@ export class ProjectsIndexComponent implements OnInit, OnDestroy {
               this.hasError = true;
               this.isLoading = false;
               this.router.navigate(['/home']);
-              // Return an empty observable when navigation happens
-              return new Subject<never>();
+              // Use EMPTY instead of new Subject()
+              return EMPTY;
             }
 
             this.isLoading = true;
@@ -52,14 +66,14 @@ export class ProjectsIndexComponent implements OnInit, OnDestroy {
 
             return this.projectService.get(this.projectId, {
               cacheBehaviourOnGet: 'cacheQuery',
-              mappingCompleteCallback: (project: any) => {
-                this.unit = project?.unit;
+              mappingCompleteCallback: (project: Project) => {
+                this.unit = project?.unit ?? null;
               }
             });
           })
         )
         .subscribe({
-          next: (project: any) => {
+          next: (project: Project) => {
             this.project = project;
 
             // Guard against null/undefined project
