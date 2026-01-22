@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>Grant Extension</h2>
+<form [formGroup]="grantExtensionForm" (ngSubmit)="submitForm()">
+
+
+<mat-dialog-content [formGroup]="grantExtensionForm">
+  <!-- Student Selection -->
+  <mat-form-field appearance="fill" class="w-full mb-4">
+    <mat-label>Student</mat-label>
+    <mat-select formControlName="student" required>
+      <mat-option value="" disabled>Select a student</mat-option>
+      <mat-option *ngFor="let student of students" [value]="student.id">
+        {{ student.name }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="grantExtensionForm.get('student')?.touched && grantExtensionForm.get('student')?.invalid">
+      Please select a student.
+    </mat-error>
+  </mat-form-field>
+
+  <!-- Extension Duration -->
+  <div class="mb-4">
+  <label for="extension" class="block text-xl font-semibold text-gray-900">
+    Extension Duration: <strong>{{ grantExtensionForm.get('extension')?.value }}</strong> day(s)
+  </label>
+
+  <mat-slider
+    min="1"
+    max="30"
+    step="1"
+    tickInterval="5"
+    thumbLabel
+    class="w-full"
+    style="width: 100%; max-width: 600px; min-width: 300px;"
+  >
+    <input matSliderThumb formControlName="extension" />
+  </mat-slider>
+  </div>
+
+  <!-- Reason Field -->
+  <mat-form-field appearance="fill" class="w-full mb-4">
+    <mat-label>Reason</mat-label>
+    <textarea
+      matInput
+      formControlName="reason"
+      rows="4"
+      required
+    ></textarea>
+    <mat-error *ngIf="grantExtensionForm.get('reason')?.touched && grantExtensionForm.get('reason')?.invalid">
+      Please provide a reason for the extension.
+    </mat-error>
+  </mat-form-field>
+
+  <!-- Notes Field (Optional) -->
+  <mat-form-field appearance="fill" class="w-full mb-4">
+    <mat-label>Additional Notes (optional)</mat-label>
+    <textarea matInput formControlName="notes" rows="3"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+
+  <!-- Form Buttons -->
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()" [disabled]="isSubmitting">Cancel</button>
+  <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
+    Grant Extension
+  </button>
+</mat-dialog-actions>
+
