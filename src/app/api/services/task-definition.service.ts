@@ -96,6 +96,15 @@ export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
           return taskDef.tutorialStream?.abbreviation;
         },
       },
+      {
+        keys: ['tutorialSelfEnrolmentStream', 'tutorial_self_enrolment_stream_abbr'],
+        toEntityFn: (data: object, key: string, taskDef: TaskDefinition, params?: any) => {
+          return taskDef.unit.tutorialStreamsCache.get(data[key]);
+        },
+        toJsonFn: (taskDef: TaskDefinition, key: string) => {
+          return taskDef.tutorialSelfEnrolmentStream?.abbreviation;
+        },
+      },
       'plagiarismWarnPct',
       'restrictStatusUpdates',
       {
@@ -116,6 +125,7 @@ export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
       'hasTaskAssessmentResources',
       'hasTaskAssessmentScript',
       'scormEnabled',
+      'tutorialSelfEnrolmentEnabled',
       'hasScormData',
       'scormAllowReview',
       'scormBypassTest',

@@ -51,12 +51,7 @@
   <ng-container matColumnDef="row-actions" sticky>
     <th style="width: 10%" mat-header-cell *matHeaderCellDef></th>
     <td style="width: 10%" mat-cell *matCellDef="let upreq">
-      <button
-        mat-icon-button
-        aria-label="delete upload requirement"
-        color="warn"
-        (click)="removeUpReq(upreq)"
-      >
+      <button mat-icon-button aria-label="delete upload requirement" (click)="removeUpReq(upreq)">
         <mat-icon>delete</mat-icon>
       </button>
     </td>
@@ -68,8 +63,8 @@
       <mat-toolbar>
         <mat-toolbar-row>
           <span class="flex flex-grow"></span>
-          <button mat-flat-button color="primary" (click)="addUpReq()">
-            <mat-icon>add</mat-icon> Add
+          <button mat-mini-fab (click)="addUpReq()">
+            <mat-icon>add</mat-icon>
           </button>
         </mat-toolbar-row>
       </mat-toolbar>

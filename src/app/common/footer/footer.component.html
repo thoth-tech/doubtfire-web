@@ -1,12 +1,19 @@
 <mat-toolbar class="footer flex-col w-full h-full justify-center p-0">
   @if (selectedTask?.similaritiesDetected) {
-    <div class="bg-red-500 grow w-full rounded-xl h-8 mb-5 mt-4 text-white text-lg font-bold">
+    <div class="bg-red-500 grow w-full rounded-xl h-8 mb-5 mt-4 text-white text-lg">
+      <div
+        #arrow
+        class="shrink border-t-red-500"
+        [ngStyle]="{'left.px': leftOffset, 'top.px': topOffset}"
+        style="position: absolute; border: 10px solid transparent; transform: translateX(-50%)"
+      ></div>
       <p
         style="position: relative"
         #warningText
-        class="mat-caption inline-block select-none text-center w-full"
+        [ngStyle]="{'left.px': warningTextLeftOffset}"
+        class="mat-caption inline-block select-none"
       >
-        Similarities flagged for {{ selectedTask?.project?.student.name }}
+        Similarities flagged for {{ selectedTask?.project.student.name }}
       </p>
     </div>
   }

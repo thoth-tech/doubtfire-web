@@ -51,7 +51,6 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges, AfterViewInit 
   }
 
   ngAfterViewInit(): void {
-    this.useNativePdfViewer = localStorage.getItem('useNativePdfViewer') === 'true';
     const storedZoomValue = parseFloat(localStorage.getItem('pdfViewerZoom')) || 1;
     // Clamp zoom value between ZOOM_MIN and ZOOM_MAX
     this.zoomValue = Math.min(Math.max(storedZoomValue, this.ZOOM_MIN), this.ZOOM_MAX);
@@ -130,10 +129,9 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges, AfterViewInit 
     );
   }
 
-  onLoaded(event: PDFDocumentProxy) {
+  onLoaded() {
     this.loaded = true;
     window.dispatchEvent(new Event('resize'));
-    this.pdfTotalPages = event.numPages;
   }
 
   onTextLayerRendered() {
