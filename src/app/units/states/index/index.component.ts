@@ -2,14 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
-
 import { UnitService } from '../../../api/services/unit.service';
 import { ProjectService } from '../../../api/services/project.service';
 import { GlobalStateService } from '../../../projects/states/index/global-state.service';
 import { UserService } from '../../../api/services/user.service';
 import { AlertService } from '../../../common/services/alert.service';
-
 
 @Component({
   selector: 'app-units-index-state',
@@ -21,7 +18,6 @@ export class UnitsIndexStateComponent implements OnInit, OnDestroy {
   unitRole: any;
   private destroy$ = new Subject<void>();
 
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -32,23 +28,17 @@ export class UnitsIndexStateComponent implements OnInit, OnDestroy {
     private alertService: AlertService
   ) {}
 
-
   ngOnInit(): void {
     // Get unitId from route parameters
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const unitId = +params['unitId'];
-
-
       if (!unitId) {
         this.router.navigate(['/home']);
         return;
       }
-
-
       this.loadUnit(unitId);
     });
   }
-
 
   private loadUnit(unitId: number): void {
     this.globalStateService.onLoad(() => {
@@ -56,7 +46,6 @@ export class UnitsIndexStateComponent implements OnInit, OnDestroy {
       this.unitRole = this.globalStateService.loadedUnitRoles.currentValues.find(
         (unitRole: any) => unitRole.unit.id === unitId
       );
-
 
       // Check for Admin or Auditor roles
       if (
@@ -71,16 +60,14 @@ export class UnitsIndexStateComponent implements OnInit, OnDestroy {
         );
       }
 
-
       // Go home if no unit role was found
       if (!this.unitRole) {
         this.router.navigate(['/home']);
         return;
       }
 
-
-      this.globalStateService.setView(this.unit, this.unitRole);
-
+      // REMOVED: this.globalStateService.setView(this.unit, this.unitRole);
+      // This line was causing the routing error
 
       // Load unit and students
       this.UnitService
@@ -112,14 +99,8 @@ export class UnitsIndexStateComponent implements OnInit, OnDestroy {
     });
   }
 
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 }
-
-
-
-
-
