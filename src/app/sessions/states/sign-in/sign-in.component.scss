@@ -19,3 +19,18 @@
     height: 100vh !important;
   }
 }
+
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.link-button {
+  font-size: 14px;
+  text-decoration: underline;
+  min-width: auto;
+  height: auto;
+  padding: 0.5rem 0;
+}

@@ -48,6 +48,30 @@
           >
             Sign In
           </button>
+          
+          @if (showCredentials) {
+            <div class="auth-links">
+              <button
+                type="button"
+                class="link-button"
+                mat-button
+                color="primary"
+                (click)="goToForgotPassword()"
+              >
+                Forgot Password?
+              </button>
+              
+              <button
+                type="button"
+                class="link-button"
+                mat-button
+                color="primary"
+                (click)="goToRegister()"
+              >
+                Create Account
+              </button>
+            </div>
+          }
         </form>
       </div>
     </div>
