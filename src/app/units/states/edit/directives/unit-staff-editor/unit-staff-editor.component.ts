@@ -7,6 +7,8 @@ import {UnitRole} from 'src/app/api/models/unit-role';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatButtonToggleChange} from '@angular/material/button-toggle';
 import {ConfirmationModalService} from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
+import {MatSelectChange} from '@angular/material/select';
+import {TutorNotesModalService} from 'src/app/common/modals/tutor-notes-modal/tutor-notes-modal.service';
 
 @Component({
   selector: 'unit-staff-editor',
@@ -22,7 +24,15 @@ export class UnitStaffEditorComponent implements OnInit {
   filteredStaff: User[] = []; // Filtered staff members
   searchTerm: string = ''; // Search term entered by the user
 
-  displayedColumns: string[] = ['name', 'role', 'main-convenor', 'actions'];
+  displayedColumns: string[] = [
+    'name',
+    'role',
+    'main-convenor',
+    'observer-only',
+    'overflow-marking',
+    'mentor',
+    'actions',
+  ];
   dataSource = new MatTableDataSource<UnitRole>();
 
   // Inject services here
@@ -30,6 +40,7 @@ export class UnitStaffEditorComponent implements OnInit {
     private alertService: AlertService,
     private unitRoleService: UnitRoleService,
     private confirmationModalService: ConfirmationModalService,
+    private tutorNotesModal: TutorNotesModalService,
   ) {}
 
   ngOnInit(): void {
@@ -73,6 +84,48 @@ export class UnitStaffEditorComponent implements OnInit {
     });
   }
 
+  toggleObserverOnly(unitRole: UnitRole) {
+    const previousValue = unitRole.observerOnly;
+    unitRole.observerOnly = !unitRole.observerOnly;
+    unitRole.roleId = unitRole.role === 'Tutor' ? 2 : 3;
+    this.unitRoleService.update(unitRole).subscribe({
+      next: () => this.alertService.success('Observer status updated', 2000),
+      error: (response) => {
+        // Revert changes on error
+        unitRole.observerOnly = previousValue;
+        this.alertService.error(response, 6000);
+      },
+    });
+  }
+
+  toggleCanOverflowMark(unitRole: UnitRole) {
+    const previousValue = unitRole.canMarkOverflowTasks;
+    unitRole.canMarkOverflowTasks = !unitRole.canMarkOverflowTasks;
+    unitRole.roleId = unitRole.role === 'Tutor' ? 2 : 3;
+    this.unitRoleService.update(unitRole).subscribe({
+      next: () => this.alertService.success('Overflow marking permissions updated', 2000),
+      error: (response) => {
+        // Revert changes on error
+        unitRole.canMarkOverflowTasks = previousValue;
+        this.alertService.error(response, 6000);
+      },
+    });
+  }
+
+  selectMentor(unitRole: UnitRole, event: MatSelectChange) {
+    const previousValue = unitRole.mentorId;
+    unitRole.mentorId = event.value;
+    unitRole.roleId = unitRole.role === 'Tutor' ? 2 : 3;
+
+    this.unitRoleService.update(unitRole).subscribe({
+      next: () => this.alertService.success('Mentor updated', 2000),
+      error: (response) => {
+        // Revert changes on error
+        unitRole.mentorId = previousValue;
+        this.alertService.error(response, 6000);
+      },
+    });
+  }
   /**
    * Changes who the `Main Convenor` of the unit is.
    *
@@ -131,7 +184,10 @@ export class UnitStaffEditorComponent implements OnInit {
     this.filteredStaff = this.staff.filter(
       (staff) =>
         staff.matches(this.searchTerm.toLowerCase()) && // Find by name
-        !this.unit.staff.find((listStaff) => staff.id === listStaff.user.id), // Not already assigned to the unit
+        !this.unit.staff.find((listStaff) => staff.id === listStaff.user.id) && // Not already assigned to the unit
+        // Filter out students from the staff search
+        // NOTE: This is a hotfix to an issue where loading the inbox populates this.staff with students...
+        staff.isStaff,
     );
   }
 
@@ -154,13 +210,24 @@ export class UnitStaffEditorComponent implements OnInit {
    * @returns void
    */
   removeStaff(staff: UnitRole) {
-    this.unitRoleService.delete(staff, {cache: this.unit.staffCache}).subscribe({
-      next: () => this.alertService.success('Staff member removed', 2000),
-      error: (response) => this.alertService.error(response, 6000),
-    });
+    this.confirmationModalService.show(
+      'Remove staff member',
+      `Are you sure you want to remove ${staff.user.name} from ${this.unit.code} ${this.unit.name}?`,
+      () => {
+        this.unitRoleService.delete(staff, {cache: this.unit.staffCache}).subscribe({
+          next: () => this.alertService.success('Staff member removed', 2000),
+          error: (response) => this.alertService.error(response, 6000),
+        });
+      },
+    );
   }
 
   groupSetName(id: number) {
-    this.unit.groupSetsCache.get(id).name || 'Individual Work';
+    return this.unit.groupSetsCache.get(id).name || 'Individual Work';
+  }
+
+  openTutorNotes(unitRole: UnitRole) {
+    unitRole.unit = this.unit; // HACK: ensure unit is mapped within the UnitRole
+    this.tutorNotesModal.show(null, unitRole);
   }
 }

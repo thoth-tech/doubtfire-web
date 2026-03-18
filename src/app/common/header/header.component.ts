@@ -1,13 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { aboutDoubtfireModal, calendarModal } from 'src/app/ajs-upgraded-providers';
-import { CheckForUpdateService } from 'src/app/sessions/service-worker-updater/check-for-update.service';
-import { GlobalStateService, ViewType } from 'src/app/projects/states/index/global-state.service';
-import { IsActiveUnitRole } from '../pipes/is-active-unit-role.pipe';
-import { UserService } from 'src/app/api/services/user.service';
-import { AuthenticationService, Project, Task, Unit, UnitRole, User } from 'src/app/api/models/doubtfire-model';
-import { Subscription } from 'rxjs';
-import { MediaObserver } from 'ng-flex-layout';
+import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
+import {aboutDoubtfireModal, calendarModal} from 'src/app/ajs-upgraded-providers';
+import {CheckForUpdateService} from 'src/app/sessions/service-worker-updater/check-for-update.service';
+import {GlobalStateService, ViewType} from 'src/app/projects/states/index/global-state.service';
+import {IsActiveUnitRole} from '../pipes/is-active-unit-role.pipe';
+import {UserService} from 'src/app/api/services/user.service';
+import {
+  AuthenticationService,
+  Project,
+  Task,
+  Unit,
+  UnitRole,
+  User,
+} from 'src/app/api/models/doubtfire-model';
+import {Subscription} from 'rxjs';
+import {MediaObserver} from 'ng-flex-layout';
+import {DoubtfireConstants, LogoSettings} from 'src/app/config/constants/doubtfire-constants';
+import {SidekiqJobEntry, SidekiqJobService} from 'src/app/api/services/sidekiq-job.service';
+import {SidekiqJobsModalService} from '../modals/sidekiq-jobs-modal/sidekiq-jobs-modal.service';
+import {QrModalService} from '../modals/qr-modal/qr-modal.service';
+import {StateService} from '@uirouter/core';
+import {TutorNotesModalService} from '../modals/tutor-notes-modal/tutor-notes-modal.service';
 
 @Component({
   selector: 'app-header',
@@ -16,7 +29,7 @@ import { MediaObserver } from 'ng-flex-layout';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   task: Task;
-  data: { isTutor: boolean } = {
+  data: {isTutor: boolean} = {
     isTutor: false,
   };
   unitRoles: UnitRole[];
@@ -30,7 +43,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentView: ViewType;
   showHeader = true;
 
+  logoSettings: LogoSettings = {
+    hasLogo: false,
+    logoLinkUrl: '/assets/images/institution-logo.png',
+    logoUrl: null,
+  };
   private subscriptions: Subscription[] = [];
+
+  sidekiqJobs: SidekiqJobEntry[] = [];
 
   constructor(
     @Inject(calendarModal) private CalendarModal,
@@ -41,6 +61,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private authService: AuthenticationService,
     protected media: MediaObserver,
+    protected doubtfireConstants: DoubtfireConstants,
+    private sidekiqJobService: SidekiqJobService,
+    private sidekiqJobsModalService: SidekiqJobsModalService,
+    private qrModalService: QrModalService,
+    private stateService: StateService,
+    private tutorNotesModal: TutorNotesModalService,
   ) {}
 
   ngOnInit(): void {
@@ -50,7 +76,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
           this.showHeader = shouldShow;
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        error: (err) => {},
+        error: (err) => {
+          console.log(`Error showing header: ${err}`);
+        },
       }),
     );
 
@@ -64,7 +92,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
             .transform(this.unitRoles)
             .filter((role) => this.isUniqueRole(role));
         },
-        error: (err) => {},
+        error: (err) => {
+          console.log(`Error fetching unit roles: ${err}`);
+        },
       }),
     );
 
@@ -74,7 +104,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
           if (!projects) return;
           this.projects = projects.filter((project) => project?.unit?.myRole === 'Student');
         },
-        error: (err) => {},
+        error: (err) => {
+          console.log(`Error fetching projects: ${err}`);
+        },
       }),
     );
 
@@ -98,11 +130,55 @@ export class HeaderComponent implements OnInit, OnDestroy {
           }
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        error: (_err) => {
-          console.error(_err);
+        error: (err) => {
+          console.log(`Error on switching view and entity: ${err}`);
         },
       }),
     );
+
+    // Subscribe to logo changes
+    this.subscriptions.push(
+      this.doubtfireConstants.LogoSettings.subscribe({
+        next: (settings) => {
+          this.logoSettings = settings;
+        },
+        error: (err) => {
+          console.log(`Error getting settings: ${err}`);
+        },
+      }),
+    );
+
+    this.sidekiqJobService.sidekiqJobsSubject.subscribe((jobs) => {
+      this.sidekiqJobs = [...jobs];
+    });
+  }
+
+  showMyQr() {
+    const hostName = this.doubtfireConstants.HOST_URL;
+
+    const projectView =
+      this.currentProject &&
+      this.currentProject.student &&
+      this.currentProject.student.username !== this.currentUser.username;
+
+    const username = projectView ? this.currentProject.student.username : this.currentUser.username;
+    if (projectView || this.currentUser.role === 'Student') {
+      const url = `${hostName}/tutor-discussion?unitId=${this.currentUnit.id}&username=${username}`;
+      this.qrModalService.show(
+        url,
+        'Display this QR code during your class so your tutor can scan it to view your submissions and mark your tasks as complete.',
+        projectView ? `Viewing QR for ${this.currentProject.student.name}` : '',
+        true,
+      );
+    } else {
+      this.stateService.go('tutor-discussion', {
+        unitId: this.currentUnit.id,
+      });
+    }
+  }
+
+  showSidekiqJob() {
+    this.sidekiqJobsModalService.show();
   }
 
   ngOnDestroy(): void {
@@ -160,5 +236,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   get currentUser(): User {
     return this.userService.currentUser;
+  }
+
+  openTutorNotes() {
+    this.tutorNotesModal.show(null, this.currentUnitRole);
   }
 }

@@ -15,9 +15,13 @@ import {Project} from 'src/app/api/models/project';
 import {TaskStatusEnum} from 'src/app/api/models/task-status';
 import {Unit} from 'src/app/api/models/unit';
 import {TaskService} from 'src/app/api/services/task.service';
+import {UnitService} from 'src/app/api/services/unit.service';
 import {UserService} from 'src/app/api/services/user.service';
 import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {SidekiqProgressModalService} from 'src/app/common/modals/sidekiq-progress-modal/sidekiq-progress-modal.service';
+import {AlertService} from 'src/app/common/services/alert.service';
 import {GradeService} from 'src/app/common/services/grade.service';
+import {D2lTransferModal} from '../../d2l-transfer-modal/d2l-transfer.component';
 
 @Component({
   selector: 'f-portfolios-list',
@@ -46,6 +50,10 @@ export class PortfoliosListComponent implements OnInit, AfterViewInit {
     private userService: UserService,
     private gradeService: GradeService,
     private fileDownloaderService: FileDownloaderService,
+    private unitService: UnitService,
+    private alertService: AlertService,
+    private sidekiq: SidekiqProgressModalService,
+    private d2lTransferModal: D2lTransferModal,
   ) {}
 
   ngAfterViewInit() {
@@ -67,16 +75,32 @@ export class PortfoliosListComponent implements OnInit, AfterViewInit {
   }
 
   downloadPortfolios() {
-    // TODO 10.0.x: Download portfolios via sidekiq job
+    this.unitService.zipPortfolios(this.unit).subscribe({
+      next: (newJob) => {
+        this.sidekiq.show(`Downloading Portfolios: ${this.unit.code}`, newJob.id).subscribe({
+          next: () => {
+            this.fileDownloaderService.downloadFile(
+              this.unit.portfoliosUrl,
+              `${this.unit.code}-portfolios.zip`,
+            );
+          },
+          error: (error) => {
+            this.alertService.error(error, 6000);
+          },
+        });
+      },
+      error: (error) => {
+        this.alertService.error(`Could not download portfolios: ${error}`, 6000);
+      },
+    });
   }
 
   public hasD2lMapping() {
-    // TODO 10.0.x: fetch this.unit.hasD2lMapping()
-    return false;
+    return this.unit.hasD2lMapping();
   }
 
   transferToD2l() {
-    // TODO 10.0.x: Open D2lTransferModal for this.unit
+    this.d2lTransferModal.open(this.unit);
   }
 
   public get gradeValues() {

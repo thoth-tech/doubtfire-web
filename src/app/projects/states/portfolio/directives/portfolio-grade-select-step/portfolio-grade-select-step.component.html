@@ -65,7 +65,7 @@
                   class="p-2 py-4"
                   (click)="updateSubmittedGrade(grade)"
                 >
-                  <grade-icon [grade]="grade"></grade-icon>
+                  <f-grade-icon [grade]="grade"></f-grade-icon>
                 </mat-button-toggle>
               }
             </mat-button-toggle-group>
@@ -86,7 +86,11 @@
       <button
         mat-raised-button
         color="primary"
-        [disabled]="!agreedToAssessmentCriteria"
+        [disabled]="
+          !agreedToAssessmentCriteria ||
+          project.submittedGrade === null ||
+          project.submittedGrade === undefined
+        "
         (click)="goToNextStep()"
       >
         Next

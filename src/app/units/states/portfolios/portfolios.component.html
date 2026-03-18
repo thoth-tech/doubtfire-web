@@ -16,8 +16,14 @@
           ></f-portfolios-project-progress>
         }
       </mat-tab>
+
       <!-- TODO 10.0.x: View Project Tasks/Dashboard directive (project. dashboard) -->
-      <!-- TODO 10.0.x: View Staff Notes directive -->
+
+      <mat-tab label="View Staff Notes" [disabled]="!selectedProject">
+        @if (selectedProject) {
+          <f-staff-notes [project]="selectedProject"></f-staff-notes>
+        }
+      </mat-tab>
       <mat-tab label="View Portfolio" [disabled]="!selectedProject">
         @if (selectedProject) {
           <f-portfolios-portfolio-view [project]="selectedProject"></f-portfolios-portfolio-view>
