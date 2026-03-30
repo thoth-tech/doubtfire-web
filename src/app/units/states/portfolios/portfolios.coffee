@@ -14,11 +14,24 @@ angular.module('doubtfire.units.states.portfolios', [])
       roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor']
    }
 )
-.controller("UnitPortfoliosStateCtrl", ($scope, alertService, analyticsService, gradeService, newProjectService, Visualisation, newTaskService, fileDownloaderService, newUserService) ->
+.controller("UnitPortfoliosStateCtrl", ($scope, alertService, analyticsService, gradeService, newProjectService, Visualisation, newTaskService, fileDownloaderService, newUserService, D2lTransferModal, newUnitService, sidekiqProgressModalService) ->
   # TODO: (@alexcu) Break this down into smaller directives/substates
 
+  $scope.unit.loadD2lMapping().subscribe()
+
   $scope.downloadGrades = -> fileDownloaderService.downloadFile($scope.unit.gradesUrl, "#{$scope.unit.code}-grades.csv")
-  $scope.downloadPortfolios = -> fileDownloaderService.downloadFile($scope.unit.portfoliosUrl, "#{$scope.unit.code}-portfolios.zip")
+
+  $scope.downloadPortfolios = ->
+    newUnitService.zipPortfolios($scope.unit).subscribe({
+      next: (newJob) ->
+        sidekiqProgressModalService.show("Downloading Portfolios: " + $scope.unit.code, newJob.id).subscribe({
+          next: (job) ->
+            fileDownloaderService.downloadFile($scope.unit.portfoliosUrl, "#{$scope.unit.code}-portfolios.zip")
+          error: (message) -> alertService.error(message, 6000)
+        })
+      error: (message) -> alertService.error(message, 6000)
+    })
+
 
   $scope.studentFilter = 'allStudents'
   $scope.portfolioFilter = 'withPortfolio'
@@ -53,14 +66,18 @@ angular.module('doubtfire.units.states.portfolios', [])
       title: "View Progress"
       subtitle: "See the progress of the student"
       seq: 1
+    viewStaffNotes:
+      title: "View Staff Notes"
+      subtitle: "See notes of the student add by staff"
+      seq: 2
     viewPortfolio:
       title: "View Portfolio"
       subtitle: "See the portfolio of the student"
-      seq: 2
+      seq: 3
     assessPortfolio:
       title: "Assess Portfolio"
       subtitle: "Enter a grade for the student"
-      seq: 3
+      seq: 4
 
   $scope.setActiveTab($scope.tabs.selectStudent)
 
@@ -121,7 +138,23 @@ angular.module('doubtfire.units.states.portfolios', [])
     $scope.selectedStudent = student
     $scope.project = null
     newProjectService.loadProject(student, $scope.unit).subscribe({
-      next: (project) -> $scope.project = project
+      next: (project) ->
+        $scope.project = project
+        $scope.project.preloadedUrl = $scope.project.portfolioUrl()
       error: (message) -> alertService.error( message, 6000)
     })
+
+  $scope.hasD2lMapping = ->
+    $scope.unit.hasD2lMapping()
+
+  $scope.transferToD2L = ->
+    D2lTransferModal.open($scope.unit)
+
+  $scope.openProject = ($event, project) ->
+    $event.stopPropagation()
+    # HACK: avoids using window.open() to prevent AngularJS error
+    link = document.createElement('a')
+    link.href = "/projects/#{project.id}/dashboard/?tutor=true"
+    link.target = '_blank'
+    link.click()
 )
