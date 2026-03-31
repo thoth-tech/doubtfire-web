@@ -1,0 +1,24 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    # Run at 12AM every night, direct workflow dispatch, and on pull request creation
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+  push:
+  pull_request:
+    types: [opened, reopened]
+jobs:
+  sync:
+    if: ${{ vars.AUTOSYNC_UPSTREAM == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Sync branch with upstream
+        id: ghsync
+        run: gh repo sync $REPOSITORY -b $BRANCH_NAME >> $GITHUB_STEP_SUMMARY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
