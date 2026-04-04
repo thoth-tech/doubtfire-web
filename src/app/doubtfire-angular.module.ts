@@ -36,7 +36,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {MatChipListbox, MatChipsModule} from '@angular/material/chips';
+import {MatChipsModule} from '@angular/material/chips';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {PdfViewerModule} from 'ng2-pdf-viewer';
 import {UIRouterUpgradeModule} from '@uirouter/angular-hybrid';
@@ -213,6 +213,8 @@ import {TaskAssessmentCardComponent} from './projects/states/dashboard/directive
 import {TaskSubmissionCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-submission-card/task-submission-card.component';
 import {TaskDashboardComponent} from './projects/states/dashboard/directives/task-dashboard/task-dashboard.component';
 import {InboxComponent} from './units/states/tasks/inbox/inbox.component';
+import {PortfoliosComponent} from './units/states/portfolios/portfolios.component';
+import {AjsProjectProgressDashboardComponent} from './units/states/portfolios/ajs-project-progress-dashboard.component';
 import {ProjectProgressBarComponent} from './common/project-progress-bar/project-progress-bar.component';
 import {TeachingPeriodListComponent} from './admin/states/teaching-periods/teaching-period-list/teaching-period-list.component';
 import {FChipComponent} from './common/f-chip/f-chip.component';
@@ -454,6 +456,8 @@ const GANTT_CHART_CONFIG = {
     TaskSubmissionCardComponent,
     TaskDashboardComponent,
     InboxComponent,
+    PortfoliosComponent,
+    AjsProjectProgressDashboardComponent,
     ProjectProgressBarComponent,
     TeachingPeriodListComponent,
     CreateNewUnitModal,
@@ -683,7 +687,6 @@ const GANTT_CHART_CONFIG = {
     NgxGanttModule,
     MatSidenavModule,
     MonacoEditorModule.forRoot(),
-    MatChipListbox,
   ],
 })
 
