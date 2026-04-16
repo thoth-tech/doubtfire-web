@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [10.0.1-22](https://github.com/b0ink/doubtfire-deploy/compare/v10.0.1-21...v10.0.1-22) (2026-03-23)
+
+
+### Features
+
+* display portfolio submission time ([d717b27](https://github.com/b0ink/doubtfire-deploy/commit/d717b270eb80c0b0245e6b39f0b3f0567c379512))
+* require discussion before marking complete ([#1103](https://github.com/b0ink/doubtfire-deploy/issues/1103)) ([86ae886](https://github.com/b0ink/doubtfire-deploy/commit/86ae8865268ee19e4b3430ff679358cc075e1346))
+
+
+### Bug Fixes
+
+* avoid rendering the staff list twice ([9e5be59](https://github.com/b0ink/doubtfire-deploy/commit/9e5be591b9a0cf72d01efa5e28e5b2b9e7eba043))
+* only render if submission date is valid ([04986a0](https://github.com/b0ink/doubtfire-deploy/commit/04986a0e501f0185dbd199b8d2554133217f7e75))
+
+### [10.0.1-21](https://github.com/b0ink/doubtfire-deploy/compare/v10.0.1-20...v10.0.1-21) (2026-03-13)
+
+### [10.0.1-20](https://github.com/b0ink/doubtfire-deploy/compare/v10.0.1-19...v10.0.1-20) (2026-03-13)
+
+### [10.0.1-19](https://github.com/b0ink/doubtfire-deploy/compare/v10.0.1-18...v10.0.1-19) (2026-03-13)
+
+
+### Features
+
+* view submission history + zip file editor ([#1104](https://github.com/b0ink/doubtfire-deploy/issues/1104)) ([d706f09](https://github.com/b0ink/doubtfire-deploy/commit/d706f0918285a2c6d69c6240a93b41e88506f771))
+
+### [10.0.1-18](https://github.com/b0ink/doubtfire-deploy/compare/v10.0.1-17...v10.0.1-18) (2026-03-11)
+
+
+### Bug Fixes
+
+* convert emojis in submission comment to string with colons ([#1105](https://github.com/b0ink/doubtfire-deploy/issues/1105)) ([7c508cb](https://github.com/b0ink/doubtfire-deploy/commit/7c508cba8695fcd7b6df4aaa53a70066ecb137f3))
+* dont subtract tutor note count for reading your own notes ([8fe6171](https://github.com/b0ink/doubtfire-deploy/commit/8fe61718c0e263fa965b861763337af27c175b36))
+
 ### [10.0.1-17](https://github.com/b0ink/doubtfire-deploy/compare/v10.0.1-16...v10.0.1-17) (2026-03-06)
 
 
