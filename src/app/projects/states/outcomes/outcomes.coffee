@@ -1,3 +1,8 @@
+# Legacy outcomes state.
+# The template for this state renders <project-outcome-alignment>,
+# while similar outcomes logic also exists in that component.
+# Keep both implementations aligned until a single source of truth is chosen.
+
 angular.module('doubtfire.projects.states.outcomes', [])
 
 #
@@ -35,11 +40,10 @@ angular.module('doubtfire.projects.states.outcomes', [])
         newUnitService.loadLearningProgressClassStats($scope.unit).subscribe({
           next: (response) -> $scope.classStats = response
           error: (response) ->
-            alertService.error( response, 6000)
+            alertService.error(response, 6000)
             $scope.classStats = {}
         })
     $scope.poaView.activeTab = tab
-    eventName = if tab is 'progress' then "View Learning Progress Tab" else "Reflect on Learning Tab"
     $scope.refreshCharts()
 
   # Default tab
