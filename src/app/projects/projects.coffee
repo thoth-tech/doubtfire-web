@@ -1,10 +1,9 @@
 # Parent projects module.
-# Current dependencies are still active.
-# Note: outcomes-related logic is currently split between the outcomes state
-# and project-outcome-alignment and should be consolidated in a future refactor.
+# Outcomes source of truth now lives in projects.states.outcomes.
+# project-outcome-alignment has been deprecated and removed from the
+# parent dependency list as part of outcomes consolidation.
 
 angular.module('doubtfire.projects', [
   'doubtfire.projects.states'
-  'doubtfire.projects.project-outcome-alignment'
   'doubtfire.projects.project-progress-dashboard'
 ])

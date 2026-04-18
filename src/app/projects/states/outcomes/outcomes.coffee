@@ -1,7 +1,7 @@
-# Legacy outcomes state.
-# The template for this state renders <project-outcome-alignment>,
-# while similar outcomes logic also exists in that component.
-# Keep both implementations aligned until a single source of truth is chosen.
+# Source of truth for the outcomes feature.
+# This state owns the route, page-level logic, and template rendering.
+# Outcomes UI has been inlined into outcomes.tpl.html to remove duplicated
+# logic previously shared with project-outcome-alignment.
 
 angular.module('doubtfire.projects.states.outcomes', [])
 
@@ -25,9 +25,9 @@ angular.module('doubtfire.projects.states.outcomes', [])
   $scope.poaView = {
     activeTab: 'list'
   }
+
   $scope.targets = outcomeService.calculateTargets($scope.unit, $scope.unit, $scope.unit.taskStatusFactor)
   $scope.currentProgress = outcomeService.calculateProgress($scope.unit, $scope.project)
-
   $scope.refreshCharts = Visualisation.refreshAll
 
   refreshAlignmentData = ->
@@ -43,6 +43,7 @@ angular.module('doubtfire.projects.states.outcomes', [])
             alertService.error(response, 6000)
             $scope.classStats = {}
         })
+
     $scope.poaView.activeTab = tab
     $scope.refreshCharts()
 
