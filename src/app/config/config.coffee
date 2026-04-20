@@ -1,10 +1,12 @@
 #
-# The Doubtfire configuration module stores all configuration settings
-# for Doubtfire loaded at runtime.
+# Parent AngularJS configuration module.
+# This module is still required during migration because runtime and routing
+# behaviour remain active in AngularJS bootstrapping.
 #
-# The order in which the modules load here is IMPORTANT so do not rearrange
-# them
+# Keep the dependency order unchanged unless child config modules are fully
+# migrated and verified safe to remove.
 #
+
 angular.module('doubtfire.config', [
   'doubtfire.config.vendor-dependencies'
   'doubtfire.config.local-storage'

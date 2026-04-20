@@ -1,13 +1,14 @@
 angular.module('doubtfire.config.routing', [])
+
 #
-# Configuration for angular routing
+# AngularJS routing configuration still used during migration.
+# This module currently handles root/home URL redirects.
+# Unmatched URL fallback is also configured in doubtfire-angularjs.module.ts.
 #
-.config(($urlRouterProvider, $httpProvider) ->
-  # Catch bad URLs.
-  # $urlRouterProvider.otherwise "/not_found"
+.config(($urlRouterProvider) ->
+  # Map empty URL to root.
   $urlRouterProvider.when "", "/"
 
-  # Map root/home URL to a default state of our choosing.
-  # TODO: (@alexcu) probably change it to map to /dashboard at some point.
+  # Map root URL to home.
   $urlRouterProvider.when "/", "/home"
 )

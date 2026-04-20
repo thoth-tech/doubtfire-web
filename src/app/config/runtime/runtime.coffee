@@ -1,9 +1,14 @@
 #
-# Runtime settings for when Doubtfire is about to launch
+# Runtime settings executed during AngularJS app startup.
+# This module remains an active migration dependency because it handles:
+# - unauthorised redirects
+# - token timeout redirects
+# - state transition role checks
 #
+
 angular.module('doubtfire.config.runtime', [])
 
-.run(($rootScope, $state, $filter, $location, authenticationService, editableOptions, editableThemes, $transitions) ->
+.run(($rootScope, $state, authenticationService, editableOptions, editableThemes, $transitions) ->
   # Angular xeditable
   editableOptions.theme = 'bs3'
   editableThemes.bs3.inputClass = 'input-sm'
@@ -33,8 +38,6 @@ angular.module('doubtfire.config.runtime', [])
   handleUnauthorised = ->
     handleUnauthorisedDest($state.current)
 
-  # Don't let the user see pages not intended for their role
-
   # Redirect the user if they make an unauthorised API request
   $rootScope.$on "unauthorisedRequestIntercepted", handleUnauthorised
 
@@ -44,7 +47,8 @@ angular.module('doubtfire.config.runtime', [])
   # Watch for state transition and check role whitelist
   $transitions.onStart {}, (trans) ->
     toState = trans.to()
-    return true unless toState.data.roleWhitelist
+
+    return true unless toState.data?.roleWhitelist
 
     unless authenticationService.isAuthorised toState.data.roleWhitelist
       handleUnauthorisedDest(toState)
