@@ -236,6 +236,9 @@ export class Task extends Entity {
 
     return this.definition.localDueDate();
   }
+  public get checklocalDueDate(): Date {
+    return this.localDueDate();
+  }
 
   public localDueDateString(): string {
     const locale: string = AppInjector.get(LOCALE_ID);
@@ -255,7 +258,20 @@ export class Task extends Entity {
 
     return Math.ceil(diffInDays / 7);
   }
+  public get taskPeriodProgress() {
+    const today = new Date();
 
+    //use Math.abs to avoid sign
+    if (today <= this.startDate) return 0;
+    if (today >= this.checklocalDueDate) return 50;
+
+    const startToNow = Math.abs(today.valueOf() - this.startDate.valueOf());
+    const totalDuration = Math.abs(this.taskTotalDuration);
+    return Math.round((startToNow / totalDuration) * 50);
+  }
+  public get taskTotalDuration(): number {
+    return this.checklocalDueDate.valueOf() - this.startDate.valueOf();
+  }
   /**
    * Set the task to be due in a specific week.
    *
