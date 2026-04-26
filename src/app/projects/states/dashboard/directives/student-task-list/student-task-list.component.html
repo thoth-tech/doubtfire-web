@@ -1,0 +1,61 @@
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <input
+      type="text"
+      class="form-control"
+      [(ngModel)]="filters.taskName"
+      (ngModelChange)="taskNameChanged()"
+      placeholder="Search tasks..."
+    />
+  </div>
+  <ul class="list-group">
+    <li
+      class="list-group-item list-group-item-task clearfix {{project.portfolioTaskStatusClass()}}"
+      [hidden]="!(showCreatePortfolio && nearEnd())"
+    >
+      <create-portfolio-task-list-item [project]="project" [setSelectedTask]="setSelectedTask">
+      </create-portfolio-task-list-item>
+    </li>
+
+    <li
+      class="list-group-item list-group-item-task clearfix {{task.statusClass()}}"
+      [id]="task.taskKeyToIdString()"
+      (click)="setSelectedTask(task)"
+      [class.selected]="isSelectedTask(task)"
+      *ngFor="let task of filteredTasks; trackBy: trackByTaskId"
+    >
+      <div class="task-data">
+        <h4 style="margin-bottom: 0" class="list-group-item-heading">{{task.definition.name}}</h4>
+        <p style="margin-bottom: 0" class="list-group-item-text">
+          <i class="fa fa-users" aria-hidden="true" *ngIf="task.isGroupTask()"></i>
+          <i class="fa fa-user" aria-hidden="true" *ngIf="!task.isGroupTask()"></i> {{task.definition.abbreviation}} -
+          {{getGradeName(task.definition.targetGrade)}} Task
+          <span class="due-time" *ngIf="task.isBeforeStartDate() && !task.inSubmittedState()">
+            <i class="fa fa-hourglass-start"></i> {{task.timeToStart()}}
+          </span>
+          <span class="due-time" *ngIf="!task.isBeforeStartDate() && !task.inSubmittedState()">
+            <i class="fa fa-hourglass-end"></i> {{task.timeToDue()}}
+          </span>
+        </p>
+      </div>
+      <!--/task-data-->
+      <div class="task-badges">
+        <status-icon [status]="task.status" [task]="task"></status-icon>
+        <task-status-card [task]="task"></task-status-card>
+        <task-outcomes-card [task]="task"></task-outcomes-card>
+      </div>
+      <!--/badges-->
+    </li>
+    <!--/task-->
+    <li
+      class="list-group-item list-group-item-task clearfix {{project.portfolioTaskStatusClass()}}"
+      [hidden]="!(showCreatePortfolio && !nearEnd())"
+    >
+      <create-portfolio-task-list-item [project]="project" [setSelectedTask]="setSelectedTask">
+      </create-portfolio-task-list-item>
+    </li>
+    <li [hidden]="filteredTasks.length != 0 || showCreatePortfolio" class="list-group-item text-center text-muted">
+      No tasks to display.
+    </li>
+  </ul>
+</div>
