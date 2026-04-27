@@ -31,8 +31,8 @@ export class TaskDateSliderComponent implements OnChanges {
     private confirmationModalService: ConfirmationModalService,
   ) {}
 
-  public get max(): number {
-    return 50;
+  public get max() {
+    return this.task.maxForDataSlider;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
