@@ -1,0 +1,32 @@
+<div class="card card-default card-lg card-core-progress-indicator">
+  <div class="card-heading">
+    <h4>Core Progress Summary</h4>
+  </div>
+
+  <div class="card-body" ng-if="!progress">
+    Loading progress...
+  </div>
+
+  <div class="card-body" ng-if="progress">
+    <p>
+      <strong>Target Grade:</strong>
+      {{progress.target_grade}}
+    </p>
+
+    <p>
+  <strong>Progress:</strong>
+  <span class="core-progress-bar">
+    <span
+      class="core-progress-fill"
+      ng-style="{width: progress.progress_percentage + '%'}">
+    </span>
+  </span>
+  {{progress.progress_percentage}}%
+</p>
+
+    <p>
+      <strong>Tasks Completed:</strong>
+      {{progress.tasks_completed}} / {{progress.tasks_required}}
+    </p>
+  </div>
+</div>
