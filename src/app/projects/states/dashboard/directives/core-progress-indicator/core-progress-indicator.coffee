@@ -12,7 +12,6 @@ angular.module('doubtfire.projects.states.dashboard.directives.core-progress-ind
 
     scope.$watch 'project', (project) ->
       return unless project?
-      console.log "Core progress project:", project
 
       unitId = project.unit.id
       studentId = project.user_id || project.user?.id || project.student?.id
