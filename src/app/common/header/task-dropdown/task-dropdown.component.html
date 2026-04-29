@@ -63,6 +63,15 @@
         >
           <mat-icon aria-label="Dashboard icon" fontIcon="dashboard"></mat-icon> Dashboard
         </button>
+        <button
+          uiSref="projects/core-progress-indicator"
+          [uiParams]="{projectId: currentProject.id, taskAbbr: ''}"
+          mat-menu-item
+        >
+          <mat-icon fontIcon="insights"></mat-icon> Core Progress Indicator
+        </button>
+
+<mat-divider></mat-divider>
         <mat-divider></mat-divider>
         <button
           uiSref="projects/outcomes"
