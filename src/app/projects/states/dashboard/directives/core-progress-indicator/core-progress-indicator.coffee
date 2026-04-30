@@ -14,8 +14,10 @@ angular.module('doubtfire.projects.states.dashboard.directives.core-progress-ind
       return unless project?
 
       unitId = project.unit.id
-      studentId = project.user_id || project.user?.id || project.student?.id
-
-      $http.get("/api/peer_progress/#{unitId}/#{studentId}")
+      studentId = project.student?.id || project.studentId || project.userId || project.user_id
+      $http.get("http://localhost:3000/api/peer_progress/#{unitId}/#{studentId}")
         .then (res) ->
           scope.progress = res.data
+
+
+
