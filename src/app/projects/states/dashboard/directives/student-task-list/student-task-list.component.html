@@ -1,0 +1,42 @@
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <input
+      type="text"
+      class="form-control"
+      [(ngModel)]="filters.taskName"
+      (ngModelChange)="taskNameChanged()"
+      placeholder="Search tasks..."
+    />
+  </div>
+  <ul class="list-group">
+    <li
+      class="list-group-item list-group-item-task clearfix {{project.portfolioTaskStatusClass()}}"
+      *ngIf="showCreatePortfolio && nearEnd()"
+    >
+      <create-portfolio-task-list-item [project]="project" [setSelectedTask]="setSelectedTask">
+      </create-portfolio-task-list-item>
+    </li>
+
+    <li
+      class="list-group-item list-group-item-task clearfix {{task.statusClass()}}"
+      [id]="task.taskKeyToIdString()"
+      (click)="setSelectedTask(task)"
+      [class.selected]="isSelectedTask(task)"
+      *ngFor="let task of filteredTasks; trackBy: trackByTaskId"
+    >
+      <task-list-item [task]="task" [setSelectedTask]="setSelectedTask" [isSelectedTask]="isSelectedTask">
+      </task-list-item>
+    </li>
+    <!--/task-->
+    <li
+      class="list-group-item list-group-item-task clearfix {{project.portfolioTaskStatusClass()}}"
+      *ngIf="showCreatePortfolio && !nearEnd()"
+    >
+      <create-portfolio-task-list-item [project]="project" [setSelectedTask]="setSelectedTask">
+      </create-portfolio-task-list-item>
+    </li>
+    <li *ngIf="filteredTasks.length == 0 && !showCreatePortfolio" class="list-group-item text-center text-muted">
+      No tasks to display.
+    </li>
+  </ul>
+</div>
