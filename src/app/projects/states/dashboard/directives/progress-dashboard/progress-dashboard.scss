@@ -1,15 +1,38 @@
+.card-core-progress-indicator {
+  margin-bottom: 16px;
+  min-height: unset;
+}
+
+.card-core-progress-indicator .card-body {
+  min-height: unset;
+}
+
+.core-progress-body {
+  padding: 14px 20px;
+}
+
+.core-progress-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.core-progress-line strong {
+  width: 150px;
+}
+
 .core-progress-bar {
   display: inline-block;
-  width: 180px;
-  height: 16px;
-  background: #e5e7eb;
-  border: 1px solid #777;
-  vertical-align: middle;
-  margin: 0 8px;
+  width: 220px;
+  height: 18px;
+  background: #e5e5e5;
+  border: 1px solid #aaa;
+  overflow: hidden;
 }
 
 .core-progress-fill {
   display: block;
   height: 100%;
-  background: #2f64b7;
+  background: #3b6dbb;
 }

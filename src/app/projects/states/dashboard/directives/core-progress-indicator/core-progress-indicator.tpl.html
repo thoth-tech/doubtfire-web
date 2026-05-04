@@ -1,32 +1,35 @@
-<div class="card card-default card-lg card-core-progress-indicator">
+<div class="card card-default card-core-progress-indicator">
   <div class="card-heading">
     <h4>Core Progress Summary</h4>
+    <div class="text-muted">
+      Track your progress toward your selected target grade based on completed tasks.
+    </div>
   </div>
 
   <div class="card-body" ng-if="!progress">
     Loading progress...
   </div>
 
-  <div class="card-body" ng-if="progress">
-    <p>
+  <div class="card-body core-progress-body" ng-if="progress">
+    <div class="core-progress-line">
       <strong>Target Grade:</strong>
-      {{progress.target_grade}}
-    </p>
+      <span>{{progress.target_grade}}</span>
+    </div>
 
-    <p>
-  <strong>Progress:</strong>
-  <span class="core-progress-bar">
-    <span
-      class="core-progress-fill"
-      ng-style="{width: progress.progress_percentage + '%'}">
-    </span>
-  </span>
-  {{progress.progress_percentage}}%
-</p>
+    <div class="core-progress-line">
+      <strong>Progress:</strong>
+      <span class="core-progress-bar">
+        <span
+          class="core-progress-fill"
+          ng-style="{width: progress.progress_percentage + '%'}">
+        </span>
+      </span>
+      <span>{{progress.progress_percentage}}%</span>
+    </div>
 
-    <p>
+    <div class="core-progress-line">
       <strong>Tasks Completed:</strong>
-      {{progress.tasks_completed}} / {{progress.tasks_required}}
-    </p>
+      <span>{{progress.tasks_completed}} / {{progress.tasks_required}}</span>
+    </div>
   </div>
 </div>
