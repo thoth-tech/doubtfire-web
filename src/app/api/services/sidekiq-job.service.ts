@@ -13,7 +13,7 @@ export interface SidekiqJobEntry {
 
 @Injectable()
 export class SidekiqJobService extends CachedEntityService<SidekiqJob> {
-  protected readonly endpointFormat = 'sidekiq/:id:';
+  protected readonly endpointFormat = 'sidekiq/:id';
 
   public jobEntries: Map<string, SidekiqJobEntry> = new Map();
 

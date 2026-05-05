@@ -1,32 +1,57 @@
 <!-- Row 1: Enable prediction -->
-<div class="mb-4">
+<div>
   <mat-checkbox [(ngModel)]="enablePrediction">Enable effort prediction</mat-checkbox>
 </div>
 
-<!-- Row 2: Button -->
-<div class="mb-4">
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="runPrediction()"
-    [disabled]="!enablePrediction"
-  >
-    Run prediction
-  </button>
-</div>
+<div class="space-y-8">
+  <div class="flex gap-4 items-center">
+      <!-- Row 2: Button -->
+      <div>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="runPrediction()"
+          [disabled]="!enablePrediction || isPredicting"
+        >
+          Run prediction
+        </button>
+      </div>
 
-<!-- Row 3: Manual input -->
-<div class="mb-4 gap-4">
-  <mat-form-field appearance="outline" class="w-full">
-    <mat-label>Predicted Effort</mat-label>
+      <mat-progress-spinner
+        *ngIf="isPredicting"
+        mode="indeterminate"
+        diameter="24">
+      </mat-progress-spinner>
 
-    <input
-      matInput
-      type="number"
-      [(ngModel)]="taskDefinition.predicted_effort"
-      [disabled]="enablePrediction"
-      min="1"
-      max="100"
-    />
-  </mat-form-field>
+      <span *ngIf="isPredicting">
+        {{ predictionStatus === 'queued' ? 'Queued...' :
+          predictionStatus === 'working' ? 'Running prediction...' :
+          'Processing...' }}
+      </span>
+
+      <span *ngIf="!isPredicting && predictionStatus === 'complete'" class="text-green-600">
+        ✔ Prediction complete
+      </span>
+
+      <span *ngIf="!isPredicting && predictionStatus === 'failed'" class="text-red-600">
+        ✖ Prediction failed
+      </span>
+  </div>
+
+
+  <!-- Row 3: Manual input -->
+  <div>
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Predicted Effort</mat-label>
+
+      <input
+        matInput
+        type="number"
+        [(ngModel)]="taskDefinition.predicted_effort"
+        [disabled]="enablePrediction || isPredicting"
+        min="1"
+        max="100"
+      />
+    </mat-form-field>
+  </div>
 </div>
