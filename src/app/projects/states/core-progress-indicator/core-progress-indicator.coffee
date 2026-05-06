@@ -3,7 +3,7 @@ angular.module('doubtfire.projects.states.core-progress-indicator', [])
 .config ($stateProvider) ->
   $stateProvider.state 'projects/core-progress-indicator',
     parent: 'projects/index'
-    url: '/core-progress-indicator'
+    url: '/peer-progress'
     controller: 'CoreProgressIndicatorStateCtrl'
     templateUrl: 'projects/states/core-progress-indicator/core-progress-indicator.tpl.html'
     data:
