@@ -7,7 +7,7 @@ angular.module('doubtfire.projects.states.core-progress-indicator', [])
     controller: 'CoreProgressIndicatorStateCtrl'
     templateUrl: 'projects/states/core-progress-indicator/core-progress-indicator.tpl.html'
     data:
-      task: "Core Progress Indicator"
+      task: "Peer Progress"
       pageTitle: "_Home_"
       roleWhitelist: ['Student']
 
