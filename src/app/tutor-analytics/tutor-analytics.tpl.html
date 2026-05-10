@@ -1,0 +1,160 @@
+<div class="container-fluid tutor-analytics-dashboard">
+
+  <div class="page-header">
+    <h2>Tutor Analytics Dashboard</h2>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row">
+
+    <div class="col-md-4">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          Total Students
+        </div>
+
+        <div class="panel-body text-center">
+          <h1>{{totalStudents}}</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          Average Progress
+        </div>
+
+        <div class="panel-body text-center">
+          <h1>{{averageProgress}}%</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          At-Risk Students
+        </div>
+
+        <div class="panel-body text-center">
+          <h1>{{atRiskCount}}</h1>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Search -->
+  <div class="row">
+    <div class="col-md-12">
+
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          ng-model="searchText"
+          placeholder="Search students...">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Student Analytics Table -->
+  <div class="row">
+
+    <div class="col-md-12">
+
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          Student Performance Analytics
+        </div>
+
+        <div class="panel-body">
+
+          <table class="table table-striped table-bordered">
+
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Completed Tasks</th>
+                <th>Pending Tasks</th>
+                <th>Progress</th>
+                <th>Engagement</th>
+                <th>Grade</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              <tr ng-repeat="student in students | filter:searchText">
+
+                <td>{{student.name}}</td>
+
+                <td>
+                  {{student.completed}}
+                </td>
+
+                <td>
+                  {{student.pending}}
+                </td>
+
+                <td>
+
+                  <div class="progress">
+                    <div
+                      class="progress-bar progress-bar-success"
+                      role="progressbar"
+                      aria-valuenow="{{student.progress}}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      style= "width: {{student.progress}}"
+
+                      {{student.progress}}%
+                      ></div>/
+                    </div>
+                  </div>
+
+                </td>
+
+                <td>
+                  {{student.engagement}}
+                </td>
+
+                <td>
+                  {{student.grade}}
+                </td>
+
+                <td>
+
+                  <span
+                    ng-if="isAtRisk(student)"
+                    class="label label-danger">
+                    At Risk
+                  </span>
+
+                  <span
+                    ng-if="!isAtRisk(student)"
+                    class="label label-success">
+                    On Track
+                  </span>
+
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
