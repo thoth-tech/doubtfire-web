@@ -85,6 +85,7 @@ import {
   TaskCommentComposerComponent,
   DiscussionComposerDialog,
 } from 'src/app/tasks/task-comment-composer/task-comment-composer.component';
+import {AttachmentConfirmationDialogComponent} from 'src/app/tasks/task-comment-composer/attachment-confirmation-dialog/attachment-confirmation-dialog.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import {AudioCommentRecorderComponent} from './common/audio-recorder/audio/audio-comment-recorder/audio-comment-recorder';
@@ -103,6 +104,7 @@ import {ExtensionModalComponent} from './common/modals/extension-modal/extension
 import {CalendarModalComponent} from './common/modals/calendar-modal/calendar-modal.component';
 import {CommentsModalComponent} from './common/modals/comments-modal/comments-modal.component';
 import {ConfirmationModalComponent} from './common/modals/confirmation-modal/confirmation-modal.component';
+import {DiscussedInClassReasonModalComponent} from './common/modals/discussed-in-class-reason-modal/discussed-in-class-reason-modal.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {
@@ -148,6 +150,7 @@ import {fPdfViewerComponent} from './common/pdf-viewer/pdf-viewer.component';
 import {SafePipe} from './common/pipes/safe.pipe';
 import {PdfViewerPanelComponent} from './common/pdf-viewer-panel/pdf-viewer-panel.component';
 import {StaffTaskListComponent} from './units/states/tasks/inbox/directives/staff-task-list/staff-task-list.component';
+import {BatchFeedbackWorkflowDialogComponent} from './units/states/tasks/inbox/directives/staff-task-list/batch-feedback-workflow-dialog/batch-feedback-workflow-dialog.component';
 import {FiltersPipe} from './common/filters/filters.pipe';
 import {TasksOfTaskDefinitionPipe} from './common/filters/tasks-of-task-definition.pipe';
 import {TasksInTutorialsPipe} from './common/filters/tasks-in-tutorials.pipe';
@@ -323,6 +326,8 @@ import {TutorNotesModalComponent} from './common/modals/tutor-notes-modal/tutor-
 import {FeedbackAppealModalComponent} from './tasks/modals/feedback-appeal-modal/feedback-appeal-modal.component';
 import {ConfirmModerationModalComponent} from './units/states/tasks/inbox/directives/moderation/confirm-moderation-modal/confirm-moderation-modal.component';
 import {TaskClaimComponent} from './units/states/tasks/inbox/directives/task-claim/task-claim.component';
+import {TasksComponent} from './tasks/tasks.component';
+import {BulkImportStaffModalComponent} from './units/states/edit/directives/unit-staff-editor/bulk-import-staff-modal/bulk-import-staff-modal.component';
 
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
@@ -371,6 +376,7 @@ const GANTT_CHART_CONFIG = {
     D2lTransferComponent,
     TeachingPeriodUnitImportDialogComponent,
     TaskCommentComposerComponent,
+    AttachmentConfirmationDialogComponent,
     AudioCommentRecorderComponent,
     MicrophoneTesterComponent,
     DiscussionPromptComposerComponent,
@@ -388,6 +394,7 @@ const GANTT_CHART_CONFIG = {
     SpecConModalComponent,
     CalendarModalComponent,
     ConfirmationModalComponent,
+    DiscussedInClassReasonModalComponent,
     InstitutionSettingsComponent,
     ProjectPlanComponent,
     SuccessCloseComponent,
@@ -425,6 +432,7 @@ const GANTT_CHART_CONFIG = {
     SafePipe,
     PdfViewerPanelComponent,
     StaffTaskListComponent,
+    BatchFeedbackWorkflowDialogComponent,
     TaskSimilarityViewComponent,
     FiltersPipe,
     TasksOfTaskDefinitionPipe,
@@ -498,6 +506,7 @@ const GANTT_CHART_CONFIG = {
     TaskDefinitionPrerequisitesComponent,
     TaskPrerequisitesCardComponent,
     UnitStaffEditorComponent,
+    BulkImportStaffModalComponent,
     GroupSetSelectorComponent,
     UnitDetailsEditorComponent,
     PortfolioGradeSelectStepComponent,
@@ -521,6 +530,7 @@ const GANTT_CHART_CONFIG = {
     FeedbackAppealModalComponent,
     ConfirmModerationModalComponent,
     TaskClaimComponent,
+    TasksComponent,
   ],
   providers: [
     // Services we provide
