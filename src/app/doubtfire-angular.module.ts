@@ -103,6 +103,7 @@ import {ExtensionModalComponent} from './common/modals/extension-modal/extension
 import {CalendarModalComponent} from './common/modals/calendar-modal/calendar-modal.component';
 import {CommentsModalComponent} from './common/modals/comments-modal/comments-modal.component';
 import {ConfirmationModalComponent} from './common/modals/confirmation-modal/confirmation-modal.component';
+import {DiscussedInClassReasonModalComponent} from './common/modals/discussed-in-class-reason-modal/discussed-in-class-reason-modal.component';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {
@@ -323,6 +324,7 @@ import {TutorNotesModalComponent} from './common/modals/tutor-notes-modal/tutor-
 import {FeedbackAppealModalComponent} from './tasks/modals/feedback-appeal-modal/feedback-appeal-modal.component';
 import {ConfirmModerationModalComponent} from './units/states/tasks/inbox/directives/moderation/confirm-moderation-modal/confirm-moderation-modal.component';
 import {TaskClaimComponent} from './units/states/tasks/inbox/directives/task-claim/task-claim.component';
+import {CrossDashboardComponent} from './dashboard/f-cross-dashboard.component';
 
 // See https://stackoverflow.com/questions/55721254/how-to-change-mat-datepicker-date-format-to-dd-mm-yyyy-in-simplest-way/58189036#58189036
 const MY_DATE_FORMAT = {
@@ -388,10 +390,12 @@ const GANTT_CHART_CONFIG = {
     SpecConModalComponent,
     CalendarModalComponent,
     ConfirmationModalComponent,
+    DiscussedInClassReasonModalComponent,
     InstitutionSettingsComponent,
     ProjectPlanComponent,
     SuccessCloseComponent,
     HomeComponent,
+    CrossDashboardComponent,
     CommentBubbleActionComponent,
     UnitTutorialsListComponent,
     UnitTutorialsManagerComponent,
