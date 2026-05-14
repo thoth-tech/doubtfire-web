@@ -13,8 +13,12 @@ angular.module('doubtfire.projects.states.dashboard.directives.core-progress-ind
     scope.$watch 'project', (project) ->
       return unless project?
 
-      unitId = project.unit?.id
+      unitId = project.unit_id || project.unit?.id
       studentId = project.user_id || project.user?.id || project.student?.id
+
+      console.log "Peer progress project:", project
+      console.log "Peer progress unitId:", unitId
+      console.log "Peer progress studentId:", studentId
 
       return unless unitId? && studentId?
 
