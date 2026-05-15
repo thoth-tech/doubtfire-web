@@ -24,10 +24,11 @@ import {
 import {Grade} from './grade';
 import {LOCALE_ID} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable, map} from 'rxjs';
+import {Observable, firstValueFrom, map} from 'rxjs';
 import {gradeTaskModal, uploadSubmissionModal} from 'src/app/ajs-upgraded-providers';
 import {AlertService} from 'src/app/common/services/alert.service';
 import {MappingFunctions} from '../services/mapping-fn';
+import {TaskPrerequisite} from './task-prerequisite';
 
 export const FeedbackModerationAction = {
   ShowMore: 'show_more',
@@ -149,6 +150,49 @@ export class Task extends Entity {
   public get unit(): Unit {
     if (this._unit) return this._unit;
     return this.project.unit;
+  }
+
+  private getBreakOverlapMilliseconds(
+    startTime: number,
+    endTime: number,
+    breaks: readonly {startDate: Date; numberOfWeeks: number}[],
+  ): number {
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+    return breaks.reduce((overlap, teachingBreak) => {
+      const breakStart = new Date(teachingBreak.startDate).getTime();
+      const breakDuration = (teachingBreak.numberOfWeeks ?? 0) * 7 * millisecondsPerDay;
+      const breakEnd = breakStart + breakDuration;
+
+      if (!Number.isFinite(breakStart) || breakDuration <= 0) {
+        return overlap;
+      }
+
+      const overlapStart = Math.max(startTime, breakStart);
+      const overlapEnd = Math.min(endTime, breakEnd);
+
+      return overlap + Math.max(0, overlapEnd - overlapStart);
+    }, 0);
+  }
+
+  public daysSinceSubmission(nowTime = Date.now()): number {
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    const submissionTime = new Date(this.submissionDate).getTime();
+
+    if (!Number.isFinite(submissionTime) || nowTime <= submissionTime) {
+      return 0;
+    }
+
+    const teachingBreaks = this.unit.teachingPeriod?.breaks ?? [];
+    const pausedMilliseconds = this.getBreakOverlapMilliseconds(
+      submissionTime,
+      nowTime,
+      teachingBreaks,
+    );
+
+    return Math.floor(
+      Math.max(0, nowTime - submissionTime - pausedMilliseconds) / millisecondsPerDay,
+    );
   }
 
   /**
@@ -681,6 +725,58 @@ export class Task extends Entity {
       );
   }
 
+  private mapUnitTaskPrerequisites(prerequisites: TaskPrerequisite[]): TaskPrerequisite[] {
+    const definitions = this.unit.taskDefinitions;
+
+    return prerequisites.map((prerequisite) => {
+      prerequisite.taskDefinition = definitions.find(
+        (td) => td.id === prerequisite.taskDefinitionId,
+      );
+      prerequisite.prerequisite = definitions.find((td) => td.id === prerequisite.prerequisiteId);
+      return prerequisite;
+    });
+  }
+
+  private buildProjectTaskForDefinition(definition: TaskDefinition): Task {
+    const dependentTask = new Task(this.project);
+    dependentTask.project = this.project;
+    dependentTask.definition = definition;
+    return dependentTask;
+  }
+
+  private async dependentTaskNeedsRecursiveFix(definition: TaskDefinition): Promise<boolean> {
+    const cachedTask = this.project.findTaskForDefinition(definition.id);
+    if (cachedTask) {
+      return cachedTask.status === 'ready_for_feedback';
+    }
+
+    const dependentTask = this.buildProjectTaskForDefinition(definition);
+    const taskWithSubmissionDetails = await firstValueFrom(dependentTask.getSubmissionDetails());
+    return taskWithSubmissionDetails.status === 'ready_for_feedback';
+  }
+
+  public async hasReadyForFeedbackDependents(): Promise<boolean> {
+    const allPrerequisites = await firstValueFrom(this.unit.getTaskPrerequisites());
+    const dependentPrerequisites = this.mapUnitTaskPrerequisites(allPrerequisites).filter(
+      (prerequisite) => prerequisite.prerequisiteId === this.definition.id,
+    );
+
+    for (const prerequisite of dependentPrerequisites) {
+      if (!prerequisite.taskDefinition) {
+        continue;
+      }
+
+      const shouldTriggerRecursiveFix = await this.dependentTaskNeedsRecursiveFix(
+        prerequisite.taskDefinition,
+      );
+      if (shouldTriggerRecursiveFix) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public get overseerEnabled(): boolean {
     return this.unit.overseerEnabled && this.definition.assessmentEnabled;
   }
@@ -826,7 +922,11 @@ export class Task extends Entity {
       });
   }
 
-  public updateTaskStatus(status: TaskStatusEnum, markAsDiscussed?: boolean) {
+  public updateTaskStatus(
+    status: TaskStatusEnum,
+    markAsDiscussed?: boolean,
+    triggerRecursiveFix?: boolean,
+  ) {
     const oldStatus = this.status;
     const alerts: AlertService = AppInjector.get(AlertService);
 
@@ -849,6 +949,10 @@ export class Task extends Entity {
 
       if (markAsDiscussed === true) {
         options.body['discussed'] = true;
+      }
+
+      if (triggerRecursiveFix === true) {
+        options.body['trigger_recursive_fix'] = true;
       }
 
       const hasId: boolean = this.id > 0;
