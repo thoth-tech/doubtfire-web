@@ -91,7 +91,6 @@ import 'build/src/app/units/modals/unit-ilo-edit-modal/unit-ilo-edit-modal.js';
 import 'build/src/app/units/modals/modals.js';
 import 'build/src/app/units/units.js';
 import 'build/src/app/units/states/tasks/inbox/inbox.js';
-import 'build/src/app/units/states/tasks/tasks.js';
 import 'build/src/app/units/states/tasks/viewer/directives/directives.js';
 import 'build/src/app/units/states/tasks/viewer/viewer.js';
 import 'build/src/app/units/states/tasks/definition/definition.js';
@@ -203,6 +202,7 @@ import {FooterComponent} from './common/footer/footer.component';
 import {TaskAssessmentCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-assessment-card/task-assessment-card.component';
 import {TaskSubmissionCardComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-submission-card/task-submission-card.component';
 import {InboxComponent} from './units/states/tasks/inbox/inbox.component';
+import {UnitsTasksStateComponent} from './units/states/tasks/tasks.component';
 import {TaskDefinitionEditorComponent} from './units/states/edit/directives/unit-tasks-editor/task-definition-editor/task-definition-editor.component';
 import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-route.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
@@ -241,6 +241,26 @@ import {TaskPlannerComponent} from './projects/states/plan/task-planner/task-pla
 import {TaskPlannerCardComponent} from './projects/states/dashboard/directives/progress-dashboard/task-planner-card/task-planner-card.component';
 import {TaskOverseerReportComponent} from './projects/states/dashboard/directives/task-dashboard/directives/task-overseer-report/task-overseer-report.component';
 import {TutorNotesComponent} from './projects/states/tutor-notes/tutor-notes.component';
+
+angular.module('doubtfire.units.states.tasks', [
+  'doubtfire.units.states.tasks.inbox',
+  'doubtfire.units.states.tasks.definition',
+  'doubtfire.units.states.tasks.moderation',
+  'doubtfire.units.states.tasks.overflow',
+  'doubtfire.units.states.tasks.viewer',
+])
+.config(($stateProvider: any) => {
+  $stateProvider.state('units/tasks', {
+    abstract: true,
+    parent: 'units/index',
+    url: '/tasks',
+    template: '<f-units-tasks-state></f-units-tasks-state>',
+    data: {
+      pageTitle: '_Home_',
+      roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor'],
+    },
+  });
+});
 
 export const DoubtfireAngularJSModule = angular
   .module('doubtfire', [
@@ -417,6 +437,10 @@ DoubtfireAngularJSModule.directive(
   downgradeComponent({component: TasksViewerComponent}),
 );
 DoubtfireAngularJSModule.directive('fInbox', downgradeComponent({component: InboxComponent}));
+DoubtfireAngularJSModule.directive(
+  'unitsTasksState',
+  downgradeComponent({component: UnitsTasksStateComponent}),
+);
 DoubtfireAngularJSModule.directive(
   'fTaskDueCard',
   downgradeComponent({component: TaskDueCardComponent}),
