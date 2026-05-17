@@ -1,3 +1,65 @@
+<div *ngIf="task" class="flex items-center justify-between px-4 py-2 border-b bg-white">
+  <h3 class="m-0 text-base font-medium">
+    {{ task.definition.name }}
+  </h3>
+
+  <div class="flex gap-2 items-center">
+    <button
+      type="button"
+      class="px-3 py-1 border rounded"
+      (click)="setCurrentView(DashboardViews.submission)"
+      *ngIf="selectedTaskService.hasSubmissionPdf"
+    >
+      View Submission
+    </button>
+
+    <button
+      type="button"
+      class="px-3 py-1 border rounded"
+      (click)="setCurrentView(DashboardViews.task)"
+      *ngIf="selectedTaskService.hasTaskSheet"
+    >
+      View Task Sheet
+    </button>
+
+    <button
+      type="button"
+      class="px-3 py-1 border rounded"
+      (click)="setCurrentView(DashboardViews.similarity)"
+      *ngIf="tutor"
+    >
+      View Similarities
+    </button>
+
+    <button
+      type="button"
+      class="px-3 py-1 border rounded"
+      (click)="setCurrentView(DashboardViews.overseer)"
+      *ngIf="overseerEnabled"
+    >
+      View Overseer Reports
+    </button>
+
+    <button
+      type="button"
+      class="px-3 py-1 border rounded"
+      (click)="downloadSubmission()"
+      *ngIf="selectedTaskService.hasSubmissionPdf"
+    >
+      Download PDF
+    </button>
+
+    <button
+      type="button"
+      class="px-3 py-1 border rounded"
+      (click)="downloadSubmittedFiles()"
+      *ngIf="selectedTaskService.hasSubmissionPdf"
+    >
+      Download Files
+    </button>
+  </div>
+</div>
+
 <div class="w-full h-full overflow-auto">
   <ng-container [ngSwitch]="currentView">
     <ng-template [ngSwitchCase]="DashboardViews.task">
