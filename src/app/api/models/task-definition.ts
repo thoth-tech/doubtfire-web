@@ -27,7 +27,8 @@ export class TaskDefinition extends Entity {
   abbreviation: string;
   name: string;
   description: string;
-  weighting: number;
+  estimated_hours: number;
+  predicted_effort: number;
   targetGrade: number;
   targetDate: Date;
   dueDate: Date;
@@ -329,5 +330,8 @@ export class TaskDefinition extends Entity {
 
   public projectTask(project?: Project): Task | undefined {
     return project?.tasks?.find((p) => p.definition.id === this.id);
+  }
+  public get predictEffortUrl(): string {
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${this.unit.id}/task_definitions/${this.id}/predict_effort`;
   }
 }
