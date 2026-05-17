@@ -16,6 +16,7 @@ import {DashboardViews} from '../../selected-task.service';
 export class TaskDashboardComponent implements OnInit, OnChanges {
   @Input() task: Task;
   @Input() pdfUrl: string;
+  @Input() unitRole: any;
 
   public DashboardViews = DashboardViews;
 
@@ -73,6 +74,10 @@ export class TaskDashboardComponent implements OnInit, OnChanges {
 
   showSubmissionHistoryModal() {
     this.taskAssessmentModal.show(this.task);
+  }
+
+  setCurrentView(view: DashboardViews): void {
+    this.selectedTaskService.currentView$.next(view);
   }
 
   downloadSubmission() {
