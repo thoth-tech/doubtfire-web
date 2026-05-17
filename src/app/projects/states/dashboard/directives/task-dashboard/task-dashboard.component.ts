@@ -16,7 +16,8 @@ import {DashboardViews} from '../../selected-task.service';
 export class TaskDashboardComponent implements OnInit, OnChanges {
   @Input() task: Task;
   @Input() pdfUrl: string;
-
+  @Input() unitRole: any;
+  
   public DashboardViews = DashboardViews;
 
   public taskStatusData: any;

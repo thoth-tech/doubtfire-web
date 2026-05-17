@@ -28,7 +28,11 @@
     }
 
     <div fxFlex class="inbox-panel">
-      <f-task-dashboard [task]="taskData.selectedTask" [pdfUrl]="visiblePdfUrl"></f-task-dashboard>
+      <f-task-dashboard 
+        [task]="taskData.selectedTask"
+        [pdfUrl]="visiblePdfUrl"
+        [unitRole]="unitRole"
+      ></f-task-dashboard>
     </div>
     <div
       id="rightResizerEl"
