@@ -96,7 +96,7 @@ angular.module('doubtfire.visualisations.progress-burndown-chart', [])
         tickFormat: xAxisTickFormatDateFormat
         ticks: 8
       yAxis:
-        axisLabel: "Tasks Remaining"
+        axisLabel: "Effort Remaining"
         tickFormat: yAxisTickFormatPercentFormat
       color: colorFunction
       legendColor: colorFunction
