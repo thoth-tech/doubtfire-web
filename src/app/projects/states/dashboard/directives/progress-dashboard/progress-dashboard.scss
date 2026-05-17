@@ -1,0 +1,109 @@
+.card-core-progress-indicator {
+  margin-bottom: 16px;
+  min-height: unset;
+}
+
+.card-core-progress-indicator .card-body {
+  min-height: unset;
+}
+
+.core-progress-body {
+  padding: 14px 20px;
+}
+
+.core-progress-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.core-progress-line strong {
+  width: 150px;
+}
+
+.core-progress-bar {
+  display: inline-block;
+  width: 220px;
+  height: 18px;
+  background: #e5e5e5;
+  border: 1px solid #aaa;
+  overflow: hidden;
+}
+
+.core-progress-fill {
+  display: block;
+  height: 100%;
+  background: #3b6dbb;
+}
+
+.peer-progress-page {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+.peer-progress-page h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.peer-progress-subtitle {
+  font-size: 18px;
+  color: #444;
+  margin-bottom: 24px;
+}
+
+.peer-progress-card {
+  margin-bottom: 24px;
+}
+
+.peer-progress-summary {
+  display: grid;
+  gap: 18px;
+}
+
+.peer-progress-stat {
+  display: inline-block;
+  width: 31%;
+  margin-right: 2%;
+  padding: 18px 20px;
+  background: #f5f7ff;
+  border-radius: 4px;
+  vertical-align: top;
+}
+
+.peer-progress-stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+}
+
+.peer-progress-stat-label {
+  color: #666;
+  margin-top: 4px;
+}
+
+.peer-progress-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.peer-progress-bar {
+  flex: 1;
+  height: 18px;
+  background: #e5e5e5;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.peer-progress-bar-fill {
+  height: 100%;
+  background: #3b45f5;
+}
+
+.peer-progress-error {
+  color: #a94442;
+}

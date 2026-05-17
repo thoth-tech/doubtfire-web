@@ -4,7 +4,14 @@
       Progress Dashboard <span ng-show="tutor">for {{project.student.name}}</span>
     </h4>
   </div><!--/panel-heading-->
+
   <div class="panel-body">
+    <div class="col-sm-12 col-xl-12">
+      <div class="card">
+        <f-task-planner-card [project]="project"></f-task-planner-card>
+      </div>
+    </div>
+
     <div class="col-sm-12 col-xl-6">
       <div class="card card-default card-sm card-target-grade">
         <div class="card-heading">
@@ -19,13 +26,14 @@
             ng-change="updateTargetGrade(project.targetGrade)"></select>
         </div><!--/target-grade-body-->
       </div><!--/target-grade-card-->
+
       <div class="card card-default card-lg card-burndown">
         <div class="card-heading">
           <h4>Progress Burndown</h4>
           <div class="text-muted">
             The burndown chart shows how much work remains for you to achieve your target grade.
-          </div>
-        </div><!--/burndown-heading-->
+          </div><!--/burndown-heading-->
+        </div>
         <div class="card-body">
           <progress-burndown-chart project="project" unit="project.unit"></progress-burndown-chart>
         </div><!--/burndown-body-->
@@ -38,14 +46,15 @@
         </div><!--/burndown-footer-->
       </div><!--/burndown-card-->
     </div><!--/burndown-column-->
+
     <div class="col-sm-12 col-xl-6">
       <div class="card card-default card-lg card-pie-chart">
         <div class="card-heading">
           <h4>Task Statuses</h4>
           <div class="text-muted">
             Breakdown summary of each of your task statuses.
-          </div>
-        </div><!--/pie-chart-heading-->
+          </div><!--/pie-chart-heading-->
+        </div>
         <div class="card-body">
           <student-task-status-pie-chart
             project="project"

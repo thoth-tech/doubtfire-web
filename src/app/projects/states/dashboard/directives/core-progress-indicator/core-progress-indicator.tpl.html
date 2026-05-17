@@ -1,0 +1,34 @@
+<div ng-if="error" class="peer-progress-error">
+  {{error}}
+</div>
+
+<div ng-if="!progress && !error">
+  Loading progress...
+</div>
+
+<div ng-if="progress" class="peer-progress-summary">
+  <div class="peer-progress-stat">
+    <div class="peer-progress-stat-value">{{progress.target_grade}}</div>
+    <div class="peer-progress-stat-label">Target grade</div>
+  </div>
+
+  <div class="peer-progress-stat">
+    <div class="peer-progress-stat-value">{{progress.tasks_completed}}</div>
+    <div class="peer-progress-stat-label">Tasks completed</div>
+  </div>
+
+  <div class="peer-progress-stat">
+    <div class="peer-progress-stat-value">{{progress.progress_percentage}}%</div>
+    <div class="peer-progress-stat-label">Progress</div>
+  </div>
+
+  <div class="peer-progress-bar-row">
+    <div class="peer-progress-bar">
+      <div
+        class="peer-progress-bar-fill"
+        ng-style="{ width: progress.progress_percentage + '%' }">
+      </div>
+    </div>
+    <strong>{{progress.tasks_completed}} / {{progress.tasks_required}}</strong>
+  </div>
+</div>
