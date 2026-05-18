@@ -1,13 +1,23 @@
-<div class="flex flex-row">
-  <div class="w-4 mr-6 shrink-0" [style.background-color]="task.color"></div>
-  <div class="py-4 flex flex-col flex-grow shrink min-w-0">
-    <h4 class="mb-1 truncate flex-grow min-w-0">{{ task.title }}</h4>
-    <p class="mb-0">{{ task.subtitle }}</p>
-  </div>
-  <div class="flex flex-row ml-2 mr-6 items-center justify-end gap-4">
-    <div *ngIf="task.comments > 0" class="flex h-8 w-8 bg-red-500 rounded-full">
-      <span class="text-white text-xl font-medium m-auto">{{ task.comments }}</span>
+<div class="task-item" [class.task-item--expanded]="expanded">
+  <div class="task-color" [ngClass]="'task-color--' + color"></div>
+  <div class="task-content">
+    <div class="task-header" (click)="expanded = !expanded">
+      <h4>{{ title }}</h4>
+      <span *ngIf="comments > 0" class="task-alert task-alert--comment">{{ comments }}</span>
     </div>
-    <mat-icon>keyboard_arrow_down</mat-icon>
+    <div class="task-details">
+      <span>{{ subtitle }}</span>
+      <span *ngIf="abbreviation" class="task-badge task-badge--gray">{{ abbreviation }}</span>
+    </div>
+    <div class="task-expanded-body" *ngIf="expanded">
+      <p class="task-working-on">Working On It</p>
+      <p class="task-due">Submit by <strong>{{ subtitle }}</strong></p>
+      <div class="task-btns">
+        <button class="task-btn">📄 Task Sheet</button>
+        <button class="task-btn">⬇ Resources</button>
+        <button class="task-btn">→ More info</button>
+      </div>
+    </div>
   </div>
+  <div class="task-arrow" [class.task-arrow--up]="expanded">&#8964;</div>
 </div>
