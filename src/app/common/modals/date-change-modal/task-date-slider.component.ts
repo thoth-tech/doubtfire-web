@@ -31,8 +31,8 @@ export class TaskDateSliderComponent implements OnChanges {
     private confirmationModalService: ConfirmationModalService,
   ) {}
 
-  public get max(): number {
-    return this.task.unit.totalWeeks + Math.ceil(this.task.project.specConDays / 7);
+  public get max() {
+    return this.task.maxForDataSlider;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -41,7 +41,7 @@ export class TaskDateSliderComponent implements OnChanges {
         this.cancelEdit();
       }
 
-      this.value = this.task.dueWeek;
+      this.value = this.task.taskPeriodProgress;
       this._originalDueDate = this.task.dueDate;
       this._originalExtension = this.task.extensions;
     }
