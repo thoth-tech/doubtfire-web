@@ -1,30 +1,47 @@
 import {Entity, EntityCache, EntityMapping} from 'ngx-entity-service';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, tap} from 'rxjs';
 import {AppInjector} from 'src/app/app-injector';
 import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {AlertService} from 'src/app/common/services/alert.service';
 import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
 import {GroupService} from '../services/group.service';
+import {MarkingSessionService} from '../services/marking-session.service';
 import {ProjectService} from '../services/project.service';
 import {TaskDefinitionService} from '../services/task-definition.service';
+import {TaskPrerequisiteService} from '../services/task-prerequisite.service';
+import {D2lAssessmentMapping} from './d2l/d2l_assessment_mapping';
 import {
-  User,
-  UnitRole,
-  Task,
-  TeachingPeriod,
-  TaskDefinition,
-  TutorialStream,
-  Tutorial,
-  GroupSet,
+  Campus,
+  D2lAssessmentMappingService,
   Group,
-  TaskOutcomeAlignment,
   GroupMembership,
-  UnitService,
+  GroupSet,
+  OverseerImage,
   Project,
+  Task,
+  TaskDefinition,
+  TaskOutcomeAlignment,
+  TeachingPeriod,
+  Tutorial,
+  TutorialStream,
   TutorialStreamService,
+  UnitRole,
   UnitRoleService,
+  UnitService,
+  User,
 } from './doubtfire-model';
 import {LearningOutcome} from './learning-outcome';
-import {AlertService} from 'src/app/common/services/alert.service';
+import {MarkingSession} from './marking-session';
+import {SidekiqJob} from './sidekiq-job';
+import {TaskPrerequisite} from './task-prerequisite';
+
+export interface GradeDefinition {
+  id: string;
+  value: number;
+  label: string;
+  abbreviation: string;
+}
 
 export class Unit extends Entity {
   id: number;
@@ -48,9 +65,11 @@ export class Unit extends Entity {
   startDate: Date; //TODO: or string
   endDate: Date; //TODO: or string
   portfolioAutoGenerationDate: Date;
+  currentUnitWeek: number | null;
 
   assessmentEnabled: boolean;
   overseerImageId: number = null; // image needs to be lazy loadaed
+  private _overseerImage: OverseerImage;
 
   autoApplyExtensionBeforeDeadline: boolean;
   sendNotifications: boolean;
@@ -60,8 +79,23 @@ export class Unit extends Entity {
   draftTaskDefinition: TaskDefinition;
 
   allowStudentExtensionRequests: boolean;
+  allowFlexibleDates: boolean = false;
   extensionWeeksOnResubmitRequest: number;
   allowStudentChangeTutorial: boolean;
+  markLateSubmissionsAsAssessInPortfolio: boolean;
+  enforceFeedbackBeforeDiscussedInClass: boolean;
+
+  feedbackWarningThresholdDays: number;
+  feedbackOverflowThresholdDays: number;
+  gradeDefinitions: GradeDefinition[] = [
+    {id: 'fail', value: -1, label: 'Fail', abbreviation: 'F'},
+    {id: 'pass', value: 0, label: 'Pass', abbreviation: 'P'},
+    {id: 'credit', value: 1, label: 'Credit', abbreviation: 'C'},
+    {id: 'distinction', value: 2, label: 'Distinction', abbreviation: 'D'},
+    {id: 'high-distinction', value: 3, label: 'High Distinction', abbreviation: 'HD'},
+  ];
+
+  d2lMapping: D2lAssessmentMapping;
 
   public readonly learningOutcomesCache: EntityCache<LearningOutcome> =
     new EntityCache<LearningOutcome>();
@@ -78,11 +112,9 @@ export class Unit extends Entity {
 
   public readonly groupSetsCache: EntityCache<GroupSet> = new EntityCache<GroupSet>();
 
-  groupMemberships: Array<GroupMembership>;
+  groupMemberships: GroupMembership[];
 
   readonly studentCache: EntityCache<Project> = new EntityCache<Project>();
-
-  analytics: {} = {};
 
   public override toJson<T extends Entity>(
     mappingData: EntityMapping<T>,
@@ -91,6 +123,12 @@ export class Unit extends Entity {
     return {
       unit: super.toJson(mappingData, ignoreKeys),
     };
+  }
+
+  public hasChanges(): boolean {
+    const unitService = AppInjector.get(UnitService);
+    const changes = this.toJson(unitService.mapping);
+    return JSON.stringify(changes) !== '{"unit":{}}';
   }
 
   public get nameAndPeriod(): string {
@@ -107,6 +145,20 @@ export class Unit extends Entity {
 
   public get isActive(): boolean {
     return this.active && (!this.teachingPeriod || this.teachingPeriod.active);
+  }
+
+  public get gradeValues(): number[] {
+    return this.gradeDefinitions
+      .filter((definition) => definition.value >= 0)
+      .map((definition) => definition.value);
+  }
+
+  public gradeLabel(value: number): string {
+    return this.gradeDefinitions.find((definition) => definition.value === value)?.label;
+  }
+
+  public gradeAbbreviation(value: number): string {
+    return this.gradeDefinitions.find((definition) => definition.value === value)?.abbreviation;
   }
 
   public matches(text: string): boolean {
@@ -150,6 +202,28 @@ export class Unit extends Entity {
     return this.findStudent(id)?.enrolled;
   }
 
+  /**
+   * Enrol a student within the unit.
+   *
+   * @param idOrEmail The student id or email of the student to enrol.
+   * @param campus The student's campus
+   * @returns an observer of the post with the student project.
+   */
+  public enrolStudent(idOrEmail: string, campus: Campus): Observable<Project> {
+    const projectService = AppInjector.get(ProjectService);
+
+    return projectService.create(
+      {
+        unit_id: this.id,
+        student_num: idOrEmail,
+        campus_id: campus.id,
+      },
+      {
+        cache: this.studentCache,
+      },
+    );
+  }
+
   public get currentUserIsStaff(): boolean {
     return this.myRole !== 'Student';
   }
@@ -173,7 +247,7 @@ export class Unit extends Entity {
     taskDefinitionService
       .delete({unitId: this.id, id: taskDef.id}, {cache: this.taskDefinitionCache, entity: taskDef})
       .subscribe({
-        next: (response) => {
+        next: () => {
           alerts.success('Task Deleted', 2000);
         },
         error: (message) => alerts.error(message, 6000),
@@ -214,6 +288,56 @@ export class Unit extends Entity {
   }
 
   /**
+   * Get the total duration of the unit in milliseconds.
+   */
+  public get totalDuration(): number {
+    return this.endDate.valueOf() - this.startDate.valueOf();
+  }
+
+  /**
+   * Get the number of weeks in the unit's teaching period.
+   */
+  public get totalWeeks(): number {
+    return Math.ceil(this.totalDuration / (1000 * 60 * 60 * 24 * 7));
+  }
+
+  /**
+   * Calculate the teaching week number for a given date.
+   * Mirrors the Rails fallback in Unit#week_number when a teaching period
+   * helper is not being used on the frontend.
+   */
+  public weekNumber(date: Date | string): number | null {
+    if (!date || !this.startDate) {
+      return null;
+    }
+
+    if (this.teachingPeriod) {
+      return this.teachingPeriod.weekNumber(date);
+    }
+
+    const targetDate = date instanceof Date ? date : new Date(date);
+    if (Number.isNaN(targetDate.valueOf())) {
+      return null;
+    }
+    const normalizedTargetDate = new Date(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate(),
+    );
+    const normalizedStartDate = new Date(
+      this.startDate.getFullYear(),
+      this.startDate.getMonth(),
+      this.startDate.getDate(),
+    );
+    const millisecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+    return (
+      Math.floor(
+        (normalizedTargetDate.valueOf() - normalizedStartDate.valueOf()) / millisecondsPerWeek,
+      ) + 1
+    );
+  }
+
+  /**
    * Calculate how much time has elapsed in the teaching period, based on the start and
    * end date of the unit relative to the current date.
    *
@@ -223,17 +347,23 @@ export class Unit extends Entity {
     const today = new Date();
 
     //use Math.abs to avoid sign
-    if (today <= this.startDate) return 0;
-    if (today >= this.endDate) return 100;
+    if (today <= this.startDate) {
+      return 0;
+    }
+    if (today >= this.endDate) {
+      return 100;
+    }
 
     const startToNow = Math.abs(today.valueOf() - this.startDate.valueOf());
-    const totalDuration = Math.abs(this.endDate.valueOf() - this.startDate.valueOf());
+    const totalDuration = Math.abs(this.totalDuration);
     return Math.round((startToNow / totalDuration) * 100);
   }
 
-  public rolloverTo(body: {start_date: Date; end_date: Date}): Observable<Unit>;
-  public rolloverTo(body: {teaching_period_id: number}): Observable<Unit>;
-  public rolloverTo(body: any): Observable<Unit> {
+  public rolloverTo(
+    body:
+      | {new_unit_code?: string; start_date: Date; end_date: Date}
+      | {new_unit_code?: string; teaching_period_id: number},
+  ): Observable<Unit> {
     const unitService = AppInjector.get(UnitService);
 
     return unitService.create(
@@ -370,7 +500,7 @@ export class Unit extends Entity {
         return alignment.taskDefinition.id === td.id;
       })
       .sort((a: TaskOutcomeAlignment, b: TaskOutcomeAlignment) => {
-        return a.learningOutcome.iloNumber - b.learningOutcome.iloNumber;
+        return a.learningOutcome.id - b.learningOutcome.id;
       });
   }
 
@@ -380,12 +510,20 @@ export class Unit extends Entity {
     }/learning_alignments/csv.json`;
   }
 
-  public taskStatusFactor(td: TaskDefinition): number {
+  public get gradesCSVUploadUrl(): string {
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${this.id}/grades/csv`;
+  }
+
+  public taskStatusFactor(_td: TaskDefinition): number {
     return 1;
   }
 
   public getOutcomeBatchUploadUrl(): string {
     return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${this.id}/outcomes/csv`;
+  }
+
+  public getFeedbackTemplateBatchUploadUrl(): string {
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${this.id}/feedback_chips/csv`;
   }
 
   public hasStreams(): boolean {
@@ -434,6 +572,15 @@ export class Unit extends Entity {
 
   public get groupSets(): readonly GroupSet[] {
     return this.groupSetsCache.currentValues;
+  }
+
+  public set overseerImage(image: OverseerImage) {
+    this._overseerImage = image;
+    this.overseerImageId = image.id;
+  }
+
+  public get overseerImage(): OverseerImage {
+    return this._overseerImage;
   }
 
   public get overseerEnabled(): boolean {
@@ -530,21 +677,180 @@ export class Unit extends Entity {
     }`;
   }
 
+  public getBatchFeedbackUploadUrl(taskDefinition: TaskDefinition | number): string {
+    const params = new URLSearchParams({unit_id: `${this.id}`});
+    const taskDefinitionId =
+      taskDefinition instanceof TaskDefinition ? taskDefinition.id : taskDefinition;
+
+    params.set('task_definition_id', `${taskDefinitionId}`);
+
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/submission/batch_feedback_csv.json?${params.toString()}`;
+  }
+
   public getTaskDefinitionBatchUploadUrl(): string {
     return `${AppInjector.get(DoubtfireConstants).API_URL}/csv/task_definitions?unit_id=${this.id}`;
   }
 
-  public downloadTaskCompletionCsv(): void {
-    AppInjector.get(FileDownloaderService).downloadFile(
-      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/task_completion.json`,
-      `${this.name}-task-completion.csv`,
+  public downloadTaskCompletionCsv(): Observable<SidekiqJob> {
+    return AppInjector.get(HttpClient).get<SidekiqJob>(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/task_completion`,
     );
   }
 
-  public downloadTutorAssessmentCsv(): void {
-    AppInjector.get(FileDownloaderService).downloadFile(
-      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/tutor_assessments.json`,
-      `${this.name}-tutor-assessments.csv`,
+  public downloadTasksAwaitingFeedbackCsv(): Observable<SidekiqJob> {
+    return AppInjector.get(HttpClient).get<SidekiqJob>(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/tasks_awaiting_feedback`,
     );
+  }
+
+  public downloadTaskAssessmentCountsCsv(): Observable<SidekiqJob> {
+    return AppInjector.get(HttpClient).get<SidekiqJob>(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/task_assessment_counts`,
+    );
+  }
+
+  public downloadOverflowTaskClaimsCsv(): Observable<SidekiqJob> {
+    return AppInjector.get(HttpClient).get<SidekiqJob>(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/overflow_task_claims`,
+    );
+  }
+
+  public downloadTutorAssessmentCsv(): Observable<SidekiqJob> {
+    return AppInjector.get(HttpClient).get<SidekiqJob>(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/tutor_assessments`,
+    );
+  }
+
+  public getUserMarkingSessions(
+    startDate?: Date,
+    endDate?: Date,
+    timezone?: string,
+  ): Observable<MarkingSession[]> {
+    let params = new HttpParams();
+    if (startDate) {
+      params = params.set(
+        'start_date',
+        `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}-${startDate.getDate().toString().padStart(2, '0')}`,
+      );
+    }
+
+    if (endDate) {
+      params = params.set(
+        'end_date',
+        `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getDate().toString().padStart(2, '0')}`,
+      );
+    }
+
+    params = params.set('timezone', timezone);
+
+    // TODO: we should cache the data by the same start/end date
+    const markingSessionService = AppInjector.get(MarkingSessionService);
+    return markingSessionService.fetchAll(
+      {
+        unitId: this.id,
+      },
+      {params, constructorParams: this},
+    );
+  }
+
+  public downloadTutorTimesSummaryCsv(
+    startDate?: Date,
+    endDate?: Date,
+    timezone?: string,
+    ignoreSessionsDuringTutorials?: boolean,
+  ): Observable<SidekiqJob> {
+    let params = new HttpParams();
+
+    if (startDate) {
+      params = params.set(
+        'start_date',
+        `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}-${startDate.getDate().toString().padStart(2, '0')}`,
+      );
+    }
+
+    if (endDate) {
+      params = params.set(
+        'end_date',
+        `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getDate().toString().padStart(2, '0')}`,
+      );
+    }
+
+    params = params.set('timezone', timezone);
+
+    params = params.set('ignore_sessions_during_tutorials', ignoreSessionsDuringTutorials ?? false);
+
+    return AppInjector.get(HttpClient).get<SidekiqJob>(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/tutor_times_summary`,
+      {params},
+    );
+  }
+
+  public downloadMyTutorTimeSessionsCsv(
+    startDate?: Date,
+    endDate?: Date,
+    timezone?: string,
+  ): Observable<SidekiqJob> {
+    let params = new HttpParams();
+
+    if (startDate) {
+      params = params.set(
+        'start_date',
+        `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}-${startDate.getDate().toString().padStart(2, '0')}`,
+      );
+    }
+
+    if (endDate) {
+      params = params.set(
+        'end_date',
+        `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getDate().toString().padStart(2, '0')}`,
+      );
+    }
+
+    params = params.set('timezone', timezone);
+
+    return AppInjector.get(HttpClient).get<SidekiqJob>(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/my_marking_sessions`,
+      {params},
+    );
+  }
+
+  public hasD2lMapping(): boolean {
+    const doubtfireConstants = AppInjector.get(DoubtfireConstants);
+    return (
+      doubtfireConstants.IsD2LEnabled.value &&
+      this.d2lMapping !== undefined &&
+      this.d2lMapping.orgUnitId !== undefined &&
+      this.d2lMapping.orgUnitId.length > 0
+    );
+  }
+
+  public loadD2lMapping(): Observable<D2lAssessmentMapping> {
+    const d2lMappingSvc = AppInjector.get(D2lAssessmentMappingService);
+
+    return d2lMappingSvc.get({unitId: this.id}).pipe(
+      tap((mappings) => {
+        this.d2lMapping = mappings;
+      }),
+    );
+  }
+
+  public get staffNotesCsvDownloadUrl(): string {
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/staff_notes`;
+  }
+
+  public downloadStaffNotesCsv(): void {
+    AppInjector.get(FileDownloaderService).downloadFile(
+      `${AppInjector.get(DoubtfireConstants).API_URL}/csv/units/${this.id}/staff_notes`,
+      `${this.name}-StaffNotes.csv`,
+    );
+  }
+
+  public get taskDefinitionsPrerequisitesUrl(): string {
+    return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${this.id}/task_prerequisites`;
+  }
+
+  public getTaskPrerequisites(): Observable<TaskPrerequisite[]> {
+    const prerequisiteService = AppInjector.get(TaskPrerequisiteService);
+    return prerequisiteService.getUnitPrerequisites(this.id);
   }
 }

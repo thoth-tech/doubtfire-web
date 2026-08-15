@@ -1,0 +1,52 @@
+@switch (view.state) {
+  @case ('loading') {
+    <div class="ppi-widget ppi-widget--loading">
+      <mat-spinner diameter="16"></mat-spinner>
+      <span>Loading peer progress&hellip;</span>
+    </div>
+  }
+  @case ('error') {
+    <div class="ppi-widget ppi-widget--error">
+      <mat-icon [attr.aria-hidden]="true">error</mat-icon>
+      <span>{{ view.message }}</span>
+      <button mat-button (click)="retry()">Retry</button>
+    </div>
+  }
+  @case ('unavailable') {
+    <div class="ppi-widget ppi-widget--muted">
+      <mat-icon [attr.aria-hidden]="true">info</mat-icon>
+      <span>{{ view.message }}</span>
+    </div>
+  }
+  @case ('disabled') {
+    <div class="ppi-widget ppi-widget--muted">
+      <mat-icon [attr.aria-hidden]="true">block</mat-icon>
+      <span>{{ view.message }}</span>
+    </div>
+  }
+  @case ('hidden') {
+    <div class="ppi-widget ppi-widget--muted">
+      <mat-icon [attr.aria-hidden]="true">visibility_off</mat-icon>
+      <span>{{ view.message }}</span>
+    </div>
+  }
+  @case ('no-data') {
+    <div class="ppi-widget ppi-widget--muted">
+      <mat-icon [attr.aria-hidden]="true">hourglass_empty</mat-icon>
+      <span>No peer submissions yet</span>
+    </div>
+  }
+  @case ('stale') {
+    <div class="ppi-widget ppi-widget--warning">
+      <mat-icon [attr.aria-hidden]="true">history</mat-icon>
+      <span>{{ view.message }}</span>
+      <span class="ppi-widget__stale-badge">Data may be outdated</span>
+    </div>
+  }
+  @case ('success') {
+    <div class="ppi-widget">
+      <span aria-label="Peer submission progress">{{ view.data?.submittedPercentage }}% of peers at your target grade have submitted</span>
+    </div>
+  }
+}
+

@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.ppi-widget {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  font-size: 13px;
+
+  &--muted {
+    color: #6b7280;
+  }
+
+  &--error {
+    color: #d93713;
+  }
+
+  &--warning {
+    color: #92400e;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 4px;
+    padding: 8px 12px;
+  }
+}
+
+.ppi-widget__stale-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: rgba(146, 64, 14, 0.15);
+  border-radius: 3px;
+  margin-left: auto;
+  font-weight: 500;
+}
