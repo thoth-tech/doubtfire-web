@@ -1,45 +1,51 @@
 import {
+  ChangeDetectionStrategy,
   Component,
-  OnInit,
+  ElementRef,
   Input,
-  Inject,
   OnChanges,
+  OnDestroy,
   SimpleChanges,
   ViewChild,
-  ElementRef,
-  OnDestroy,
 } from '@angular/core';
-import {commentsModal} from 'src/app/ajs-upgraded-providers';
+import {Subscription} from 'rxjs';
 import {
-  Task,
+  DiscussionComment,
   Project,
+  ScormComment,
+  ScormExtensionComment,
+  Task,
   TaskComment,
   TaskCommentService,
-  UserService,
   TaskService,
+  UserService,
 } from 'src/app/api/models/doubtfire-model';
-import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
-import {TaskCommentComposerData} from '../task-comment-composer/task-comment-composer.component';
-import {AlertService} from 'src/app/common/services/alert.service';
+import {ExtensionComment} from 'src/app/api/models/task-comment/extension-comment';
 import {FeedbackTemplateService} from 'src/app/api/services/feedback-template.service';
 import {CommentsModalService} from 'src/app/common/modals/comments-modal/comments-modal.service';
-import {Subscription} from 'rxjs';
+import {AlertService} from 'src/app/common/services/alert.service';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {TaskCommentComposerData} from '../task-comment-composer/task-comment-composer.component';
+import {TaskAssessmentComment} from './task-assessment-comment/task-assessment-comment.component';
 
 @Component({
   selector: 'task-comments-viewer',
   templateUrl: './task-comments-viewer.component.html',
   styleUrls: ['./task-comments-viewer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class TaskCommentsViewerComponent implements OnChanges, OnInit, OnDestroy {
+export class TaskCommentsViewerComponent implements OnChanges, OnDestroy {
   // Get the comments body from the HTML template
   @ViewChild('commentsBody') commentsBody: ElementRef;
 
   lastComment: TaskComment;
-  project: Project;
+  @Input() project: Project;
   loading: boolean = true;
 
   sharedCommentComposerData: TaskCommentComposerData = {
     originalComment: null,
+    editingComment: null,
   };
 
   @Input() comment?: TaskComment;
@@ -55,12 +61,11 @@ export class TaskCommentsViewerComponent implements OnChanges, OnInit, OnDestroy
     private userService: UserService,
     private taskService: TaskService,
     private constants: DoubtfireConstants,
-    @Inject(commentsModal) private commentsModalRef: CommentsModalService,
+    private commentsModalRef: CommentsModalService,
     private alerts: AlertService,
   ) {
-    const self = this;
-    this.commentAddedSub = this.taskCommentService.commentAdded$.subscribe((tc: TaskComment) => {
-      self.scrollDown();
+    this.commentAddedSub = this.taskCommentService.commentAdded$.subscribe((_tc: TaskComment) => {
+      this.scrollDown();
     });
 
     this.taskStatusSub = this.taskService.taskStatusUpdated$.subscribe((task) => {
@@ -70,11 +75,31 @@ export class TaskCommentsViewerComponent implements OnChanges, OnInit, OnDestroy
     });
   }
 
-  ngOnInit(): void {}
-
   ngOnDestroy(): void {
     this.taskStatusSub?.unsubscribe();
     this.commentAddedSub?.unsubscribe();
+  }
+
+  public asAssessmentComment(comment: TaskComment): TaskAssessmentComment | null {
+    return comment.commentType === 'assessment'
+      ? (comment as unknown as TaskAssessmentComment)
+      : null;
+  }
+
+  public asScormComment(comment: TaskComment): ScormComment | null {
+    return comment.commentType === 'scorm' ? (comment as ScormComment) : null;
+  }
+
+  public asExtensionComment(comment: TaskComment): ExtensionComment | null {
+    return comment.commentType === 'extension' ? (comment as ExtensionComment) : null;
+  }
+
+  public asScormExtensionComment(comment: TaskComment): ScormExtensionComment | null {
+    return comment.commentType === 'scorm_extension' ? (comment as ScormExtensionComment) : null;
+  }
+
+  public asDiscussionComment(comment: TaskComment): DiscussionComment | null {
+    return comment.commentType === 'discussion' ? (comment as DiscussionComment) : null;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -172,9 +197,8 @@ export class TaskCommentsViewerComponent implements OnChanges, OnInit, OnDestroy
   }
 
   scrollDown() {
-    const component: TaskCommentsViewerComponent = this;
     setTimeout(() => {
-      const element = component.commentsBody.nativeElement;
+      const element = this.commentsBody.nativeElement;
       element.scrollTop = element.scrollHeight;
     }, 50);
   }
@@ -223,14 +247,11 @@ export class TaskCommentsViewerComponent implements OnChanges, OnInit, OnDestroy
 
   // # Upload image files as comments to a given task
   postAttachmentComment(file) {
-    const self: TaskCommentsViewerComponent = this;
-
-    this.taskCommentService.addComment(this.task, file, 'file', null).subscribe(
-      (tc: TaskComment) => {},
-      (error: any) => {
+    this.taskCommentService.addComment(this.task, file, 'file', null).subscribe({
+      error: (error) => {
         this.alerts.error(error || error?.message, 2000);
       },
-    );
+    });
   }
 
   scrollToComment(commentID) {

@@ -1,48 +1,53 @@
 /* eslint-disable no-shadow, @typescript-eslint/no-shadow */
-
+import {HotkeysService} from '@ngneat/hotkeys';
 import {
+  ChangeDetectionStrategy,
   Component,
-  OnInit,
   Input,
   OnChanges,
-  SimpleChanges,
-  HostListener,
-  ViewChild,
-  TemplateRef,
   OnDestroy,
+  OnInit,
+  SimpleChanges,
+  TemplateRef,
+  ViewChild,
 } from '@angular/core';
-import {TasksOfTaskDefinitionPipe} from 'src/app/common/filters/tasks-of-task-definition.pipe';
-import {TasksInTutorialsPipe} from 'src/app/common/filters/tasks-in-tutorials.pipe';
-import {TasksForInboxSearchPipe} from 'src/app/common/filters/tasks-for-inbox-search.pipe';
 import {MatDialog} from '@angular/material/dialog';
-import {Unit} from 'src/app/api/models/unit';
-import {UnitRole} from 'src/app/api/models/unit-role';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Observable} from 'rxjs';
 import {
+  Project,
+  Task,
+  TaskDefinition,
   Tutorial,
   UserService,
-  Task,
-  Project,
-  TaskDefinition,
 } from 'src/app/api/models/doubtfire-model';
-import {Observable} from 'rxjs';
-import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {SidekiqJob} from 'src/app/api/models/sidekiq-job';
+import {Unit} from 'src/app/api/models/unit';
+import {UnitRole} from 'src/app/api/models/unit-role';
+import {TaskDefinitionService} from 'src/app/api/services/task-definition.service';
 import {AppInjector} from 'src/app/app-injector';
+import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {TasksByTutorPipe} from 'src/app/common/filters/tasks-by-tutor.pipe';
+import {TasksForInboxSearchPipe} from 'src/app/common/filters/tasks-for-inbox-search.pipe';
+import {TasksInTutorialsPipe} from 'src/app/common/filters/tasks-in-tutorials.pipe';
+import {TasksOfTaskDefinitionPipe} from 'src/app/common/filters/tasks-of-task-definition.pipe';
+import {CsvResultModalService} from 'src/app/common/modals/csv-result-modal/csv-result-modal.service';
+import {CsvUploadModalService} from 'src/app/common/modals/csv-upload-modal/csv-upload-modal.service';
+import {SidekiqProgressModalService} from 'src/app/common/modals/sidekiq-progress-modal/sidekiq-progress-modal.service';
+import {AlertService} from 'src/app/common/services/alert.service';
 import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
 import {SelectedTaskService} from 'src/app/projects/states/dashboard/selected-task.service';
-import {AlertService} from 'src/app/common/services/alert.service';
-import {HotkeysService} from '@ngneat/hotkeys';
-import {Router} from '@angular/router';
-import {TaskDefinitionService} from 'src/app/api/services/task-definition.service';
-import {SidekiqProgressModalService} from 'src/app/common/modals/sidekiq-progress-modal/sidekiq-progress-modal.service';
-import {TasksByTutorPipe} from 'src/app/common/filters/tasks-by-tutor.pipe';
+import {BatchFeedbackWorkflowDialogComponent} from './batch-feedback-workflow-dialog/batch-feedback-workflow-dialog.component';
 
 @Component({
   selector: 'df-staff-task-list',
   templateUrl: './staff-task-list.component.html',
   styleUrls: ['./staff-task-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
-  @ViewChild('searchDialog') searchDialog: TemplateRef<any>;
+  @ViewChild('searchDialog') searchDialog: TemplateRef<object>;
 
   @Input() task: Task;
   @Input() project: Project;
@@ -50,30 +55,30 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() taskData: {
     source: (
       unit: Unit,
-      taskDef: TaskDefinition | number,
+      taskDef?: TaskDefinition | number,
       fetchMyStudentsOnly?: boolean,
     ) => Observable<Task[]>;
-    selectedTask: Task;
-    taskKey: string;
-    onSelectedTaskChange: (task: Task) => void;
+    selectedTask: Task | null;
+    taskKey: unknown;
+    onSelectedTaskChange: (task: Task | null) => void;
     taskDefMode: boolean;
   };
   @Input() unit: Unit;
   @Input() unitRole: UnitRole;
-  @Input() filters: {
+  @Input() filters: Partial<{
     taskDefinition: TaskDefinition;
     tutorials: Tutorial[];
     forceStream: boolean;
     studentName: string;
-    tutorialIdSelected: any;
+    tutorialIdSelected: string | number;
     unitRoleIdSelected: number | string;
     taskDefinitionIdSelected: number | TaskDefinition;
-  };
+  }>;
   @Input() showSearchOptions = true;
 
   @Input() isNarrow: boolean;
 
-  @Input() viewType: 'inbox' | 'explorer' | 'moderation';
+  @Input() viewType: 'inbox' | 'explorer' | 'moderation' | 'overflow';
 
   userHasTutorials: boolean;
   filteredTasks: Task[] = null;
@@ -95,10 +100,11 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
 
   // hasJplagReport: boolean = false;
 
-  watchingTaskKey: any;
+  watchingTaskKey: boolean;
 
   panelOpenState = false;
   loading = true;
+  skeletonRows = Array.from({length: 12}, (_, index) => index);
 
   definedTasksPipe = new TasksOfTaskDefinitionPipe();
   tasksInTutorialsPipe = new TasksInTutorialsPipe();
@@ -116,8 +122,12 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
 
   taskDefSort = 0;
   tutorialSort = 0;
-  originalFilteredTasks: any[] = null;
+  originalFilteredTasks: Task[] = null;
   allowHover = true;
+
+  toggleTutorialSort() {
+    this.tutorialSort = (this.tutorialSort + 1) % this.states.length;
+  }
 
   // Track if all tasks have already been fetched
   // Avoids redundant API calls when changing tutorial filters
@@ -128,23 +138,33 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
     private alertService: AlertService,
     private fileDownloaderService: FileDownloaderService,
     public dialog: MatDialog,
+    private csvUploadModal: CsvUploadModalService,
+    private csvResultModal: CsvResultModalService,
     private userService: UserService,
     private hotkeys: HotkeysService,
     private router: Router,
+    private route: ActivatedRoute,
     private taskDefinitionService: TaskDefinitionService,
     private sidekiqProgressModalService: SidekiqProgressModalService,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (
-      ((changes.unit &&
-        !changes.unit?.isFirstChange &&
-        changes.unit.currentValue.id &&
-        changes.unit.previousValue.id !== changes.unit.currentValue.id) ||
-        this.tasks == null) &&
-      this.isTaskDefMode &&
-      this.filters
-    ) {
+    if (changes.taskData && !changes.taskData.isFirstChange() && this.tasks?.length) {
+      this.setTaskDefFromTaskKey(this.taskData.taskKey);
+      this.syncSelectedTaskFromTaskKey();
+    }
+
+    if (!this.isTaskDefMode || !this.filters) {
+      return;
+    }
+
+    const unitChanged =
+      !!changes.unit &&
+      !changes.unit.isFirstChange() &&
+      changes.unit.currentValue?.id &&
+      changes.unit.previousValue?.id !== changes.unit.currentValue?.id;
+
+    if (unitChanged) {
       this.refreshData();
     }
   }
@@ -196,12 +216,14 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
       .sort(byName);
 
     const allTutors = staff.slice().sort(byName);
+    const shouldDefaultToMyStudents =
+      (this.unitRole.role === 'Tutor' || this.unitRole.role === 'Convenor') &&
+      this.userHasTutorials;
 
     this.filters = Object.assign(
       {
         studentName: null,
-        tutorialIdSelected:
-          (this.unitRole.role === 'Tutor' || 'Convenor') && this.userHasTutorials ? 'mine' : 'all',
+        tutorialIdSelected: shouldDefaultToMyStudents ? 'mine' : 'all',
         tutorials: [],
         unitRoleIdSelected:
           mentored.length > 0 && this.viewType === 'moderation' ? 'mentoring_all' : 'all',
@@ -280,7 +302,7 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
         this.sidekiqProgressModalService
           .show(`Downloading submission pdfs for ${taskDef.abbreviation}`, newJob.id)
           .subscribe({
-            next: (job) => {
+            next: (_job) => {
               this.fileDownloaderService.downloadFile(
                 `${AppInjector.get(DoubtfireConstants).API_URL}/submission/unit/${
                   this.unit.id
@@ -303,7 +325,7 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
         this.sidekiqProgressModalService
           .show(`Downloading submission files for ${taskDef.abbreviation}`, newJob.id)
           .subscribe({
-            next: (job) => {
+            next: (_job) => {
               this.fileDownloaderService.downloadFile(
                 `${AppInjector.get(DoubtfireConstants).API_URL}/submission/unit/${
                   this.unit.id
@@ -316,6 +338,59 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
       error: (error) => {
         this.alertService.error(error, 6000);
       },
+    });
+  }
+
+  openBatchFeedbackDialog() {
+    const taskDefinition = this.filters.taskDefinition ?? undefined;
+
+    if (!taskDefinition) {
+      this.alertService.error('Select a task definition before uploading batch feedback.', 5000);
+      return;
+    }
+
+    const dialogRef = this.dialog.open(BatchFeedbackWorkflowDialogComponent, {
+      width: '100%',
+      maxWidth: '840px',
+      data: {
+        unit: this.unit,
+        taskDefinition,
+        myStudentsOnly: this.filters.tutorialIdSelected === 'mine',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result?.openUpload) {
+        return;
+      }
+
+      this.csvUploadModal.show(
+        `Upload ${taskDefinition.abbreviation} Batch Feedback Zip`,
+        '',
+        {
+          file: {name: 'Batch Feedback Zip', type: 'zip'},
+        },
+        this.unit.getBatchFeedbackUploadUrl(taskDefinition),
+        (response: SidekiqJob) => {
+          if (!response?.id) {
+            this.alertService.error('Batch feedback upload failed.', 6000);
+            return;
+          }
+
+          this.sidekiqProgressModalService
+            .show(`Uploading ${taskDefinition.abbreviation} Batch Feedback`, response.id)
+            .subscribe({
+              next: (job) => {
+                this.csvResultModal.show('Batch Feedback Upload Results', JSON.parse(job.result));
+                this.refreshData();
+              },
+              error: (error) => {
+                console.error(error);
+                this.alertService.error('Batch feedback upload failed.', 6000);
+              },
+            });
+        },
+      );
     });
   }
 
@@ -333,7 +408,7 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
   openDialog() {
     const dialogRef = this.dialog.open(this.searchDialog);
 
-    dialogRef.afterClosed().subscribe((result) => {});
+    dialogRef.afterClosed().subscribe();
   }
 
   refreshTasks(): void {
@@ -359,6 +434,7 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     filteredTasks = this.taskWithStudentNamePipe.transform(filteredTasks, this.filters.studentName);
+    filteredTasks = this.sortPinnedTasksFirst(filteredTasks);
     this.filteredTasks = filteredTasks;
 
     if (this.filteredTasks != null) {
@@ -368,17 +444,23 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
     this.taskDefSort = 0;
     this.tutorialSort = 0;
 
-    // Fix selected task.
-    if (this.taskData.selectedTask && filteredTasks?.includes(this.taskData.selectedTask)) {
+    // Clear selected task only when the active filters hide it.
+    if (
+      this.taskData.selectedTask &&
+      !filteredTasks?.some((task) => task?.hasTaskKey(this.taskData.selectedTask.taskKey()))
+    ) {
       this.setSelectedTask(null);
     }
   }
 
   openTaskDefs() {
     // Automatically "open" the task definition select element if in task def mode
-    const selectEl: any = document.querySelector(
+    const selectEl = document.querySelector<HTMLSelectElement>(
       'select[ng-model="filters.taskDefinitionIdSelected"]',
-    ) as any;
+    );
+    if (!selectEl) {
+      return;
+    }
     selectEl.size = 10;
     selectEl.focus();
   }
@@ -392,10 +474,27 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  tutorialIdChanged(attemptRefreshData: boolean = true): void {
-    const tutorialId = this.filters.tutorialIdSelected;
+  tutorialIdChanged(
+    attemptRefreshData: boolean = true,
+    selectedTutorialId: string | number = this.filters.tutorialIdSelected,
+  ): void {
+    this.filters.tutorialIdSelected = selectedTutorialId;
+    const tutorialId = selectedTutorialId;
 
-    const filterOption = this.studentFilter.find((f) => f.id === tutorialId);
+    if (attemptRefreshData) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {students: tutorialId},
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
+
+    const filterOption = this.studentFilter.find((f) => String(f.id) === String(tutorialId));
+
+    if (!filterOption) {
+      return;
+    }
 
     this.filters.forceStream = filterOption.forceStream;
 
@@ -452,6 +551,22 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
     return this.tasks.find((t) => t?.hasTaskKey(key));
   }
 
+  private syncSelectedTaskFromTaskKey(): void {
+    if (!this.tasks?.length) {
+      return;
+    }
+
+    if (!this.taskData.taskKey) {
+      this.setSelectedTask(null);
+      return;
+    }
+
+    const task = this.findTaskForTaskKey(this.taskData.taskKey);
+    if (task) {
+      this.setSelectedTask(task);
+    }
+  }
+
   // Callback to refresh data from the task source
   private refreshData() {
     const fetchMyStudentsOnly = this.filters.tutorialIdSelected === 'mine';
@@ -468,22 +583,20 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
 
           this.fetchedAllTasks = !fetchMyStudentsOnly && !this.isTaskDefMode;
 
-        // Load initial set task, either the one provided (by the URL)
-        // then load actual task in now or the first task that applies
-        // to the given set of filters.
-        const task = this.findTaskForTaskKey(this.taskData.taskKey);
-        this.setSelectedTask(task);
+          // If the URL carries a task key, load that task once the query results arrive.
+          this.syncSelectedTaskFromTaskKey();
 
-        // For when URL has been manually changed, set the selected task
-        // using new array of tasks loaded from the new taskKey
-        if (!this.watchingTaskKey) {
-          this.watchingTaskKey = true;
-        }
-      },
-      error: (message) => {
-        this.alertService.error(message, 6000);
-      },
-    });
+          // For when URL has been manually changed, set the selected task
+          // using new array of tasks loaded from the new taskKey
+          if (!this.watchingTaskKey) {
+            this.watchingTaskKey = true;
+          }
+        },
+        error: (message) => {
+          this.alertService.error(message, 6000);
+          this.loading = false;
+        },
+      });
   }
 
   setSelectedTask(task: Task) {
@@ -497,20 +610,20 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private scrollToTaskInList(task) {
-    const taskEl = document.querySelector(`#${task.taskKeyToIdString()}`) as any;
+  private scrollToTaskInList(task: Task) {
+    const taskEl = document.querySelector(`#${task.taskKeyToIdString()}`) as
+      | (HTMLElement & {
+          scrollIntoViewIfNeeded?: (options?: ScrollIntoViewOptions) => void;
+        })
+      | null;
     if (!taskEl) {
       return;
     }
-    const funcName = taskEl.scrollIntoViewIfNeeded
-      ? 'scrollIntoViewIfNeeded'
-      : taskEl.scrollIntoView
-        ? 'scrollIntoView'
-        : '';
-    if (!funcName) {
-      return;
+    if (taskEl.scrollIntoViewIfNeeded) {
+      taskEl.scrollIntoViewIfNeeded({behavior: 'smooth'});
+    } else {
+      taskEl.scrollIntoView({behavior: 'smooth'});
     }
-    taskEl[funcName]({behavior: 'smooth'});
   }
 
   isSelectedTask(task: Task) {
@@ -563,11 +676,23 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   togglePin(task: Task) {
-    task.pinned ? task.unpin() : task.pin();
+    if (task.id === undefined) {
+      // Can't pin a task that doesn't actually exist yet
+      this.alertService.error(`This task can't be pinned yet`, 3000);
+      return;
+    }
+    const refreshOrdering = () => this.applyFilters();
+    if (task.pinned) {
+      task.unpin(refreshOrdering);
+    } else {
+      task.pin(refreshOrdering);
+    }
   }
 
   getWarningIcon(task: Task): 'warning' | 'overflow' | null {
-    if (!task.submissionDate) return null;
+    if (!task.submissionDate) {
+      return null;
+    }
     if (task.status !== 'ready_for_feedback') {
       return null;
     }
@@ -583,5 +708,13 @@ export class StaffTaskListComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     return null;
+  }
+
+  private sortPinnedTasksFirst(tasks: Task[]): Task[] {
+    if (!this.isTaskDefMode || !tasks?.length) {
+      return tasks;
+    }
+
+    return [...tasks].sort((a, b) => Number(b.pinned) - Number(a.pinned));
   }
 }

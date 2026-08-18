@@ -1,25 +1,36 @@
-import {HttpClient} from '@angular/common/http';
 import {Entity, EntityCache, EntityMapping} from 'ngx-entity-service';
+import {HttpClient} from '@angular/common/http';
 import {Observable, tap} from 'rxjs';
 import {AppInjector} from 'src/app/app-injector';
 import {AlertService} from 'src/app/common/services/alert.service';
 import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
 import {TaskDefinitionService} from '../services/task-definition.service';
-import {Grade, GroupSet, LearningOutcome, Project, TutorialStream, Unit} from './doubtfire-model';
-import {Task} from './doubtfire-model';
-import {TaskPrerequisite} from './task-prerequisite';
 import {DiscussionPrompt} from './discussion-prompt';
+import {GroupSet, LearningOutcome, Project, TutorialStream, Unit} from './doubtfire-model';
+import {Task} from './doubtfire-model';
 import {OverseerStep} from './overseer/overseer-step';
+import {TaskPrerequisite} from './task-prerequisite';
 
-export type UploadRequirement = {
+export interface UploadRequirement {
   key: string;
   name: string;
   type: string;
   tiiCheck?: boolean;
   tiiPct?: number;
-};
+  submissionHistory?: boolean;
+}
 
-export type SimilarityCheck = {key: string; type: string; pattern: string};
+export interface SimilarityCheck {
+  key: string;
+  type: string;
+  pattern: string;
+}
+
+export interface TaskDefinitionGradeDueDate {
+  targetGrade: number;
+  targetDueDate?: Date;
+  startDate?: Date;
+}
 
 export class TaskDefinition extends Entity {
   id: number;
@@ -63,14 +74,7 @@ export class TaskDefinition extends Entity {
   discussionPromptsCount: number;
   overseerResourceFiles: string[] = [];
 
-  // pTargetDate: Date;
-  cTargetDate: Date;
-  dTargetDate: Date;
-  hdTargetDate: Date;
-
-  cStartDate: Date;
-  dStartDate: Date;
-  hdStartDate: Date;
+  gradeDueDates: TaskDefinitionGradeDueDate[] = [];
 
   public readonly taskPrerequisitesCache: EntityCache<TaskPrerequisite> =
     new EntityCache<TaskPrerequisite>();
@@ -177,6 +181,43 @@ export class TaskDefinition extends Entity {
     return this.targetDate;
   }
 
+  public gradeTargetDate(targetGrade: number): Date | null {
+    return this.gradeDueDates.find((date) => date.targetGrade === targetGrade)?.targetDueDate;
+  }
+
+  public gradeStartDate(targetGrade: number): Date | null {
+    return this.gradeDueDates.find((date) => date.targetGrade === targetGrade)?.startDate;
+  }
+
+  public setGradeTargetDate(targetGrade: number, value: Date | null): void {
+    if (targetGrade === 0) {
+      this.targetDate = value;
+      return;
+    }
+
+    this.gradeDueDateFor(targetGrade).targetDueDate = value;
+  }
+
+  public setGradeStartDate(targetGrade: number, value: Date | null): void {
+    if (targetGrade === 0) {
+      this.startDate = value;
+      return;
+    }
+
+    this.gradeDueDateFor(targetGrade).startDate = value;
+  }
+
+  private gradeDueDateFor(targetGrade: number): TaskDefinitionGradeDueDate {
+    let gradeDueDate = this.gradeDueDates.find((date) => date.targetGrade === targetGrade);
+
+    if (!gradeDueDate) {
+      gradeDueDate = {targetGrade};
+      this.gradeDueDates.push(gradeDueDate);
+    }
+
+    return gradeDueDate;
+  }
+
   public localDeadlineDate(): Date {
     return this.dueDate;
   }
@@ -244,11 +285,11 @@ export class TaskDefinition extends Entity {
    * Open the SCORM test in a new tab - using preview mode.
    */
   public previewScormTest(): void {
-    window.open(`#/task_def_id/${this.id}/preview-scorm`, '_blank');
+    window.open(`/task_def_id/${this.id}/preview-scorm`, '_blank');
   }
 
   public get targetGradeText(): string {
-    return Grade.GRADES[this.targetGrade];
+    return this.unit.gradeLabel(this.targetGrade);
   }
 
   public hasPlagiarismCheck(): boolean {
@@ -303,27 +344,31 @@ export class TaskDefinition extends Entity {
     return `${AppInjector.get(DoubtfireConstants).API_URL}/units/${this.unit.id}/task_definitions/${this.id}/jplag_report`;
   }
 
-  public deleteTaskSheet(): Observable<any> {
-    const httpClient = AppInjector.get(HttpClient);
-    return httpClient.delete(this.taskSheetUploadUrl).pipe(tap(() => (this.hasTaskSheet = false)));
-  }
-
-  public deleteTaskResources(): Observable<any> {
+  public deleteTaskSheet(): Observable<void> {
     const httpClient = AppInjector.get(HttpClient);
     return httpClient
-      .delete(this.taskResourcesUploadUrl)
+      .delete<void>(this.taskSheetUploadUrl)
+      .pipe(tap(() => (this.hasTaskSheet = false)));
+  }
+
+  public deleteTaskResources(): Observable<void> {
+    const httpClient = AppInjector.get(HttpClient);
+    return httpClient
+      .delete<void>(this.taskResourcesUploadUrl)
       .pipe(tap(() => (this.hasTaskResources = false)));
   }
 
-  public deleteScormData(): Observable<any> {
-    const httpClient = AppInjector.get(HttpClient);
-    return httpClient.delete(this.scormDataUploadUrl).pipe(tap(() => (this.hasScormData = false)));
-  }
-
-  public deleteOverseerResources(): Observable<any> {
+  public deleteScormData(): Observable<void> {
     const httpClient = AppInjector.get(HttpClient);
     return httpClient
-      .delete(this.taskOverseerResourcesUploadUrl)
+      .delete<void>(this.scormDataUploadUrl)
+      .pipe(tap(() => (this.hasScormData = false)));
+  }
+
+  public deleteOverseerResources(): Observable<void> {
+    const httpClient = AppInjector.get(HttpClient);
+    return httpClient
+      .delete<void>(this.taskOverseerResourcesUploadUrl)
       .pipe(tap(() => (this.hasTaskAssessmentResources = false)));
   }
 

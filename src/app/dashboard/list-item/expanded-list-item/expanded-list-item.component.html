@@ -1,6 +1,6 @@
 <div class="flex flex-row">
-  <div class="w-4 mr-6 shrink-0" [style.background-color]="task.color"></div>
-  <div class="pb-4 flex flex-col flex-grow shrink min-w-0">
+  <div class="mr-6 w-4 shrink-0" [style.background-color]="task.color"></div>
+  <div class="flex min-w-0 shrink grow flex-col pb-4">
     <p class="font-bold">{{ task.statusLabel }}</p>
     <p class="pt-2">{{ task.description }}</p>
     <p style="font-size: 13px">
@@ -9,32 +9,31 @@
     </p>
     <div class="flex flex-row gap-2 pt-2">
       <button
+        class="truncate"
         mat-stroked-button
         [hidden]="!task?.taskDef?.hasTaskSheet"
         (click)="downloadTaskSheet()"
-        class="truncate"
       >
-        <mat-icon style="width: 15px; height: 15px; font-size: 15px" aria-label="Download">
+        <mat-icon aria-label="Download" style="width: 15px; height: 15px; font-size: 15px">
           description
         </mat-icon>
         Task
       </button>
       <button
+        class="truncate"
         mat-stroked-button
         [hidden]="!task?.taskDef?.hasTaskResources"
         (click)="downloadResources()"
-        class="truncate"
       >
         <mat-icon style="width: 15px; height: 15px; font-size: 15px">download</mat-icon>
         Resources
       </button>
       <button
         mat-stroked-button
-        uiSref="projects/dashboard"
-        [uiParams]="{projectId: task.projectId, taskAbbr: task.abbreviation}"
-        [matBadge]="task.comments > 0 ? task.comments : null"
         matBadgeColor="warn"
         matBadgePosition="after"
+        [matBadge]="task.comments > 0 ? task.comments : null"
+        [routerLink]="['/projects', task.projectId, 'dashboard', task.abbreviation]"
       >
         <mat-icon style="width: 15px; height: 15px; font-size: 15px">open_in_new</mat-icon>
         More

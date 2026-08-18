@@ -1,5 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {TaskDefinition} from '../../api/models/task-definition';
+import {TaskStatusEnum} from '../../api/models/task-status';
 
 export type DashboardTask = {
   title: string;
@@ -8,6 +9,8 @@ export type DashboardTask = {
   abbreviation: string;
   color: string;
   comments: number;
+  status: TaskStatusEnum;
+  weight: number;
   projectId: number;
   description: string;
   taskDef: TaskDefinition;
@@ -17,6 +20,7 @@ export type DashboardTask = {
 
 @Component({
   selector: 'f-dashboard-list-item',
+  standalone: false,
   templateUrl: './dashboard-list-item.component.html',
 })
 export class DashboardListItemComponent {

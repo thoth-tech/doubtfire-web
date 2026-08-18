@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   HostListener,
@@ -41,6 +42,8 @@ interface TaskDefinitionSection {
   selector: 'f-task-definition-editor',
   templateUrl: 'task-definition-editor.component.html',
   styleUrls: ['task-definition-editor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class TaskDefinitionEditorComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @Input() taskDefinition: TaskDefinition;
@@ -64,7 +67,7 @@ export class TaskDefinitionEditorComponent implements OnInit, AfterViewInit, OnC
     {id: 'optional-settings', label: 'Optional Settings'},
   ];
 
-  private sectionElementMap = new Map<TaskDefinitionSectionId, HTMLElement>();
+  private sectionElementMap: Map<TaskDefinitionSectionId, HTMLElement> = new Map();
   private sectionChangesSubscription?: Subscription;
   private overseerEnabledSubscription?: Subscription;
   private readonly scrollTopOffsetPx: number = 112;
@@ -116,7 +119,9 @@ export class TaskDefinitionEditorComponent implements OnInit, AfterViewInit, OnC
     const container = this.sectionScrollContainer?.nativeElement;
     const target = this.sectionElementMap.get(sectionId);
 
-    if (!container || !target) return;
+    if (!container || !target) {
+      return;
+    }
 
     if (this.isContainerScrollable(container)) {
       const targetTop = this.getSectionTopInContainer(container, target);
@@ -135,7 +140,9 @@ export class TaskDefinitionEditorComponent implements OnInit, AfterViewInit, OnC
 
   public syncActiveSectionOnScroll() {
     const container = this.sectionScrollContainer?.nativeElement;
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     if (!this.isContainerScrollable(container)) {
       this.syncActiveSectionOnWindowScroll();

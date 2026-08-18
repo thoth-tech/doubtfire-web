@@ -1,9 +1,11 @@
-import {Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, Input, ViewChild} from '@angular/core';
 import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'f-jplag-report-viewer',
   templateUrl: './jplag-report-viewer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class JplagReportViewerComponent {
   @ViewChild('jplagIframe', {static: true}) jplagIframe!: ElementRef<HTMLIFrameElement>;
@@ -33,7 +35,9 @@ export class JplagReportViewerComponent {
       const wrapper = doc.querySelector(
         '.vue-recycle-scroller__item-wrapper',
       ) as HTMLElement | null;
-      if (!wrapper) return null;
+      if (!wrapper) {
+        return null;
+      }
 
       let cur = wrapper.parentElement as HTMLElement | null;
       while (cur) {
@@ -53,7 +57,9 @@ export class JplagReportViewerComponent {
     let elapsed = 0;
     const interval = setInterval(() => {
       const doc = iframe.contentDocument;
-      if (!doc) return;
+      if (!doc) {
+        return;
+      }
 
       const el = findLink(doc);
       if (el) {
@@ -65,7 +71,7 @@ export class JplagReportViewerComponent {
       getScroller(doc)?.scrollBy(0, 600);
 
       elapsed += 50;
-      if (elapsed >= 5000) {
+      if (elapsed >= 10000) {
         clearInterval(interval);
         this.alertService.error('Could not open JPlag comparison.', 6000);
       }

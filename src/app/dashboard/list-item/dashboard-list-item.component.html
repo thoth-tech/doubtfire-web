@@ -1,28 +1,27 @@
 <div class="flex flex-row">
-  <div class="w-4 mr-6 shrink-0" [style.background-color]="task.color"></div>
-  <div class="py-4 flex flex-col flex-grow shrink min-w-0">
+  <div class="mr-6 w-4 shrink-0" [style.background-color]="task.color"></div>
+  <div class="flex min-w-0 shrink grow flex-col py-4">
     <h4
-      class="mb-1 truncate flex-grow min-w-0"
-      uiSref="projects/dashboard"
-      [uiParams]="{projectId: task.projectId, taskAbbr: task.abbreviation}"
+      class="mb-1 min-w-0 grow truncate"
+      [routerLink]="['/projects', task.projectId, 'dashboard', task.abbreviation]"
     >
       {{ task.title }}
     </h4>
     <p class="mb-0">{{ task.subtitle }}</p>
   </div>
-  <div class="flex flex-row ml-2 mr-6 items-center justify-end gap-4">
-    <div *ngIf="!isExpanded">
-      <div *ngIf="task.comments > 0" class="flex h-8 w-8 bg-red-500 rounded-full">
-        <span class="text-white text-xl font-medium m-auto">{{ task.comments }}</span>
+  <div class="mr-6 ml-2 flex flex-row items-center justify-end gap-4">
+    @if (!isExpanded && task.comments > 0) {
+      <div class="flex size-8 rounded-full bg-red-500">
+        <span class="m-auto text-xl font-medium text-white">{{ task.comments }}</span>
       </div>
-    </div>
-    <mat-icon (click)="isExpanded = !isExpanded" class="cursor-pointer">
+    }
+    <mat-icon class="cursor-pointer" (click)="isExpanded = !isExpanded">
       {{ isExpanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
     </mat-icon>
   </div>
 </div>
 <div class="flex flex-row">
-  <div *ngIf="isExpanded">
+  @if (isExpanded) {
     <f-expanded-list-item [task]="task"></f-expanded-list-item>
-  </div>
+  }
 </div>

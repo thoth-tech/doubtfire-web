@@ -1,7 +1,7 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {MatDatepickerInputEvent} from '@angular/material/datepicker';
-import {CalendarEvent} from 'angular-calendar';
-import {Observable} from 'rxjs';
+import {formatDate} from '@angular/common';
+import {ChangeDetectionStrategy, Component, Inject, Input, LOCALE_ID, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Observable, first, of} from 'rxjs';
 import {SidekiqJob} from 'src/app/api/models/sidekiq-job';
 import {Unit} from 'src/app/api/models/unit';
 import {UserService} from 'src/app/api/services/user.service';
@@ -13,9 +13,13 @@ import {AlertService} from 'src/app/common/services/alert.service';
   selector: 'f-unit-analytics',
   templateUrl: 'unit-analytics-route.component.html',
   styleUrls: ['unit-analytics-route.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class UnitAnalyticsComponent {
-  @Input() unit: Unit;
+export class UnitAnalyticsComponent implements OnInit {
+  @Input() public unit$: Observable<Unit>;
+
+  public unit: Unit;
 
   constructor(
     private sidekiqProgressModalService: SidekiqProgressModalService,
@@ -23,10 +27,23 @@ export class UnitAnalyticsComponent {
     private fileDownloaderService: FileDownloaderService,
     private userService: UserService,
     private alertService: AlertService,
+    private route: ActivatedRoute,
+    @Inject(LOCALE_ID) private locale: string,
   ) {}
 
+  ngOnInit(): void {
+    this.unit$ = this.unit$ ?? of(this.route.parent.snapshot.data.unit);
+    this.unit$?.pipe(first()).subscribe((unit) => {
+      this.unit = unit;
+    });
+  }
+
   get role() {
-    return this.unit.staff.find((s) => s.user.id === this.userService.currentUser.id)?.role;
+    return this.unit?.staff.find((s) => s.user.id === this.userService.currentUser.id)?.role;
+  }
+
+  get isAdmin() {
+    return this.userService.currentUser?.systemRole === 'Admin';
   }
 
   public getTaskCompletionCsv() {
@@ -61,6 +78,16 @@ export class UnitAnalyticsComponent {
     );
   }
 
+  public getOverflowTaskClaimsCsv() {
+    const timestamp = formatDate(new Date(), 'd-MMMM-y-HHmm', this.locale).toLowerCase();
+
+    this.downloadCsv(
+      this.unit.downloadOverflowTaskClaimsCsv(),
+      'Overflow Task Claims CSV',
+      `${this.unit.code}-overflow-task-claims-${timestamp}.csv`,
+    );
+  }
+
   public downloadCsv(newJob: Observable<SidekiqJob>, title: string, filename: string) {
     newJob.subscribe({
       next: (job) => {
@@ -74,8 +101,8 @@ export class UnitAnalyticsComponent {
           this.fileDownloaderService.downloadBlobToFile(url, filename);
         });
       },
-      error: (_error) => {
-        this.alertsService.error(`Could not download ${title}`, 6000);
+      error: (error) => {
+        this.alertsService.error(`Could not download ${title}: ${error}`, 6000);
       },
     });
   }

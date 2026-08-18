@@ -1,6 +1,9 @@
+import {EmojiSearch} from '@ctrl/ngx-emoji-mart';
+import {EmojiData} from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   DoCheck,
@@ -10,17 +13,13 @@ import {
   KeyValueDiffer,
   KeyValueDiffers,
   OnChanges,
-  OnInit,
   QueryList,
   SimpleChanges,
   ViewChild,
   ViewChildren,
 } from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {EmojiSearch} from '@ctrl/ngx-emoji-mart';
-import {EmojiData} from '@ctrl/ngx-emoji-mart/ngx-emoji/';
 import {BehaviorSubject, Subscription} from 'rxjs';
-import {analyticsService} from 'src/app/ajs-upgraded-providers';
 import {
   FeedbackTemplate,
   Task,
@@ -30,6 +29,7 @@ import {
 import {AlertService} from 'src/app/common/services/alert.service';
 import {EmojiService} from 'src/app/common/services/emoji.service';
 import {TaskCommentsViewerComponent} from '../task-comments-viewer/task-comments-viewer.component';
+import {AttachmentConfirmationDialogComponent} from './attachment-confirmation-dialog/attachment-confirmation-dialog.component';
 
 interface ApiError {
   error?: string;
@@ -43,7 +43,9 @@ interface ApiError {
  */
 
 export interface TaskCommentComposerData {
+  [key: string]: TaskComment;
   originalComment: TaskComment;
+  editingComment: TaskComment;
 }
 
 const ACCEPTED_FILE_TYPES = [
@@ -75,18 +77,21 @@ const ACCEPTED_FILE_TYPES = [
       transition('false => true', [style({width: 80}), animate('150ms 0ms ease-in-out')]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCheck, OnChanges {
+export class TaskCommentComposerComponent implements AfterViewInit, DoCheck, OnChanges {
   @Input() task: Task;
   @Input() sharedData: TaskCommentComposerData;
 
-  public $userIsTyping = new BehaviorSubject<boolean>(false);
+  public $userIsTyping: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private draftSaveSubscription = new Subscription();
   private readonly DRAFT_KEY_PREFIX = 'task_comment_draft_';
   public isDraftLoaded = false;
   private submittedTaskIds: Set<number | string> = new Set();
 
   public isSending: boolean = false;
+  private draftBeforeEdit: string = '';
 
   comment = {
     text: '',
@@ -97,9 +102,10 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
   @ViewChildren('cag') cag: QueryList<ElementRef>;
   @ViewChild('uploader') uploader: ElementRef;
 
-  differ: KeyValueDiffer<string, any>;
+  differ: KeyValueDiffer<string, TaskComment>;
   showEmojiPicker = false;
   emojiSearchMode = false;
+  // eslint-disable-next-line no-useless-escape
   emojiRegex: RegExp = /(?:\:)(.*?)(?=\:|$)/;
   emojiSearchResults: EmojiData[] = [];
   emojiMatch: string;
@@ -113,7 +119,6 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
     private emojiSearch: EmojiSearch,
     private emojiService: EmojiService,
     private commentsViewer: TaskCommentsViewerComponent,
-    @Inject(analyticsService) private analytics,
     private alerts: AlertService,
     @Inject(TaskCommentService) private taskCommentService: TaskCommentService,
     private cdRef: ChangeDetectorRef,
@@ -130,8 +135,6 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
     }
   }
 
-  ngOnInit() {}
-
   ngOnChanges(changes: SimpleChanges) {
     this.showFeedbackTemplatePicker = false;
 
@@ -139,6 +142,7 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
       const newTask = changes.task.currentValue as Task;
       // Check if the task has changed
 
+      this.cancelEdit();
       this.cancelReply();
 
       this.clearInput();
@@ -174,9 +178,13 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
 
   // Update onInputChange to reset submitted status
   onInputChange(event: Event) {
+    if (this.isEditing) {
+      return;
+    }
+
     const target = event.target as HTMLElement;
     const text = target.innerText;
-    const raw = target.innerText;
+    const _raw = target.innerText;
 
     // If user is typing something new after submission, reset the submitted status
     if (this.task) {
@@ -200,7 +208,7 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
         }
       }
 
-      const draftKey = this.getDraftKey(this.task);
+      const _draftKey = this.getDraftKey(this.task);
       // this.taskDraftContents.set(draftKey, raw);
     }
 
@@ -226,7 +234,7 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
   }
 
   // Update saveDraftForTask to use the taskDraftContents map
-  private saveDraftForTask(task: Task, rawFromDom?: string): void {
+  private saveDraftForTask(task: Task, _rawFromDom?: string): void {
     if (!task) {
       return;
     }
@@ -299,7 +307,9 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
       };
 
       retryWithTimeout();
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   private clearInput() {
@@ -310,7 +320,9 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
   }
 
   private saveCurrentDraft() {
-    if (!this.task) return;
+    if (!this.task) {
+      return;
+    }
     this.saveDraftForTask(this.task);
   }
 
@@ -321,11 +333,7 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
       change.forEachChangedItem((item) => {
         // If it has changed to be an actual comment
         if (item != null) {
-          // Set the input field as focused, so the user can start typing
-          // timeout is required
-          setTimeout(() => {
-            this.input.first.nativeElement.focus();
-          });
+          this.syncComposerState();
         }
       });
     }
@@ -335,12 +343,25 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
     return this.sharedData.originalComment;
   }
 
+  get editingComment(): TaskComment {
+    return this.sharedData.editingComment;
+  }
+
+  get isEditing(): boolean {
+    return this.editingComment != null;
+  }
+
   get isStaff() {
     return this.task?.unit?.currentUserIsStaff;
   }
 
   cancelReply() {
     this.sharedData.originalComment = null;
+  }
+
+  cancelEdit() {
+    this.sharedData.editingComment = null;
+    this.restoreDraftAfterEdit();
   }
 
   contentEditableValue() {
@@ -372,7 +393,11 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
     this.emojiSearchMode = false;
     this.showEmojiPicker = false;
     if (this.input.first.nativeElement.innerText.trim() !== '') {
-      this.addComment();
+      if (this.isEditing) {
+        this.saveEditedComment();
+      } else {
+        this.addComment();
+      }
     }
   }
 
@@ -534,9 +559,31 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
     });
   }
 
+  saveEditedComment() {
+    if (this.isSending || !this.editingComment) {
+      return;
+    }
+
+    this.isSending = true;
+    const text = this.emojiService.nativeEmojiToColons(this.input.first.nativeElement.innerText);
+
+    this.taskCommentService.editComment(this.editingComment, text).subscribe({
+      next: (_tc: TaskComment) => {
+        this.isSending = false;
+        this.sharedData.editingComment = null;
+        this.draftBeforeEdit = '';
+        this.clearInput();
+      },
+      error: (error: ApiError) => {
+        this.isSending = false;
+        this.alerts.error(error.error || error.message || `Failed to edit comment: ${error}`, 6000);
+      },
+    });
+  }
+
   addCommentWithType(comment: string, type: string) {
     this.taskCommentService.addComment(this.task, comment, type).subscribe({
-      next: (success: TaskComment) => {
+      next: (_success: TaskComment) => {
         this.comment.text = '';
         this.commentsViewer.scrollDown();
         console.log('implement - check map comments');
@@ -550,35 +597,195 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
     this.uploader.nativeElement.click();
   }
 
-  uploadFiles(event) {
-    [...event].forEach((file) => {
+  handlePaste(event: ClipboardEvent) {
+    const files = this.getClipboardFiles(event);
+
+    if (files.length === 0) {
+      return;
+    }
+
+    const existingText = this.input?.first?.nativeElement?.innerText ?? '';
+    event.preventDefault();
+    this.clearPastedPlaceholderContent(existingText);
+    this.uploadFiles(files);
+  }
+
+  handleBeforeInput(event: InputEvent) {
+    if (event.inputType !== 'insertFromPaste') {
+      return;
+    }
+
+    const files = Array.from(event.dataTransfer?.files ?? []);
+
+    if (files.length === 0) {
+      return;
+    }
+
+    const existingText = this.input?.first?.nativeElement?.innerText ?? '';
+    event.preventDefault();
+    this.clearPastedPlaceholderContent(existingText);
+    this.uploadFiles(files);
+  }
+
+  uploadFiles(files: ArrayLike<File>) {
+    const acceptedFiles: File[] = [];
+
+    Array.from(files).forEach((file) => {
       if (
         ACCEPTED_FILE_TYPES.includes(file.type) ||
         file.type.startsWith('audio/') ||
         file.type.startsWith('image/')
       ) {
-        this.postAttachmentComment(file);
+        acceptedFiles.push(file);
       } else {
         this.alerts.error('Cannot upload that file - only images, audio, and PDFs.', 4000);
       }
+    });
+
+    this.confirmAttachmentsSequentially(acceptedFiles);
+    this.resetUploader();
+  }
+
+  private getClipboardFiles(event: ClipboardEvent): File[] {
+    const clipboardData = event.clipboardData;
+
+    if (!clipboardData) {
+      return [];
+    }
+
+    const directFiles = Array.from(clipboardData.files ?? []);
+    if (directFiles.length > 0) {
+      return directFiles;
+    }
+
+    return Array.from(clipboardData.items ?? [])
+      .filter((item) => item.kind === 'file')
+      .map((item) => item.getAsFile())
+      .filter((file): file is File => file != null);
+  }
+
+  private clearPastedPlaceholderContent(existingText: string) {
+    if (!this.input?.first?.nativeElement) {
+      return;
+    }
+
+    // Let the browser finish the paste event lifecycle, then restore the pre-paste text
+    // so clipboard attachment placeholders do not replace an in-progress draft.
+    setTimeout(() => {
+      this.input.first.nativeElement.innerText = existingText;
+      this.saveCurrentDraft();
+      this.cdRef.detectChanges();
     });
   }
 
   // # Upload image files as comments to a given task
   postAttachmentComment(file) {
     this.taskCommentService.addComment(this.task, file, 'file', null).subscribe(
-      (tc: TaskComment) => {
+      (_tc: TaskComment) => {
         this.commentsViewer.scrollDown();
       },
-      (error: any) => {
-        this.alerts.error(error || error?.message, 2000);
+      (error: Error) => {
+        this.alerts.error(error.message, 2000);
       },
     );
+  }
+
+  private confirmAttachmentsSequentially(files: File[], index: number = 0) {
+    if (index >= files.length) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(AttachmentConfirmationDialogComponent, {
+      data: {
+        file: files[index],
+      },
+      maxWidth: '720px',
+      width: 'min(92vw, 720px)',
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.postAttachmentComment(files[index]);
+      }
+
+      this.confirmAttachmentsSequentially(files, index + 1);
+    });
+  }
+
+  private resetUploader() {
+    if (this.uploader?.nativeElement) {
+      this.uploader.nativeElement.value = '';
+    }
   }
 
   showFeedbackPicker() {
     this.showFeedbackTemplatePicker = !this.showFeedbackTemplatePicker;
     this.commentsViewer.scrollDown();
+  }
+
+  private syncComposerState() {
+    if (this.isEditing) {
+      this.beginEditingComment();
+      return;
+    }
+
+    setTimeout(() => {
+      this.input.first.nativeElement.focus();
+    });
+  }
+
+  private beginEditingComment() {
+    const currentText = this.input?.first?.nativeElement?.innerText ?? '';
+    const nextText = this.editingComment?.text ?? '';
+
+    if (this.sharedData.originalComment != null) {
+      this.sharedData.originalComment = null;
+    }
+
+    if (currentText !== nextText) {
+      this.draftBeforeEdit = currentText;
+      this.setComposerText(nextText);
+    }
+
+    setTimeout(() => {
+      this.focusComposerAtEnd();
+    });
+  }
+
+  private restoreDraftAfterEdit() {
+    const draft = this.draftBeforeEdit;
+    this.draftBeforeEdit = '';
+    this.setComposerText(draft);
+  }
+
+  private setComposerText(text: string) {
+    if (!this.input?.first?.nativeElement) {
+      return;
+    }
+
+    this.input.first.nativeElement.innerText = text;
+    this.cdRef.detectChanges();
+  }
+
+  private focusComposerAtEnd() {
+    const element = this.input?.first?.nativeElement;
+    if (!element) {
+      return;
+    }
+
+    element.focus();
+
+    const selection = window.getSelection();
+    if (!selection) {
+      return;
+    }
+
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    range.collapse(false);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 }
 
@@ -588,12 +795,12 @@ export class TaskCommentComposerComponent implements OnInit, AfterViewInit, DoCh
   selector: 'discussion-prompt-composer-dialog.html',
   templateUrl: 'discussion-prompt-composer-dialog.html',
   styleUrls: ['./discussion-prompt-composer/discussion-prompt-composer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class DiscussionComposerDialog implements OnInit {
+export class DiscussionComposerDialog {
   constructor(
     public dialogRef: MatDialogRef<DiscussionComposerDialog>,
     @Inject(MAT_DIALOG_DATA) public data: {task: Task},
   ) {}
-
-  ngOnInit() {}
 }
