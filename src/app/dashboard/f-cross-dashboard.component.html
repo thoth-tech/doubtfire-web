@@ -1,6 +1,6 @@
 <div class="panel-full-screen flex h-full flex-col">
   <div class="shrink-0 px-16 pt-4">
-    <mat-form-field appearance="outline" class="w-64">
+    <mat-form-field appearance="outline" class="w-full max-w-64">
       <mat-label>Unit scope</mat-label>
       <mat-select [value]="unitScope" (selectionChange)="setUnitScope($event.value)">
         <mat-option value="active">Active units</mat-option>
