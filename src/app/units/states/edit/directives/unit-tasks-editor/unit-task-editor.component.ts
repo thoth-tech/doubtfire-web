@@ -1,137 +1,145 @@
-import {AfterViewInit, Component, Inject, Input} from '@angular/core';
-import {MatTableDataSource} from '@angular/material/table';
-import {addWeeks} from 'date-fns';
-import {Subscription} from 'rxjs';
+import { addWeeks } from 'date-fns';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { Subscription } from 'rxjs';
+import { TaskDefinition } from 'src/app/api/models/task-definition';
+import { GradeDefinition, Unit } from 'src/app/api/models/unit';
+import { FeedbackTemplateService } from 'src/app/api/services/feedback-template.service';
+import { TaskDefinitionService } from 'src/app/api/services/task-definition.service';
+import { ConfirmationModalService } from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
 import {
-  confirmationModal,
-  csvResultModalService,
-  csvUploadModalService,
-} from 'src/app/ajs-upgraded-providers';
-import {Grade} from 'src/app/api/models/grade';
-import {TaskDefinition} from 'src/app/api/models/task-definition';
-import {Unit} from 'src/app/api/models/unit';
-import {FeedbackTemplateService} from 'src/app/api/services/feedback-template.service';
-import {TaskDefinitionService} from 'src/app/api/services/task-definition.service';
-import {AlertService} from 'src/app/common/services/alert.service';
-
-type GradeCol = 'p' | 'c' | 'd' | 'hd';
+  CsvResult,
+  CsvResultModalService,
+} from 'src/app/common/modals/csv-result-modal/csv-result-modal.service';
+import { CsvUploadModalService } from 'src/app/common/modals/csv-upload-modal/csv-upload-modal.service';
+import { AlertService } from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'f-unit-task-editor',
   templateUrl: 'unit-task-editor.component.html',
   styleUrls: ['unit-task-editor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class UnitTaskEditorComponent implements AfterViewInit {
+export class UnitTaskEditorComponent implements OnInit, OnDestroy {
   @Input() unit: Unit;
 
-  public taskDefinitionSource: MatTableDataSource<TaskDefinition>;
-  public filter: string;
+  public taskDefinitionSource: MatTableDataSource<TaskDefinition> = new MatTableDataSource([]);
+  public filter: string = '';
   public selectedTaskDefinition: TaskDefinition;
   public isTaskListCollapsed: boolean = false;
 
-  public gradeColumns: string[] = ['p', 'c', 'd', 'hd'];
-  public dueDateColumns: string[] = ['taskDefinition', 'p', 'c', 'd', 'hd'];
-  public dueDateSource: MatTableDataSource<TaskDefinition>;
+  public dueDateSource: MatTableDataSource<TaskDefinition> = new MatTableDataSource([]);
 
-  public manageDueDates: boolean;
+  public manageDueDates: boolean = false;
 
-  protected gradeNames: string[] = Grade.GRADES;
+  protected get gradeNames(): Record<number, string> {
+    return Object.fromEntries(
+      this.unit.gradeDefinitions.map((definition) => [definition.value, definition.label]),
+    );
+  }
 
-  isStartAfterTarget(td: TaskDefinition, g: GradeCol): boolean {
-    const start = this.getGradeStartDate(td, g);
-    const target = this.getGradeDueDate(td, g);
-    if (!start || !target) return false;
+  public get gradeColumns(): GradeDefinition[] {
+    return this.unit.gradeDefinitions.filter((definition) => definition.value >= 0);
+  }
+
+  public get dueDateColumns(): string[] {
+    return [
+      'taskDefinition',
+      ...this.gradeColumns.map((definition) => this.gradeColumnId(definition)),
+    ];
+  }
+
+  public gradeColumnId(grade: GradeDefinition): string {
+    return `grade-${grade.value}`;
+  }
+
+  isStartAfterTarget(td: TaskDefinition, grade: GradeDefinition): boolean {
+    const start = this.getGradeStartDate(td, grade);
+    const target = this.getGradeDueDate(td, grade);
+    if (!start || !target) {
+      return false;
+    }
     return new Date(start).getTime() > new Date(target).getTime();
   }
 
-  getGradeStartDate(td: TaskDefinition, g: GradeCol): Date | null {
-    switch (g) {
-      case 'p':
-        return td.startDate ?? td.startDate; // fallback to existing startDate
-      case 'c':
-        return td.cStartDate ?? td.startDate;
-      case 'd':
-        return td.dStartDate ?? td.startDate;
-      case 'hd':
-        return td.hdStartDate ?? td.startDate;
-    }
+  getGradeStartDate(td: TaskDefinition, grade: GradeDefinition): Date | null {
+    return grade.value === 0 ? td.startDate : (td.gradeStartDate(grade.value) ?? td.startDate);
   }
 
-  isFallbackStartDate(td: TaskDefinition, g: GradeCol): boolean {
-    switch (g) {
-      case 'p':
-        return false; // P is always real
-      case 'c':
-        return !td.cStartDate;
-      case 'd':
-        return !td.dStartDate;
-      case 'hd':
-        return !td.hdStartDate;
-    }
+  isFallbackStartDate(td: TaskDefinition, grade: GradeDefinition): boolean {
+    return grade.value !== 0 && !td.gradeStartDate(grade.value);
   }
 
-  setGradeStartDate(td: TaskDefinition, g: GradeCol, value: Date | null): void {
-    switch (g) {
-      case 'p':
-        td.startDate = value;
-        break;
-      case 'c':
-        td.cStartDate = value;
-        break;
-      case 'd':
-        td.dStartDate = value;
-        break;
-      case 'hd':
-        td.hdStartDate = value;
-        break;
-    }
-
+  setGradeStartDate(td: TaskDefinition, grade: GradeDefinition, value: Date | null): void {
+    td.setGradeStartDate(grade.value, value);
     this.saveTaskDefinition(td);
   }
 
-  getGradeDueDate(td: TaskDefinition, g: GradeCol): Date | null {
-    switch (g) {
-      case 'p':
-        // return td.pTargetDate ?? td.dueDate ?? null; // fallback to existing dueDate
-        return td.targetDate ?? td.targetDate; // fallback to existing targetDate
-      case 'c':
-        return td.cTargetDate ?? td.targetDate;
-      case 'd':
-        return td.dTargetDate ?? td.targetDate;
-      case 'hd':
-        return td.hdTargetDate ?? td.targetDate;
-    }
+  getGradeDueDate(td: TaskDefinition, grade: GradeDefinition): Date | null {
+    return grade.value === 0 ? td.targetDate : (td.gradeTargetDate(grade.value) ?? td.targetDate);
   }
 
-  isFallbackTargetDate(td: TaskDefinition, g: GradeCol): boolean {
-    switch (g) {
-      case 'p':
-        return false; // P is always real
-      case 'c':
-        return !td.cTargetDate;
-      case 'd':
-        return !td.dTargetDate;
-      case 'hd':
-        return !td.hdTargetDate;
-    }
+  isFallbackTargetDate(td: TaskDefinition, grade: GradeDefinition): boolean {
+    return grade.value !== 0 && !td.gradeTargetDate(grade.value);
   }
 
-  setGradeDueDate(td: TaskDefinition, g: GradeCol, value: Date | null): void {
-    switch (g) {
-      case 'p':
-        td.targetDate = value;
-        break;
-      case 'c':
-        td.cTargetDate = value;
-        break;
-      case 'd':
-        td.dTargetDate = value;
-        break;
-      case 'hd':
-        td.hdTargetDate = value;
-        break;
+  getDueDateWarning(taskDefinition: TaskDefinition): {
+    state: 'overdue' | 'within24Hours' | 'within3Days' | 'within7Days';
+    label: string;
+    icon: string;
+  } | null {
+    const dueDate = taskDefinition.targetDate;
+
+    if (!dueDate || Number.isNaN(new Date(dueDate).getTime())) {
+      return null;
     }
 
+    const now = new Date();
+    const due = new Date(dueDate);
+    const difference = due.getTime() - now.getTime();
+
+    const hours24 = 24 * 60 * 60 * 1000;
+    const days3 = 3 * 24 * 60 * 60 * 1000;
+    const days7 = 7 * 24 * 60 * 60 * 1000;
+
+    if (difference < 0) {
+      return {
+        state: 'overdue',
+        label: 'Overdue',
+        icon: 'error',
+      };
+    }
+
+    if (difference <= hours24) {
+      return {
+        state: 'within24Hours',
+        label: 'Due within 24 hours',
+        icon: 'schedule',
+      };
+    }
+
+    if (difference <= days3) {
+      return {
+        state: 'within3Days',
+        label: 'Due within 3 days',
+        icon: 'warning',
+      };
+    }
+
+    if (difference <= days7) {
+      return {
+        state: 'within7Days',
+        label: 'Due within 7 days',
+        icon: 'event',
+      };
+    }
+
+    return null;
+  }
+
+  setGradeDueDate(td: TaskDefinition, grade: GradeDefinition, value: Date | null): void {
+    td.setGradeTargetDate(grade.value, value);
     this.saveTaskDefinition(td);
   }
 
@@ -139,17 +147,18 @@ export class UnitTaskEditorComponent implements AfterViewInit {
     private taskDefinitionService: TaskDefinitionService,
     private feedbackTemplateService: FeedbackTemplateService,
     private alerts: AlertService,
-    @Inject(csvResultModalService) private csvResultModalService: any,
-    @Inject(csvUploadModalService) private csvUploadModal: any,
-    @Inject(confirmationModal) private confirmationModal: any,
-  ) {}
+    private csvResultModalService: CsvResultModalService,
+    private csvUploadModal: CsvUploadModalService,
+    private confirmationModal: ConfirmationModalService,
+  ) {
+    this.taskDefinitionSource.filterPredicate = (data: TaskDefinition, filter: string) =>
+      data.matches(filter);
+  }
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     this.subscriptions.push(
       this.unit.taskDefinitionCache.values.subscribe((taskDefinitions) => {
-        this.taskDefinitionSource = new MatTableDataSource<TaskDefinition>(taskDefinitions);
-        this.taskDefinitionSource.filterPredicate = (data: any, filter: string) =>
-          data.matches(filter);
+        this.taskDefinitionSource.data = taskDefinitions;
       }),
     );
   }
@@ -184,7 +193,7 @@ export class UnitTaskEditorComponent implements AfterViewInit {
     }
 
     this.feedbackTemplateService
-      .query({contextType: 'task_definitions', contextId: this.selectedTaskDefinition.id}, {})
+      .query({ contextType: 'task_definitions', contextId: this.selectedTaskDefinition.id }, {})
       .subscribe({
         error: () => this.alerts.error('Error loading task feedback templates.'),
       });
@@ -199,7 +208,9 @@ export class UnitTaskEditorComponent implements AfterViewInit {
   }
 
   applyFilter(filterValue: string) {
-    if (!this.taskDefinitionSource) return;
+    if (!this.taskDefinitionSource) {
+      return;
+    }
 
     this.taskDefinitionSource.filter = filterValue.trim().toLowerCase();
 
@@ -239,10 +250,10 @@ export class UnitTaskEditorComponent implements AfterViewInit {
   public uploadTaskDefinitionsCsv() {
     this.csvUploadModal.show(
       'Upload Task Definitions as CSV',
-      'Test message',
-      {file: {name: 'Task Definition CSV Data', type: 'csv'}},
+      'Upload a CSV of task definitions.',
+      { file: { name: 'Task Definition CSV Data', type: 'csv' } },
       this.unit.getTaskDefinitionBatchUploadUrl(),
-      (response: any) => {
+      (response: CsvResult) => {
         // at least one student?
         this.csvResultModalService.show('Task Definition Import Results', response);
         if (response.success.length > 0) {
@@ -255,10 +266,10 @@ export class UnitTaskEditorComponent implements AfterViewInit {
   public uploadTaskResourcesZip() {
     this.csvUploadModal.show(
       'Upload Task Sheets and Resources as Zip',
-      'Test message',
-      {file: {name: 'Task Sheets and Resources', type: 'zip'}},
+      'Upload a ZIP of task sheets and resources.',
+      { file: { name: 'Task Sheets and Resources', type: 'zip' } },
       this.unit.taskUploadUrl,
-      (response: any) => {
+      (response: CsvResult) => {
         // at least one student?
         this.csvResultModalService.show('Task Sheet and Resources Import Results', response);
         if (response.success.length > 0) {
@@ -288,4 +299,5 @@ export class UnitTaskEditorComponent implements AfterViewInit {
 
     this.selectedTaskDefinition = task;
   }
+
 }
