@@ -100,38 +100,36 @@ export abstract class BaseAudioRecorderComponent {
   // virtual implementation of visualise
   // Which can be overridden
   protected visualise(): void {
+    const analyser = this.mediaRecorder.analyserNode;
+    analyser.fftSize = 2048;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const bar_width = 2;
+    const bar_gap = 2;
+
     const draw = () => {
-      let WIDTH: number;
-      let HEIGHT: number;
-
-      this.canvas.width = 1;
-      this.canvas.height = 1;
-
-      this.canvas.width = WIDTH = this.canvas.clientWidth;
-      this.canvas.height = HEIGHT = this.canvas.clientHeight;
       requestAnimationFrame(draw);
-      analyser.getByteTimeDomainData(dataArray);
+
+      this.canvas.width = this.canvas.clientWidth;
+      this.canvas.height = this.canvas.clientHeight;
+      const WIDTH = this.canvas.width;
+      const HEIGHT = this.canvas.height;
+
       analyser.getByteFrequencyData(dataArray);
 
-      this.canvasCtx.clearRect(0, 0, 300, HEIGHT);
-
-      const bar_width = 2;
-      const bar_gap = 2;
+      this.canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+      this.canvasCtx.fillStyle = 'white';
 
       for (let i = 0; i < WIDTH; i++) {
         const bar_x = i * (bar_width + bar_gap);
         const bar_y = HEIGHT / 2;
         const bar_height = -(dataArray[i] / 8) + 1;
-        this.canvasCtx.fillStyle = 'white';
         this.canvasCtx.fillRect(bar_x, bar_y, bar_width, bar_height);
         this.canvasCtx.fillRect(bar_x, bar_y - bar_height, bar_width, bar_height);
       }
     };
 
-    const analyser = this.mediaRecorder.analyserNode;
-    analyser.fftSize = 2048;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
     draw();
   }
 

@@ -1,4 +1,4 @@
-<div class="flex grow items-center justify-items-start">
+<div class="flex grow items-center justify-items-start" style="display: flex;">
   <p [hidden]="canRecord">
     Audio recording <br />
     only supported in modern versions of Chrome, Firefox and Safari.
@@ -11,13 +11,13 @@
   ></mat-spinner>
   <div
     class="flex w-full grow items-center justify-items-center"
-    style="display: flex"
     [hidden]="!canRecord || isSending"
   >
     <button
       aria-label="Audio recording button"
       mat-icon-button
       style="transform: scale(1); margin-left: -15px; margin-right: 0px; display: flex"
+      [matTooltip]="isRecording ? 'Click to stop recording' : 'Click to start record'"
       (click)="recordingToggle()"
     >
       <mat-icon class="text-white"
@@ -31,21 +31,24 @@
       [hidden]="!recordingAvailable"
       (click)="playStop()"
     >
-      <mat-icon style="color: white">play_circle</mat-icon>
+      <mat-icon style="color: white">{{ isPlaying ? 'pause_circle' : 'play_circle' }}</mat-icon>
     </button>
     <audio id="audioPlayer"></audio>
-    <canvas
-      class="audio-visualiser"
-      fxFlex
-      id="audio-recorder-visualiser"
-      style="width: 100%"
-    ></canvas>
+    <div class="flex-1">
+      <canvas
+        class="audio-visualiser w-full"
+        height="22"
+        id="audio-recorder-visualiser"
+        width="100%"
+      ></canvas>
+    </div>
 
     <div id="button-wrapper">
       <button
         aria-label="Send audio recording"
+        class="disabled:opacity-30"
         mat-icon-button
-        style="transform: scale(1); margin-left: -15px; margin-right: 0px; display: flex"
+        style="transform: scale(1); margin-left: -10px; margin-right: 0px; display: flex"
         [disabled]="!recordingAvailable"
         (click)="sendRecording()"
       >
