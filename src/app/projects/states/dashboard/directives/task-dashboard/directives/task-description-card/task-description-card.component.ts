@@ -1,5 +1,11 @@
-import {Component, Input, Inject} from '@angular/core';
-
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Inject,
+  Input,
+  Output,
+} from '@angular/core';
 import {Task, TaskDefinition, Unit} from 'src/app/api/models/doubtfire-model';
 import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
 import {GradeService} from 'src/app/common/services/grade.service';
@@ -8,13 +14,20 @@ import {GradeService} from 'src/app/common/services/grade.service';
   selector: 'f-task-description-card',
   templateUrl: 'task-description-card.component.html',
   styleUrls: ['task-description-card.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class TaskDescriptionCardComponent {
+  @Output() switchView$: EventEmitter<string> = new EventEmitter();
+
   @Input() task: Task;
   @Input() taskDef: TaskDefinition;
   @Input() unit: Unit;
 
-  public grades: {names: any; acronyms: any};
+  public grades: {
+    names: GradeService['grades'];
+    acronyms: GradeService['gradeAcronyms'];
+  };
 
   constructor(
     private GradeService: GradeService,
@@ -33,6 +46,10 @@ export class TaskDescriptionCardComponent {
     );
   }
 
+  public viewTaskSheet() {
+    this.switchView$.emit('task');
+  }
+
   public downloadResources() {
     this.fileDownloader.downloadFile(
       this.taskDef.getTaskResourcesUrl(true),
@@ -41,13 +58,24 @@ export class TaskDescriptionCardComponent {
   }
 
   public dueDate(): Date {
-    if (this.task) return this.task.localDueDate();
-    else if (this.taskDef) return this.taskDef.targetDate;
-    else return undefined;
+    if (this.task) {
+      return this.task.localDueDate();
+    } else if (this.taskDef) {
+      return this.taskDef.targetDate;
+    } else {
+      return undefined;
+    }
   }
 
   public startDate(): Date {
-    return this.taskDef?.startDate;
+    return this.task?.startDate ?? this.taskDef?.startDate;
+  }
+
+  public feedbackDate(): Date {
+    if (this.task) {
+      return this.task.localDeadlineDate();
+    }
+    return this.taskDef?.localDeadlineDate();
   }
 
   public shouldShowDeadline(): boolean {

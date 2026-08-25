@@ -1,0 +1,107 @@
+<div class="flex flex-col">
+  <div class="flex flex-grow flex-row">
+    <table mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="content">
+        <th *matHeaderCellDef mat-header-cell>Discussion Prompt</th>
+        <td *matCellDef="let prompt" class="py-3" mat-cell>
+          @if (!editing(prompt)) {
+            {{ prompt.content }}
+          } @else {
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Discussion Prompt</mat-label>
+              <textarea matInput pattern=".*\S.*" required [(ngModel)]="prompt.content"></textarea>
+            </mat-form-field>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="priority">
+        <th *matHeaderCellDef mat-header-cell>Priority</th>
+        <td *matCellDef="let prompt" mat-cell>
+          @if (!editing(prompt)) {
+            {{ prompt.priorityLabel }}
+          } @else {
+            <div class="flex flex-col justify-start">
+              <mat-form-field appearance="outline">
+                <mat-label>Priority</mat-label>
+
+                <mat-select matInput placeholder="Priority" [(ngModel)]="prompt.weight">
+                  <mat-option [value]="3">High</mat-option>
+                  <mat-option [value]="2">Medium</mat-option>
+                  <mat-option [value]="1">Low</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th *matHeaderCellDef mat-header-cell>Actions</th>
+        <td *matCellDef="let prompt" mat-cell>
+          <div class="flex">
+            @if (editing(prompt)) {
+              <button mat-icon-button (click)="cancelEdit()">
+                <mat-icon>close</mat-icon>
+              </button>
+              <button mat-icon-button (click)="submit()">
+                <mat-icon>save</mat-icon>
+              </button>
+            } @else {
+              <button mat-icon-button (click)="flagEdit(prompt)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="deletePrompt(prompt)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+    </table>
+  </div>
+  @if (!dataSource.data.length) {
+    <div class="m-3 w-full text-center text-gray-400">No discussion prompts</div>
+  }
+  @if (!creatingNewDiscussionPrompt) {
+    <div class="m-3 flex justify-center">
+      <button color="primary" mat-raised-button (click)="createNewDiscussionPrompt()">
+        Add Discussion Prompt
+      </button>
+    </div>
+  }
+
+  @if (creatingNewDiscussionPrompt) {
+    <mat-card>
+      <mat-card-content>
+        <div class="flex w-full flex-row gap-3">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Discussion Prompt</mat-label>
+            <textarea
+              matInput
+              pattern=".*\S.*"
+              required
+              [(ngModel)]="newDiscussionPromptContent"
+            ></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="max-h-10 w-full max-w-lg">
+            <mat-label>Priority</mat-label>
+
+            <mat-select matInput placeholder="Priority" [(ngModel)]="newDiscussionPromptWeight">
+              <mat-option [value]="3">High</mat-option>
+              <mat-option [value]="2">Medium</mat-option>
+              <mat-option [value]="1">Low</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="flex justify-end">
+          <button mat-button (click)="cancelNewDiscussionPrompt()">Cancel</button>
+          <button color="primary" mat-raised-button (click)="addNewPrompt()">Save</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
