@@ -43,7 +43,13 @@ describe('ProjectCardComponent', () => {
 
     expect(link).toBeTruthy();
     expect(link.getAttribute('href')).toBe('/projects/cpd-f02');
-    expect(link.getAttribute('aria-label')).toBe('Open project details');
+    expect(link.getAttribute('aria-label')).toBe('Open Cross-Project Dashboard project details');
+  });
+
+  it('should expose the project status to assistive technology', () => {
+    const status: HTMLSpanElement = fixture.nativeElement.querySelector('.project-card__status');
+
+    expect(status.textContent.replace(/\s+/g, ' ').trim()).toBe('Project status: In progress');
   });
 
   it('should handle missing optional fields', () => {
@@ -61,5 +67,8 @@ describe('ProjectCardComponent', () => {
     expect(text).toContain('Sample Project');
     expect(text).toContain('Completed');
     expect(text).toContain('Core details are still displayed.');
+
+    const link: HTMLAnchorElement = fixture.nativeElement.querySelector('a');
+    expect(link.getAttribute('aria-label')).toBe('Open Sample Project project details');
   });
 });

@@ -17,8 +17,4 @@ export interface ProjectCardData {
 })
 export class ProjectCardComponent {
   @Input() project!: ProjectCardData;
-
-  get hasOptionalDetails(): boolean {
-    return !!this.project?.unitCode || !!this.project?.description;
-  }
 }
