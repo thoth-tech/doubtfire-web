@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card [class.shadow-none]="true">
   <mat-card-content>
     @if (!showUploader) {
       <button class="w-full" color="primary" mat-raised-button (click)="showUploader = true">
