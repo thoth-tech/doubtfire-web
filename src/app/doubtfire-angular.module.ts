@@ -205,6 +205,7 @@ import {TaskDefinitionResourcesComponent} from './units/states/edit/directives/u
 import {TaskDefinitionOverseerComponent} from './units/states/edit/directives/unit-tasks-editor/task-definition-editor/task-definition-overseer/task-definition-overseer.component';
 import {UnitAnalyticsComponent} from './units/states/analytics/unit-analytics-route.component';
 import {FileDropComponent} from './common/file-drop/file-drop.component';
+import {TaskUploadRequirementsComponent} from './tasks/modals/upload-submission-modal/task-upload-requirements/task-upload-requirements.component';
 import {UnitTaskEditorComponent} from './units/states/edit/directives/unit-tasks-editor/unit-task-editor.component';
 import {FUsersComponent} from './admin/states/f-users/f-users.component';
 
@@ -252,6 +253,7 @@ import {GradeService} from './common/services/grade.service';
     UnitTutorialsListComponent,
     UnitTutorialsManagerComponent,
     FileDropComponent,
+    TaskUploadRequirementsComponent,
     UnitStudentsEditorComponent,
     UnitTaskEditorComponent,
     TaskDefinitionEditorComponent,

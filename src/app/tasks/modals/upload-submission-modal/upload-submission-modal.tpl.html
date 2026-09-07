@@ -59,8 +59,13 @@
             get help on this task but it does not matter if they are not finished.
           </span>
         </div>
+        <f-task-upload-requirements
+          ng-hide="uploader.isUploading"
+          [requirements]="task.definition.uploadRequirements">
+        </f-task-upload-requirements>
         <div class="card-body">
           <file-uploader
+            aria-describedby="task-upload-requirements"
             files="uploader.files"
             url="uploader.url"
             payload="uploader.payload"

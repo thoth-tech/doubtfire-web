@@ -1,0 +1,52 @@
+<div [id]="elementId" class="task-upload-requirements">
+  <ng-container *ngIf="hasRequirements; else missingRequirements">
+    <p class="requirements-summary"><strong>Files required:</strong> {{ requiredFileCount }}</p>
+
+    <ul class="requirements-list">
+      <li class="requirement" *ngFor="let summary of summaries">
+        <p class="requirement-category">
+          <strong>Required file type:</strong> {{ summary.categoryLabel }}
+        </p>
+        <p class="requirement-name" *ngIf="summary.name">{{ summary.name }}</p>
+        <p class="requirement-formats">
+          <strong>Accepted formats:</strong>
+          <ng-container *ngIf="summary.extensions.length; else noFormats">
+            {{ summary.previewExtensions.join(', ')
+            }}<span *ngIf="summary.hasMoreExtensions && !isExpanded(summary)">, &hellip;</span>
+          </ng-container>
+          <ng-template #noFormats>Not specified for this task</ng-template>
+        </p>
+        <p class="requirement-max-size">
+          <strong>Maximum size:</strong> Not specified for this task
+        </p>
+
+        <button
+          type="button"
+          *ngIf="summary.hasMoreExtensions"
+          class="extensions-toggle"
+          [attr.aria-expanded]="isExpanded(summary)"
+          [attr.aria-controls]="elementId + '-ext-' + summary.key"
+          (click)="toggleExpanded(summary)"
+        >
+          {{ isExpanded(summary) ? 'Hide' : 'View' }} all accepted extensions
+        </button>
+        <ul
+          *ngIf="summary.hasMoreExtensions"
+          [id]="elementId + '-ext-' + summary.key"
+          class="extensions-list"
+          [class.expanded]="isExpanded(summary)"
+          [hidden]="!isExpanded(summary)"
+        >
+          <li *ngFor="let extension of summary.extensions">{{ extension }}</li>
+        </ul>
+      </li>
+    </ul>
+  </ng-container>
+
+  <ng-template #missingRequirements>
+    <p class="requirements-missing">
+      Upload requirements for this task are not currently available. You can still select or drop a
+      file below; contact your teaching team if this message persists.
+    </p>
+  </ng-template>
+</div>

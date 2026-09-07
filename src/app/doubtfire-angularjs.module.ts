@@ -200,6 +200,7 @@ import {TransitionHooksService} from './sessions/transition-hooks.service';
 import {AuthenticationService} from './api/services/authentication.service';
 import {ProjectService} from './api/services/project.service';
 import {ObjectSelectComponent} from './common/obect-select/object-select.component';
+import {TaskUploadRequirementsComponent} from './tasks/modals/upload-submission-modal/task-upload-requirements/task-upload-requirements.component';
 import {TaskDefinitionService} from './api/services/task-definition.service';
 import {EditProfileDialogService} from './common/modals/edit-profile-dialog/edit-profile-dialog.service';
 import {GroupService} from './api/services/group.service';
@@ -315,6 +316,10 @@ DoubtfireAngularJSModule.directive(
 DoubtfireAngularJSModule.directive(
   'objectSelect',
   downgradeComponent({component: ObjectSelectComponent}),
+);
+DoubtfireAngularJSModule.directive(
+  'fTaskUploadRequirements',
+  downgradeComponent({component: TaskUploadRequirementsComponent}),
 );
 DoubtfireAngularJSModule.directive('appHeader', downgradeComponent({component: HeaderComponent}));
 DoubtfireAngularJSModule.directive(
