@@ -1,8 +1,8 @@
-import { CachedEntityService } from 'ngx-entity-service';
-import { Group, Unit } from 'src/app/api/models/doubtfire-model';
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import API_URL from 'src/app/config/constants/apiURL';
+import {CachedEntityService} from 'ngx-entity-service';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Group, Unit} from 'src/app/api/models/doubtfire-model';
+import API_URL from 'src/app/config/constants/apiUrl';
 
 @Injectable()
 export class GroupService extends CachedEntityService<Group> {
@@ -15,29 +15,29 @@ export class GroupService extends CachedEntityService<Group> {
       'id',
       'name',
       {
-        keys: ['groupSet','group_set_id'],
+        keys: ['groupSet', 'group_set_id'],
         toEntityFn: (data: object, jsonKey: string, grp: Group) => {
           return grp.unit.groupSetsCache.get(data[jsonKey]);
-        }
+        },
       },
       'capacityAdjustment',
       'locked',
       'studentCount',
       {
-        keys: ['tutorial','tutorial_id'],
+        keys: ['tutorial', 'tutorial_id'],
         toEntityFn: (data: object, jsonKey: string, grp: Group) => {
           return grp.unit.tutorialsCache.get(data[jsonKey]);
         },
-        toJsonFn: (group: Group, key: string) => {
+        toJsonFn: (group: Group, _key: string) => {
           return group.tutorial.id;
-        }
+        },
       },
     );
 
     this.mapping.mapAllKeysToJsonExcept('id', 'groupSet', 'studentCount');
   }
 
-  public createInstanceFrom(json: object, other?: any): Group {
-    return new Group(other as Unit);
+  public createInstanceFrom(_json: object, other?: Unit): Group {
+    return new Group(other);
   }
 }

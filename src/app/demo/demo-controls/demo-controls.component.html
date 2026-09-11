@@ -1,0 +1,273 @@
+<main aria-labelledby="demo-controls-title" class="demo-controls">
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-icon aria-hidden="true" mat-card-avatar>science</mat-icon>
+      <mat-card-title id="demo-controls-title">Demo controls</mat-card-title>
+      <mat-card-subtitle>Local development only</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p>
+        Demo mode combines the feature surfaces used for walkthroughs. It does not replace live CPD
+        task data or recommendation scores with fabricated values.
+      </p>
+
+      <mat-slide-toggle
+        aria-describedby="demo-mode-description"
+        color="primary"
+        [checked]="demoMode.enabled"
+        (change)="setDemoMode($event)"
+      >
+        Demo mode {{ demoMode.enabled ? 'on' : 'off' }}
+      </mat-slide-toggle>
+
+      <p id="demo-mode-description">
+        Changing this setting reloads OnTrack so project and notification caches cannot mix quiet
+        and demonstration data.
+      </p>
+
+      <h2>What the switch does</h2>
+      <dl>
+        <dt>Off — quiet baseline</dt>
+        <dd>
+          Keeps one baseline unit (DEMO20007 when available) and hides the demo notification and
+          peer-comparison surfaces.
+        </dd>
+        <dt>On — complete walkthrough</dt>
+        <dd>
+          Shows the complete cross-unit scenario, a privacy-safe lifecycle spread (60% submitted and
+          10% complete), and all seven curated local notifications.
+        </dd>
+      </dl>
+
+      <h2>Affected surfaces</h2>
+      <ul>
+        @for (surface of affectedSurfaces; track surface) {
+          <li>{{ surface }}</li>
+        }
+      </ul>
+
+      <section aria-labelledby="ppi-preview-title" class="ppi-preview">
+        <div class="ppi-preview__heading">
+          <mat-icon aria-hidden="true">groups</mat-icon>
+          <div>
+            <h2 id="ppi-preview-title">Peer Progress Indicator visual preview</h2>
+            <p>
+              Sample only — fabricated anonymous percentages. Switching previews never calls the API
+              or changes a profile.
+            </p>
+          </div>
+        </div>
+
+        <div aria-label="Choose a peer progress preview state" class="ppi-preview__choices">
+          @for (option of ppiPreviewOptions; track option.kind) {
+            <button
+              mat-stroked-button
+              type="button"
+              [attr.aria-pressed]="ppiPreviewKind === option.kind"
+              [class.ppi-preview__choice--active]="ppiPreviewKind === option.kind"
+              (click)="setPpiPreview(option.kind)"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+
+        <article
+          aria-labelledby="ppi-preview-card-title"
+          aria-live="polite"
+          class="ppi-preview-card"
+        >
+          <header class="ppi-preview-card__header">
+            <div class="ppi-preview-card__identity">
+              <span aria-hidden="true" class="ppi-preview-card__avatar">
+                <mat-icon aria-hidden="true">groups</mat-icon>
+              </span>
+              <span>
+                <strong id="ppi-preview-card-title">Peer Progress Indicator</strong>
+                <small>Anonymous peers at your target grade</small>
+              </span>
+            </div>
+
+            @if (!ppiPreview.isSuppressed) {
+              <button
+                aria-controls="ppi-preview-advanced-panel"
+                aria-label="Advanced peer status breakdown"
+                class="ppi-preview-card__toggle"
+                role="switch"
+                type="button"
+                [attr.aria-checked]="ppiPreviewAdvanced"
+                [attr.aria-expanded]="ppiPreviewAdvanced"
+                (click)="setPpiPreviewAdvanced(!ppiPreviewAdvanced)"
+              >
+                <span aria-hidden="true" class="ppi-preview-card__toggle-track">
+                  <span class="ppi-preview-card__toggle-thumb"></span>
+                </span>
+                <span>Advanced</span>
+              </button>
+            }
+          </header>
+
+          @if (ppiPreview.isSuppressed) {
+            <div class="ppi-preview-card__safe-state">
+              <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+              <span>
+                <strong>Progress is hidden to protect privacy</strong>
+                {{ ppiPreview.unavailableMessage }}
+              </span>
+            </div>
+          } @else {
+            <div class="ppi-preview-card__summary">
+              <span
+                aria-label="Peer completion progress at your target grade"
+                class="ppi-preview-card__value"
+              >
+                <strong>{{ formatPpiPercentage(ppiPreviewPercentage) }}%</strong>
+                <span>of peers have completed this task</span>
+              </span>
+              <span class="ppi-preview-card__visual">
+                <span
+                  class="ppi-preview-card__track"
+                  role="progressbar"
+                  [attr.aria-label]="
+                    formatPpiPercentage(ppiPreviewPercentage) +
+                    '% of peers at your target grade have completed this task'
+                  "
+                  [attr.aria-valuemax]="100"
+                  [attr.aria-valuemin]="0"
+                  [attr.aria-valuenow]="ppiPreviewPercentage"
+                >
+                  <span [style.width]="ppiPreviewWidth"></span>
+                </span>
+                <small aria-hidden="true" class="ppi-preview-card__scale">
+                  <span>{{ formatPpiPercentage(ppiPreviewPercentage) }}%</span>
+                  <span>Peer cohort</span>
+                </small>
+              </span>
+            </div>
+
+            @if (ppiPreviewAdvanced) {
+              <section class="ppi-preview-card__advanced" id="ppi-preview-advanced-panel">
+                <div class="ppi-preview-card__metrics">
+                  <span class="is-complete"
+                    >Completed <strong>{{ ppiPreview.completedPercentage }}%</strong></span
+                  >
+                  <span class="is-submitted"
+                    >Submitted <strong>{{ ppiPreview.submittedPercentage }}%</strong></span
+                  >
+                </div>
+
+                <span class="ppi-preview-card__advanced-heading">
+                  <strong>Task status breakdown</strong>
+                  <small>Independently privacy-rounded; values may not total 100%</small>
+                </span>
+
+                @if (!ppiPreview.distributionAvailable) {
+                  <div class="ppi-preview-card__safe-state">
+                    <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+                    <span>
+                      <strong>Detailed breakdown protected</strong>
+                      The overall percentage is safe to show, but detailed statuses are hidden to
+                      prevent individual progress being inferred.
+                    </span>
+                  </div>
+                } @else if (ppiPreviewUsesStackedDistribution) {
+                  <div aria-label="Sample peer task status distribution" class="ppi-preview-bar">
+                    @for (segment of ppiPreviewSegments; track segment.status) {
+                      <span
+                        [attr.title]="
+                          segment.label + ': ' + formatPpiPercentage(segment.percentage) + '%'
+                        "
+                        [style.background-color]="segment.color"
+                        [style.flex-grow]="segment.percentage"
+                      ></span>
+                    }
+                  </div>
+                  <ul class="ppi-preview-legend">
+                    @for (segment of ppiPreviewSegments; track segment.status) {
+                      <li>
+                        <span [style.background-color]="segment.color"></span>
+                        <span class="ppi-preview-legend__name">{{ segment.label }}</span>
+                        <strong>{{ formatPpiPercentage(segment.percentage) }}%</strong>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <div class="ppi-preview-independent">
+                    <p id="ppi-preview-independent-note" role="note">
+                      These privacy-rounded statuses total
+                      {{ formatPpiPercentage(ppiPreviewDistributionTotal) }}%. Each bar uses its own
+                      0&ndash;100% scale, so values are not stretched to fill 100%.
+                    </p>
+                    <ul aria-label="Independently scaled sample peer task status percentages">
+                      @for (segment of ppiPreviewSegments; track segment.status) {
+                        <li [attr.data-status]="segment.status">
+                          <span>
+                            <span
+                              aria-hidden="true"
+                              [style.background-color]="segment.color"
+                            ></span>
+                            {{ segment.label }}
+                          </span>
+                          <span
+                            aria-describedby="ppi-preview-independent-note"
+                            class="ppi-preview-independent__track"
+                            role="progressbar"
+                            [attr.aria-label]="segment.label + ' sample peer status percentage'"
+                            [attr.aria-valuemax]="100"
+                            [attr.aria-valuemin]="0"
+                            [attr.aria-valuenow]="segment.percentage"
+                          >
+                            <span
+                              aria-hidden="true"
+                              class="ppi-preview-independent__fill"
+                              [style.background-color]="segment.color"
+                              [style.width.%]="segment.percentage"
+                            ></span>
+                          </span>
+                          <strong>{{ formatPpiPercentage(segment.percentage) }}%</strong>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </section>
+            }
+          }
+        </article>
+
+        <p class="ppi-preview__safety" role="note">
+          These preview states are local visual fixtures. Production always uses the authenticated,
+          privacy-filtered API response.
+        </p>
+      </section>
+
+      <section aria-labelledby="push-preview-title" class="push-preview">
+        <div class="push-preview__heading">
+          <mat-icon aria-hidden="true">notifications_active</mat-icon>
+          <div>
+            <h2 id="push-preview-title">Push notification visual preview</h2>
+            <p>Preview only — no browser permission or push subscription is changed.</p>
+          </div>
+        </div>
+
+        <div aria-label="Example push notification" class="push-preview__notification" role="img">
+          <strong>{{ pushPreview.appName }}</strong>
+          <span>{{ pushPreview.title }}</span>
+          <span>{{ pushPreview.message }}</span>
+          <small>Would open: {{ pushPreview.destination }}</small>
+        </div>
+
+        <p class="push-preview__safety" role="note">
+          This preview never calls Notification permission APIs, Angular SwPush, or
+          <code>/push_subscriptions</code>.
+        </p>
+
+        <a mat-stroked-button routerLink="/edit_profile">
+          <mat-icon aria-hidden="true">manage_accounts</mat-icon>
+          Open My Profile for real notifications
+        </a>
+      </section>
+    </mat-card-content>
+  </mat-card>
+</main>

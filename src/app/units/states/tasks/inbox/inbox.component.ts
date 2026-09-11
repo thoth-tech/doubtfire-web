@@ -1,6 +1,9 @@
-import {CdkDragEnd, CdkDragStart, CdkDragMove} from '@angular/cdk/drag-drop';
+import {HotkeysHelpComponent, HotkeysService} from '@ngneat/hotkeys';
+import {MediaObserver} from 'ng-flex-layout';
+import {CdkDragEnd, CdkDragMove, CdkDragStart} from '@angular/cdk/drag-drop';
+import {BreakpointObserver} from '@angular/cdk/layout';
 import {
-  AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Input,
@@ -8,41 +11,71 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {MediaObserver} from 'ng-flex-layout';
-import {UIRouter} from '@uirouter/angular';
-import {auditTime, merge, Observable, of, Subject, tap, withLatestFrom} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {Router} from '@angular/router';
+import {Observable, Subject, auditTime, merge, of, takeUntil, tap, withLatestFrom} from 'rxjs';
+import {Tutorial} from 'src/app/api/models/doubtfire-model';
 import {Task} from 'src/app/api/models/task';
+import {TaskDefinition} from 'src/app/api/models/task-definition';
 import {Unit} from 'src/app/api/models/unit';
 import {UnitRole} from 'src/app/api/models/unit-role';
-import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
-import {SelectedTaskService} from 'src/app/projects/states/dashboard/selected-task.service';
-import {HotkeysService, HotkeysHelpComponent} from '@ngneat/hotkeys';
-import {MatDialog} from '@angular/material/dialog';
 import {UserService} from 'src/app/api/services/user.service';
+import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {SelectedTaskService} from 'src/app/projects/states/dashboard/selected-task.service';
+
+interface InboxTaskData {
+  source: (
+    unit: Unit,
+    taskDef?: TaskDefinition | number,
+    fetchMyStudentsOnly?: boolean,
+  ) => Observable<Task[]> | null;
+  selectedTask: Task | null;
+  taskKey: unknown;
+  onSelectedTaskChange: (task: Task | null) => void;
+  taskDefMode: boolean;
+}
 
 @Component({
   selector: 'f-inbox',
   templateUrl: './inbox.component.html',
   styleUrls: ['./inbox.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class InboxComponent implements OnInit, AfterViewInit {
+export class InboxComponent implements OnInit, OnDestroy {
   @Input() unit: Unit;
   @Input() unitRole: UnitRole;
-  @Input() taskData: {selectedTask: Task; any};
-
+  @Input() taskData: InboxTaskData;
+  @Input() loading = false;
+  @Input() filters: Partial<{
+    taskDefinition: TaskDefinition;
+    tutorials: Tutorial[];
+    forceStream: boolean;
+    studentName: string;
+    tutorialIdSelected: string | number;
+    taskDefinitionIdSelected: number | TaskDefinition;
+  }>;
+  @Input() showSearchOptions: boolean;
   @ViewChild('inboxpanel') inboxPanel: ElementRef;
   @ViewChild('commentspanel') commentspanel: ElementRef;
 
+  @Input() viewType: 'inbox' | 'explorer' | 'moderation' | 'overflow';
+
   subs$: Observable<unknown>;
 
-  private inboxStartSize$ = new Subject<number>();
-  private dragMove$ = new Subject<{event: CdkDragMove; div: HTMLDivElement}>();
+  private inboxStartSize$: Subject<number> = new Subject();
+  private dragMove$: Subject<{event: CdkDragMove; div: HTMLDivElement}> = new Subject();
   private dragMoveAudited$;
+  private readonly destroy$: Subject<void> = new Subject();
+  private readonly commentsBreakpoint = '(max-width: 999.98px)';
 
-  protected filters;
-  protected showSearchOptions;
+  // protected filters;
+  // protected showSearchOptions;
 
   public taskSelected = false;
+  public isCommentsNarrow = false;
+  public commentsCollapsed = false;
 
   visiblePdfUrl: string;
 
@@ -50,14 +83,24 @@ export class InboxComponent implements OnInit, AfterViewInit {
     return this.inboxPanel?.nativeElement.getBoundingClientRect().width < 150;
   }
 
+  get isMobileView(): boolean {
+    return this.mediaObserver.isActive('xs');
+  }
+
+  get commentsPanelCollapsed(): boolean {
+    return this.isCommentsNarrow && this.commentsCollapsed;
+  }
+
   constructor(
     private hotkeys: HotkeysService,
     private selectedTask: SelectedTaskService,
     public mediaObserver: MediaObserver,
     public fileDownloader: FileDownloaderService,
-    private router: UIRouter,
+    private router: Router,
     public dialog: MatDialog,
     private userService: UserService,
+    private constants: DoubtfireConstants,
+    private breakpointObserver: BreakpointObserver,
   ) {
     this.selectedTask.currentPdfUrl$.subscribe((url) => {
       this.visiblePdfUrl = url;
@@ -67,35 +110,69 @@ export class InboxComponent implements OnInit, AfterViewInit {
       this.taskSelected = task != null;
     });
   }
-  ngAfterViewInit(): void {
-    console.log('ngAfterViewInit');
-    const markers = ['Admin', 'Convenor', 'Tutor', 'Student'];
 
-    if (markers.includes(this.userService.currentUser?.role)) {
+  ngOnInit(): void {
+    this.breakpointObserver
+      .observe(this.commentsBreakpoint)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({matches}) => {
+        this.isCommentsNarrow = matches;
+        this.commentsCollapsed = matches;
+        window.dispatchEvent(new Event('resize'));
+      });
+
+    const registeredHotkeys = this.hotkeys.getHotkeys().map((hotkey) => hotkey.keys);
+
+    if (!registeredHotkeys.includes('shift.?')) {
       this.hotkeys.registerHelpModal(() => {
         const ref = this.dialog.open(HotkeysHelpComponent, {
           // width: '250px',
         });
-        ref.componentInstance.title = 'Formatif Marking Shortcuts';
+        ref.componentInstance.title = `${this.constants.ExternalName.value} Feedback Shortcuts`;
         ref.componentInstance.dismiss.subscribe(() => ref.close());
       });
     }
-  }
 
-  ngOnInit(): void {
-    // this.hotkeys
-    //   .addShortcut({
-    //     keys: 'control.c',
-    //     description: 'Mark selected task as complete',
-    //   })
-    //   .subscribe(() => this.selectedTask.selectedTask?.updateTaskStatus('complete'));
+    if (!registeredHotkeys.includes('control.shift.f')) {
+      this.hotkeys
+        .addShortcut({
+          keys: 'control.shift.f',
+          description: 'Mark selected task as fix',
+        })
+        .subscribe(() => this.selectedTask.selectedTask?.updateTaskStatus('fix_and_resubmit'));
+    }
 
-    // this.hotkeys
-    //   .addShortcut({
-    //     keys: 'control.f',
-    //     description: 'Mark selected task as fix',
-    //   })
-    //   .subscribe(() => this.selectedTask.selectedTask?.updateTaskStatus('fix_and_resubmit'));
+    if (!registeredHotkeys.includes('control.shift.c')) {
+      this.hotkeys
+        .addShortcut({
+          keys: 'control.Shift.c',
+          description: 'Mark selected task as complete',
+        })
+        .subscribe(() => {
+          const task = this.selectedTask.selectedTask;
+          if (!task) {
+            return;
+          }
+
+          if (!task.canMarkComplete) {
+            return;
+          }
+
+          task.updateTaskStatus('complete');
+        });
+    }
+
+    if (!registeredHotkeys.includes('control.shift.d')) {
+      this.hotkeys
+        .addShortcut({
+          keys: 'control.shift.d',
+          description: 'Mark selected task as discuss',
+        })
+        .subscribe(() => {
+          const task = this.selectedTask.selectedTask;
+          task?.updateTaskStatus(task.status === 'discuss' ? 'rediscuss' : 'discuss');
+        });
+    }
 
     this.dragMoveAudited$ = this.dragMove$.pipe(
       withLatestFrom(this.inboxStartSize$),
@@ -128,7 +205,23 @@ export class InboxComponent implements OnInit, AfterViewInit {
     window.dispatchEvent(new Event('resize'));
   }
 
+  ngOnDestroy(): void {
+    document.body.classList.remove('split-pane-resizing');
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.hotkeys.removeShortcuts('control.shift.d');
+    this.hotkeys.removeShortcuts('control.shift.f');
+    this.hotkeys.removeShortcuts('control.shift.c');
+    this.hotkeys.removeShortcuts('shift.?');
+  }
+
+  public toggleCommentsPanel(): void {
+    this.commentsCollapsed = !this.commentsCollapsed;
+    window.dispatchEvent(new Event('resize'));
+  }
+
   startedDragging(event: CdkDragStart, div: HTMLDivElement) {
+    document.body.classList.add('split-pane-resizing');
     event.source.element.nativeElement.classList.add('hovering');
     const w = div.getBoundingClientRect().width;
     this.inboxStartSize$.next(w);
@@ -139,25 +232,32 @@ export class InboxComponent implements OnInit, AfterViewInit {
     event.source.reset();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   stoppedDragging(event: CdkDragEnd, _div: HTMLDivElement) {
+    document.body.classList.remove('split-pane-resizing');
     event.source.element.nativeElement.classList.remove('hovering');
   }
 
   goToStudent(): void {
-    this.router.stateService.go('projects/dashboard', {
-      projectId: this.taskData.selectedTask.project.id,
-      tutor: true,
-      taskAbbr: '',
-    });
+    // this.router.navigateByUrl('projects/dashboard', {
+    //   projectId: this.taskData.selectedTask.project.id,
+    //   tutor: true,
+    //   taskAbbr: '',
+    // });
+    this.router.navigate(['/projects', this.taskData.selectedTask.project.id, 'dashboard']);
   }
 
   openPdfInNewTab(): void {
-    if (this.taskData.selectedTask.hasPdf) {
-      this.fileDownloader.downloadFile(
-        this.visiblePdfUrl,
-        `${this.taskData.selectedTask.definition.abbreviation}.pdf`,
-      );
+    if (!this.visiblePdfUrl || !this.taskData?.selectedTask) {
+      return;
     }
+
+    const task = this.taskData.selectedTask;
+    const taskSheetUrl = task.definition.getTaskPDFUrl();
+    const fileName =
+      this.visiblePdfUrl === taskSheetUrl
+        ? `${task.definition.abbreviation}-task-sheet.pdf`
+        : `${task.definition.abbreviation}.pdf`;
+
+    this.fileDownloader.downloadFile(this.visiblePdfUrl, fileName);
   }
 }

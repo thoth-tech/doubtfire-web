@@ -1,0 +1,19 @@
+.notification-settings {
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.notification-settings h3,
+.notification-settings__intro {
+  margin: 0;
+}
+
+.notification-setting {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notification-setting small {
+  margin-left: 32px;
+}

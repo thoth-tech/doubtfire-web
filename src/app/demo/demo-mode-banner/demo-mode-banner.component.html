@@ -1,0 +1,8 @@
+@if (demoMode.enabled$ | async) {
+  <aside aria-label="Demo mode is active" class="demo-mode-banner" role="status">
+    <mat-icon aria-hidden="true">science</mat-icon>
+    <span><strong>Demo mode:</strong> local walkthrough surfaces are visible.</span>
+    <a mat-button routerLink="/demo-controls">Controls</a>
+    <button mat-stroked-button type="button" (click)="exitDemo()">Exit demo</button>
+  </aside>
+}

@@ -1,33 +1,52 @@
+import {EmojiSearch} from '@ctrl/ngx-emoji-mart';
+import {EmojiData} from '@ctrl/ngx-emoji-mart/ngx-emoji';
+import {animate, style, transition, trigger} from '@angular/animations';
 import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
+  DoCheck,
+  ElementRef,
   Inject,
   Input,
-  ViewChildren,
-  QueryList,
-  KeyValueDiffers,
   KeyValueDiffer,
-  ElementRef,
+  KeyValueDiffers,
+  OnChanges,
+  QueryList,
+  SimpleChanges,
   ViewChild,
-  DoCheck,
+  ViewChildren,
 } from '@angular/core';
-import {trigger, style, animate, transition} from '@angular/animations';
-import {analyticsService} from 'src/app/ajs-upgraded-providers';
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import {EmojiSearch} from '@ctrl/ngx-emoji-mart';
-import {EmojiData} from '@ctrl/ngx-emoji-mart/ngx-emoji/';
-import {EmojiService} from 'src/app/common/services/emoji.service';
-import {Task, TaskComment, TaskCommentService} from 'src/app/api/models/doubtfire-model';
-import {TaskCommentsViewerComponent} from '../task-comments-viewer/task-comments-viewer.component';
-import {BehaviorSubject} from 'rxjs';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {BehaviorSubject, Subscription} from 'rxjs';
+import {
+  FeedbackTemplate,
+  Task,
+  TaskComment,
+  TaskCommentService,
+} from 'src/app/api/models/doubtfire-model';
+import {UserService} from 'src/app/api/models/doubtfire-model';
 import {AlertService} from 'src/app/common/services/alert.service';
+import {EmojiService} from 'src/app/common/services/emoji.service';
+import {TaskCommentsViewerComponent} from '../task-comments-viewer/task-comments-viewer.component';
+import {AttachmentConfirmationDialogComponent} from './attachment-confirmation-dialog/attachment-confirmation-dialog.component';
+
+interface ApiError {
+  error?: string;
+  message?: string;
+  status?: number;
+}
 
 /**
  * The task comment viewer needs to share data with the Task Comment Composer. The data needed
  * id defined through this interface.
  */
+
 export interface TaskCommentComposerData {
+  [key: string]: TaskComment;
   originalComment: TaskComment;
+  editingComment: TaskComment;
 }
 
 const ACCEPTED_FILE_TYPES = [
@@ -55,17 +74,26 @@ const ACCEPTED_FILE_TYPES = [
   styleUrls: ['./task-comment-composer.component.scss'],
   animations: [
     trigger('shrinkgrow', [
-      // 38.4 and 80 are the precise sizes of the buttons to the left of the input field
       transition('true => false', [style({width: 38.4}), animate('150ms 0ms ease-in-out')]),
       transition('false => true', [style({width: 80}), animate('150ms 0ms ease-in-out')]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class TaskCommentComposerComponent implements DoCheck {
+export class TaskCommentComposerComponent implements AfterViewInit, DoCheck, OnChanges {
   @Input() task: Task;
   @Input() sharedData: TaskCommentComposerData;
 
-  public $userIsTyping = new BehaviorSubject<boolean>(false);
+  public $userIsTyping: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  private draftSaveSubscription = new Subscription();
+  private readonly DRAFT_KEY_PREFIX = 'task_comment_draft_';
+  private readonly SUBMITTED_KEY_PREFIX = 'task_comments_submitted_';
+  public isDraftLoaded = false;
+  private submittedTaskIds: Set<number | string> = new Set();
+
+  public isSending: boolean = false;
+  private draftBeforeEdit: string = '';
 
   comment = {
     text: '',
@@ -76,12 +104,14 @@ export class TaskCommentComposerComponent implements DoCheck {
   @ViewChildren('cag') cag: QueryList<ElementRef>;
   @ViewChild('uploader') uploader: ElementRef;
 
-  differ: KeyValueDiffer<string, any>;
-  showEmojiPicker: boolean = false;
-  emojiSearchMode: boolean = false;
+  differ: KeyValueDiffer<string, TaskComment>;
+  showEmojiPicker = false;
+  emojiSearchMode = false;
+  // eslint-disable-next-line no-useless-escape
   emojiRegex: RegExp = /(?:\:)(.*?)(?=\:|$)/;
   emojiSearchResults: EmojiData[] = [];
   emojiMatch: string;
+  showFeedbackTemplatePicker: boolean = false;
   recording = false;
   cagStartWidth: number;
 
@@ -91,11 +121,249 @@ export class TaskCommentComposerComponent implements DoCheck {
     private emojiSearch: EmojiSearch,
     private emojiService: EmojiService,
     private commentsViewer: TaskCommentsViewerComponent,
-    @Inject(analyticsService) private analytics,
     private alerts: AlertService,
     @Inject(TaskCommentService) private taskCommentService: TaskCommentService,
+    private cdRef: ChangeDetectorRef,
+    private userService: UserService,
   ) {
     this.differ = this.differs.find({}).create();
+    // submitted tasks from sessionStorage, for this user only
+    try {
+      const key = this.submittedKey();
+      const saved = key ? sessionStorage.getItem(key) : null;
+      if (saved) {
+        this.submittedTaskIds = new Set(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error('Error loading submitted tasks:', e);
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.showFeedbackTemplatePicker = false;
+
+    if (changes.task && changes.task.currentValue !== changes.task.previousValue) {
+      const newTask = changes.task.currentValue as Task;
+      // Check if the task has changed
+
+      this.cancelEdit();
+      this.cancelReply();
+
+      this.clearInput();
+
+      if (newTask) {
+        this.loadDraftForTask(newTask);
+      }
+    }
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      if (this.task?.id) {
+        this.loadDraftForTask(this.task);
+      }
+    }, 100);
+  }
+
+  // ngOnDestroy() {
+  //   if (this.task?.id) {
+  //     try {
+  //       const inputElement = this.input?.first?.nativeElement;
+  //       if (inputElement) {
+  //         const text = inputElement.innerText.trim();
+  //         if (text && !this.hasSubmittedComment) {
+  //           localStorage.setItem(this.getDraftKey(this.task), text);
+  //         } else {
+  //         }
+  //       }
+  //     } catch (error) {}
+  //   }
+  // }
+
+  // Update onInputChange to reset submitted status
+  onInputChange(event: Event) {
+    if (this.isEditing) {
+      return;
+    }
+
+    const target = event.target as HTMLElement;
+    const text = target.innerText;
+    const _raw = target.innerText;
+
+    // If user is typing something new after submission, reset the submitted status
+    if (this.task) {
+      const taskKey =
+        this.task.id ||
+        `${this.task.projectId || this.task.project?.id}_${this.task.definition?.id}`;
+
+      // If this was a previously submitted task and user is typing again,
+      // remove from submitted set
+      if (this.submittedTaskIds.has(taskKey) && text.trim()) {
+        this.submittedTaskIds.delete(taskKey);
+
+        // Update session storage
+        try {
+          const submittedKey = this.submittedKey();
+          if (submittedKey) {
+            sessionStorage.setItem(submittedKey, JSON.stringify([...this.submittedTaskIds]));
+          }
+        } catch (e) {
+          console.error('Error saving submitted tasks:', e);
+        }
+      }
+
+      const _draftKey = this.getDraftKey(this.task);
+      // this.taskDraftContents.set(draftKey, raw);
+    }
+
+    this.saveCurrentDraft();
+  }
+
+  // The id of whoever is signed in, or null during sign out when currentUser has
+  // already been swapped for the anonymous user. A draft with nobody to own it is
+  // not worth keeping, so callers return early on null rather than inventing a
+  // key. The id and not the username or the email: ids are stable, and an email
+  // in a storage key is personal data sitting in plain sight in dev tools.
+  private currentUserId(): number | null {
+    const id = this.userService?.currentUser?.id;
+    return typeof id === 'number' && id > 0 ? id : null;
+  }
+
+  private submittedKey(): string | null {
+    const userId = this.currentUserId();
+    return userId === null ? null : `${this.SUBMITTED_KEY_PREFIX}${userId}`;
+  }
+
+  // The key used to name a task identified the task and never the person, so on a
+  // shared machine the next person to open the same task was handed the previous
+  // person's unsent words.
+  //
+  // The user segment is written as uid<id> rather than the bare number. A legacy
+  // key is task_comment_draft_<taskId> or task_comment_draft_<projectId>_<defId>,
+  // so a bare number would make task_comment_draft_5_7 mean both "user 5, task 7"
+  // and "project 5, definition 7". The marker makes the two shapes impossible to
+  // confuse, which is what lets sign out sweep the old ones safely.
+  private getDraftKey(task: Task): string | null {
+    const userId = this.currentUserId();
+    if (userId === null) {
+      return null;
+    }
+
+    // If task has an ID, use it
+    if (task.id) {
+      return `${this.DRAFT_KEY_PREFIX}uid${userId}_${task.id}`;
+    }
+
+    // For "not started" tasks, create a composite key using only valid properties
+    const projectId = task.projectId || task.project?.id || 'unknown';
+    // Fix: Use task.definition.id instead of task.definition_id
+    const definitionId = task.definition?.id || 'unknown';
+
+    return `${this.DRAFT_KEY_PREFIX}uid${userId}_${projectId}_${definitionId}`;
+  }
+
+  private hasContent(raw: string): boolean {
+    return raw.replace(/\s+/g, '').length > 0;
+  }
+
+  // Update saveDraftForTask to use the taskDraftContents map
+  private saveDraftForTask(task: Task, _rawFromDom?: string): void {
+    if (!task) {
+      return;
+    }
+
+    const draftKey = this.getDraftKey(task);
+    if (draftKey === null) {
+      return;
+    }
+
+    try {
+      let raw: string;
+      if (this.task?.id === task.id && this.input.first) {
+        raw = this.input.first.nativeElement.innerText;
+      } else {
+        // raw = this.taskDraftContents.get(draftKey) ?? '';
+      }
+
+      if (!this.hasContent(raw)) {
+        // No text to save, removing draft from localStorage
+        // this.taskDraftContents.delete(draftKey);
+        localStorage.removeItem(draftKey);
+        return;
+      }
+
+      const text = raw.trim();
+      // Save comment draf
+      // this.taskDraftContents.set(draftKey, text);
+      localStorage.setItem(draftKey, text);
+    } catch (error) {
+      console.error('saveDraftForTask error:', error);
+    }
+  }
+
+  private loadDraftForTask(task: Task) {
+    if (!task) {
+      return;
+    }
+
+    const taskKey = task.id || `${task.projectId || task.project?.id}_${task.definition?.id}`;
+
+    if (this.submittedTaskIds.has(taskKey)) {
+      return;
+    }
+
+    const draftKey = this.getDraftKey(task);
+    if (draftKey === null) {
+      return;
+    }
+
+    try {
+      const draft = localStorage.getItem(draftKey);
+
+      if (!draft) {
+        return;
+      }
+
+      const maxRetries = 5;
+      const retryWithTimeout = (attempt = 0) => {
+        if (!this.input || !this.input.first || !this.input.first.nativeElement) {
+          if (attempt < maxRetries) {
+            setTimeout(() => retryWithTimeout(attempt + 1), 200);
+            return;
+          } else {
+            return;
+          }
+        }
+
+        this.input.first.nativeElement.innerText = draft;
+        // this.taskDraftContents.set(draftKey, draft);
+        this.isDraftLoaded = true;
+        this.cdRef.detectChanges();
+
+        setTimeout(() => {
+          this.isDraftLoaded = false;
+          this.cdRef.detectChanges();
+        }, 1500);
+      };
+
+      retryWithTimeout();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  private clearInput() {
+    if (this.input?.first?.nativeElement) {
+      this.input.first.nativeElement.innerText = '';
+      this.cdRef.detectChanges();
+    }
+  }
+
+  private saveCurrentDraft() {
+    if (!this.task) {
+      return;
+    }
+    this.saveDraftForTask(this.task);
   }
 
   ngDoCheck() {
@@ -105,11 +373,7 @@ export class TaskCommentComposerComponent implements DoCheck {
       change.forEachChangedItem((item) => {
         // If it has changed to be an actual comment
         if (item != null) {
-          // Set the input field as focused, so the user can start typing
-          // timeout is required
-          setTimeout(() => {
-            this.input.first.nativeElement.focus();
-          });
+          this.syncComposerState();
         }
       });
     }
@@ -119,12 +383,25 @@ export class TaskCommentComposerComponent implements DoCheck {
     return this.sharedData.originalComment;
   }
 
+  get editingComment(): TaskComment {
+    return this.sharedData.editingComment;
+  }
+
+  get isEditing(): boolean {
+    return this.editingComment != null;
+  }
+
   get isStaff() {
     return this.task?.unit?.currentUserIsStaff;
   }
 
   cancelReply() {
     this.sharedData.originalComment = null;
+  }
+
+  cancelEdit() {
+    this.sharedData.editingComment = null;
+    this.restoreDraftAfterEdit();
   }
 
   contentEditableValue() {
@@ -156,7 +433,11 @@ export class TaskCommentComposerComponent implements DoCheck {
     this.emojiSearchMode = false;
     this.showEmojiPicker = false;
     if (this.input.first.nativeElement.innerText.trim() !== '') {
-      this.addComment();
+      if (this.isEditing) {
+        this.saveEditedComment();
+      } else {
+        this.addComment();
+      }
     }
   }
 
@@ -242,6 +523,21 @@ export class TaskCommentComposerComponent implements DoCheck {
     ].join('');
   }
 
+  addFeedback(template: FeedbackTemplate): void {
+    const char = template.commentText;
+    const text = this.input.first.nativeElement.innerText;
+    const position = this.caretOffset();
+    this.input.first.nativeElement.innerText = [
+      text.slice(0, position),
+      char,
+      text.slice(position),
+    ].join('');
+    this.input.first.nativeElement.focus();
+    setTimeout(() => {
+      this.saveDraftForTask(this.task);
+    });
+  }
+
   openDiscussionComposer() {
     this.dialog.open(DiscussionComposerDialog, {
       data: {
@@ -259,25 +555,75 @@ export class TaskCommentComposerComponent implements DoCheck {
   }
 
   addComment() {
+    if (this.isSending) {
+      return;
+    }
+    this.isSending = true;
+
     const originalComment = this.sharedData.originalComment;
     if (originalComment != null) {
       this.cancelReply();
     }
+
     const text = this.emojiService.nativeEmojiToColons(this.input.first.nativeElement.innerText);
 
-    this.taskCommentService.addComment(this.task, text, 'text', originalComment).subscribe(
-      (tc: TaskComment) => {
+    const taskKey =
+      this.task.id || `${this.task.projectId || this.task.project?.id}_${this.task.definition?.id}`;
+
+    const draftKey = this.getDraftKey(this.task);
+    this.taskCommentService.addComment(this.task, text, 'text', originalComment).subscribe({
+      next: (_tc: TaskComment) => {
+        this.isSending = false;
+
+        this.submittedTaskIds.add(taskKey);
+
+        try {
+          const submittedKey = this.submittedKey();
+          if (submittedKey) {
+            sessionStorage.setItem(submittedKey, JSON.stringify([...this.submittedTaskIds]));
+          }
+        } catch (e) {
+          console.error('Error saving submitted tasks:', e);
+        }
+
+        if (this.task) {
+          localStorage.removeItem(draftKey);
+        }
+
         this.input.first.nativeElement.innerText = '';
       },
-      (error: any) => {
-        this.alerts.error(error || error?.message, 2000);
+      error: (error: ApiError) => {
+        this.isSending = false;
+        this.alerts.error(error.error || error.message || `Failed to add comment: ${error}`, 6000);
       },
-    );
+    });
+  }
+
+  saveEditedComment() {
+    if (this.isSending || !this.editingComment) {
+      return;
+    }
+
+    this.isSending = true;
+    const text = this.emojiService.nativeEmojiToColons(this.input.first.nativeElement.innerText);
+
+    this.taskCommentService.editComment(this.editingComment, text).subscribe({
+      next: (_tc: TaskComment) => {
+        this.isSending = false;
+        this.sharedData.editingComment = null;
+        this.draftBeforeEdit = '';
+        this.clearInput();
+      },
+      error: (error: ApiError) => {
+        this.isSending = false;
+        this.alerts.error(error.error || error.message || `Failed to edit comment: ${error}`, 6000);
+      },
+    });
   }
 
   addCommentWithType(comment: string, type: string) {
     this.taskCommentService.addComment(this.task, comment, type).subscribe({
-      next: (success: TaskComment) => {
+      next: (_success: TaskComment) => {
         this.comment.text = '';
         this.commentsViewer.scrollDown();
         console.log('implement - check map comments');
@@ -291,45 +637,210 @@ export class TaskCommentComposerComponent implements DoCheck {
     this.uploader.nativeElement.click();
   }
 
-  uploadFiles(event) {
-    [...event].forEach((file) => {
+  handlePaste(event: ClipboardEvent) {
+    const files = this.getClipboardFiles(event);
+
+    if (files.length === 0) {
+      return;
+    }
+
+    const existingText = this.input?.first?.nativeElement?.innerText ?? '';
+    event.preventDefault();
+    this.clearPastedPlaceholderContent(existingText);
+    this.uploadFiles(files);
+  }
+
+  handleBeforeInput(event: InputEvent) {
+    if (event.inputType !== 'insertFromPaste') {
+      return;
+    }
+
+    const files = Array.from(event.dataTransfer?.files ?? []);
+
+    if (files.length === 0) {
+      return;
+    }
+
+    const existingText = this.input?.first?.nativeElement?.innerText ?? '';
+    event.preventDefault();
+    this.clearPastedPlaceholderContent(existingText);
+    this.uploadFiles(files);
+  }
+
+  uploadFiles(files: ArrayLike<File>) {
+    const acceptedFiles: File[] = [];
+
+    Array.from(files).forEach((file) => {
       if (
         ACCEPTED_FILE_TYPES.includes(file.type) ||
         file.type.startsWith('audio/') ||
         file.type.startsWith('image/')
       ) {
-        this.postAttachmentComment(file);
+        acceptedFiles.push(file);
       } else {
         this.alerts.error('Cannot upload that file - only images, audio, and PDFs.', 4000);
       }
+    });
+
+    this.confirmAttachmentsSequentially(acceptedFiles);
+    this.resetUploader();
+  }
+
+  private getClipboardFiles(event: ClipboardEvent): File[] {
+    const clipboardData = event.clipboardData;
+
+    if (!clipboardData) {
+      return [];
+    }
+
+    const directFiles = Array.from(clipboardData.files ?? []);
+    if (directFiles.length > 0) {
+      return directFiles;
+    }
+
+    return Array.from(clipboardData.items ?? [])
+      .filter((item) => item.kind === 'file')
+      .map((item) => item.getAsFile())
+      .filter((file): file is File => file != null);
+  }
+
+  private clearPastedPlaceholderContent(existingText: string) {
+    if (!this.input?.first?.nativeElement) {
+      return;
+    }
+
+    // Let the browser finish the paste event lifecycle, then restore the pre-paste text
+    // so clipboard attachment placeholders do not replace an in-progress draft.
+    setTimeout(() => {
+      this.input.first.nativeElement.innerText = existingText;
+      this.saveCurrentDraft();
+      this.cdRef.detectChanges();
     });
   }
 
   // # Upload image files as comments to a given task
   postAttachmentComment(file) {
     this.taskCommentService.addComment(this.task, file, 'file', null).subscribe(
-      (tc: TaskComment) => {
+      (_tc: TaskComment) => {
         this.commentsViewer.scrollDown();
       },
-      (error: any) => {
-        this.alerts.error(error || error?.message, 2000);
+      (error: Error) => {
+        this.alerts.error(error.message, 2000);
       },
     );
+  }
+
+  private confirmAttachmentsSequentially(files: File[], index: number = 0) {
+    if (index >= files.length) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(AttachmentConfirmationDialogComponent, {
+      data: {
+        file: files[index],
+      },
+      maxWidth: '720px',
+      width: 'min(92vw, 720px)',
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.postAttachmentComment(files[index]);
+      }
+
+      this.confirmAttachmentsSequentially(files, index + 1);
+    });
+  }
+
+  private resetUploader() {
+    if (this.uploader?.nativeElement) {
+      this.uploader.nativeElement.value = '';
+    }
+  }
+
+  showFeedbackPicker() {
+    this.showFeedbackTemplatePicker = !this.showFeedbackTemplatePicker;
+    this.commentsViewer.scrollDown();
+  }
+
+  private syncComposerState() {
+    if (this.isEditing) {
+      this.beginEditingComment();
+      return;
+    }
+
+    setTimeout(() => {
+      this.input.first.nativeElement.focus();
+    });
+  }
+
+  private beginEditingComment() {
+    const currentText = this.input?.first?.nativeElement?.innerText ?? '';
+    const nextText = this.editingComment?.text ?? '';
+
+    if (this.sharedData.originalComment != null) {
+      this.sharedData.originalComment = null;
+    }
+
+    if (currentText !== nextText) {
+      this.draftBeforeEdit = currentText;
+      this.setComposerText(nextText);
+    }
+
+    setTimeout(() => {
+      this.focusComposerAtEnd();
+    });
+  }
+
+  private restoreDraftAfterEdit() {
+    const draft = this.draftBeforeEdit;
+    this.draftBeforeEdit = '';
+    this.setComposerText(draft);
+  }
+
+  private setComposerText(text: string) {
+    if (!this.input?.first?.nativeElement) {
+      return;
+    }
+
+    this.input.first.nativeElement.innerText = text;
+    this.cdRef.detectChanges();
+  }
+
+  private focusComposerAtEnd() {
+    const element = this.input?.first?.nativeElement;
+    if (!element) {
+      return;
+    }
+
+    element.focus();
+
+    const selection = window.getSelection();
+    if (!selection) {
+      return;
+    }
+
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    range.collapse(false);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 }
 
 // The discussion prompt composer dialog Component
-// eslint-disable-next-line max-classes-per-file
+
 @Component({
   selector: 'discussion-prompt-composer-dialog.html',
   templateUrl: 'discussion-prompt-composer-dialog.html',
   styleUrls: ['./discussion-prompt-composer/discussion-prompt-composer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class DiscussionComposerDialog implements OnInit {
+export class DiscussionComposerDialog {
   constructor(
     public dialogRef: MatDialogRef<DiscussionComposerDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: {task: Task},
   ) {}
-
-  ngOnInit() {}
 }

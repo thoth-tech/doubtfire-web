@@ -1,18 +1,26 @@
-import { TestBed, tick, fakeAsync } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { User, UserService } from 'src/app/api/models/doubtfire-model';
-import { HttpRequest } from '@angular/common/http';
-import { analyticsService } from 'src/app/ajs-upgraded-providers';
+import {afterEach, beforeEach, describe, expect, it} from 'vitest';
+import {
+  HttpRequest,
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withXhr,
+} from '@angular/common/http';
+import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
+import {TestBed} from '@angular/core/testing';
+import {User, UserService} from 'src/app/api/models/doubtfire-model';
 
 describe('UserService', () => {
   let userService: UserService;
   let httpMock: HttpTestingController;
-  let analyticsServiceStub: jasmine.SpyObj<any>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [UserService, { provide: analyticsService, useValue: analyticsServiceStub }],
+      imports: [],
+      providers: [
+        UserService,
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
     });
 
     userService = TestBed.inject(UserService);
@@ -23,7 +31,7 @@ describe('UserService', () => {
     httpMock.verify();
   });
 
-  it('should return expected users (HttpClient called once)', fakeAsync(() => {
+  it('should return expected users (HttpClient called once)', () => {
     const u = new User();
     u.id = 1;
     u.lastName = 'renzella';
@@ -38,22 +46,56 @@ describe('UserService', () => {
     u.receiveFeedbackNotifications = false;
     u.receiveTaskNotifications = false;
 
-    const expectedUsers: User[] = [u];
+    userService.query().subscribe((users) => {
+      expect(users).toHaveLength(1);
+      expect(users[0]).toMatchObject({
+        id: 1,
+        firstName: 'Jake',
+        lastName: 'renzella',
+        email: 'jake@jake.jake',
+        displayPeerProgress: false,
+      });
+    });
 
-    userService.query().subscribe((users) => expect(users).toEqual(expectedUsers, 'expected users'));
-
-    const req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
+    const req = httpMock.expectOne((request: HttpRequest<object>): boolean => {
       expect(request.url).toEqual('http://localhost:3000/api/users/');
       expect(request.method).toBe('GET');
       return true;
     });
-    req.flush(u);
-    tick();
-  }));
+    req.flush({
+      id: 1,
+      last_name: 'renzella',
+      first_name: 'Jake',
+      nickname: 'jake',
+      has_run_first_time_setup: false,
+      email: 'jake@jake.jake',
+      student_id: '1',
+      username: 'test',
+      opt_in_to_research: true,
+      receive_portfolio_notifications: false,
+      receive_feedback_notifications: false,
+      receive_task_notifications: false,
+      display_peer_progress: false,
+    });
+  });
 
-  it('should create a new user', fakeAsync(() => {
+  it('serialises the peer progress display preference when updating a profile', () => {
     const user = new User();
     user.id = 1;
+    user.displayPeerProgress = false;
+
+    userService.update(user).subscribe();
+
+    const req = httpMock.expectOne('http://localhost:3000/api/users/1');
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toMatchObject({
+      user: {display_peer_progress: false},
+    });
+    req.flush({id: 1, display_peer_progress: false});
+  });
+
+  it('should create a new user', () => {
+    const user = new User();
     user.lastName = 'renzella';
     user.firstName = 'Jake';
     user.nickname = 'jake';
@@ -67,43 +109,57 @@ describe('UserService', () => {
     user.receiveTaskNotifications = false;
 
     userService.create(user).subscribe((result) => {
-      expect(result).toEqual(user, 'expected users');
+      expect(result).toMatchObject({
+        id: 1,
+        firstName: 'Jake',
+        lastName: 'renzella',
+        email: 'jake@jake.jake',
+      });
     });
 
-    const expectedUser = user;
-    expectedUser.id = 1;
-
-    const req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
+    const req = httpMock.expectOne((request: HttpRequest<object>): boolean => {
       expect(request.url).toEqual('http://localhost:3000/api/users/');
       expect(request.method).toBe('POST');
 
       return true;
     });
-    req.flush(expectedUser);
-    tick();
-  }));
+    req.flush({
+      id: 1,
+      last_name: 'renzella',
+      first_name: 'Jake',
+      nickname: 'jake',
+      has_run_first_time_setup: false,
+      email: 'jake@jake.jake',
+      student_id: '1',
+      username: 'test',
+      opt_in_to_research: true,
+      receive_portfolio_notifications: false,
+      receive_feedback_notifications: false,
+      receive_task_notifications: false,
+    });
+  });
 
-  xit('should delete a user', fakeAsync(() => {
-    // let user = new User();
-    // user.updateFromJson({
-    //   name: 'jake', lastName: 'renzella', firstName: 'Jake', nickname: 'jake',
-    //   systemRole: 'admin', hasRunFirstTimeSetup: false, email: 'jake@jake.jake',
-    //   student_id: '1', username: 'test', optInToResearch: true, receivePortfolioNotifications: false,
-    //   receiveFeedbackNotifications: false, receiveTaskNotifications: false
-    // });
-    // userService.delete(1).subscribe(
-    //   result => expect(result).toEqual(user, 'expected users')
-    // );
-    // const req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
-    //   expect(request.url).toEqual('http://localhost:3000/api/users/1');
-    //   expect(request.method).toBe('DELETE');
-    //   return true;
-    // });
-    // req.flush(user);
-    // tick();
-  }));
+  // it.skip('should delete a user', () => {
+  // let user = new User();
+  // user.updateFromJson({
+  //   name: 'jake', lastName: 'renzella', firstName: 'Jake', nickname: 'jake',
+  //   systemRole: 'admin', hasRunFirstTimeSetup: false, email: 'jake@jake.jake',
+  //   student_id: '1', username: 'test', optInToResearch: true, receivePortfolioNotifications: false,
+  //   receiveFeedbackNotifications: false, receiveTaskNotifications: false
+  // });
+  // userService.delete(1).subscribe(
+  //   result => expect(result).toEqual(user, 'expected users')
+  // );
+  // const req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
+  //   expect(request.url).toEqual('http://localhost:3000/api/users/1');
+  //   expect(request.method).toBe('DELETE');
+  //   return true;
+  // });
+  // req.flush(user);
+  // tick();
+  // });
 
-  it('should update a User', fakeAsync(() => {
+  it('should update a User', () => {
     const u = new User();
     u.id = 1;
     u.lastName = 'renzella';
@@ -118,37 +174,45 @@ describe('UserService', () => {
     u.receiveFeedbackNotifications = false;
     u.receiveTaskNotifications = false;
 
-    userService.update(u).subscribe((result) => {
-      expect(result.firstName).toBe(u.firstName);
-    }, fail);
-
-    let req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
-      expect(request.url).toEqual('http://localhost:3000/api/users/1');
-      expect(request.method).toBe('PUT');
-      return true;
-    });
-    req.flush(u);
-    tick();
-
-    u.firstName = 'andrew';
+    // The API answers a PUT with the saved user as snake_case JSON. Flush a
+    // literal in that shape whose values differ from the local `u`, so the
+    // assertions only pass if the snake_case -> camelCase mapping ran. Flushing
+    // `u` back, as this test used to, could not tell a working mapping from a
+    // broken one because both sides already held the same camelCase values.
     userService.update(u).subscribe({
       next: (result) => {
         expect(result.firstName).toBe('andrew');
+        expect(result.lastName).toBe('cain');
+        expect(result.nickname).toBe('andy');
+        expect(result.receiveTaskNotifications).toBe(true);
       },
-      error: fail,
+      error: (error) => {
+        throw error;
+      },
     });
 
-    req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
+    const req = httpMock.expectOne((request: HttpRequest<object>): boolean => {
       expect(request.url).toEqual('http://localhost:3000/api/users/1');
       expect(request.method).toBe('PUT');
       return true;
     });
+    req.flush({
+      id: 1,
+      first_name: 'andrew',
+      last_name: 'cain',
+      nickname: 'andy',
+      email: 'jake@jake.jake',
+      student_id: '1',
+      username: 'test',
+      opt_in_to_research: true,
+      has_run_first_time_setup: false,
+      receive_portfolio_notifications: false,
+      receive_feedback_notifications: false,
+      receive_task_notifications: true,
+    });
+  });
 
-    req.flush(u);
-    tick();
-  }));
-
-  it('should cache the result of a get request', fakeAsync(() => {
+  it('should cache the result of a get request', () => {
     const user = new User();
     user.id = 1;
     user.lastName = 'renzella';
@@ -163,9 +227,9 @@ describe('UserService', () => {
     user.receiveFeedbackNotifications = false;
     user.receiveTaskNotifications = false;
 
-    userService.get(1).subscribe((data) => {});
+    userService.get(1).subscribe();
 
-    const req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
+    const req = httpMock.expectOne((request: HttpRequest<object>): boolean => {
       expect(request.url).toEqual('http://localhost:3000/api/users/1');
       expect(request.method).toBe('GET');
       return true;
@@ -173,17 +237,15 @@ describe('UserService', () => {
     const user2 = user;
     user2.id = 1;
     req.flush(user2);
-    tick();
 
-    userService.get(1).subscribe((data) => {});
+    userService.get(1).subscribe();
 
-    httpMock.expectNone((request: HttpRequest<any>): boolean => {
+    httpMock.expectNone((_request: HttpRequest<object>): boolean => {
       return true;
     });
-    tick();
-  }));
+  });
 
-  it('should cache fetch/get', fakeAsync(() => {
+  it('should cache fetch/get', () => {
     let user = new User();
     user.id = 1;
     user.lastName = 'renzella';
@@ -203,7 +265,7 @@ describe('UserService', () => {
       user = data;
     });
 
-    let req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
+    let req = httpMock.expectOne((request: HttpRequest<object>): boolean => {
       expect(request.url).toEqual('http://localhost:3000/api/users/1');
       expect(request.method).toBe('GET');
       return true;
@@ -213,9 +275,8 @@ describe('UserService', () => {
     Object.keys(user).forEach((key) => (user2[key] = user[key]));
     user2.id = 1;
     req.flush(user2);
-    tick();
 
-    let user3;
+    let user3: User;
 
     // 1 request here
     userService.fetch(1).subscribe((data) => {
@@ -223,7 +284,7 @@ describe('UserService', () => {
       user3 = data;
     });
 
-    req = httpMock.expectOne((request: HttpRequest<any>): boolean => {
+    req = httpMock.expectOne((request: HttpRequest<object>): boolean => {
       expect(request.url).toEqual('http://localhost:3000/api/users/1');
       expect(request.method).toBe('GET');
       return true;
@@ -233,10 +294,10 @@ describe('UserService', () => {
     Object.keys(user2).forEach((key) => (user4[key] = user2[key]));
     user4.firstName = 'fred';
     req.flush(user4);
+    expect(user3).toBe(user);
 
-    httpMock.expectNone((request: HttpRequest<any>): boolean => {
+    httpMock.expectNone((_request: HttpRequest<object>): boolean => {
       return true;
     });
-    tick();
-  }));
+  });
 });

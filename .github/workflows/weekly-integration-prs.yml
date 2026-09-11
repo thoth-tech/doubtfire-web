@@ -1,0 +1,100 @@
+name: Weekly integration PRs
+
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+      timezone: Australia/Melbourne
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ensure-pr:
+    if: github.repository_owner == 'ontrack-features-t2-2026'
+    name: ${{ matrix.source }} -> ${{ matrix.target }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - source: feature/cross-unit
+            target: 11.0.x
+          - source: feature/notifications
+            target: 11.0.x
+          - source: feature/peer-progress-indicator
+            target: 11.0.x
+          - source: feature/calendar-integration
+            target: 11.0.x
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.target }}-${{ matrix.source }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Ensure pull request exists
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.INTEGRATION_BOT_TOKEN }}
+          SOURCE_BRANCH: ${{ matrix.source }}
+          TARGET_BRANCH: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "::error::INTEGRATION_BOT_TOKEN is not configured."
+            exit 1
+          fi
+
+          existing="$(
+            gh api --method GET "repos/$GITHUB_REPOSITORY/pulls" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2026-03-10" \
+              -f state=open \
+              -f head="${GITHUB_REPOSITORY_OWNER}:${SOURCE_BRANCH}" \
+              -f base="$TARGET_BRANCH" \
+              -F per_page=1 \
+              --jq '.[0].html_url // empty'
+          )"
+
+          if [[ -n "$existing" ]]; then
+            echo "Pull request already open: $existing"
+            exit 0
+          fi
+
+          target_ref="$(jq -rn --arg ref "$TARGET_BRANCH" '$ref | @uri')"
+          source_ref="$(jq -rn --arg ref "$SOURCE_BRANCH" '$ref | @uri')"
+
+          for ref in "$target_ref" "$source_ref"; do
+            if ! gh api "repos/$GITHUB_REPOSITORY/branches/${ref}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2026-03-10" \
+              --silent >/dev/null 2>&1; then
+              echo "Branch $ref no longer exists in $GITHUB_REPOSITORY; skipping."
+              exit 0
+            fi
+          done
+          comparison="$(
+            gh api "repos/$GITHUB_REPOSITORY/compare/${target_ref}...${source_ref}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2026-03-10" \
+              --jq '[.ahead_by, (.files | length)] | @tsv'
+          )"
+          read -r ahead changed_files <<< "$comparison"
+
+          if [[ "$ahead" == "0" || "$changed_files" == "0" ]]; then
+            echo "Nothing to merge from $SOURCE_BRANCH into $TARGET_BRANCH."
+            exit 0
+          fi
+
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pulls" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            -f title="Integration: $SOURCE_BRANCH into $TARGET_BRANCH" \
+            -f head="$SOURCE_BRANCH" \
+            -f base="$TARGET_BRANCH" \
+            -f body="Created by the scheduled integration workflow. The source branch is intentionally retained after merge." \
+            --jq '.html_url'

@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
-import { CachedEntityService } from 'ngx-entity-service';
-import { TeachingPeriodBreak } from 'src/app/api/models/doubtfire-model';
-import { Injectable } from '@angular/core';
-import API_URL from 'src/app/config/constants/apiURL';
-import { MappingFunctions } from './mapping-fn';
+import {CachedEntityService} from 'ngx-entity-service';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {TeachingPeriodBreak} from 'src/app/api/models/doubtfire-model';
+import API_URL from 'src/app/config/constants/apiUrl';
+import {MappingFunctions} from './mapping-fn';
 
 @Injectable()
 export class TeachingPeriodBreakService extends CachedEntityService<TeachingPeriodBreak> {
@@ -17,7 +17,7 @@ export class TeachingPeriodBreakService extends CachedEntityService<TeachingPeri
       {
         keys: 'startDate',
         toEntityFn: MappingFunctions.mapDateToDay,
-        toJsonFn: MappingFunctions.mapDayToJson
+        toJsonFn: MappingFunctions.mapDayToJson,
       },
       'numberOfWeeks',
     );
@@ -25,7 +25,7 @@ export class TeachingPeriodBreakService extends CachedEntityService<TeachingPeri
     this.mapping.mapAllKeysToJsonExcept('id');
   }
 
-  public override createInstanceFrom(json: any, other?: any): TeachingPeriodBreak {
+  public override createInstanceFrom(_json: object): TeachingPeriodBreak {
     return new TeachingPeriodBreak();
   }
 }

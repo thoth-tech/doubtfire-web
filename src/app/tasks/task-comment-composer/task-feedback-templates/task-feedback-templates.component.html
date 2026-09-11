@@ -1,0 +1,165 @@
+<mat-card
+  class="flex h-[423px] w-[338px] flex-col rounded-lg border border-gray-300 bg-white shadow-none"
+>
+  <mat-tab-group class="category-tab-group" (selectedTabChange)="scrollToSection($event)">
+    @for (category of categories; track category) {
+      <mat-tab [label]="category"></mat-tab>
+    }
+  </mat-tab-group>
+
+  <mat-form-field appearance="outline" class="template-search w-full px-1 pt-1">
+    <input
+      matInput
+      placeholder="Search templates"
+      (input)="onSearchTermChange($event.target.value)"
+    />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <div class="flex-grow overflow-y-auto px-2.5 pt-0 pb-3">
+    <div class="template-category my-1">
+      <div class="template-grid mt-3 flex flex-wrap gap-1">
+        @for (template of genTemplates$ | async; track template) {
+          <mat-chip
+            class="cursor-pointer rounded-full px-1 py-0.5 transition-shadow duration-200 hover:shadow-lg"
+            [hidden]="template.chipText === 'Summarise feedback' && selectedTemplates.length < 1"
+            [ngStyle]="isTemplateSelected(template) ? {'border': '1px solid'} : {}"
+            (click)="selectTemplate(template)"
+            (mouseenter)="onHoverTemplate(template)"
+            (mouseleave)="onHoverTemplate(null)"
+          >
+            @if (isTemplateSelected(template)) {
+              <mat-icon matChipAvatar>check_circle</mat-icon>
+            }
+            {{ template.chipText }}
+          </mat-chip>
+        }
+      </div>
+    </div>
+
+    <div #tloSection class="template-category my-1">
+      @for (item of tlos$ | async; track item) {
+        <div class="outcome-section mt-2.5">
+          <h5 class="font-extrabold text-formatif-blue">
+            {{ item.outcome.abbreviation }} - {{ item.outcome.shortDescription }}
+          </h5>
+          <div class="template-grid mt-0.5 flex flex-wrap gap-1">
+            @for (template of item.templates; track template) {
+              <mat-chip
+                class="cursor-pointer rounded-full px-1 py-0.5 transition-shadow duration-200 hover:shadow-lg"
+                [ngStyle]="isTemplateSelected(template) ? {'border': '1px solid'} : {}"
+                (click)="selectTemplate(template)"
+                (mouseenter)="onHoverTemplate(template)"
+                (mouseleave)="onHoverTemplate(null)"
+              >
+                @if (isTemplateSelected(template)) {
+                  <mat-icon matChipAvatar>check_circle</mat-icon>
+                }
+                @if (!isTemplateSelected(template) && template.taskStatus) {
+                  <mat-icon matChipAvatar>{{
+                    taskService.statusData(template.taskStatus).materialIcon
+                  }}</mat-icon>
+                }
+                @if (template.type === 'group' && !isGroupExpanded(template)) {
+                  <mat-icon matChipAvatar>folder</mat-icon>
+                }
+                @if (template.type === 'group' && isGroupExpanded(template)) {
+                  <mat-icon matChipAvatar>chevron_right</mat-icon>
+                }
+                {{ template.chipText }}
+              </mat-chip>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div #uloSection class="template-category my-1">
+      @for (item of ulos$ | async; track item) {
+        <div class="outcome-section mt-2.5">
+          <h5 class="font-extrabold text-formatif-blue">
+            {{ item.outcome.abbreviation }} - {{ item.outcome.shortDescription }}
+          </h5>
+          <div class="template-grid mt-0.5 flex flex-wrap gap-1">
+            @for (template of item.templates; track template) {
+              <mat-chip
+                class="cursor-pointer rounded-full px-1 py-0.5 transition-shadow duration-200 hover:shadow-lg"
+                [ngStyle]="isTemplateSelected(template) ? {'border': '1px solid'} : {}"
+                (click)="selectTemplate(template)"
+                (mouseenter)="onHoverTemplate(template)"
+                (mouseleave)="onHoverTemplate(null)"
+              >
+                @if (isTemplateSelected(template)) {
+                  <mat-icon matChipAvatar>check_circle</mat-icon>
+                }
+                @if (!isTemplateSelected(template) && template.taskStatus) {
+                  <mat-icon matChipAvatar>{{
+                    taskService.statusData(template.taskStatus).materialIcon
+                  }}</mat-icon>
+                }
+                @if (template.type === 'group' && !isGroupExpanded(template)) {
+                  <mat-icon matChipAvatar>folder</mat-icon>
+                }
+                @if (template.type === 'group' && isGroupExpanded(template)) {
+                  <mat-icon matChipAvatar>chevron_right</mat-icon>
+                }
+                {{ template.chipText }}
+              </mat-chip>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div #gloSection class="template-category my-1">
+      @for (item of glos$ | async; track item) {
+        <div class="outcome-section mt-2.5">
+          <h5 class="font-extrabold text-formatif-blue">
+            {{ item.outcome.abbreviation }} - {{ item.outcome.shortDescription }}
+          </h5>
+          <div class="template-grid mt-0.5 flex flex-wrap gap-1">
+            @for (template of item.templates; track template) {
+              <mat-chip
+                class="cursor-pointer rounded-full px-1 py-0.5 transition-shadow duration-200 hover:shadow-lg"
+                [ngStyle]="isTemplateSelected(template) ? {'border': '1px solid'} : {}"
+                (click)="selectTemplate(template)"
+                (mouseenter)="onHoverTemplate(template)"
+                (mouseleave)="onHoverTemplate(null)"
+              >
+                @if (isTemplateSelected(template)) {
+                  <mat-icon matChipAvatar>check_circle</mat-icon>
+                }
+                @if (!isTemplateSelected(template) && template.taskStatus) {
+                  <mat-icon matChipAvatar>{{
+                    taskService.statusData(template.taskStatus).materialIcon
+                  }}</mat-icon>
+                }
+                @if (template.type === 'group' && !isGroupExpanded(template)) {
+                  <mat-icon matChipAvatar>folder</mat-icon>
+                }
+                @if (template.type === 'group' && isGroupExpanded(template)) {
+                  <mat-icon matChipAvatar>chevron_right</mat-icon>
+                }
+                {{ template.chipText }}
+              </mat-chip>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="flex items-center border-t border-gray-300 p-3">
+    <mat-icon class="mr-2 flex-shrink-0 text-2xl">{{
+      hoveredTemplate?.type === 'group' ? 'folder' : 'description'
+    }}</mat-icon>
+    <div class="flex flex-col">
+      <p class="mb-0 text-xs font-semibold">
+        {{ hoveredTemplate?.chipText || 'Select a feedback chip' }}
+      </p>
+      <p class="mb-0 text-xs text-gray-500">
+        {{ hoveredTemplate?.description || 'This will populate the comment area with feedback.' }}
+      </p>
+    </div>
+  </div>
+</mat-card>

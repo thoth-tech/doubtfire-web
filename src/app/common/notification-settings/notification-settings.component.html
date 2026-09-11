@@ -1,0 +1,47 @@
+<section class="notification-settings flex size-full flex-col">
+  <h3>Notification Settings</h3>
+
+  <p class="notification-settings__intro">
+    Choose which notification categories you want to receive.
+  </p>
+
+  <div class="notification-setting">
+    <mat-checkbox
+      aria-describedby="task-notification-description"
+      color="primary"
+      [ngModelOptions]="{standalone: true}"
+      [(ngModel)]="user.receiveTaskNotifications"
+    >
+      Task notifications
+    </mat-checkbox>
+    <small id="task-notification-description">Receive notifications for task-related events.</small>
+  </div>
+
+  <div class="notification-setting">
+    <mat-checkbox
+      aria-describedby="feedback-notification-description"
+      color="primary"
+      [ngModelOptions]="{standalone: true}"
+      [(ngModel)]="user.receiveFeedbackNotifications"
+    >
+      Feedback notifications
+    </mat-checkbox>
+    <small id="feedback-notification-description">
+      Receive notifications for feedback-related events.
+    </small>
+  </div>
+
+  <div class="notification-setting">
+    <mat-checkbox
+      aria-describedby="portfolio-notification-description"
+      color="primary"
+      [ngModelOptions]="{standalone: true}"
+      [(ngModel)]="user.receivePortfolioNotifications"
+    >
+      Portfolio notifications
+    </mat-checkbox>
+    <small id="portfolio-notification-description">
+      Receive notifications for portfolio-related events.
+    </small>
+  </div>
+</section>

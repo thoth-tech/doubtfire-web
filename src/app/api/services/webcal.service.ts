@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Webcal } from '../models/webcal/webcal';
-import { Entity, EntityService } from 'ngx-entity-service';
-import { HttpClient } from '@angular/common/http';
-import API_URL from 'src/app/config/constants/apiURL';
+import {EntityService} from 'ngx-entity-service';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import API_URL from 'src/app/config/constants/apiUrl';
+import {Webcal} from '../models/webcal/webcal';
 
 @Injectable()
 export class WebcalService extends EntityService<Webcal> {
@@ -23,13 +23,13 @@ export class WebcalService extends EntityService<Webcal> {
       // Only used when updating the webcal.
       'shouldChangeGuid',
 
-      'reminder'
+      'reminder',
     );
 
     this.mapping.mapAllKeysToJsonExcept('id');
   }
 
-  public createInstanceFrom(json: any, other?: any): Webcal {
+  public createInstanceFrom(_json: object): Webcal {
     return new Webcal();
   }
 }

@@ -1,0 +1,128 @@
+<div class="notifications-page mx-auto my-6 max-w-3xl px-4">
+  <div class="notifications-header mb-4 flex items-center justify-between gap-3">
+    <h1 class="text-2xl">Notifications</h1>
+
+    <!--
+      Keep the control rendered once the list is visible, even after the last
+      unread row changes. Removing a focused button would drop keyboard focus to
+      the document body. disabledInteractive keeps it focusable while the guard
+      in markAllRead prevents another request.
+    -->
+    @if (!loading && !loadFailed && notifications.length) {
+      <!--
+        The label is hidden below sm and the icon carries it there, so the
+        aria-label is not a duplicate of visible text, it is the only wording
+        left at that size.
+      -->
+      <button
+        aria-label="Mark all read"
+        class="notification-mark-all"
+        mat-stroked-button
+        [disabled]="!hasUnread || markAllReadPending"
+        [disabledInteractive]="true"
+        (click)="markAllRead()"
+      >
+        <mat-icon>done_all</mat-icon>
+        <span class="notification-mark-all-label">Mark all read</span>
+      </button>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="flex items-center gap-3 py-6">
+      <mat-spinner [diameter]="24"></mat-spinner>
+      <span>Loading your notifications</span>
+    </div>
+  } @else if (loadFailed) {
+    <!--
+      Kept apart from the empty state on purpose. "You have none" and "we could
+      not find out" look the same and mean opposite things, and only one of them
+      has a way out.
+    -->
+    <div class="notifications-placeholder py-6">
+      <p>We could not load your notifications.</p>
+      <button class="notifications-retry" mat-stroked-button (click)="load()">Try again</button>
+    </div>
+  } @else if (!notifications.length) {
+    <div class="notifications-placeholder py-6">
+      <p>You have no notifications yet.</p>
+      <p class="notification-time">
+        Comments on your tasks, feedback and reminders will show up here.
+      </p>
+    </div>
+  } @else {
+    <!--
+      Plain buttons rather than mat-list-item. Material lays a list row out with
+      its own leading-icon and content wrappers, and the dropdown in the header
+      is a mat-menu-item with a different set of wrappers again, so the two
+      never lined up. Both now use the same .notification-line markup and the
+      same stylesheet block, and Material lays out neither.
+
+      Still a <button>: a div with a click handler is a row only a mouse can
+      open.
+    -->
+    <div class="notification-list">
+      @for (notification of visible; track notification.id) {
+        <!--
+          The delete button is a sibling of the row and not inside it. A button
+          inside a button is not valid html, the browser unnests them, and the
+          two end up as separate controls in an order nobody chose. Being
+          siblings is also what stops a click on delete from opening the
+          notification, with no need to stop the event.
+        -->
+        <div class="notification-item flex w-full items-center">
+          <button
+            class="notification-row grow"
+            type="button"
+            [attr.aria-label]="rowLabel(notification)"
+            (click)="open(notification)"
+          >
+            <span class="notification-line">
+              <!--
+                Same five categories and the same colours as the dropdown in the
+                header, so a notification looks like itself wherever it is read.
+              -->
+              <span class="notification-glyph" [class]="'tone-' + toneFor(notification)">
+                <mat-icon>{{ iconFor(notification) }}</mat-icon>
+              </span>
+
+              <span class="notification-body">
+                <span class="notification-message" [class.unread]="!notification.isRead">{{
+                  notification.message
+                }}</span>
+                <span class="notification-time">{{ timeAgo(notification) }}</span>
+              </span>
+
+              <span
+                aria-hidden="true"
+                class="notification-unread-dot"
+                [class.is-read]="notification.isRead"
+              ></span>
+            </span>
+          </button>
+
+          <button
+            class="notification-delete"
+            mat-icon-button
+            matTooltip="Delete"
+            [attr.aria-label]="deleteLabel(notification)"
+            [disabled]="isDeleting(notification)"
+            [disabledInteractive]="true"
+            (click)="confirmDelete(notification)"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+
+    <mat-paginator
+      class="mat-elevation-z0"
+      [length]="notifications.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="onPage($event)"
+    ></mat-paginator>
+  }
+</div>

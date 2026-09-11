@@ -1,0 +1,67 @@
+CPD sizing source comparison
+
+Plain 10.0.x
+commit: c57c1c3206073f7b45fba69eefe9875985a4bee9
+result: src/app/dashboard/f-cross-dashboard.component.html does not exist
+
+Legacy Feature/Cross-Unit based on 10.0.x
+commit: 187902747adb3a851bd3294b97b2a9d4a6e8ca95
+package version: 10.0.1-29
+component classes:
+  dashboard strip: panel-full-screen flex flex-row gap-8 px-16 overflow-x-auto
+  unit card: flex flex-col h-full w-[34rem] shadow
+  search: h-full w-64 p-2 px-4 text-md rounded-md
+rendering context:
+  Bootstrap 3.4 sets html font-size to 10px
+rendered sizes:
+  px-16 = 40 px each side
+  gap-8 = 20 px
+  w-[34rem] = 340 px
+  w-64 = 160 px
+
+Bootstrap removal
+commit: a8ba06c01cd47937249d5780face427143b7dac4
+message: refactor: remove bootstrap and grunt packages
+recorded migration rule: Tailwind spacing, sizing, and font classes render 60 percent larger after
+  Bootstrap removal, so existing utilities were reduced to 0.625 of their old scale
+
+CPD skeleton reintroduction
+commit: 2c6d2786e9484c57436099d25281aa45fa89453c
+finding: copied the legacy CPD utility classes after Bootstrap had been removed, reintroducing the
+  unscaled w-[34rem], w-64, px-16, gap-8, gap-4, and p-4 values
+
+Current feature/cross-unit docs-only replacement base
+commit: 9962e7ea171a2bf6d7a12be50874fa5c7ee77e21
+package version: 11.0.0-45
+component classes:
+  dashboard strip: flex min-h-0 flex-1 flex-row gap-8 overflow-x-auto px-16 pb-4
+  unit card: flex h-full w-128 shrink-0 flex-col shadow
+  search: text-md h-full w-56 rounded-md p-2 px-4
+  unit scope: w-full max-w-64
+rendering context:
+  browser default html font-size is 16 px
+rendered sizes:
+  px-16 = 64 px each side
+  gap-8 = 32 px
+  w-128 = 512 px
+  w-56 = 224 px
+
+Responsive sizing fix
+commit: 854f9ce9ba5f100b0425996c3f5d7e248faa6b32
+changes:
+  unit scope: w-64 -> w-full max-w-64
+  unit card: w-136 -> w-128
+  search: w-64 -> w-56
+rendered effect at 16 px root:
+  card: 544 px -> 512 px
+  search: 256 px -> 224 px
+
+Comparison to legacy rendered values
+  card: 340 px -> 512 px (+172 px, +50.6 percent)
+  search: 160 px -> 224 px (+64 px, +40 percent)
+  side padding: 40 px -> 64 px (+60 percent)
+  inter-card gap: 20 px -> 32 px (+60 percent)
+
+Sizing fix conflict resolution
+commit: 09b3d248f48b92b7b4a5cb58434eb9c3d0944017
+result: retained w-full max-w-64, w-128, and w-56 while integrating date controls

@@ -1,0 +1,233 @@
+// The menu panel is rendered into the cdk overlay container, outside this
+// component's element, so component scoped styles never reach it. ::ng-deep on
+// the panel class is how unit-dropdown next door sizes its own menu. Everything
+// below that line is inside the component's own template, overlay or not, so it
+// keeps its encapsulation attribute and needs no ::ng-deep.
+//
+// The width is a preference and not a floor. Material's own panel sets
+// max-width: 280px, which is what this is here to override, but a fixed
+// min-width would make the panel wider than a 320px phone and push the page
+// sideways.
+::ng-deep .notification-dropdown-menu.mat-mdc-menu-panel {
+  border-radius: 16px;
+  max-width: min(380px, calc(100vw - 32px));
+  min-width: 0;
+  // Material's own container shape is 4px. Without clipping, the first and last
+  // rows square the corners back off again on hover.
+  overflow: hidden;
+  width: 380px;
+}
+
+// Put the count on the bell.
+//
+// Material anchors the badge at the host's outside top right corner, with
+// `bottom: 100%` and `left: 100%`, and then pulls it back with a negative
+// margin from one of these two tokens. Which token depends on whether the badge
+// overlaps, so both are set: leaving either at the theme's -11px leaves the
+// number sitting beside the bell rather than on it, which is what the default
+// looks like on a 40px icon button.
+//
+// matBadgeSize="small" is also gone from the template. It is a 16px container,
+// fine for a one digit job count and cramped for a two digit unread count; the
+// default 22px is the readable one, and a bigger badge needs pulling in further
+// to sit on the glyph.
+:host {
+  --mat-badge-container-offset: -20px -20px;
+  --mat-badge-container-overlap-offset: -20px;
+
+  // The toolbar is a plain flex row with no wrapping, so anything in it that
+  // can grow pushes the rest towards the edge. This one never does.
+  //
+  // The header drops this component entirely below xs, where there is no room
+  // for it at all. See the comment beside it in header.component.html.
+  flex: 0 0 auto;
+}
+
+// A ring in the toolbar's own colour, so the badge cuts itself out from the
+// glyph it sits on top of.
+//
+// A box-shadow and not a border. Material sets box-sizing: border-box on the
+// badge and gives it a fixed 22px box with a 22px line-height, so a 2px border
+// takes the content box down to 18px while the line box stays 22 and the digit
+// is shoved off centre. A shadow draws the same ring and costs no layout.
+:host ::ng-deep .mat-badge-content {
+  box-shadow: 0 0 0 2px #fff;
+  font-weight: 700;
+}
+
+// mat-menu-item is built for one line of text. It pins itself to 48px, and it
+// wraps whatever you put in it in a .mat-mdc-menu-item-text span that clips and
+// refuses to wrap. That span is Material's own, so it carries no encapsulation
+// attribute and ::ng-deep is the only way to reach it. Without this the row lays
+// itself out inside a box that is not the width it looks, which is what pushes
+// the glyph off centre.
+.notification-row.mat-mdc-menu-item {
+  height: auto;
+  line-height: 1.35;
+  min-height: 0;
+  padding: 12px 10px 12px 16px;
+  white-space: normal;
+
+  ::ng-deep .mat-mdc-menu-item-text {
+    display: block;
+    overflow: visible;
+    white-space: normal;
+    width: 100%;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shared row shape. The full notifications page carries a copy of this block,
+// deliberately: the two components are on sibling branches so neither can
+// import from the other yet, and a row has to look the same in both places.
+// Both copies belong in one stylesheet once they have merged.
+// ---------------------------------------------------------------------------
+.notification-line {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.notification-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+
+.notification-glyph {
+  align-items: center;
+  border-radius: 50%;
+  display: inline-flex;
+  flex: 0 0 36px;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+
+  // mat-icon ships as a 24px inline-block with a 24px line box, and picks up
+  // margins from Material's list and menu classes. Left alone the glyph is
+  // nearly as wide as the circle and sits low and left in it, because an inline
+  // box aligns on its baseline and the margins push it. Making it a block with
+  // a line-height equal to its own height and no margin takes both out, and the
+  // flex centring above then does what it looks like it does.
+  .mat-icon {
+    // Explicitly, not by inheritance. Material colours icons inside a menu item
+    // with .mat-mdc-menu-item .mat-icon { color: ... }, so a tone set on the
+    // circle around it is simply overridden and the glyph comes out black in
+    // the dropdown while the same glyph is coloured on the page.
+    color: inherit;
+    display: block;
+    font-size: 20px;
+    height: 20px;
+    line-height: 20px;
+    margin: 0;
+    overflow: visible;
+    width: 20px;
+  }
+
+  // One pair per category in Notification::TYPES. The tints are the same hue as
+  // the glyph at low alpha, so the circle reads as a wash rather than a second
+  // colour to remember.
+  &.tone-feedback {
+    background: rgba(57, 57, 255, 0.12);
+    color: #2a2ad6;
+  }
+
+  &.tone-task {
+    background: rgba(199, 119, 0, 0.12);
+    color: #b26a00;
+  }
+
+  &.tone-portfolio {
+    background: rgba(123, 63, 242, 0.12);
+    color: #7b3ff2;
+  }
+
+  &.tone-extension {
+    background: rgba(31, 138, 76, 0.12);
+    color: #1f8a4c;
+  }
+
+  &.tone-general {
+    background: rgba(95, 99, 104, 0.12);
+    color: #5f6368;
+  }
+}
+
+.notification-message {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 14px;
+  line-height: 1.35;
+  white-space: normal;
+
+  // Unread is carried by weight and by the dot, not by colour on its own, and
+  // the row's aria-label says it in words for anyone who can see neither.
+  &.unread {
+    font-weight: 600;
+  }
+}
+
+.notification-unread-dot {
+  background: #3939ff;
+  border-radius: 50%;
+  flex: 0 0 7px;
+  height: 7px;
+  width: 7px;
+
+  &.is-read {
+    visibility: hidden;
+  }
+}
+
+.notification-time,
+.notification-stale {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.notification-empty {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+}
+
+.notification-mark-all.mat-mdc-menu-item {
+  flex: 0 0 auto;
+  font-size: 12px;
+  min-height: 48px;
+  padding: 0 12px;
+  width: auto;
+}
+
+.notification-see-all {
+  font-size: 12px;
+}
+
+// Mark all read and Delete are real menu items so MatMenu's arrow-key manager
+// can reach them. Keep Delete compact beside the notification row while
+// retaining a 48px keyboard and pointer target.
+.notification-delete.mat-mdc-menu-item {
+  flex: 0 0 48px;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0;
+  width: 48px;
+
+  // MatMenu renders an empty text wrapper after an icon-only item. Remove it
+  // so the close icon can sit in the true centre of the button.
+  ::ng-deep .mat-mdc-menu-item-text {
+    display: none;
+  }
+
+  .mat-icon {
+    display: block;
+    font-size: 18px;
+    height: 18px;
+    line-height: 18px;
+    margin: 0;
+    width: 18px;
+  }
+}

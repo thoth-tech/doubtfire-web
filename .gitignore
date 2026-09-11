@@ -11,10 +11,13 @@ vendor/
 .sass-cache*
 .bundle*
 tmp.scss
-.vscode
 .tscache
 a.env
+.env
 dist/
 .angulardoc.json
 .nx
 .idea
+
+# Sentry Config File
+.sentryclirc

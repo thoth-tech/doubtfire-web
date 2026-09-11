@@ -1,0 +1,143 @@
+<div class="flex h-full flex-col">
+  @if (!loadingStaffNotes && project?.staffNoteCount === 0) {
+    <div class="flex size-full items-center justify-center text-gray-300">
+      No staff notes for {{ project.student.preferredName }} {{ project.student.lastName }}
+    </div>
+  }
+  <div #staffNotesContainer class="flex-1 overflow-auto p-2.5">
+    @if (!loadingStaffNotes) {
+      @for (note of project?.staffNoteCache?.currentValues; track note) {
+        @if (note.replyToId) {
+          <div
+            class="flex items-center justify-between rounded-t-md border border-gray-300 p-1 text-sm select-none"
+          >
+            <div
+              class="flex items-center"
+              [ngClass]="note.replyTo && 'cursor-pointer hover:text-blue-500 hover:underline'"
+              (click)="scrollToNote(note.replyTo)"
+            >
+              <mat-icon class="mr-2">reply</mat-icon>
+              <div class="flex flex-col">
+                @if (note.replyTo) {
+                  <span class="font-medium">
+                    Replying to {{ note.replyTo.user.preferredName }}
+                    {{ note.replyTo.user.lastName }} ({{ note.replyTo.user.nickname }})
+                  </span>
+                  <span class="text-xs text-gray-600">{{ note.replyTo.note }}</span>
+                } @else {
+                  <span class="text-xs text-gray-400 italic">Replying to: Deleted note</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+        <mat-card class="note-card mb-2.5 p-3" [id]="'note-' + note.id">
+          <div class="note-actions absolute right-3 bottom-3 flex">
+            @if (note.authorIsMe) {
+              <button
+                aria-label="Edit this note"
+                class="note-action"
+                type="button"
+                (click)="editNote(note)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+            }
+            <button
+              aria-label="Reply to this note"
+              class="note-action"
+              type="button"
+              (click)="replyToNote(note)"
+            >
+              <mat-icon>reply</mat-icon>
+            </button>
+            <button
+              aria-label="Delete this note"
+              class="note-action"
+              type="button"
+              (click)="deleteNote(note)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          <div class="flex justify-between">
+            <mat-card-title class="flex items-center">
+              <user-icon style="margin-right: 8px" [size]="25" [user]="note.user"></user-icon>
+              {{ note.user?.firstName }} {{ note.user?.lastName }}</mat-card-title
+            >
+            <div class="flex items-center">
+              <mat-card-subtitle
+                matTooltipPosition="above"
+                matTooltipShowDelay="1000"
+                [matTooltip]="note.createdAt | localizedDateTime"
+                >{{ note.createdAt | humanizedDate }}</mat-card-subtitle
+              >
+            </div>
+          </div>
+
+          <mat-card-content class="py-2.5">
+            @if (editingNote && editingNote.id === note.id) {
+              <mat-form-field appearance="outline" class="flex w-full items-center">
+                <mat-label>Update Note</mat-label>
+                <textarea
+                  #staffNoteEditor
+                  class="w-full resize-none overflow-hidden px-1 py-0.5 placeholder:px-1 placeholder:py-0.5"
+                  matInput
+                  [(ngModel)]="editingNoteText"
+                  (input)="autoResizeStaffNoteEditor()"
+                ></textarea>
+                <div class="flex justify-end gap-1">
+                  <button color="" mat-raised-button (click)="cancelEditingNote()">Cancel</button>
+                  <button color="primary" mat-raised-button (click)="updateNote()">
+                    Update Note
+                  </button>
+                </div>
+              </mat-form-field>
+            } @else {
+              <div class="markdown-to-html" [innerHTML]="note.note | marked"></div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    } @else {
+      <!-- <div id="spinner">
+          <mat-spinner
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
+          ></mat-spinner>
+        </div> -->
+    }
+  </div>
+
+  <div class="h-[150px] border-t border-gray-300 p-2.5">
+    @if (replyingToNote) {
+      <div
+        class="flex items-center justify-between rounded-t-md border border-b-0 border-gray-300 p-1 text-sm select-none"
+      >
+        <div class="flex items-center">
+          <mat-icon class="mt-0.5 mr-2">reply</mat-icon>
+          <div class="flex flex-col">
+            <span class="font-medium">
+              Replying to {{ replyingToNote.user.firstName }} {{ replyingToNote.user.lastName }} ({{
+                replyingToNote.user.nickname
+              }})
+            </span>
+            <span class="text-xs text-gray-600">{{ replyingToNote.note }}</span>
+          </div>
+        </div>
+        <mat-icon class="cursor-pointer" (click)="cancelReplyingToNote()">close</mat-icon>
+      </div>
+    }
+
+    <mat-form-field appearance="outline" class="flex w-full items-center">
+      <mat-label>Staff Note</mat-label>
+      <textarea
+        class="w-full resize-none px-1 py-0.5 placeholder:px-1 placeholder:py-0.5"
+        matInput
+        [(ngModel)]="noteText"
+      ></textarea>
+      <div class="flex justify-end">
+        <button color="primary" mat-raised-button (click)="submitNote()">Submit</button>
+      </div>
+    </mat-form-field>
+  </div>
+</div>

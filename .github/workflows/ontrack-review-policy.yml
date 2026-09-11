@@ -1,0 +1,56 @@
+name: OnTrack review policy evaluator
+
+on:
+  workflow_run:
+    workflows:
+      - OnTrack review policy signal
+    types:
+      - completed
+  push:
+    branches:
+      - 11.0.x
+  schedule:
+    # Reconcile team membership and base-branch changes even when no PR event fires.
+    - cron: '3-58/5 * * * *'
+
+# The repository token is used only to check out the trusted evaluator from the
+# default branch. The GitHub App token is separately scoped to member/PR reads and
+# commit-status writes.
+permissions:
+  contents: read
+
+concurrency:
+  # Serialize signals for the same PR without allowing unrelated PR activity to
+  # replace a queued revocation. Scheduled and base-push reconciliations share a
+  # separate group. Every run re-reads authoritative GitHub state.
+  group: ontrack-review-policy-${{ github.repository }}-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.display_title || 'reconcile' }}
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    if: github.repository_owner == 'ontrack-features-t2-2026'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment:
+      name: ontrack-review-policy
+      deployment: false
+
+    steps:
+      - name: Check out the trusted policy evaluator
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: refs/heads/11.0.x
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: .github/review-policy
+
+      - name: Verify policy logic
+        run: node --test .github/review-policy/evaluate.test.mjs
+
+      - name: Evaluate current pull-request approvals
+        env:
+          ONTRACK_REVIEW_APP_ID: ${{ vars.ONTRACK_REVIEW_APP_ID }}
+          ONTRACK_REVIEW_APP_PRIVATE_KEY: ${{ secrets.ONTRACK_REVIEW_APP_PRIVATE_KEY }}
+          ONTRACK_CONTRIBUTOR_TEAM: ontrack-contributors
+          ONTRACK_LEAD_TEAM: ontrack-leads
+        run: node .github/review-policy/evaluate.mjs

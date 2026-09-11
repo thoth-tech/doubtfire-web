@@ -1,46 +1,94 @@
 @if (showHeader) {
   <mat-toolbar
-    [ngClass]="{inbox: globalState.isInboxState}"
     class="flex items-center justify-start"
     style="min-height: 85px"
+    [ngClass]="{inbox: globalState.isInboxState}"
   >
     @if (!media.isActive('xs')) {
-      <a uiSref="home" class="pt-4">
+      @if (logoSettings.hasLogo) {
+        <a class="mx-3.5" [href]="logoSettings.logoLinkUrl">
+          <img style="height: 32px" [alt]="externalName + 'logo'" [src]="logoSettings.logoUrl" />
+        </a>
+      }
+
+      <a class="pt-2.5" routerLink="/home">
         <mat-icon
-          uiSref="home"
+          aria-label="Formatif logo"
+          class="formatif-icon"
           style="margin-right: 20px; margin-left: 20px"
           svgIcon="formatif-logo"
-          class="formatif-icon"
-          aria-label="Formatif logo"
         ></mat-icon>
       </a>
     }
 
     <unit-dropdown
+      class="mr-1"
+      [projects]="projects"
       [unit]="currentUnit"
       [unitRoles]="filteredUnitRoles"
-      [projects]="projects"
-      class="mr-2"
     >
     </unit-dropdown>
 
     <task-dropdown
-      [currentUnit]="currentUnit"
       [currentProject]="currentProject"
+      [currentUnit]="currentUnit"
       [currentView]="currentView"
       [data]="data"
       [unitRole]="currentUnitRole"
     ></task-dropdown>
 
     <span class="grow"></span>
-
+    <!--
+      Not on a phone. This toolbar is a flex row that does not wrap, and neither
+      dropdown to the left of it shrinks, so on xs there is no room left and one
+      more icon pushes the account button off the screen. An @if rather than
+      hiding it with css, so the component is never created and does not sit
+      there asking for an unread count nobody can see.
+    -->
+    @if (!media.isActive('xs')) {
+      <notification-bell></notification-bell>
+    }
+    @if (sidekiqJobs.length) {
+      <button mat-icon-button (click)="showSidekiqJob()">
+        <div class="z-50" matBadgeSize="small" [matBadge]="sidekiqJobs.length"></div>
+        <mat-icon>cloud_sync_outline</mat-icon>
+      </button>
+    }
+    @if (currentUnit && currentUnitRole && currentUnitRole.tutorNoteCount > 0) {
+      <!-- TODO: Replace this with a more standardised notification system -->
+      <button mat-icon-button matTooltip="Moderation Notes" (click)="openTutorNotes()">
+        <mat-icon matBadgeSize="small" [matBadge]="currentUnitRole.tutorNoteCount"
+          >feedback</mat-icon
+        >
+      </button>
+    }
+    @if (currentUnit && !isTutorDiscussionRoute) {
+      <button
+        aria-label="Show my QR code"
+        class="qr-toolbar-action"
+        mat-icon-button
+        (click)="showMyQr()"
+      >
+        <mat-icon>qr_code_scanner</mat-icon>
+      </button>
+    }
+    @if (!media.isActive('xs')) {
+      <button
+        aria-label="Open your calendar subscription settings"
+        mat-icon-button
+        matTooltip="Subscribe to your calendar"
+        (click)="openCalendar()"
+      >
+        <mat-icon>calendar_month</mat-icon>
+      </button>
+    }
     @if (currentUser.role === 'Admin' || currentUser.role === 'Convenor') {
       <button
         #menuState="matMenuTrigger"
-        mat-icon-button
-        fxShow.lt-sm="false"
-        fxShow.gt-md="true"
         fxShow="true"
+        fxShow.gt-md="true"
+        fxShow.lt-sm="false"
+        mat-icon-button
         [matMenuTriggerFor]="menu"
       >
         <mat-icon>admin_panel_settings</mat-icon>
@@ -48,41 +96,75 @@
     }
     <mat-menu #menu="matMenu">
       @if (currentUser.role === 'Admin') {
-        <button mat-menu-item uiSref="institutionsettings">
+        <button mat-menu-item routerLink="/admin/institution-settings">
           <mat-icon matListItemIcon>business</mat-icon>
           Institution Settings
         </button>
       }
-      <button mat-menu-item uiSref="admin/units">
+      <button mat-menu-item routerLink="/admin/units">
         <mat-icon matListItemIcon>school</mat-icon>
         Manage Units
       </button>
       @if (currentUser.role === 'Admin') {
-        <button mat-menu-item uiSref="admin/users">
+        <button mat-menu-item routerLink="/admin/users">
           <mat-icon matListItemIcon>people</mat-icon>
           Manage Users
         </button>
       }
     </mat-menu>
 
-    <button mat-button [matMenuTriggerFor]="menu2">
-      <user-icon [size]="32"></user-icon>
+    <button
+      aria-label="Open account menu"
+      class="account-menu-trigger"
+      mat-button
+      [matMenuTriggerFor]="menu2"
+      (menuOpened)="refreshMobileUnreadCount()"
+    >
+      <user-icon [size]="32" [user]="currentUser"></user-icon>
     </button>
     <mat-menu #menu2="matMenu">
-      <button mat-menu-item uiSref="edit_profile">
-        <mat-icon matListItemIcon aria-label="Edit profile">person</mat-icon>
-        Edit Profile
+      <!--
+        The way in on a phone. The bell is not rendered below xs because the
+        toolbar has no room for it, so without this there is no route to the
+        notifications at all on the size where people most want them. It carries
+        the count for the same reason a badge does: an entry that never looks
+        different is one nobody taps.
+      -->
+      @if (media.isActive('xs')) {
+        <button mat-menu-item routerLink="/notifications">
+          <mat-icon aria-label="Notifications" matListItemIcon>notifications</mat-icon>
+          Notifications
+          @if (unreadNotifications) {
+            <span class="notification-menu-count">{{ unreadNotifications }}</span>
+          }
+        </button>
+      }
+      @if (currentUnit && !isTutorDiscussionRoute) {
+        <button class="qr-account-menu-action" mat-menu-item (click)="showMyQr()">
+          <mat-icon aria-label="Show my QR code" matListItemIcon>qr_code_scanner</mat-icon>
+          Show my QR code
+        </button>
+      }
+      @if (demoMode.available) {
+        <button mat-menu-item routerLink="/demo-controls">
+          <mat-icon aria-label="Demo controls" matListItemIcon>science</mat-icon>
+          Demo controls
+        </button>
+      }
+      <button mat-menu-item routerLink="/edit_profile">
+        <mat-icon aria-label="Edit profile" matListItemIcon>person</mat-icon>
+        My Profile
       </button>
       <button mat-menu-item (click)="openCalendar()">
-        <mat-icon matListItemIcon aria-label="Edit calendar">calendar_month</mat-icon>
+        <mat-icon aria-label="Edit calendar" matListItemIcon>calendar_month</mat-icon>
         Calendar
       </button>
       <button mat-menu-item (click)="openAboutModal()">
-        <mat-icon matListItemIcon aria-label="About">info</mat-icon>
+        <mat-icon aria-label="About" matListItemIcon>info</mat-icon>
         About
       </button>
       <button mat-menu-item (click)="signOut()">
-        <mat-icon matListItemIcon aria-label="Sign out">logout</mat-icon>
+        <mat-icon aria-label="Sign out" matListItemIcon>logout</mat-icon>
         Sign Out
       </button>
     </mat-menu>

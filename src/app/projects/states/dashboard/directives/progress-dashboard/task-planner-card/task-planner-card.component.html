@@ -1,0 +1,47 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Plan Your Tasks</mat-card-title>
+    <mat-card-subtitle class="mb-2.5">
+      <p>
+        The Task Planner shows a timeline of your tasks, their due dates, and prerequisite
+        relationships. Use it to plan when to start and submit tasks, ensuring prerequisites are
+        completed early so you have time for feedback.
+      </p>
+      @if (unit.allowFlexibleDates) {
+        <p>
+          You can set your own start and target dates. Be mindful of each task’s
+          <strong>Feedback Deadline</strong> — submissions after this date will not be checked. Aim
+          to finish at least one week before the deadline, especially if you are targeting a higher
+          grade.
+        </p>
+      }
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content class="task-planner-controls flex flex-col items-start gap-4">
+    <button mat-stroked-button [routerLink]="['/projects', project.id, 'plan']">
+      <mat-icon aria-label="Launch icon" style="width: 20px; height: 20px; font-size: 20px">
+        launch
+      </mat-icon>
+      View Task Planner
+    </button>
+    <mat-form-field appearance="outline" class="w-full max-w-xs">
+      <mat-label>Grade to include</mat-label>
+      <mat-select class="w-full" [(ngModel)]="selectedDownloadGrade">
+        @for (grade of gradeValues; track grade) {
+          <mat-option [value]="grade">{{ gradeLabel(grade) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button
+      class="download-ics-link"
+      mat-stroked-button
+      [disabled]="!hasDownloadableTasks"
+      (click)="downloadIcs()"
+    >
+      <mat-icon aria-label="Download icon" style="width: 20px; height: 20px; font-size: 20px">
+        download
+      </mat-icon>
+      Download .ics
+    </button>
+  </mat-card-content>
+</mat-card>

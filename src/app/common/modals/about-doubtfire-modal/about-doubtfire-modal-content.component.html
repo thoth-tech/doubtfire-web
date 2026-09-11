@@ -1,0 +1,98 @@
+<mat-dialog-content class="mat-typography">
+  <div class="flex w-full items-center justify-center gap-5 text-center">
+    <img alt="OnTrack logo" class="mb-3 size-24" src="/assets/images/logo.svg" />
+    <h1 class="logo text-5xl sm:text-6xl">
+      {{ data.externalName }}
+      <small
+        class="block text-right text-2xl leading-loose"
+        [hidden]="data.externalName !== 'Doubtfire'"
+      >
+        Version 6
+      </small>
+    </h1>
+  </div>
+  <mat-divider class="my-6"></mat-divider>
+  <div>
+    <h2 class="text-center text-xl font-bold text-gray-800 uppercase">Lead Contributors</h2>
+    <ul
+      class="mx-auto flex w-11/12 list-none flex-wrap justify-center gap-y-8 p-0 sm:w-5/6 sm:gap-x-10 sm:py-12"
+    >
+      @for (person of data.mainContributors; track person) {
+        <li class="mx-auto w-4/5 sm:mx-0 sm:w-1/5">
+          <a
+            class="block w-full text-center text-lg text-gray-700 no-underline hover:underline"
+            target="_blank"
+            [href]="person.html_url"
+          >
+            <img alt="" class="mx-auto mb-4 w-full rounded-full" [src]="person.avatar_url" />
+            <div class="text-center leading-none font-bold">{{ person.name }}</div>
+            <div class="mt-1 block text-lg">&#64;{{ person.login }}</div>
+          </a>
+        </li>
+      }
+    </ul>
+    <h2 class="text-center text-xl font-bold text-gray-800 uppercase">Contributors</h2>
+    <table
+      class="mb-4 w-full"
+      mat-table
+      matSort
+      [dataSource]="data.allContributors"
+      (matSortChange)="sortData($event)"
+    >
+      <!-- Login Column -->
+      <ng-container matColumnDef="contributor">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Contributor</th>
+        <td *matCellDef="let element" mat-cell>
+          <a class="inline-flex items-center" target="_blank" [href]="element.htmlUrl">
+            <img alt="" class="m-4 w-12 rounded-full" [src]="element.avatarUrl" />&#64;{{
+              element.login
+            }}
+          </a>
+        </td>
+      </ng-container>
+      <!-- Contributions Column -->
+      <ng-container matColumnDef="contributions">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Contributions</th>
+        <td *matCellDef="let element" mat-cell>{{ element.totalContributions }}</td>
+      </ng-container>
+      <!-- API Contributions Column -->
+      <ng-container matColumnDef="api-contributions">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>API</th>
+        <td *matCellDef="let element" mat-cell>{{ element.apiContributions }}</td>
+      </ng-container>
+      <!-- Web Contributions Column -->
+      <ng-container matColumnDef="web-contributions">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Web</th>
+        <td *matCellDef="let element" mat-cell>{{ element.webContributions }}</td>
+      </ng-container>
+      <!-- Deploy Contributions Column -->
+      <ng-container matColumnDef="deploy-contributions">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Deploy</th>
+        <td *matCellDef="let element" mat-cell>{{ element.deployContributions }}</td>
+      </ng-container>
+      <!-- Doubtfire.io Contributions Column -->
+      <ng-container matColumnDef="io-contributions">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>doubtfire.io</th>
+        <td *matCellDef="let element" mat-cell>{{ element.ioContributions }}</td>
+      </ng-container>
+
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+    </table>
+    <p class="text-muted text-center">&copy; 2012&ndash;2023. Made in Melbourne.</p>
+    <p class="text-muted text-center text-sm">
+      OnTrack is an
+      <a class="text-gray-900" href="http://github.com/doubtfire-lms" target="_blank"
+        >Open Source</a
+      >
+      project licensed under <strong>GNU Affero General Public License (AGPL) v3.0</strong>. Star us
+      on
+      <a class="text-gray-900" href="http://github.com/doubtfire-lms/doubtfire-web" target="_blank"
+        >GitHub</a
+      >!
+    </p>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-dialog-close mat-stroked-button>Close</button>
+</mat-dialog-actions>

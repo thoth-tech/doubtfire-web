@@ -1,8 +1,11 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
-import { TaskSubmissionService, TaskAssessmentResult } from 'src/app/common/services/task-submission.service';
-import { TaskAssessmentModalService } from 'src/app/common/modals/task-assessment-modal/task-assessment-modal.service';
-import { Task } from 'src/app/api/models/doubtfire-model';
-import { AlertService } from 'src/app/common/services/alert.service';
+import {ChangeDetectionStrategy, Component, Inject, Input} from '@angular/core';
+import {Task} from 'src/app/api/models/doubtfire-model';
+import {TaskAssessmentModalService} from 'src/app/common/modals/task-assessment-modal/task-assessment-modal.service';
+import {AlertService} from 'src/app/common/services/alert.service';
+import {
+  TaskAssessmentResult,
+  TaskSubmissionService,
+} from 'src/app/common/services/task-submission.service';
 
 export interface User {
   id: number;
@@ -23,14 +26,21 @@ export interface TaskAssessmentComment {
   recipient_read_time?: Date;
   // new fields that extend regular Comment Interface. TODO: create a separate Comment entity and extend it.
   assessment_result?: TaskAssessmentResult;
+  overseerAssessmentId: number;
+  overseerPassedSteps: number;
+  overseerTotalSteps: number;
+  overseerInProgress: boolean;
+  overseerStatus: string;
 }
 
 @Component({
   selector: 'app-task-assessment-comment',
   templateUrl: './task-assessment-comment.component.html',
   styleUrls: ['./task-assessment-comment.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class TaskAssessmentCommentComponent implements OnInit {
+export class TaskAssessmentCommentComponent {
   @Input() task: Task;
   @Input() comment: TaskAssessmentComment;
 
@@ -45,20 +55,16 @@ export class TaskAssessmentCommentComponent implements OnInit {
     this.alerts.error('Error: ' + error, 6000);
   }
 
-  ngOnInit() {
-    this.update();
-  }
-
   get message() {
     return this.comment.assessment_result.assessment_output;
   }
 
-  showTaskAssessmentResult() {
-    this.modalService.show(this.task);
+  showTaskAssessmentResult(overseerAssessmentId?: number) {
+    this.modalService.show(this.task, overseerAssessmentId);
   }
 
   scroll(el: HTMLElement) {
-    el.scrollIntoView({ behavior: 'smooth' });
+    el.scrollIntoView({behavior: 'smooth'});
   }
 
   update(): void {

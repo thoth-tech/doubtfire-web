@@ -1,6 +1,6 @@
 {
-  "name": "formatif learning and feedback",
-  "short_name": "formatif",
+  "name": "OnTrack learning and feedback",
+  "short_name": "OnTrack",
   "icons": [
     {
       "src": "/assets/icons/android-chrome-192x192.png",
@@ -11,6 +11,12 @@
       "src": "/assets/icons/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/android-chrome-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "theme_color": "#3939ff",

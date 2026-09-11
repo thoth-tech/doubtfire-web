@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CPD sizing investigation - synthetic comparison</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #252525;
+        background: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      body {
+        margin: 0;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .evidence-header {
+        display: flex;
+        height: 64px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 0 28px;
+        color: #ffffff;
+        background: #24245c;
+      }
+
+      .evidence-header h1 {
+        margin: 0;
+        overflow: hidden;
+        font-size: 20px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .evidence-header p {
+        margin: 0;
+        flex: 0 0 auto;
+        font-size: 13px;
+      }
+
+      .dashboard {
+        display: flex;
+        height: calc(100vh - 64px);
+        min-height: 0;
+        flex-direction: column;
+      }
+
+      .toolbar {
+        display: none;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 16px;
+        padding: 16px 64px 0;
+      }
+
+      .current .toolbar,
+      .pre-fix .toolbar {
+        display: flex;
+      }
+
+      .field {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        gap: 5px;
+        padding-bottom: 20px;
+      }
+
+      .scope {
+        width: 100%;
+        max-width: 256px;
+      }
+
+      label {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      select,
+      input[type='date'] {
+        height: 48px;
+        border: 1px solid #8d8d8d;
+        border-radius: 4px;
+        background: #ffffff;
+        padding: 0 12px;
+        font: inherit;
+      }
+
+      .clear-button {
+        height: 48px;
+        margin-bottom: 20px;
+        border: 1px solid #8d8d8d;
+        border-radius: 4px;
+        background: #ffffff;
+        padding: 0 16px;
+        color: #777777;
+        font-weight: 600;
+      }
+
+      .unit-strip {
+        display: flex;
+        min-height: 0;
+        flex: 1 1 auto;
+        gap: 32px;
+        overflow-x: auto;
+        padding: 0 64px 16px;
+      }
+
+      .legacy .unit-strip {
+        gap: 20px;
+        padding-right: 40px;
+        padding-bottom: 10px;
+        padding-left: 40px;
+        padding-top: 0;
+      }
+
+      .unit-card {
+        display: flex;
+        height: 100%;
+        flex: 0 0 auto;
+        flex-direction: column;
+        overflow: hidden;
+        border-radius: 8px 8px 0 0;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.24);
+      }
+
+      .legacy .unit-card {
+        width: 340px;
+      }
+
+      .pre-fix .unit-card {
+        width: 544px;
+      }
+
+      .current .unit-card {
+        width: 512px;
+      }
+
+      .unit-header {
+        display: flex;
+        width: 100%;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        color: #ffffff;
+        background: #3939ff;
+      }
+
+      .legacy .unit-header {
+        gap: 10px;
+        padding: 10px;
+      }
+
+      .unit-title {
+        min-width: 0;
+        flex: 1 1 auto;
+      }
+
+      .unit-title h2,
+      .unit-title p {
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .unit-title h2 {
+        font-size: 20px;
+      }
+
+      .unit-title p {
+        margin-top: 5px;
+        font-size: 16px;
+      }
+
+      .legacy .unit-title p {
+        display: none;
+      }
+
+      .task-search {
+        height: 42px;
+        flex: 0 0 auto;
+        border: 0;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font: inherit;
+      }
+
+      .legacy .task-search {
+        width: 160px;
+      }
+
+      .pre-fix .task-search {
+        width: 256px;
+      }
+
+      .current .task-search {
+        width: 224px;
+      }
+
+      .icon-button {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 auto;
+        place-items: center;
+        border: 0;
+        border-radius: 50%;
+        color: #ffffff;
+        background: transparent;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .legacy .icon-button {
+        width: 24px;
+        height: 24px;
+        overflow: hidden;
+        font-size: 0;
+      }
+
+      .legacy .icon-button::after {
+        content: 'S';
+        font-size: 11px;
+      }
+
+      .legacy .icon-button:last-child::after {
+        content: 'F';
+      }
+
+      .task-list {
+        min-height: 0;
+        overflow-y: auto;
+      }
+
+      .task {
+        display: flex;
+        min-height: 86px;
+        border-bottom: 1px solid #d1d5db;
+      }
+
+      .status {
+        width: 16px;
+        flex: 0 0 auto;
+        margin-right: 24px;
+      }
+
+      .task-copy {
+        min-width: 0;
+        flex: 1 1 auto;
+        padding: 16px 0;
+      }
+
+      .task-copy h3,
+      .task-copy p {
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .task-copy h3 {
+        margin-bottom: 6px;
+        font-size: 17px;
+      }
+
+      .task-copy p {
+        color: #555555;
+        font-size: 14px;
+      }
+
+      .task-action {
+        width: 54px;
+        flex: 0 0 auto;
+        border: 0;
+        background: transparent;
+        color: #333333;
+        font-size: 24px;
+      }
+
+      .status-red {
+        background: #f44336;
+      }
+
+      .status-orange {
+        background: #ff9800;
+      }
+
+      .status-green {
+        background: #4caf50;
+      }
+
+      .status-blue {
+        background: #2196f3;
+      }
+
+      .measurement {
+        position: fixed;
+        right: 12px;
+        bottom: 12px;
+        z-index: 2;
+        border: 1px solid #c5c5c5;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.94);
+        padding: 7px 10px;
+        color: #333333;
+        font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      @media (max-width: 639px) {
+        .evidence-header {
+          padding: 0 16px;
+        }
+
+        .evidence-header p {
+          display: none;
+        }
+
+        .toolbar {
+          padding-right: 64px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="evidence-header">
+      <h1 id="evidence-title">Cross-project dashboard sizing evidence</h1>
+      <p>Repository sample data only</p>
+    </header>
+
+    <main class="dashboard current" id="dashboard">
+      <section class="toolbar" aria-label="Dashboard filters">
+        <div class="field scope">
+          <label for="unit-scope">Unit scope</label>
+          <select id="unit-scope">
+            <option>Active units</option>
+            <option>Previous units</option>
+            <option>All units</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="start-date">Start date</label>
+          <input id="start-date" type="date" value="2026-08-01" />
+        </div>
+        <div class="field">
+          <label for="end-date">End date</label>
+          <input id="end-date" type="date" value="2026-10-31" />
+        </div>
+        <button class="clear-button" type="button">Clear dates</button>
+      </section>
+
+      <section class="unit-strip" aria-label="Synthetic unit cards">
+        <article class="unit-card">
+          <div class="unit-header">
+            <div class="unit-title">
+              <h2>COS10001</h2>
+              <p>Active</p>
+            </div>
+            <input class="task-search" type="search" placeholder="Search tasks..." />
+            <button class="icon-button" type="button">Sort</button>
+            <button class="icon-button" type="button">Filter</button>
+          </div>
+          <div class="task-list">
+            <div class="task">
+              <div class="status status-red"></div>
+              <div class="task-copy">
+                <h3>Getting started reflection</h3>
+                <p>1.1P - Pass Task</p>
+              </div>
+              <button class="task-action" type="button">v</button>
+            </div>
+            <div class="task">
+              <div class="status status-orange"></div>
+              <div class="task-copy">
+                <h3>Professional practice plan</h3>
+                <p>2.1P - Pass Task</p>
+              </div>
+              <button class="task-action" type="button">v</button>
+            </div>
+            <div class="task">
+              <div class="status status-blue"></div>
+              <div class="task-copy">
+                <h3>Evidence portfolio</h3>
+                <p>3.1C - Credit Task</p>
+              </div>
+              <button class="task-action" type="button">v</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="unit-card">
+          <div class="unit-header">
+            <div class="unit-title">
+              <h2>COS20007</h2>
+              <p>Active</p>
+            </div>
+            <input class="task-search" type="search" placeholder="Search tasks..." />
+            <button class="icon-button" type="button">Sort</button>
+            <button class="icon-button" type="button">Filter</button>
+          </div>
+          <div class="task-list">
+            <div class="task">
+              <div class="status status-green"></div>
+              <div class="task-copy">
+                <h3>Communication report</h3>
+                <p>4.1P - Pass Task</p>
+              </div>
+              <button class="task-action" type="button">v</button>
+            </div>
+            <div class="task">
+              <div class="status status-green"></div>
+              <div class="task-copy">
+                <h3>Team contribution review</h3>
+                <p>5.1P - Pass Task</p>
+              </div>
+              <button class="task-action" type="button">v</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="unit-card">
+          <div class="unit-header">
+            <div class="unit-title">
+              <h2>COS30046</h2>
+              <p>Active</p>
+            </div>
+            <input class="task-search" type="search" placeholder="Search tasks..." />
+            <button class="icon-button" type="button">Sort</button>
+            <button class="icon-button" type="button">Filter</button>
+          </div>
+          <div class="task-list">
+            <div class="task">
+              <div class="status status-blue"></div>
+              <div class="task-copy">
+                <h3>Capstone project proposal</h3>
+                <p>6.1D - Distinction Task</p>
+              </div>
+              <button class="task-action" type="button">v</button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <output class="measurement" id="measurement"></output>
+
+    <script>
+      const parameters = new URLSearchParams(window.location.search);
+      const requestedMode = parameters.get('mode');
+      const mode = requestedMode === 'legacy' || requestedMode === 'pre-fix' ? requestedMode : 'current';
+      const unitCount = Math.max(1, Math.min(3, Number(parameters.get('units') || 3)));
+      const dashboard = document.getElementById('dashboard');
+      const title = document.getElementById('evidence-title');
+      const measurement = document.getElementById('measurement');
+
+      dashboard.className = `dashboard ${mode}`;
+      document.querySelectorAll('.unit-card').forEach((card, index) => {
+        card.hidden = index >= unitCount;
+      });
+      title.textContent =
+        mode === 'legacy'
+          ? 'Legacy v10 - 34rem at 10px root = 340px'
+          : mode === 'pre-fix'
+            ? 'V11 before fix - 34rem at 16px root = 544px'
+            : 'Current v11 - 32rem at 16px root = 512px';
+
+      const updateMeasurement = () => {
+        const card = document.querySelector('.unit-card');
+        const strip = document.querySelector('.unit-strip');
+        measurement.textContent = [
+          `viewport: ${window.innerWidth} x ${window.innerHeight}`,
+          `card: ${Math.round(card.getBoundingClientRect().width)} px`,
+          `strip client: ${strip.clientWidth} px`,
+          `strip scroll: ${strip.scrollWidth} px`,
+          `horizontal overflow: ${strip.scrollWidth > strip.clientWidth ? 'yes' : 'no'}`,
+        ].join('\n');
+      };
+
+      updateMeasurement();
+      window.addEventListener('resize', updateMeasurement);
+    </script>
+  </body>
+</html>

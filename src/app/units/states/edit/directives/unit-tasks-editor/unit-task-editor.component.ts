@@ -1,54 +1,123 @@
-import { AfterViewInit, Component, Inject, Input, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort, Sort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Subscription } from 'rxjs';
-import { confirmationModal, csvResultModalService, csvUploadModalService } from 'src/app/ajs-upgraded-providers';
-import { TaskDefinition } from 'src/app/api/models/task-definition';
-import { Unit } from 'src/app/api/models/unit';
-import { TaskDefinitionService } from 'src/app/api/services/task-definition.service';
-import { AlertService } from 'src/app/common/services/alert.service';
+import {addWeeks} from 'date-fns';
+import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {MatTableDataSource} from '@angular/material/table';
+import {Subscription} from 'rxjs';
+import {TaskDefinition} from 'src/app/api/models/task-definition';
+import {GradeDefinition, Unit} from 'src/app/api/models/unit';
+import {FeedbackTemplateService} from 'src/app/api/services/feedback-template.service';
+import {TaskDefinitionService} from 'src/app/api/services/task-definition.service';
+import {ConfirmationModalService} from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
+import {
+  CsvResult,
+  CsvResultModalService,
+} from 'src/app/common/modals/csv-result-modal/csv-result-modal.service';
+import {CsvUploadModalService} from 'src/app/common/modals/csv-upload-modal/csv-upload-modal.service';
+import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'f-unit-task-editor',
   templateUrl: 'unit-task-editor.component.html',
   styleUrls: ['unit-task-editor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class UnitTaskEditorComponent implements AfterViewInit {
-  @ViewChild(MatTable, { static: false }) table: MatTable<TaskDefinition>;
-  @ViewChild(MatSort, { static: false }) sort: MatSort;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-
+export class UnitTaskEditorComponent implements OnInit, OnDestroy {
   @Input() unit: Unit;
 
-  public taskDefinitionSource: MatTableDataSource<TaskDefinition>;
-  public columns: string[] = ['name', 'grade', 'startDate', 'targetDate', 'deadlineDate', 'taskDefAction'];
-  public filter: string;
+  public taskDefinitionSource: MatTableDataSource<TaskDefinition> = new MatTableDataSource([]);
+  public filter: string = '';
   public selectedTaskDefinition: TaskDefinition;
+  public isTaskListCollapsed: boolean = false;
+
+  public dueDateSource: MatTableDataSource<TaskDefinition> = new MatTableDataSource([]);
+
+  public manageDueDates: boolean = false;
+
+  protected get gradeNames(): Record<number, string> {
+    return Object.fromEntries(
+      this.unit.gradeDefinitions.map((definition) => [definition.value, definition.label]),
+    );
+  }
+
+  public get gradeColumns(): GradeDefinition[] {
+    return this.unit.gradeDefinitions.filter((definition) => definition.value >= 0);
+  }
+
+  public get dueDateColumns(): string[] {
+    return [
+      'taskDefinition',
+      ...this.gradeColumns.map((definition) => this.gradeColumnId(definition)),
+    ];
+  }
+
+  public gradeColumnId(grade: GradeDefinition): string {
+    return `grade-${grade.value}`;
+  }
+
+  isStartAfterTarget(td: TaskDefinition, grade: GradeDefinition): boolean {
+    const start = this.getGradeStartDate(td, grade);
+    const target = this.getGradeDueDate(td, grade);
+    if (!start || !target) {
+      return false;
+    }
+    return new Date(start).getTime() > new Date(target).getTime();
+  }
+
+  getGradeStartDate(td: TaskDefinition, grade: GradeDefinition): Date | null {
+    return grade.value === 0 ? td.startDate : (td.gradeStartDate(grade.value) ?? td.startDate);
+  }
+
+  isFallbackStartDate(td: TaskDefinition, grade: GradeDefinition): boolean {
+    return grade.value !== 0 && !td.gradeStartDate(grade.value);
+  }
+
+  setGradeStartDate(td: TaskDefinition, grade: GradeDefinition, value: Date | null): void {
+    td.setGradeStartDate(grade.value, value);
+    this.saveTaskDefinition(td);
+  }
+
+  getGradeDueDate(td: TaskDefinition, grade: GradeDefinition): Date | null {
+    return grade.value === 0 ? td.targetDate : (td.gradeTargetDate(grade.value) ?? td.targetDate);
+  }
+
+  isFallbackTargetDate(td: TaskDefinition, grade: GradeDefinition): boolean {
+    return grade.value !== 0 && !td.gradeTargetDate(grade.value);
+  }
+
+  setGradeDueDate(td: TaskDefinition, grade: GradeDefinition, value: Date | null): void {
+    td.setGradeTargetDate(grade.value, value);
+    this.saveTaskDefinition(td);
+  }
 
   constructor(
     private taskDefinitionService: TaskDefinitionService,
+    private feedbackTemplateService: FeedbackTemplateService,
     private alerts: AlertService,
-    @Inject(csvResultModalService) private csvResultModalService: any,
-    @Inject(csvUploadModalService) private csvUploadModal: any,
-    @Inject(confirmationModal) private confirmationModal: any
-  ) {}
+    private csvResultModalService: CsvResultModalService,
+    private csvUploadModal: CsvUploadModalService,
+    private confirmationModal: ConfirmationModalService,
+  ) {
+    this.taskDefinitionSource.filterPredicate = (data: TaskDefinition, filter: string) =>
+      data.matches(filter);
+  }
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     this.subscriptions.push(
       this.unit.taskDefinitionCache.values.subscribe((taskDefinitions) => {
-        this.taskDefinitionSource = new MatTableDataSource<TaskDefinition>(taskDefinitions);
-        this.taskDefinitionSource.paginator = this.paginator;
-        this.taskDefinitionSource.sort = this.sort;
-        this.taskDefinitionSource.filterPredicate = (data: any, filter: string) => data.matches(filter);
-      })
+        this.taskDefinitionSource.data = taskDefinitions;
+      }),
     );
   }
 
   public saveTaskDefinition(taskDefinition: TaskDefinition) {
-    taskDefinition.save().subscribe(() => {
-      this.alerts.success('Task Saved');
-      taskDefinition.setOriginalSaveData(this.taskDefinitionService.mapping);
+    taskDefinition.save().subscribe({
+      next: () => {
+        this.alerts.success('Task Saved');
+        taskDefinition.setOriginalSaveData(this.taskDefinitionService.mapping);
+      },
+      error: (error) => {
+        this.alerts.error(`Failed to update task: ${error}`, 6000);
+      },
     });
   }
 
@@ -58,57 +127,81 @@ export class UnitTaskEditorComponent implements AfterViewInit {
   }
 
   public selectTaskDefinition(taskDefinition: TaskDefinition) {
+    // Clicking the task that is already open is not a discard, so it must not
+    // ask. Keep this ahead of the guard.
     if (this.selectedTaskDefinition === taskDefinition) {
-      this.selectedTaskDefinition = null;
-    } else {
-      this.selectedTaskDefinition = taskDefinition;
-
-      // Record original save data if none present
-      if (!this.selectedTaskDefinition.hasOriginalSaveData) {
-        this.selectedTaskDefinition.setOriginalSaveData(this.taskDefinitionService.mapping);
-      }
-    }
-  }
-
-  public sortData(sort: Sort) {
-    const data = this.taskDefinitionSource.data;
-
-    if (!sort.active || sort.direction === '') {
-      this.taskDefinitionSource.data = data;
       return;
     }
 
-    this.taskDefinitionSource.data = data.sort((a, b) => {
-      const isAsc = sort.direction === 'asc';
-      switch (sort.active) {
-        case 'name':
-          return this.compare(a.abbreviation, b.abbreviation, isAsc);
-        case 'grade':
-          return this.compare(a.targetGrade, b.targetGrade, isAsc);
-        case 'startDate':
-          return this.compare(a.startDate.getTime(), b.startDate.getTime(), isAsc);
-        case 'targetDate':
-          return this.compare(a.targetDate.getTime(), b.targetDate.getTime(), isAsc);
-        case 'deadlineDate':
-          return this.compare(a.dueDate.getTime(), b.dueDate.getTime(), isAsc);
-        default:
-          return 0;
-      }
-    });
+    this.confirmDiscardingUnsavedTask(() => this.applySelectedTaskDefinition(taskDefinition));
   }
 
-  public compare(a: number | string, b: number | string, isAsc: boolean): number {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+  private applySelectedTaskDefinition(taskDefinition: TaskDefinition) {
+    this.selectedTaskDefinition = taskDefinition;
+
+    // Record original save data if none present
+    if (!this.selectedTaskDefinition.hasOriginalSaveData) {
+      this.selectedTaskDefinition.setOriginalSaveData(this.taskDefinitionService.mapping);
+    }
+
+    this.feedbackTemplateService
+      .query({contextType: 'task_definitions', contextId: this.selectedTaskDefinition.id}, {})
+      .subscribe({
+        error: () => this.alerts.error('Error loading task feedback templates.'),
+      });
+  }
+
+  // A task being edited is unsaved if it has never been saved at all, or if it
+  // has been changed since it was loaded.
+  //
+  // isNew has to be tested and it has to come first. TaskDefinition.hasChanges
+  // returns false when there is no originalSaveData, and only selectTaskDefinition
+  // and a successful save ever set that, so a brand new task with every field
+  // filled in reports no changes whatsoever. A guard built on hasChanges alone
+  // protects the case that was already safe and leaves this one exactly as it was.
+  private hasUnsavedTaskDefinition(): boolean {
+    const selected = this.selectedTaskDefinition;
+    return !!selected && (selected.isNew || this.taskDefinitionHasChanges(selected));
+  }
+
+  private confirmDiscardingUnsavedTask(proceed: () => void) {
+    if (!this.hasUnsavedTaskDefinition()) {
+      proceed();
+      return;
+    }
+
+    this.confirmationModal.show(
+      'Discard unsaved changes',
+      'This task has unsaved changes. If you continue, they will be lost.',
+      proceed,
+    );
+  }
+
+  public isSelectedTaskDefinition(taskDefinition: TaskDefinition): boolean {
+    return this.selectedTaskDefinition === taskDefinition;
+  }
+
+  public toggleTaskListCollapsed(): void {
+    this.isTaskListCollapsed = !this.isTaskListCollapsed;
   }
 
   applyFilter(filterValue: string) {
+    if (!this.taskDefinitionSource) {
+      return;
+    }
+
     this.taskDefinitionSource.filter = filterValue.trim().toLowerCase();
 
-    this.selectedTaskDefinition = null;
-
-    if (this.taskDefinitionSource.paginator) {
-      this.taskDefinitionSource.paginator.firstPage();
+    // No dialog here on purpose. The box is [(ngModel)] bound and this runs from
+    // ngModelChange, so the character is already typed by the time we see it, and
+    // cancelling would mean writing the text back one keystroke at a time while
+    // the convenor answers a modal per letter. Filtering the list underneath an
+    // open editor is the behaviour that was wanted anyway.
+    if (this.hasUnsavedTaskDefinition()) {
+      return;
     }
+
+    this.selectedTaskDefinition = null;
   }
 
   private guessTaskAbbreviation() {
@@ -137,45 +230,47 @@ export class UnitTaskEditorComponent implements AfterViewInit {
       () => {
         this.unit.deleteTaskDefinition(taskDefinition);
         //TODO: reinstate ProgressModal.show "Deleting Task #{task.abbreviation}", 'Please wait while student projects are updated.', promise
-
-        this.alerts.success('Task deleted');
-      }
+      },
     );
   }
 
   public uploadTaskDefinitionsCsv() {
     this.csvUploadModal.show(
       'Upload Task Definitions as CSV',
-      'Test message',
-      { file: { name: 'Task Definition CSV Data', type: 'csv' } },
+      'Upload a CSV of task definitions.',
+      {file: {name: 'Task Definition CSV Data', type: 'csv'}},
       this.unit.getTaskDefinitionBatchUploadUrl(),
-      (response: any) => {
+      (response: CsvResult) => {
         // at least one student?
         this.csvResultModalService.show('Task Definition Import Results', response);
         if (response.success.length > 0) {
           this.unit.refresh();
         }
-      }
+      },
     );
   }
 
   public uploadTaskResourcesZip() {
     this.csvUploadModal.show(
       'Upload Task Sheets and Resources as Zip',
-      'Test message',
-      { file: { name: 'Task Sheets and Resources', type: 'zip' } },
+      'Upload a ZIP of task sheets and resources.',
+      {file: {name: 'Task Sheets and Resources', type: 'zip'}},
       this.unit.taskUploadUrl,
-      (response: any) => {
+      (response: CsvResult) => {
         // at least one student?
         this.csvResultModalService.show('Task Sheet and Resources Import Results', response);
         if (response.success.length > 0) {
           this.unit.refresh();
         }
-      }
+      },
     );
   }
 
   public createTaskDefinition() {
+    this.confirmDiscardingUnsavedTask(() => this.buildNewTaskDefinition());
+  }
+
+  private buildNewTaskDefinition() {
     const abbr = this.guessTaskAbbreviation();
     const task = new TaskDefinition(this.unit);
 
@@ -183,7 +278,7 @@ export class UnitTaskEditorComponent implements AfterViewInit {
     task.abbreviation = abbr;
     task.description = 'New Description';
     task.startDate = new Date();
-    task.targetDate = new Date();
+    task.targetDate = addWeeks(new Date(), 2);
     task.uploadRequirements = [];
     task.weighting = 4;
     task.targetGrade = 0;

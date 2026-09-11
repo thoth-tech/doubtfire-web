@@ -5,9 +5,9 @@
   margin-bottom: 20px;
 
   &.inbox {
-    background-color: #F5F5F5;
+    background-color: #f5f5f5;
     box-shadow: none;
-    margin-bottom: 0px // nice drop shadow on bottom of toolbar
+    margin-bottom: 0px; // nice drop shadow on bottom of toolbar
   }
 
   font-family: 'Grotesk';
@@ -16,5 +16,52 @@
     color: black;
     transform: scale(1.5);
   }
+}
 
+// The unread count beside "Notifications" in the account menu, which is the only
+// way to the notifications on a phone. A pill rather than a matBadge: inside a
+// mat-menu-item a badge is positioned against the item's own box and ends up
+// over the label.
+.notification-menu-count {
+  background: #d93025;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: 8px;
+  padding: 3px 7px;
+}
+
+// Keep the secondary QR entry out of the account menu unless the toolbar is
+// narrow enough that the primary action would push the account avatar offscreen.
+.qr-account-menu-action {
+  display: none;
+}
+
+@media (max-width: 399px) {
+  .mat-toolbar {
+    padding-inline: 8px;
+
+    // Allow longer route labels to yield space to the account action instead
+    // of increasing the page's horizontal scroll width.
+    task-dropdown {
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+
+  .qr-toolbar-action {
+    display: none;
+  }
+
+  .qr-account-menu-action {
+    display: flex;
+  }
+
+  .account-menu-trigger {
+    min-width: 48px;
+    padding-inline: 8px;
+  }
 }

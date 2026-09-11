@@ -1,0 +1,61 @@
+CPD sizing evidence measurements
+Captured 2026-08-23
+
+Current v11, 1440 x 900, three units
+card: 512 px
+strip client: 1440 px
+strip scroll: 1728 px
+horizontal overflow: yes (expected because three fixed cards require horizontal scrolling)
+
+Legacy v10 feature, 1440 x 900, three units
+card: 340 px
+strip client: 1440 px
+strip scroll: 1440 px
+horizontal overflow: no
+
+Current v11, 640 x 800, one unit
+card: 512 px
+strip client: 640 px
+strip scroll: 640 px
+horizontal overflow: no
+
+Legacy v10 feature, 640 x 800, one unit
+card: 340 px
+strip client: 640 px
+strip scroll: 640 px
+horizontal overflow: no
+
+V11 before sizing fix, 640 x 800, one unit
+card: 544 px
+strip client: 640 px
+strip scroll: 672 px
+horizontal overflow: yes
+
+Current v11, 390 x 844, one unit
+card: 512 px
+strip client: 390 px
+strip scroll: 640 px
+horizontal overflow: yes
+
+Current v11, 480 x 800, one unit
+card: 512 px
+strip client: 480 px
+strip scroll: 640 px
+horizontal overflow: yes
+
+Legacy v10 feature, 480 x 800, one unit
+card: 340 px
+strip client: 480 px
+strip scroll: 480 px
+horizontal overflow: no
+
+Derived one-card containment thresholds
+legacy: 40 + 340 + 40 = 420 px
+v11 pre-fix: 64 + 544 + 64 = 672 px
+current: 64 + 512 + 64 = 640 px
+current versus v11 pre-fix improvement: 32 px
+current versus legacy increase: 220 px (52.4 percent larger footprint)
+
+Derived three-card footprint
+legacy: 40 + (3 x 340) + (2 x 20) + 40 = 1140 px
+current: 64 + (3 x 512) + (2 x 32) + 64 = 1728 px

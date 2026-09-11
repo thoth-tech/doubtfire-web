@@ -1,0 +1,95 @@
+<div class="progress-burndown">
+  <div class="progress-burndown__chart">
+    <ngx-charts-line-chart
+      class="progress-burndown-chart"
+      [legend]="legend"
+      [results]="data"
+      [scheme]="colorScheme"
+      [showXAxisLabel]="showXAxisLabel"
+      [showYAxisLabel]="showYAxisLabel"
+      [tooltipDisabled]="true"
+      [view]="undefined"
+      [xAxis]="xAxis"
+      [xAxisLabel]="xAxisLabel"
+      [yAxis]="yAxis"
+      [yAxisLabel]="yAxisLabel"
+      [yAxisTickFormatting]="formatPerc"
+      [yScaleMax]="yScaleMax"
+      [yScaleMin]="yScaleMin"
+      (select)="onSelect($event)"
+    >
+    </ngx-charts-line-chart>
+  </div>
+
+  @if (temp.length > 0) {
+    <div
+      aria-label="Burndown chart series visibility"
+      class="progress-burndown__legend"
+      role="group"
+    >
+      @for (series of temp; track series.name; let index = $index) {
+        <button
+          class="progress-burndown__legend-item"
+          type="button"
+          [attr.aria-pressed]="isDataShown(series.name)"
+          [attr.title]="'Show or hide ' + series.name"
+          [class.progress-burndown__legend-item--hidden]="!isDataShown(series.name)"
+          (click)="onSelect(series.name)"
+        >
+          <span
+            aria-hidden="true"
+            class="progress-burndown__legend-swatch"
+            [style.background-color]="seriesColor(index)"
+          ></span>
+
+          <span class="progress-burndown__legend-label">
+            {{ series.name }}
+          </span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (demoMode.enabled) {
+    @if (peerMedianState === 'ready') {
+      <div class="progress-burndown__message" role="note">
+        <mat-icon aria-hidden="true">science</mat-icon>
+
+        <span>
+          Demo peer median through today: anonymous aggregate sample data, not live cohort data.
+        </span>
+      </div>
+    } @else {
+      <div aria-live="polite" class="progress-burndown__message" role="status">
+        @switch (peerMedianState) {
+          @case ('loading') {
+            <mat-spinner color="accent" diameter="16"></mat-spinner>
+            <span>Loading peer comparison…</span>
+          }
+
+          @case ('suppressed') {
+            <mat-icon aria-hidden="true">group_off</mat-icon>
+            <span>
+              Peer comparison is hidden because the anonymous cohort threshold was not met.
+            </span>
+          }
+
+          @case ('unavailable') {
+            <mat-icon aria-hidden="true">cloud_off</mat-icon>
+            <span>Peer median is unavailable right now.</span>
+          }
+
+          @case ('disabled') {
+            <mat-icon aria-hidden="true">visibility_off</mat-icon>
+            <span>Peer comparison is disabled for this unit.</span>
+          }
+
+          @case ('error') {
+            <mat-icon aria-hidden="true">error_outline</mat-icon>
+            <span> Peer median could not be loaded. Please try again later. </span>
+          }
+        }
+      </div>
+    }
+  }
+</div>

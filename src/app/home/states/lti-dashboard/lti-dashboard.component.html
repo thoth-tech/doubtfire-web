@@ -1,0 +1,101 @@
+<div class="h-screen w-full items-center justify-center px-12" id="home">
+  <div class="mx-auto flex h-screen w-full max-w-2xl flex-col items-center justify-center gap-3">
+    <div class="flex items-center justify-center">
+      <mat-icon
+        aria-label="Formatif logo"
+        class="formatif-icon size-[100px]"
+        svgIcon="formatif-logo"
+      ></mat-icon>
+      <h1 class="m-0 ml-3 text-4xl">OnTrack</h1>
+    </div>
+
+    @if (isLoading) {
+      @if (unauthorised) {
+        <div class="w-full rounded-lg bg-red-200 p-3 text-center font-semibold text-red-800">
+          An error occurred. Please refresh the page.
+        </div>
+      } @else {
+        <!-- TODO: spinner -->
+        <p>Loading...</p>
+      }
+    } @else {
+      <div class="flex justify-center gap-3">
+        @if (currentUser?.systemRole === 'Convenor' || currentUser?.systemRole === 'Admin') {
+          <button
+            aria-label=""
+            class="relative size-[60px]"
+            color="default"
+            mat-fab
+            matTooltip="Sync enrolments"
+            matTooltipPosition="above"
+            [disabled]="!linkedUnit || isSyncingEnrolments || isSyncingGrades"
+            [ngClass]="{'bg-gray-300': isSyncingEnrolments}"
+            (click)="syncEnrolments()"
+          >
+            @if (isSyncingEnrolments) {
+              <mat-spinner
+                class="absolute top-1/2 left-1/2 z-50 -translate-1/2"
+                diameter="35"
+              ></mat-spinner>
+            }
+            <mat-icon mat-icon-button>people</mat-icon>
+          </button>
+          <button
+            aria-label=""
+            class="relative size-[60px]"
+            color="default"
+            mat-fab
+            matTooltip="Sync grades"
+            matTooltipPosition="above"
+            [disabled]="!linkedUnit || isSyncingEnrolments || isSyncingGrades"
+            [ngClass]="{'bg-gray-300': isSyncingGrades}"
+            (click)="syncStudentsGrades()"
+          >
+            <mat-icon mat-icon-button>grade</mat-icon>
+
+            @if (isSyncingGrades) {
+              <mat-spinner
+                class="absolute top-1/2 left-1/2 z-50 -translate-1/2"
+                diameter="35"
+              ></mat-spinner>
+            }
+          </button>
+        }
+      </div>
+      <button
+        class="my-3 h-[50px] w-full max-w-lg"
+        color="primary"
+        extended
+        mat-fab
+        target="_blank"
+        (click)="launchApplication()"
+      >
+        <mat-icon>rocket_launch</mat-icon>
+        Launch {{ linkedUnit ? linkedUnit.code : 'OnTrack' }}
+      </button>
+      <div class="mt-2.5 w-full text-center text-gray-300">
+        @if (linkedUnit) {
+          {{ linkedUnit.code }} &mdash; {{ linkedUnit.name }}
+          @if (currentUser?.systemRole === 'Convenor' || currentUser?.systemRole === 'Admin') {
+            <br />
+            <button class="text-blue-400 underline" mat-button (click)="removeLink()">
+              Unlink
+            </button>
+          }
+        } @else {
+          This course has not yet been linked to an OnTrack Unit.
+
+          @if (currentUser?.systemRole === 'Convenor' || currentUser?.systemRole === 'Admin') {
+            <br />
+            <button class="text-blue-400 underline" mat-button (click)="goToLinkUnit()">
+              Link it now
+            </button>
+          } @else {
+            <br />
+            Only OnTrack staff are permitted to link this course.
+          }
+        }
+      </div>
+    }
+  </div>
+</div>
