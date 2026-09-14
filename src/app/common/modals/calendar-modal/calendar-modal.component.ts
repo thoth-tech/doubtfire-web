@@ -1,21 +1,35 @@
-import {Component, OnInit, Inject, ViewChild, AfterViewInit} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {Project, ProjectService, Webcal, WebcalService} from 'src/app/api/models/doubtfire-model';
 import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {DemoModeStore} from 'src/app/demo/demo-mode.store';
+import {FileDownloaderService} from '../../file-downloader/file-downloader.service';
 import {AlertService} from '../../services/alert.service';
+import {ConfirmationModalService} from '../confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'calendar-modal',
   templateUrl: './calendar-modal.component.html',
   styleUrls: ['./calendar-modal.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class CalendarModalComponent implements OnInit, AfterViewInit {
   @ViewChild('webcalToggle') webcalToggle: MatSlideToggle;
 
   webcal: Webcal | null;
+  private savedWebcal: Webcal | null = null;
   working: boolean = true;
   copying: boolean = false;
+  selectedCalendarProviderIndex: number = 0;
   projects: Project[] = [];
 
   // Used to store user interaction with the reminder option. These values aren't bound directly to `this.webcal`
@@ -29,7 +43,10 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
     private constants: DoubtfireConstants,
     private alerts: AlertService,
     private projectService: ProjectService,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: object,
+    private confirmationModal: ConfirmationModalService,
+    private fileDownloader: FileDownloaderService,
+    readonly demoMode: DemoModeStore,
   ) {}
 
   ngOnInit() {
@@ -62,24 +79,90 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Invoked when the user toggles the webcal.
+   * The subscription URL exactly as it is shown to the user, with the `.ics`
+   * suffix, so the copied string matches what is on screen.
    */
-  onWebcalToggle() {
-    this.working = true;
-    this.webcal.enabled = !this.webcal.enabled;
-
-    this.webcalService.update(this.webcal).subscribe((webcal) => {
-      this.loadWebcal(webcal);
-      this.working = false;
-    });
+  get webcalSubscriptionUrl(): string | null {
+    const url = this.webcalUrl;
+    return url ? `${url}.ics` : null;
   }
 
   /**
-   * Displays a notification that the webcal URL has been copied.
-   * `cdkCopyToClipboard` is expected do the actual copying.
-   * Changes mat-icon temporarily for a second after copying.
+   * Invoked when the user toggles the webcal.
    */
-  onCopyWebcalUrl() {
+  onWebcalToggle() {
+    if (this.working) {
+      return;
+    }
+    if (this.webcal.enabled) {
+      this.confirmationModal.show(
+        'Disable web calendar',
+        'Disabling your web calendar will expire the current subscription URL. Any calendar apps using this URL will stop updating, and a new URL will be generated if you enable the calendar again.',
+        () => this.updateWebcalEnabled(false),
+      );
+      return;
+    }
+
+    this.updateWebcalEnabled(true);
+  }
+
+  private updateWebcalEnabled(enabled: boolean) {
+    this.saveWebcal(() => (this.webcal.enabled = enabled));
+  }
+
+  /**
+   * Saves the webcal, one request at a time. `apply` changes the model and only runs when no
+   * save is in flight, because an overlapping save would let the earlier response clear
+   * `working` while the later one is still pending, reopening Download a copy too early.
+   * Every save in this dialog goes through here, including the ones behind a confirmation.
+   * Returns false when a save was already running and nothing changed.
+   */
+  private saveWebcal(apply: () => void): boolean {
+    if (this.working) {
+      return false;
+    }
+    const previous = this.savedWebcal ?? this.copyWebcal(this.webcal);
+    apply();
+    this.working = true;
+    this.webcalService.update(this.webcal).subscribe({
+      next: (webcal) => {
+        this.loadWebcal(webcal);
+        this.working = false;
+      },
+      error: () => {
+        this.loadWebcal(Object.assign(this.webcal, previous));
+        this.working = false;
+        this.alerts.error('Could not save calendar settings. Please try again.', 4000);
+      },
+    });
+    return true;
+  }
+
+  /**
+   * Downloads the current web calendar feed as an .ics file. Skipped while a settings update
+   * is still saving, the same as every other control in this dialog, so the copy never reflects
+   * settings the server has not stored yet or a URL that is being regenerated.
+   */
+  downloadCalendar() {
+    if (this.working || !this.webcal?.enabled || !this.webcal.guid) {
+      return;
+    }
+
+    const feedUrl = `${this.constants.API_URL}/webcal/${this.webcal.guid}`;
+    this.fileDownloader.downloadFile(feedUrl, 'ontrack-calendar.ics');
+  }
+
+  /**
+   * Invoked by cdkCopyToClipboard once it has attempted the copy. Only
+   * confirm on a real success, so a refused clipboard write does not claim
+   * the URL was copied. Changes mat-icon temporarily for a second after.
+   */
+  onCopyResult(success: boolean) {
+    if (!success) {
+      this.alerts.error('Could not copy the URL, select it and copy it manually', 4000);
+      return;
+    }
+
     this.alerts.success('Web calendar URL copied to the clipboard', 2000);
     this.copying = true;
 
@@ -92,12 +175,14 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
    * Invoked when the user requests their webcal URL to be changed.
    */
   onChangeWebcalUrl() {
-    this.working = true;
-    this.webcal.shouldChangeGuid = true;
-    this.webcalService.update(this.webcal).subscribe((webcal) => {
-      this.loadWebcal(webcal);
-      this.working = false;
-    });
+    if (this.working) {
+      return;
+    }
+    this.confirmationModal.show(
+      'Regenerate URL',
+      'Regenerating your calendar URL will disable the current subscription link. Any calendar apps using the old URL will stop updating until you subscribe again with the new one.',
+      () => this.saveWebcal(() => (this.webcal.shouldChangeGuid = true)),
+    );
   }
 
   /**
@@ -116,13 +201,10 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
     } else {
       // ...and a reminder does exist, make backend request to remove it.
       if (this.webcal.reminder) {
-        this.working = true;
-        this.webcal.reminder = null;
-
-        this.webcalService.update(this.webcal).subscribe((webcal) => {
-          this.loadWebcal(webcal);
-          this.working = false;
-        });
+        // If a save is already running, put the switch back to match the stored reminder.
+        if (!this.saveWebcal(() => (this.webcal.reminder = null))) {
+          this.loadWebcal(this.webcal);
+        }
 
         // ...otherwise, reset.
       } else {
@@ -136,15 +218,13 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
    */
   onSaveReminderEdits() {
     if (this.newReminderTime > 0) {
-      this.working = true;
-      this.webcal.reminder = {
-        time: this.newReminderTime,
-        unit: this.newReminderUnit,
-      };
-      this.webcalService.update(this.webcal).subscribe((webcal) => {
-        this.loadWebcal(webcal);
-        this.working = false;
-      });
+      this.saveWebcal(
+        () =>
+          (this.webcal.reminder = {
+            time: this.newReminderTime,
+            unit: this.newReminderUnit,
+          }),
+      );
     } else {
       this.alerts.error('Please specify a valid reminder time', 2000);
     }
@@ -161,11 +241,18 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
    * Includes task 'Start Dates' in the Webcal.
    */
   toggleIncludeTaskStartDates() {
-    this.working = true;
-    this.webcalService.update(this.webcal).subscribe((webcal) => {
-      this.loadWebcal(webcal);
-      this.working = false;
-    });
+    // The checkbox has already changed the model through ngModel, so there is nothing to apply.
+    this.saveWebcal(() => undefined);
+  }
+
+  toggleIncludeLearningSessions() {
+    if (this.demoMode.enabled) {
+      if (this.savedWebcal) {
+        this.loadWebcal(this.copyWebcal(this.savedWebcal));
+      }
+      return;
+    }
+    this.saveWebcal(() => undefined);
   }
 
   /**
@@ -194,24 +281,21 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
    * Removes the specified project exclusion from the webcal.
    */
   removeExclusion(project) {
-    this.working = true;
-    this.webcal.unitExclusions = this.webcal.unitExclusions.filter((p) => p !== project.unit.id);
-    this.webcalService.update(this.webcal).subscribe((webcal) => {
-      this.loadWebcal(webcal);
-      this.working = false;
-    });
+    this.saveWebcal(
+      () =>
+        (this.webcal.unitExclusions = this.webcal.unitExclusions.filter(
+          (p) => p !== project.unit.id,
+        )),
+    );
   }
 
   /**
    * Excludes the specified project from the webcal.
    */
   includeExclusion(project) {
-    this.working = true;
-    this.webcal.unitExclusions = [...this.webcal.unitExclusions, project.unit.id];
-    this.webcalService.update(this.webcal).subscribe((webcal) => {
-      this.loadWebcal(webcal);
-      this.working = false;
-    });
+    this.saveWebcal(
+      () => (this.webcal.unitExclusions = [...this.webcal.unitExclusions, project.unit.id]),
+    );
   }
 
   /**
@@ -219,6 +303,7 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
    */
   private loadWebcal(webcal: Webcal) {
     this.webcal = webcal;
+    this.savedWebcal = webcal ? this.copyWebcal(webcal) : null;
     if (webcal) {
       if (webcal.reminder) {
         this.newReminderActive = true;
@@ -229,5 +314,13 @@ export class CalendarModalComponent implements OnInit, AfterViewInit {
         this.newReminderTime = this.newReminderUnit = null;
       }
     }
+  }
+
+  private copyWebcal(webcal: Webcal): Webcal {
+    return Object.assign(new Webcal(), webcal, {
+      reminder: webcal.reminder ? {...webcal.reminder} : null,
+      unitExclusions: [...(webcal.unitExclusions ?? [])],
+      shouldChangeGuid: false,
+    });
   }
 }

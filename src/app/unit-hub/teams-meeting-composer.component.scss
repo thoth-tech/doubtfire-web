@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.teams-composer {
+  padding: 1rem;
+  border: 1px solid #b9c9df;
+  border-radius: 0.75rem;
+  background: #f5f8fd;
+  color: #20344d;
+  overflow-wrap: anywhere;
+}
+
+h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+p {
+  margin: 0.6rem 0;
+}
+.meeting-subject {
+  line-height: 1.6;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin: 1rem 0;
+  font-weight: 600;
+}
+
+input,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid #8498b2;
+  border-radius: 0.35rem;
+  background: white;
+  color: #172b43;
+  font: inherit;
+  font-weight: 400;
+}
+
+textarea {
+  resize: vertical;
+}
+small,
+.handoff-note,
+.fallback-note {
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+.repeat-note {
+  font-weight: 600;
+}
+.draft-error {
+  color: #9b241a;
+}
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 3px solid #215da6;
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .teams-composer {
+    padding: 0.8rem;
+  }
+  a,
+  button {
+    width: 100%;
+  }
+}

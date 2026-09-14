@@ -1,0 +1,23 @@
+<div class="m-0 flex flex-col items-center justify-center gap-1 p-0 pt-5">
+  <h2
+    class="m-0 flex flex-col items-center justify-center gap-4 p-0 leading-none before:hidden"
+    mat-dialog-title
+  >
+    <mat-icon class="size-10 text-[40px]">help</mat-icon>{{ title }}
+  </h2>
+  <!-- <small>Please confirm that you want to perform this action</small> -->
+</div>
+<mat-dialog-content>
+  <p class="mx-auto max-w-100 text-center text-sm">
+    {{ message }}
+  </p>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div class="flex w-full justify-center gap-2">
+    <button color="warn" mat-button (click)="cancelAction()">{{ cancelText }}</button>
+    <button color="primary" mat-raised-button (click)="confirmAction()">
+      <mat-icon>check</mat-icon>
+      {{ confirmText }}
+    </button>
+  </div>
+</mat-dialog-actions>

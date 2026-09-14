@@ -1,0 +1,235 @@
+// Every colour here is a var(--ot-*); no literal hex/rgb/hsl, so the section 14
+// grep gate stays green and the whole page follows the resolved theme.
+.theme-demo {
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: var(--ot-color-page);
+  color: var(--ot-color-text);
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    margin: 2rem 0 0.75rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--ot-color-divider);
+    padding-bottom: 0.25rem;
+  }
+
+  .muted {
+    color: var(--ot-color-text-muted);
+  }
+
+  a {
+    color: var(--ot-color-link);
+  }
+
+  code {
+    font-family: monospace;
+    font-size: 0.8rem;
+  }
+}
+
+.theme-demo__bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.switch {
+  display: inline-flex;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.switch__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.8rem;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  background: var(--ot-color-surface);
+  color: var(--ot-color-text);
+
+  &:not(:last-child) {
+    border-right: 1px solid var(--ot-color-divider);
+  }
+
+  &--active {
+    background: var(--ot-color-selected);
+    color: var(--ot-color-selected-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+
+  mat-icon {
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__chip {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--ot-color-border);
+    flex: 0 0 auto;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+// Section 13 component-state matrix. Focus, hover, active and selected are
+// deliberately independent, each proven with its second (non-colour) channel.
+.matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 56px;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+  background: var(--ot-color-surface);
+  color: var(--ot-color-text);
+  border: 1px solid var(--ot-color-border);
+
+  // Live states on the Normal cell, so keyboard and pointer both prove out.
+  &:hover {
+    background:
+      linear-gradient(var(--ot-color-hover), var(--ot-color-hover)), var(--ot-color-surface);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+
+  // Static reproductions of each state, so every cell is visible without interaction.
+  &--hover {
+    background:
+      linear-gradient(var(--ot-color-hover), var(--ot-color-hover)), var(--ot-color-surface);
+  }
+
+  &--focus {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+
+  &--active {
+    background:
+      linear-gradient(var(--ot-color-hover), var(--ot-color-hover)),
+      linear-gradient(var(--ot-color-hover), var(--ot-color-hover)), var(--ot-color-surface);
+  }
+
+  &--selected {
+    background: var(--ot-color-selected);
+    color: var(--ot-color-selected-text);
+    border-color: var(--ot-color-primary);
+  }
+
+  &--disabled {
+    background: var(--ot-color-disabled-surface);
+    color: var(--ot-color-disabled-text);
+    border-color: var(--ot-color-divider);
+    cursor: not-allowed;
+  }
+
+  &--success {
+    color: var(--ot-color-success);
+    border-color: var(--ot-color-success);
+    cursor: default;
+  }
+
+  &--warning {
+    color: var(--ot-color-warning);
+    border-color: var(--ot-color-warning);
+    cursor: default;
+  }
+
+  &--error {
+    color: var(--ot-color-error);
+    border-color: var(--ot-color-error);
+    cursor: default;
+  }
+
+  mat-icon {
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+}
+
+.surfaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.card {
+  flex: 1 1 240px;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--ot-color-border);
+  box-shadow: var(--ot-elevation-1);
+
+  &--surface {
+    background-color: var(--ot-color-surface);
+  }
+
+  &--raised {
+    background-color: var(--ot-color-surface-raised);
+  }
+
+  &--primary {
+    background-color: var(--ot-color-primary);
+    color: var(--ot-color-on-primary);
+    border-color: var(--ot-color-primary);
+  }
+
+  &--inverse {
+    background-color: var(--ot-color-inverse-surface);
+    color: var(--ot-color-inverse-text);
+    border-color: var(--ot-color-inverse-surface);
+  }
+}

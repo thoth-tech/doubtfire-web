@@ -1,0 +1,32 @@
+name: OnTrack review policy signal
+run-name: "OnTrack review policy signal for PR #${{ github.event.pull_request.number || 'all' }}"
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+      - ready_for_review
+      - converted_to_draft
+  pull_request_review:
+    types:
+      - submitted
+      - edited
+      - dismissed
+  workflow_dispatch:
+
+# This workflow deliberately has no permissions and never checks out pull-request
+# code or secrets. Its completion wakes the trusted evaluator on the default
+# branch; manual runs safely reconcile every open pull request.
+permissions: {}
+
+jobs:
+  signal:
+    if: github.repository_owner == 'ontrack-features-t2-2026'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: Signal policy evaluation
+        run: ':'

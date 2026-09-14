@@ -1,0 +1,31 @@
+CPD sizing investigation docs-only replacement verification
+Date: 2026-08-27
+Branch: docs/cpd-sizing-investigation
+Target: feature/cross-unit at 9962e7ea171a2bf6d7a12be50874fa5c7ee77e21
+
+1. npm run lint
+   Result: PASS
+   Detail: All files pass linting.
+
+2. npm run typecheck
+   Result: PASS
+   Detail: Angular compiler typecheck exited with code 0.
+
+3. npm run test:ci
+   Result: PASS
+   Detail: 68 test files passed. 168 tests passed and 1 existing test is marked todo.
+
+4. CI=true npm run build -- --no-progress
+   Result: PASS
+   Detail: Application bundle generation completed successfully.
+
+5. git diff --check
+   Result: PASS
+   Detail: No whitespace errors.
+
+6. Evidence integrity
+   Result: PASS
+   Detail: Every file listed in SHA256SUMS matches its recorded digest.
+
+The replacement diff contains only 25 files under docs/. It changes no application source,
+configuration, dependency, or workflow file.

@@ -1,35 +1,41 @@
-_Any italic text should be deleted from the final Pull Request text, including this line_
+## Jira ticket
 
-# Description
+Ticket number or link:
 
-_Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change._
+## Summary
 
-Fixes # (issue)
+Briefly explain what you changed and why.
 
-## Type of change
+## Target branch
 
-_Please delete options that are not relevant._
+Which shared branch should this be merged into?
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] This change requires a documentation update
+Example: `feature/email-notifications`
 
-# How Has This Been Tested?
+## Testing
 
-_Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration_
+Explain how you tested the change.
 
-## Testing Checklist:
+Include any useful commands, screenshots, logs, or test results.
 
-- [ ] Tested in latest Chrome
-- [ ] Tested in latest Safari
-- [ ] Tested in latest Firefox
+## Security and privacy
 
-# Checklist:
+Does this change affect authentication, permissions, notifications, student data,
+secrets, personal information, or privacy?
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have requested a review from @macite and @jakerenzella on the Pull Request
+If there is no known impact, write: `No known security or privacy impact.`
+
+## Evidence
+
+Add any screenshots, test output, diagrams, or other evidence that will help the reviewer.
+
+## Checklist
+
+- [ ] I selected the correct base branch.
+- [ ] My changes match the assigned Jira ticket.
+- [ ] I kept the change within the agreed scope.
+- [ ] I tested my changes.
+- [ ] I did not include passwords, tokens, API keys, secrets, or real student data.
+- [ ] I updated relevant documentation, or no documentation change was needed.
+- [ ] I reviewed my own changes before requesting review.
+- [ ] This pull request is ready for review.

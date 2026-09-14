@@ -2,11 +2,11 @@
 @use '@angular/material' as mat;
 
 // $my-palette: mat.define-palette(mat.$indigo-palette);
-@import '../../../../../../../theme.scss';
-@import '../../../../../../../styles/mixins/task-list.scss';
-@import '../../../../../../../styles/mixins/scrollable.scss';
+@use 'theme' as *;
+@use 'styles/mixins/task-list' as *;
+@use 'styles/mixins/scrollable' as *;
 
-$my-palette: mat.define-palette($md-formatif);
+$my-palette: mat.m2-define-palette($md-formatif);
 
 :host {
   --background-gray: rgba(0, 0, 0, 0.04);
@@ -35,6 +35,8 @@ $warn-color: #f44336;
   display: flex;
   justify-content: center;
   align-items: center;
+  // Fills the .overflow box now that it is no longer wrapped in a 40px icon button.
+  height: 100%;
 
   .mat-icon {
     color: #bcc0c4;
@@ -160,6 +162,31 @@ user-icon {
   width: 40px;
   margin-right: -10px;
   margin-left: -10px;
+  // Holds its size while the pin indicator is swapped out, because the options button
+  // that replaces it is taken out of the flow so it can sit in the tab order unseen.
+  height: 40px;
+  position: relative;
+}
+
+// The submission options button used to be removed from the DOM until the row was
+// hovered, which put it out of reach of the keyboard. It now always sits in the tab
+// order, stacked over the pin indicator, and is only made visible when the row is
+// hovered or the button itself has focus.
+.task-options {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+// The :focus arm is the safety net. rowActionsShown() should already have put the hover
+// class on the row by the time the button is focused, but focus must never land on
+// something the user cannot see, so the button reveals itself regardless.
+.inbox-entry.hover .task-options,
+.task-options:focus {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .mat-mdc-list-item {
@@ -177,7 +204,7 @@ user-icon {
   background-color: transparent;
 
   &.active {
-    background-color: mat.get-color-from-palette($my-palette, 500);
+    background-color: mat.m2-get-color-from-palette($my-palette, 500);
   }
 
   &.active.similarities {

@@ -1,43 +1,71 @@
-import { ApplicationRef, Injectable } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
-import { interval } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { delay } from 'rxjs/operators';
-import { concat } from 'rxjs';
+import {DOCUMENT} from '@angular/common';
+import {ApplicationRef, Inject, Injectable, OnDestroy} from '@angular/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {SwUpdate} from '@angular/service-worker';
+import {Subject, concat, delay, filter, from, interval, of, switchMap, take, takeUntil} from 'rxjs';
+
+const APP_STABILITY_DELAY_MS = 10 * 1000;
+const UPDATE_CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000;
 
 @Injectable()
-export class CheckForUpdateService {
-  constructor(appRef: ApplicationRef, private updates: SwUpdate, private _snackBar: MatSnackBar) {
-    // Allow the app to stabilize first, before starting polling for updates with `interval()`.
-    // const appIsStable$ = appRef.isStable.pipe(delay(10000));
+export class CheckForUpdateService implements OnDestroy {
+  private readonly destroy$: Subject<void> = new Subject();
 
-    // Checks every 4 hours
-    // const updateInterval$ = interval(4 * 60 * 60 * 1000);
-    // const updateIntervalOnceAppIsStable$ = concat(appIsStable$, updateInterval$);
+  constructor(
+    appRef: ApplicationRef,
+    private updates: SwUpdate,
+    private snackBar: MatSnackBar,
+    @Inject(DOCUMENT) private document: Document,
+  ) {
+    appRef.isStable
+      .pipe(
+        filter((isStable) => isStable),
+        take(1),
+        delay(APP_STABILITY_DELAY_MS),
+        switchMap(() => concat(of(0), interval(UPDATE_CHECK_INTERVAL_MS))),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.checkForUpdate());
 
-    // updateIntervalOnceAppIsStable$.subscribe((() => {
-    //   this.checkForUpdate();
-    // }).bind(this));
-    this.updates.versionUpdates.subscribe((updateEvent) => {
-      if (updateEvent.type === 'VERSION_READY') {
-        const snackBarRef = _snackBar.open(
-          'An update to the app has been found, would you like to refresh now?',
-          'refresh'
-        );
-        snackBarRef.onAction().subscribe((result) => {
-          updates.activateUpdate().then(() => document.location.reload());
-        });
+    this.updates.versionUpdates.pipe(takeUntil(this.destroy$)).subscribe((updateEvent) => {
+      if (updateEvent.type !== 'VERSION_READY') {
+        return;
       }
+
+      const snackBarRef = this.snackBar.open(
+        'A new version of OnTrack is ready. Reload to update now.',
+        'Reload',
+      );
+      snackBarRef
+        .onAction()
+        .pipe(
+          take(1),
+          switchMap(() => from(this.updates.activateUpdate())),
+          takeUntil(this.destroy$),
+        )
+        .subscribe(() => this.document.location.reload());
     });
 
-    this.updates.unrecoverable.subscribe((event) => {
-      _snackBar.open('An error occurred during update, please refresh the page');
+    this.updates.unrecoverable.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const snackBarRef = this.snackBar.open(
+        'This version of OnTrack can no longer run safely. Reload to recover.',
+        'Reload',
+      );
+      snackBarRef
+        .onAction()
+        .pipe(take(1), takeUntil(this.destroy$))
+        .subscribe(() => this.document.location.reload());
     });
   }
 
-  public checkForUpdate() {
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  public checkForUpdate(): void {
     if (this.updates.isEnabled) {
-      this.updates.checkForUpdate();
+      void this.updates.checkForUpdate();
     }
   }
 }

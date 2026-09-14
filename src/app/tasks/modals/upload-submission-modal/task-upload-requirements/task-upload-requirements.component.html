@@ -1,0 +1,58 @@
+<div class="task-upload-requirements" [id]="elementId">
+  @if (hasRequirements) {
+    <p class="requirements-summary"><strong>Files required:</strong> {{ requiredFileCount }}</p>
+
+    <ul class="requirements-list">
+      @for (summary of summaries; track $index) {
+        <li class="requirement">
+          <p class="requirement-category">
+            <strong>Required file type:</strong> {{ summary.categoryLabel }}
+          </p>
+          @if (summary.name) {
+            <p class="requirement-name">{{ summary.name }}</p>
+          }
+          <p class="requirement-formats">
+            <strong>Accepted formats:</strong>
+            @if (summary.extensions.length) {
+              {{ summary.previewExtensions.join(', ') }}
+              @if (summary.hasMoreExtensions) {
+                <span>, &hellip;</span>
+              }
+            } @else {
+              Not specified for this task
+            }
+          </p>
+          <p class="requirement-max-size">
+            <strong>Maximum size:</strong> Not provided by the server. Upload limits still apply.
+          </p>
+
+          @if (summary.hasMoreExtensions) {
+            <button
+              class="extensions-toggle"
+              type="button"
+              [attr.aria-controls]="elementId + '-ext-' + $index"
+              [attr.aria-expanded]="isExpanded(summary)"
+              (click)="toggleExpanded(summary)"
+            >
+              {{ isExpanded(summary) ? 'Hide' : 'View' }} all accepted extensions
+            </button>
+            <ul
+              class="extensions-list"
+              [hidden]="!isExpanded(summary)"
+              [id]="elementId + '-ext-' + $index"
+            >
+              @for (extension of summary.extensions; track extension) {
+                <li>{{ extension }}</li>
+              }
+            </ul>
+          }
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="requirements-missing">
+      Upload requirements for this task are not currently available. Contact your teaching team if
+      this message persists.
+    </p>
+  }
+</div>

@@ -1,0 +1,27 @@
+.task-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 1rem;
+}
+
+.task-status-card {
+  display: flex;
+  min-height: 10rem;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 0.25rem;
+  padding: 1.5rem;
+}
+
+.task-status-value {
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  line-height: 1;
+}
+
+.task-status-label {
+  margin-top: 1.25rem;
+  overflow-wrap: anywhere;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
