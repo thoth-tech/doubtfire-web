@@ -1,0 +1,257 @@
+<article
+  aria-live="polite"
+  class="ppi-card"
+  [attr.aria-busy]="view.state === 'loading'"
+  [attr.aria-labelledby]="titleId"
+  [class.is-error]="view.state === 'error'"
+  [class.is-muted]="
+    view.state === 'unavailable' ||
+    view.state === 'disabled' ||
+    view.state === 'preference-disabled' ||
+    view.state === 'hidden'
+  "
+  [class.is-warning]="view.state === 'stale'"
+>
+  <header class="ppi-head">
+    <div class="ppi-identity">
+      <span aria-hidden="true" class="ppi-avatar">
+        <mat-icon aria-hidden="true">groups</mat-icon>
+      </span>
+      <span>
+        <span class="ppi-title" [id]="titleId">Peer Progress Indicator</span>
+        <span class="ppi-subtitle">Anonymous peers at your target grade</span>
+      </span>
+    </div>
+
+    @if (isCompactResult) {
+      <button
+        class="ppi-toggle"
+        role="switch"
+        type="button"
+        [attr.aria-checked]="advanced"
+        [attr.aria-controls]="advancedPanelId"
+        [attr.aria-expanded]="advanced"
+        [attr.aria-label]="advancedToggleLabel"
+        (click)="setAdvanced(!advanced)"
+      >
+        <span aria-hidden="true" class="ppi-toggle-track">
+          <span class="ppi-toggle-thumb"></span>
+        </span>
+        <span>Advanced</span>
+      </button>
+    }
+  </header>
+
+  @if (isCompactResult) {
+    <section class="ppi-summary">
+      <div
+        class="ppi-value"
+        [attr.aria-label]="
+          summaryVerb === 'completed'
+            ? 'Peer completion progress at your target grade'
+            : 'Peer submission progress at your target grade'
+        "
+      >
+        <strong>{{ formatPercentage(summaryPercentage) }}%</strong>
+        <span>of peers have {{ summaryVerb }} this task</span>
+      </div>
+
+      <div class="ppi-visual">
+        <div
+          class="ppi-track"
+          role="progressbar"
+          [attr.aria-label]="
+            formatPercentage(summaryPercentage) +
+            '% of peers at your target grade have ' +
+            summaryVerb +
+            ' this task'
+          "
+          [attr.aria-valuemax]="100"
+          [attr.aria-valuemin]="0"
+          [attr.aria-valuenow]="summaryPercentage"
+        >
+          <span class="ppi-fill" [style.width]="summaryWidth"></span>
+        </div>
+        <div aria-hidden="true" class="ppi-scale">
+          <span>{{ formatPercentage(summaryPercentage) }}%</span>
+          <span>Peer cohort</span>
+        </div>
+      </div>
+    </section>
+
+    @if (advanced) {
+      <section class="ppi-advanced" [id]="advancedPanelId">
+        <div aria-label="Peer progress summary metrics" class="ppi-metrics">
+          @if (hasCompletedPercentage) {
+            <div class="ppi-metric is-complete">
+              <span>Completed</span>
+              <strong>{{ formatPercentage(view.data?.completedPercentage ?? 0) }}%</strong>
+            </div>
+          }
+          @if (hasSubmittedPercentage) {
+            <div class="ppi-metric is-submitted">
+              <span>Submitted</span>
+              <strong>{{ formatPercentage(view.data?.submittedPercentage ?? 0) }}%</strong>
+            </div>
+          }
+        </div>
+
+        <div class="ppi-heading">
+          <div>
+            <strong>Task status breakdown</strong>
+            <small>Independently privacy-rounded; values may not total 100%</small>
+          </div>
+        </div>
+
+        @if (!view.data?.distributionAvailable) {
+          <div class="ppi-notice" role="note">
+            <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+            <span>
+              <strong>{{ distributionNoticeTitle }}</strong>
+              {{ distributionNoticeText }}
+            </span>
+          </div>
+        } @else if (displaySegments.length === 0) {
+          <div class="ppi-notice" role="status">
+            <mat-icon aria-hidden="true">hourglass_empty</mat-icon>
+            <span>
+              <strong>No detailed statuses yet</strong>
+              The cohort is privacy-safe, but there is no status breakdown available for this task
+              yet.
+            </span>
+          </div>
+        } @else if (usesStackedDistribution) {
+          <div class="ppi-distribution" role="img" [attr.aria-label]="distributionAriaLabel">
+            @for (segment of displaySegments; track segment.status) {
+              <span
+                aria-hidden="true"
+                class="ppi-segment"
+                [attr.title]="segment.label + ': ' + formatPercentage(segment.percentage) + '%'"
+                [style.background-color]="segment.color"
+                [style.flex-grow]="segment.percentage"
+              ></span>
+            }
+          </div>
+
+          <ul aria-label="Peer task status percentages" class="ppi-legend">
+            @for (segment of displaySegments; track segment.status) {
+              <li>
+                <span
+                  aria-hidden="true"
+                  class="ppi-swatch"
+                  [style.background-color]="segment.color"
+                ></span>
+                <span class="ppi-name">{{ segment.label }}</span>
+                <strong>{{ formatPercentage(segment.percentage) }}%</strong>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="ppi-independent">
+            <p class="ppi-rounding" role="note" [id]="independentScaleNoticeId">
+              These privacy-rounded statuses total {{ formatPercentage(distributionTotal) }}%. Each
+              bar uses its own 0&ndash;100% scale, so values are not stretched to fill 100%.
+            </p>
+
+            <ul aria-label="Independently scaled peer task status percentages" class="ppi-list">
+              @for (segment of displaySegments; track segment.status) {
+                <li [attr.data-status]="segment.status">
+                  <span class="ppi-status">
+                    <span
+                      aria-hidden="true"
+                      class="ppi-swatch"
+                      [style.background-color]="segment.color"
+                    ></span>
+                    {{ segment.label }}
+                  </span>
+                  <span
+                    class="ppi-independent__track"
+                    role="progressbar"
+                    [attr.aria-describedby]="independentScaleNoticeId"
+                    [attr.aria-label]="segment.label + ' peer status percentage'"
+                    [attr.aria-valuemax]="100"
+                    [attr.aria-valuemin]="0"
+                    [attr.aria-valuenow]="segment.percentage"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="ppi-independent__fill"
+                      [style.background-color]="segment.color"
+                      [style.width.%]="segment.percentage"
+                    ></span>
+                  </span>
+                  <strong>{{ formatPercentage(segment.percentage) }}%</strong>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (view.data?.lastUpdatedAt) {
+          <small class="ppi-updated">
+            Updated {{ view.data?.lastUpdatedAt | date: 'd MMM, h:mm a' }}
+          </small>
+        }
+      </section>
+    }
+  } @else {
+    <section class="ppi-state">
+      @switch (view.state) {
+        @case ('loading') {
+          <mat-spinner aria-label="Loading peer progress" diameter="22"></mat-spinner>
+          <span>
+            <strong>Loading peer progress</strong>
+            Fetching the latest anonymous cohort snapshot&hellip;
+          </span>
+        }
+        @case ('error') {
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <span>
+            <strong>Peer progress could not be loaded</strong>
+            {{ view.message }}
+          </span>
+          <button mat-stroked-button type="button" (click)="retry()">Try again</button>
+        }
+        @case ('hidden') {
+          <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+          <span>
+            <strong>Progress is hidden to protect privacy</strong>
+            {{ view.message }}
+          </span>
+          <button mat-button type="button" (click)="retry()">Check again</button>
+        }
+        @case ('unavailable') {
+          <mat-icon aria-hidden="true">info_outline</mat-icon>
+          <span>
+            <strong>Peer progress is not available yet</strong>
+            {{ view.message }}
+          </span>
+          <button mat-button type="button" (click)="retry()">Check again</button>
+        }
+        @case ('disabled') {
+          <mat-icon aria-hidden="true">visibility_off</mat-icon>
+          <span>
+            <strong>Peer progress is unavailable for this unit</strong>
+            {{ view.message }}
+          </span>
+        }
+        @case ('preference-disabled') {
+          <mat-icon aria-hidden="true">visibility_off</mat-icon>
+          <span>
+            <strong>Peer progress is turned off</strong>
+            {{ view.message }}
+          </span>
+        }
+        @case ('stale') {
+          <mat-icon aria-hidden="true">history</mat-icon>
+          <span>
+            <strong>Fresh peer progress is not available</strong>
+            {{ view.message }}
+          </span>
+          <span class="ppi-badge">Data may be outdated</span>
+          <button mat-button type="button" (click)="retry()">Refresh</button>
+        }
+      }
+    </section>
+  }
+</article>

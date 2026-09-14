@@ -1,4 +1,4 @@
-@import '../../../../theme.scss';
+@use 'theme' as *;
 
 #home {
   padding-top: 10px;
@@ -42,8 +42,8 @@
 
   .f-card-title {
     font-size: 18px;
-    max-height: 30px;
-    white-space: nowrap;
+    min-height: 65px; // Ensures consistent card height while allowing text to wrap
+    white-space: wrap;
     text-overflow: ellipsis;
     width: 100%;
     overflow: hidden;
@@ -55,7 +55,7 @@
     color: white;
     opacity: 1;
     border-style: none;
-    --mdc-chip-disabled-label-text-color: white;
+    --mat-chip-disabled-label-text-color: white;
   }
 }
 
@@ -86,6 +86,41 @@
 }
 
 :host {
-  --mdc-linear-progress-track-height: 16px;
-  --mdc-linear-progress-active-indicator-height: 16px;
+  --mat-progress-bar-track-height: 16px;
+  --mat-progress-bar-active-indicator-height: 16px;
+}
+
+.home-hub-entry {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  margin: 8px 0 24px;
+  border: 1px solid var(--ot-color-border, #c6d6dd);
+  border-radius: 14px;
+  color: var(--ot-color-link);
+  background: var(--ot-color-surface, #fff);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  > span {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  strong {
+    font-size: 1.1rem;
+  }
+  > span > span {
+    font-size: 0.88rem;
+    color: var(--ot-color-text, #243746);
+  }
+  > mat-icon {
+    flex-shrink: 0;
+  }
+  &:focus-visible {
+    outline: 3px solid var(--ot-color-primary, #006b80);
+    outline-offset: 3px;
+  }
 }

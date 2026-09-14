@@ -1,0 +1,14 @@
+<div aria-label="Task status summary" class="task-status-grid" role="list">
+  @for (status of data; track status.status) {
+    <div
+      class="task-status-card"
+      role="listitem"
+      [attr.aria-label]="status.name + ': ' + status.value"
+      [style.background-color]="status.color"
+      [style.color]="status.textColor"
+    >
+      <span class="task-status-value">{{ status.value }}</span>
+      <span class="task-status-label">{{ status.name }}</span>
+    </div>
+  }
+</div>

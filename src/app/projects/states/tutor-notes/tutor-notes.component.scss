@@ -1,0 +1,62 @@
+.mat-icon {
+  color: #9696969d;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  vertical-align: middle;
+  text-align: center;
+  margin-left: 0.3em;
+}
+
+.mat-icon:hover {
+  color: black;
+}
+
+// Edit, reply and delete are real buttons, stripped back to look the way the bare icons
+// they replaced did.
+.note-action {
+  padding: 0;
+  border: 0;
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+}
+
+.note-action:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.note-action:hover .mat-icon,
+.note-action:focus-visible .mat-icon {
+  color: black;
+}
+
+// The row used to be shown by a mouseover handler writing hoveredNoteId, which no keyboard
+// user could ever set. The reveal is CSS now, so it answers to focus inside the note as
+// well as to the pointer. It has to be opacity rather than display or visibility, both of
+// which would drop the buttons out of the tab order and leave :focus-within with no way to
+// ever become true.
+.note-actions {
+  opacity: 0;
+}
+
+.note-card:hover .note-actions,
+.note-card:focus-within .note-actions {
+  opacity: 1;
+}
+
+@keyframes blueGlowFade {
+  0% {
+    background-color: rgba(66, 133, 244, 0.6);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.flash-highlight {
+  animation: blueGlowFade 1s ease-out;
+}

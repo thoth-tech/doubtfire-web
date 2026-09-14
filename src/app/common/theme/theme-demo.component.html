@@ -1,0 +1,102 @@
+<div class="theme-demo">
+  <header class="theme-demo__bar">
+    <div>
+      <h1>OnTrack theme foundation</h1>
+      <p class="muted">
+        Every colour below resolves from a <code>--ot-*</code> token off the
+        <code>data-ot-theme</code> marker. Flip the preference — the page repaints, no reload. Each
+        cell is proven in both themes by switching.
+      </p>
+    </div>
+    <div aria-label="Theme preference" class="switch" role="group">
+      @for (opt of preferences; track opt.value) {
+        <button
+          class="switch__btn"
+          type="button"
+          [attr.aria-pressed]="preference() === opt.value"
+          [class.switch__btn--active]="preference() === opt.value"
+          (click)="choose(opt.value)"
+        >
+          <mat-icon>{{ opt.icon }}</mat-icon>
+          {{ opt.label }}
+        </button>
+      }
+    </div>
+  </header>
+
+  <section>
+    <h2>Semantic tokens</h2>
+    <div class="grid">
+      @for (name of semantic; track name) {
+        <div class="swatch">
+          <span class="swatch__chip" [style.background]="'var(--ot-color-' + name + ')'"></span>
+          <code>--ot-color-{{ name }}</code>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section>
+    <h2>Task status</h2>
+    <div class="chips">
+      @for (s of statuses; track s) {
+        <span
+          class="chip"
+          [style.background]="'var(--ot-status-' + s + ')'"
+          [style.color]="'var(--ot-status-' + s + '-on)'"
+        >
+          {{ s }}
+        </span>
+      }
+    </div>
+  </section>
+
+  <section>
+    <h2>Component-state matrix</h2>
+    <p class="muted">Contract section 13. Colour is never the only signal.</p>
+    <div class="matrix">
+      <button class="cell" type="button">Normal</button>
+      <button class="cell cell--hover" type="button">Hover</button>
+      <button class="cell cell--focus" type="button">Focus</button>
+      <button class="cell cell--active" type="button">Active</button>
+      <button aria-current="true" class="cell cell--selected" type="button">Selected</button>
+      <button aria-disabled="true" class="cell cell--disabled" disabled type="button">
+        Disabled
+      </button>
+      <div class="cell cell--success" role="status">
+        <mat-icon>check_circle</mat-icon>
+        <span>Success message</span>
+      </div>
+      <div class="cell cell--warning" role="status">
+        <mat-icon>warning</mat-icon>
+        <span>Warning message</span>
+      </div>
+      <div class="cell cell--error" role="alert">
+        <mat-icon>error</mat-icon>
+        <span>Error message</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Surfaces</h2>
+    <div class="surfaces">
+      <div class="card card--surface">
+        <strong>surface</strong>
+        <p class="muted">Body text on a card. Links look <a href="#">like this</a>.</p>
+      </div>
+      <div class="card card--raised">
+        <strong>surface-raised</strong>
+        <p class="muted">Menus and popovers separate by hue in dark mode.</p>
+      </div>
+      <div class="card card--primary">
+        <strong>primary / on-primary</strong>
+        <p>Text on a primary fill, e.g. a raised action button.</p>
+      </div>
+      <div class="card card--inverse">
+        <strong>inverse-surface / inverse-text</strong>
+        <p>A snackbar or tooltip that inverts against the page.</p>
+      </div>
+    </div>
+  </section>
+</div>

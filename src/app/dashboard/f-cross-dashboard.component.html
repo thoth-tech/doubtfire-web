@@ -1,0 +1,354 @@
+<div class="panel-full-screen flex h-full min-w-0 flex-col overflow-y-auto sm:overflow-hidden">
+  <div
+    aria-label="Global dashboard filters"
+    class="grid shrink-0 grid-cols-1 items-end gap-3 px-4 pt-4 sm:flex sm:flex-wrap sm:gap-4 sm:px-16"
+    role="search"
+  >
+    <mat-form-field appearance="outline" class="w-full sm:max-w-64">
+      <mat-label>Unit scope</mat-label>
+      <mat-select [value]="unitScope" (selectionChange)="setUnitScope($event.value)">
+        <mat-option value="active">Active units</mat-option>
+        <mat-option value="previous">Previous units</mat-option>
+        <mat-option value="all">All units</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full min-w-0 sm:max-w-96 sm:min-w-64">
+      <mat-label>Search all units and tasks</mat-label>
+      <input
+        aria-label="Global search"
+        autocomplete="off"
+        matInput
+        type="search"
+        [value]="globalSearchTerm"
+        (input)="setGlobalSearch($any($event.target).value)"
+      />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <button
+      aria-controls="dashboard-secondary-filters"
+      class="flex min-h-12 w-full items-center justify-between rounded border border-gray-400 bg-white px-4 font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current sm:hidden"
+      data-mobile-global-filter-toggle
+      type="button"
+      [attr.aria-expanded]="mobileGlobalFiltersExpanded"
+      (click)="toggleMobileGlobalFilters()"
+    >
+      <span>More filters</span>
+      <span class="flex items-center gap-2">
+        @if (mobileSecondaryFilterCount > 0) {
+          <span class="rounded-full bg-formatif-blue px-2 py-0.5 text-sm text-white">
+            {{ mobileSecondaryFilterCount }} active
+          </span>
+        }
+        <mat-icon aria-hidden="true">
+          {{ mobileGlobalFiltersExpanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+        </mat-icon>
+      </span>
+    </button>
+
+    <div
+      class="dashboard-global-advanced-filters min-w-0"
+      id="dashboard-secondary-filters"
+      [class.is-mobile-open]="mobileGlobalFiltersExpanded"
+    >
+      <mat-form-field appearance="outline" class="w-full sm:max-w-64">
+        <mat-label>Task statuses</mat-label>
+        <mat-select
+          aria-label="Task statuses"
+          multiple
+          [value]="selectedStatuses"
+          (selectionChange)="setStatuses($event.value)"
+        >
+          @for (option of statusOptions; track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full sm:max-w-64">
+        <mat-label>Target grades</mat-label>
+        <mat-select
+          aria-label="Target grades"
+          multiple
+          [value]="selectedGrades"
+          (selectionChange)="setGrades($event.value)"
+        >
+          @for (option of gradeOptions; track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button
+        class="h-12 sm:mb-5"
+        mat-stroked-button
+        type="button"
+        [disabled]="!hasGlobalToolbarChanges"
+        (click)="clearGlobalFilters()"
+      >
+        Clear all
+      </button>
+
+      <div class="flex min-w-0 flex-col gap-1 sm:pb-5">
+        <label class="font-medium" for="dashboard-start-date">Start date</label>
+        <input
+          class="h-12 min-w-0 rounded border border-gray-400 bg-white px-3"
+          id="dashboard-start-date"
+          type="date"
+          [attr.aria-describedby]="isDateRangeInvalid ? 'date-range-error' : null"
+          [attr.aria-invalid]="isDateRangeInvalid ? 'true' : null"
+          [value]="startDate"
+          (input)="setStartDate($any($event.target).value)"
+        />
+      </div>
+      <div class="flex min-w-0 flex-col gap-1 sm:pb-5">
+        <label class="font-medium" for="dashboard-end-date">End date</label>
+        <input
+          class="h-12 min-w-0 rounded border border-gray-400 bg-white px-3"
+          id="dashboard-end-date"
+          type="date"
+          [attr.aria-describedby]="isDateRangeInvalid ? 'date-range-error' : null"
+          [attr.aria-invalid]="isDateRangeInvalid ? 'true' : null"
+          [value]="endDate"
+          (input)="setEndDate($any($event.target).value)"
+        />
+      </div>
+      <button
+        class="h-12 rounded border border-gray-400 bg-white px-4 font-medium disabled:cursor-not-allowed disabled:opacity-50 sm:mb-5"
+        type="button"
+        [disabled]="!startDate && !endDate"
+        (click)="clearDateRange()"
+      >
+        Clear dates
+      </button>
+
+      @if (isDateRangeInvalid) {
+        <p class="text-red-700 sm:mb-5" id="date-range-error" role="alert">
+          Start date must be on or before end date.
+        </p>
+      }
+    </div>
+  </div>
+  <div
+    class="dashboard-units-layout flex min-h-0 flex-1 flex-col gap-3 overflow-x-hidden px-4 pt-1 pb-4 sm:flex-row sm:gap-8 sm:overflow-x-auto sm:overflow-y-hidden sm:px-16 sm:pt-0"
+  >
+    @for (unit of displayedUnits; track unit.projectId) {
+      <section
+        class="flex h-auto w-full min-w-0 shrink-0 flex-col overflow-hidden rounded-lg shadow sm:h-full sm:w-128"
+        [attr.aria-label]="unit.code + ' project tasks'"
+      >
+        <div
+          class="flex w-full shrink-0 flex-col p-4 sm:flex-row sm:items-center sm:gap-4"
+          [class.bg-formatif-blue]="!unit.isPrevious"
+          [class.bg-green-600]="unit.isPrevious"
+        >
+          <h2 class="m-0 sm:hidden">
+            <button
+              class="flex min-h-12 w-full min-w-0 items-center gap-3 rounded text-left text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              data-mobile-unit-toggle
+              type="button"
+              [attr.aria-controls]="
+                'dashboard-unit-controls-' +
+                unit.projectId +
+                ' dashboard-unit-content-' +
+                unit.projectId
+              "
+              [attr.aria-expanded]="isMobileProjectExpanded(unit.projectId)"
+              (click)="toggleMobileProject(unit.projectId)"
+            >
+              <span class="min-w-0 grow">
+                <span class="block text-lg leading-tight font-semibold break-words">
+                  {{ unit.code }}
+                </span>
+                <span class="mt-1 block text-sm leading-tight break-words text-white/90">
+                  {{ unit.name }} · {{ unit.isPrevious ? 'Previous' : 'Active' }}
+                </span>
+                <span class="mt-2 flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-sm">
+                  <span>{{ unit.mobileSummary.taskCountLabel }}</span>
+                  <span
+                    class="min-w-0 break-words"
+                    [class.font-semibold]="unit.mobileSummary.hasDeadlineWarning"
+                  >
+                    {{ unit.mobileSummary.deadlineLabel }}
+                  </span>
+                </span>
+              </span>
+              <mat-icon aria-hidden="true" class="shrink-0">
+                {{
+                  isMobileProjectExpanded(unit.projectId)
+                    ? 'keyboard_arrow_up'
+                    : 'keyboard_arrow_down'
+                }}
+              </mat-icon>
+            </button>
+          </h2>
+
+          <div class="hidden min-w-0 grow sm:block">
+            <a
+              class="m-0 mt-2 block truncate text-xl font-semibold text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              [routerLink]="['/projects', unit.projectId, 'dashboard']"
+            >
+              {{ unit.code }}
+            </a>
+            <p class="m-0 truncate text-xl font-normal text-white">
+              {{ unit.isPrevious ? 'Previous' : 'Active' }}
+            </p>
+          </div>
+
+          <div
+            class="dashboard-project-controls min-w-0"
+            [class.is-mobile-open]="isMobileProjectExpanded(unit.projectId)"
+            [id]="'dashboard-unit-controls-' + unit.projectId"
+          >
+            <a
+              class="rounded py-2 text-sm font-semibold text-white underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:hidden"
+              [routerLink]="['/projects', unit.projectId, 'dashboard']"
+            >
+              Open {{ unit.code }} dashboard
+            </a>
+
+            <input
+              autocomplete="off"
+              class="text-md h-12 min-w-0 rounded-md bg-white p-2 px-4 text-gray-900 placeholder:text-gray-600 placeholder:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:h-full sm:w-56"
+              placeholder="Search tasks..."
+              type="search"
+              [attr.aria-label]="'Search tasks in ' + unit.code"
+              [value]="getSearchTerm(unit.projectId)"
+              (input)="setSearch(unit.projectId, $any($event.target).value)"
+            />
+
+            <div class="flex min-h-12 flex-wrap items-center gap-1">
+              <button
+                mat-icon-button
+                [attr.aria-label]="'Sort tasks in ' + unit.code"
+                [matMenuTriggerFor]="sortmenu"
+              >
+                <mat-icon style="color: white">sort</mat-icon>
+              </button>
+              <mat-menu #sortmenu="matMenu">
+                @for (mode of sortOptions; track mode) {
+                  <button mat-menu-item (click)="setSort(unit.projectId, mode)">
+                    {{ mode }}
+                  </button>
+                }
+              </mat-menu>
+
+              <button
+                mat-icon-button
+                [attr.aria-label]="'Filter tasks in ' + unit.code"
+                [matMenuTriggerFor]="filtermenu"
+              >
+                <mat-icon style="color: white">filter_list_alt</mat-icon>
+              </button>
+              <mat-menu #filtermenu="matMenu">
+                @for (mode of filterOptions; track mode) {
+                  <div
+                    mat-menu-item
+                    (click)="$event.stopPropagation(); toggleFilter(unit.projectId, mode)"
+                  >
+                    <mat-checkbox [checked]="isFilterEnabled(unit.projectId, mode)" />
+                    {{ mode }}
+                  </div>
+                }
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="dashboard-project-content min-h-0 flex-col"
+          [class.is-mobile-open]="isMobileProjectExpanded(unit.projectId)"
+          [id]="'dashboard-unit-content-' + unit.projectId"
+        >
+          @if (unit.gradeSummaries.length > 0) {
+            <div
+              class="border-x border-gray-300 bg-gray-50 px-4 py-3"
+              [attr.aria-label]="'Grade task completion for ' + unit.code"
+            >
+              <p class="m-0 text-sm font-semibold">Grade task completion</p>
+              <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                @for (summary of unit.gradeSummaries; track summary.targetGrade) {
+                  <span>
+                    @if (summary.total === 0) {
+                      {{ summary.label }}: 0 tasks
+                    } @else {
+                      {{ summary.label }}: {{ summary.completed }} of {{ summary.total }} complete
+                      ({{ summary.percentage }}%)
+                    }
+                  </span>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="flex min-h-0 flex-col overflow-visible sm:overflow-y-auto">
+            @for (task of unit.tasks; track task.abbreviation) {
+              <div class="min-w-0 border-b border-gray-300">
+                <f-dashboard-list-item [task]="task"></f-dashboard-list-item>
+              </div>
+            }
+
+            @if (unit.tasks.length === 0) {
+              <div class="border border-t-0 border-gray-300 p-6 text-center" role="status">
+                @if (hasActiveTaskCriteria(unit.projectId)) {
+                  <p class="m-0">No tasks match the current search and filters.</p>
+                } @else {
+                  <p class="m-0">No tasks are available.</p>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (
+      hasGlobalTaskCriteria &&
+      displayedUnits.length === 0 &&
+      !loadingPreviousUnits &&
+      !previousUnitsLoadError
+    ) {
+      <div
+        class="flex w-full max-w-2xl shrink-0 items-center self-start rounded border border-gray-300 bg-white p-6"
+        role="status"
+      >
+        <p class="m-0">No tasks match the current global search and filters.</p>
+      </div>
+    }
+
+    @if (unitScope !== 'active' && loadingPreviousUnits) {
+      <div
+        class="flex w-full shrink-0 items-center self-start rounded border border-gray-300 p-6 sm:w-80"
+      >
+        Loading previous units...
+      </div>
+    }
+
+    @if (unitScope !== 'active' && previousUnitsLoadError) {
+      <div
+        class="flex w-full shrink-0 flex-col self-start rounded border border-gray-300 p-6 sm:w-96"
+      >
+        <h3 class="mt-0">Previous units</h3>
+        <p class="mb-0">Previous units could not be loaded.</p>
+      </div>
+    }
+
+    @if (
+      unitScope !== 'active' &&
+      previousUnitsLoaded &&
+      !loadingPreviousUnits &&
+      previousUnits.length === 0 &&
+      !hasGlobalTaskCriteria
+    ) {
+      <div class="flex w-full shrink-0 flex-col self-start overflow-hidden rounded shadow sm:w-96">
+        <div class="bg-green-600 p-4 text-white">
+          <h3 class="m-0">Previous units</h3>
+        </div>
+        <div class="border border-t-0 border-gray-300 p-6">
+          <p class="m-0">No previous units are available.</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,13 +1,15 @@
-import {Component, ContentChild, OnInit, TemplateRef} from '@angular/core';
 import {AnimationOptions} from 'ngx-lottie';
+import {ChangeDetectionStrategy, Component, ContentChild, OnInit, TemplateRef} from '@angular/core';
 import {Observable} from 'rxjs';
 import {GlobalStateService} from 'src/app/projects/states/index/global-state.service';
 import {LoadingService} from './LoadingService.service';
-import {AnimationItem} from 'lottie-web';
+
 @Component({
   selector: 'splash-screen',
   templateUrl: './splash-screen.component.html',
   styleUrls: ['./splash-screen.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SplashScreenComponent implements OnInit {
   constructor(
@@ -39,5 +41,4 @@ export class SplashScreenComponent implements OnInit {
       }
     });
   }
-
 }

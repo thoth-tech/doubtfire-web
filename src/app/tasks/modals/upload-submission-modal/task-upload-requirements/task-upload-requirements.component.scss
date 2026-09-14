@@ -1,0 +1,63 @@
+.task-upload-requirements {
+  margin-bottom: 1em;
+  margin-top: 1em;
+  min-width: 0;
+}
+
+.requirements-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.requirement {
+  padding: 0.5em 0.75em;
+  margin-bottom: 0.5em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  word-break: break-word;
+}
+
+.requirements-missing {
+  color: inherit;
+  font-style: italic;
+}
+
+.extensions-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+
+  &:hover,
+  &:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+}
+
+.extensions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 0.75em;
+  list-style: none;
+  margin: 0.5em 0 0;
+  padding: 0;
+
+  li {
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    padding: 0.1em 0.5em;
+  }
+}
+
+// Narrow screens: stack extension chips full-width instead of relying on wrapping alone
+@media (max-width: 480px) {
+  .extensions-list {
+    flex-direction: column;
+    gap: 0.25em;
+  }
+}

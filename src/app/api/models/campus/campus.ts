@@ -1,4 +1,4 @@
-import { Entity, EntityMapping } from "ngx-entity-service";
+import {Entity, EntityMapping} from 'ngx-entity-service';
 
 type campusModes = 'timetable' | 'automatic' | 'manual';
 
@@ -7,10 +7,14 @@ export class Campus extends Entity {
   name: string;
   mode: campusModes;
   abbreviation: string;
+  timezone: string;
 
-  public override toJson<T extends Entity>(mappingData: EntityMapping<T>, ignoreKeys?: string[]): object {
+  public override toJson<T extends Entity>(
+    mappingData: EntityMapping<T>,
+    ignoreKeys?: string[],
+  ): object {
     return {
-      campus: super.toJson(mappingData, ignoreKeys)
+      campus: super.toJson(mappingData, ignoreKeys),
     };
   }
 
@@ -20,6 +24,9 @@ export class Campus extends Entity {
    * @param matchText the text to match
    */
   public matches(matchText: string): boolean {
-    return this.name.toLowerCase().indexOf(matchText) >= 0 || this.abbreviation.toLowerCase().indexOf(matchText) >= 0;
+    return (
+      this.name.toLowerCase().indexOf(matchText) >= 0 ||
+      this.abbreviation.toLowerCase().indexOf(matchText) >= 0
+    );
   }
 }

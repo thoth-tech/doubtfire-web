@@ -1,0 +1,345 @@
+<ng-template #TaskListSkeleton>
+  <div class="task-list-skeleton flex h-full flex-col p-1">
+    <div class="mb-2 rounded-2xl bg-white p-1">
+      <div class="flex items-center gap-2">
+        <ngx-skeleton-loader
+          appearance="circle"
+          [theme]="{width: '32px', height: '32px', margin: '0'}"
+        ></ngx-skeleton-loader>
+        <ngx-skeleton-loader
+          class="min-w-0 flex-1"
+          [theme]="{height: '16px', width: '100%', 'border-radius': '999px', margin: '0'}"
+        ></ngx-skeleton-loader>
+      </div>
+    </div>
+
+    <div class="min-h-0 flex-1 overflow-hidden rounded-lg bg-white">
+      @for (row of skeletonRows; track row) {
+        <div
+          class="skeleton-task-row flex h-[65px] items-center gap-2 border-b border-gray-200 px-2"
+        >
+          <div class="min-w-0 flex-1">
+            <ngx-skeleton-loader
+              [theme]="{height: '12px', width: '82%', 'border-radius': '999px', margin: '0 0 8px'}"
+            ></ngx-skeleton-loader>
+            <ngx-skeleton-loader
+              [theme]="{height: '10px', width: '58%', 'border-radius': '999px', margin: '0'}"
+            ></ngx-skeleton-loader>
+          </div>
+          <ngx-skeleton-loader
+            appearance="circle"
+            [theme]="{width: '34px', height: '34px', margin: '0'}"
+          ></ngx-skeleton-loader>
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>
+
+@if (project$ | async; as project) {
+  @let selectedTaskDefinition = selectedTaskDefinition$ | async;
+  <div class="project-dashboard-shell w-full overflow-hidden">
+    @if (isPhoneLayout) {
+      <header class="mobile-task-toolbar">
+        @if (selectedTaskDefinition && mobilePane !== 'overview') {
+          <div class="mobile-task-heading">
+            <div class="min-w-0 px-3">
+              <div class="truncate text-sm font-bold text-gray-900">
+                {{ selectedTaskDefinition.abbreviation }}
+              </div>
+              <div class="truncate text-xs text-gray-600">
+                {{ selectedTaskDefinition.name }}
+              </div>
+            </div>
+          </div>
+        }
+
+        <nav aria-label="Project dashboard navigation" class="mobile-task-tabs">
+          <button
+            aria-label="Show project overview"
+            class="mobile-task-tab"
+            type="button"
+            [attr.aria-pressed]="mobilePane === 'overview'"
+            [class.mobile-task-tab--active]="mobilePane === 'overview'"
+            (click)="showMobilePane('overview')"
+          >
+            <mat-icon>insights</mat-icon>
+            <span>Overview</span>
+          </button>
+          <button
+            aria-label="Show task list"
+            class="mobile-task-tab"
+            type="button"
+            [attr.aria-pressed]="!selectedTaskDefinition && mobilePane === 'task'"
+            [class.mobile-task-tab--active]="!selectedTaskDefinition && mobilePane === 'task'"
+            (click)="clearTaskSelection()"
+          >
+            <mat-icon>list</mat-icon>
+            <span>Tasks</span>
+          </button>
+          <button
+            aria-label="Show task details"
+            class="mobile-task-tab"
+            type="button"
+            [attr.aria-pressed]="!!selectedTaskDefinition && mobilePane === 'task'"
+            [class.mobile-task-tab--active]="!!selectedTaskDefinition && mobilePane === 'task'"
+            [disabled]="!selectedTaskDefinition"
+            (click)="showMobilePane('task')"
+          >
+            <mat-icon>assignment</mat-icon>
+            <span>Details</span>
+          </button>
+          <button
+            aria-label="Show feedback"
+            class="mobile-task-tab"
+            type="button"
+            [attr.aria-pressed]="!!selectedTaskDefinition && mobilePane === 'feedback'"
+            [class.mobile-task-tab--active]="!!selectedTaskDefinition && mobilePane === 'feedback'"
+            [disabled]="!selectedTaskDefinition"
+            (click)="showMobilePane('feedback')"
+          >
+            <mat-icon>forum</mat-icon>
+            <span>Feedback</span>
+          </button>
+        </nav>
+      </header>
+    }
+
+    <div #boundary class="project-dashboard-layout flex h-full min-h-0 flex-row">
+      @if (subs$ | async) {
+        @if (isProjectTaskListReady(project)) {
+          <f-unit-task-list
+            #leftPanel
+            class="project-task-list-panel h-full min-h-0 flex-none p-1"
+            [class.project-task-list-panel--phone-hidden]="
+              isPhoneLayout && (!!selectedTaskDefinition || mobilePane === 'overview')
+            "
+            [isCollapsed]="taskListCollapsed"
+            [mode]="'project'"
+            [project]="project"
+            [selectedTaskDefinition$]="selectedTaskDefinition$"
+            [selectionUrlBase]="taskSelectionUrlBase"
+            [style.width.px]="isPhoneLayout ? null : leftWidth"
+            [targetGrade]="project.targetGrade"
+            [taskDefinitions]="taskDefinitionsForProject(project)"
+            [tasks]="project.tasks"
+          ></f-unit-task-list>
+        } @else {
+          <div
+            class="project-task-list-panel h-full min-h-0 flex-none"
+            [class.project-task-list-panel--phone-hidden]="
+              isPhoneLayout && (!!selectedTaskDefinition || mobilePane === 'overview')
+            "
+            [style.width.px]="isPhoneLayout ? null : leftWidth"
+          >
+            <ng-container *ngTemplateOutlet="TaskListSkeleton"></ng-container>
+          </div>
+        }
+        <div
+          class="project-task-resizer relative flex-none"
+          [class.project-task-resizer--phone-hidden]="isPhoneLayout"
+          [style.width.px]="3"
+        >
+          <div
+            #leftResizerEl
+            cdkDrag
+            cdkDragLockAxis="x"
+            class="absolute inset-y-0 left-0 z-50 w-[3px] cursor-ew-resize bg-slate-100"
+            [cdkDragBoundary]="boundary"
+            (cdkDragEnded)="stoppedDragging($event, boundary)"
+            (cdkDragMoved)="dragging($event, boundary)"
+            (cdkDragStarted)="startedDragging($event, boundary)"
+          ></div>
+        </div>
+      }
+      @if (isPhoneLayout && mobilePane === 'overview') {
+        <section aria-label="Project overview" class="mobile-overview-view min-w-0 flex-1 bg-white">
+          <div class="mobile-overview-pane">
+            @if (isProjectTaskListReady(project)) {
+              <f-progress-dashboard
+                class="block w-full"
+                [project]="project"
+                [showSubmittedGrade]="showSubmittedGrade"
+              ></f-progress-dashboard>
+            } @else {
+              <div class="dashboard-skeleton min-h-full rounded-lg bg-white p-2.5">
+                <ngx-skeleton-loader
+                  [theme]="{
+                    height: '28px',
+                    width: '220px',
+                    'border-radius': '999px',
+                    margin: '0 0 20px',
+                  }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{
+                    height: '140px',
+                    width: '100%',
+                    'border-radius': '8px',
+                    margin: '0 0 16px',
+                  }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{
+                    height: '220px',
+                    width: '100%',
+                    'border-radius': '8px',
+                    margin: '0',
+                  }"
+                ></ngx-skeleton-loader>
+              </div>
+            }
+          </div>
+        </section>
+      } @else if (selectedTaskDefinition) {
+        @if (isPhoneLayout) {
+          <section aria-label="Selected task" class="mobile-task-view min-w-0 flex-1 bg-white">
+            <div class="mobile-task-pane">
+              @if (mobilePane === 'task') {
+                <f-task-dashboard
+                  [task]="project.findTaskForDefinition(selectedTaskDefinition.id)"
+                ></f-task-dashboard>
+              } @else {
+                <task-comments-viewer
+                  [task]="project.findTaskForDefinition(selectedTaskDefinition.id)"
+                ></task-comments-viewer>
+              }
+            </div>
+          </section>
+        } @else {
+          <div class="desktop-task-dashboard min-w-0 flex-1 rounded-lg bg-white p-1">
+            <f-task-dashboard
+              [task]="project.findTaskForDefinition(selectedTaskDefinition.id)"
+            ></f-task-dashboard>
+          </div>
+          @if (isCommentsNarrow && commentsCollapsed) {
+            <button
+              aria-label="Open task comments"
+              class="comments-floating-toggle"
+              color="primary"
+              mat-mini-fab
+              matTooltip="Open comments"
+              type="button"
+              (click)="toggleCommentsPanel()"
+            >
+              <mat-icon class="comments-floating-toggle__edge-icon">chevron_left</mat-icon>
+              <mat-icon class="comments-floating-toggle__hover-icon">forum</mat-icon>
+            </button>
+          }
+          <div
+            #commentspanel
+            class="comments-sidebar w-1/4 flex-none bg-white p-1"
+            [class.comments-sidebar--narrow]="isCommentsNarrow"
+            [class.hidden]="commentsPanelCollapsed"
+          >
+            @if (isCommentsNarrow && !commentsCollapsed) {
+              <button
+                aria-label="Collapse task comments"
+                class="comments-sidebar__collapse"
+                mat-icon-button
+                matTooltip="Collapse comments"
+                type="button"
+                (click)="toggleCommentsPanel()"
+              >
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            }
+            <task-comments-viewer [task]="project.findTaskForDefinition(selectedTaskDefinition.id)">
+            </task-comments-viewer>
+          </div>
+        }
+      } @else if (!isProjectTaskListReady(project)) {
+        <div
+          class="project-dashboard-placeholder min-h-0 flex-1 overflow-y-auto p-1"
+          [class.project-dashboard-placeholder--phone-hidden]="isPhoneLayout"
+        >
+          <div class="dashboard-skeleton h-full rounded-lg bg-white p-2.5">
+            <ngx-skeleton-loader
+              [theme]="{
+                height: '28px',
+                width: '220px',
+                'border-radius': '999px',
+                margin: '0 0 20px',
+              }"
+            ></ngx-skeleton-loader>
+            <ngx-skeleton-loader
+              [theme]="{height: '140px', width: '100%', 'border-radius': '8px', margin: '0 0 16px'}"
+            ></ngx-skeleton-loader>
+            <ngx-skeleton-loader
+              [theme]="{height: '220px', width: '100%', 'border-radius': '8px', margin: '0'}"
+            ></ngx-skeleton-loader>
+          </div>
+        </div>
+      } @else {
+        <div
+          class="project-dashboard-placeholder min-h-0 flex-1 overflow-y-auto p-1"
+          [class.project-dashboard-placeholder--phone-hidden]="isPhoneLayout"
+        >
+          <f-progress-dashboard
+            class="w-full"
+            [project]="project"
+            [showSubmittedGrade]="showSubmittedGrade"
+          ></f-progress-dashboard>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!--
+<div class="panel-footer">
+  <ng-container *ngIf="footerComponent">
+    <ng-container *ngComponentOutlet="footerComponent"></ng-container>
+  </ng-container>
+</div> -->
+
+<!--
+<div #mobile fxLayout="row" fxFill fxHide fxShow.lt-md>
+  <div id="inboxpanel" #inboxpanel class="inbox-panel mobile" [hidden]="taskSelected">
+    @if (taskData) {
+      <df-staff-task-list
+        [isNarrow]="false"
+        [showSearchOptions]="showSearchOptions"
+        [filters]="filters"
+        [taskData]="taskData"
+        [unit]="unit"
+        [unitRole]="unitRole"
+      ></df-staff-task-list>
+    }
+  </div>
+  <div [hidden]="!taskSelected" fxLayout="column" fxFill fxLayoutAlign="space-between stretch">
+    <div class="flex items-center">
+      <button
+        mat-icon-button
+        aria-label="Back to inbox"
+        matTooltip="Back to inbox"
+        (click)="taskSelected = false"
+        >
+        <mat-icon>arrow_back_ios_new</mat-icon>
+      </button>
+      <h3 class="mb-0">{{ taskData?.selectedTask?.project.student.nickname }}</h3>
+      <div fxFlex></div>
+      <button
+        [disabled]="!this.taskData?.selectedTask?.hasPdf"
+        mat-icon-button
+        aria-label="Open Submission"
+        (click)="openPdfInNewTab()"
+        matTooltip="Open submission"
+        >
+        <mat-icon>description</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Go to student"
+        matTooltip="Go to student"
+        (click)="goToStudent()"
+        >
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </div>
+
+    <div #commentspanel fxFlex class="inbox-panel task-comment-panel mobile">
+      <task-comments-viewer [task]="taskData.selectedTask"> </task-comments-viewer>
+    </div>
+  </div>
+</div> -->

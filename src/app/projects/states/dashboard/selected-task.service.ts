@@ -5,9 +5,14 @@ import {TaskService} from 'src/app/api/services/task.service';
 import {GlobalStateService} from '../index/global-state.service';
 
 export enum DashboardViews {
+  details,
   submission,
   task,
   similarity,
+  staff_notes,
+  tutor_notes,
+  discussion_prompts,
+  submission_history,
 }
 
 @Injectable({
@@ -19,10 +24,12 @@ export class SelectedTaskService {
     private globalState: GlobalStateService,
   ) {}
 
-  private task$ = new BehaviorSubject<Task>(null);
-  public currentPdfUrl$ = new BehaviorSubject<string>(null);
+  private task$: BehaviorSubject<Task> = new BehaviorSubject(null);
+  public currentPdfUrl$: BehaviorSubject<string> = new BehaviorSubject(null);
 
-  public currentView$ = new BehaviorSubject<DashboardViews>(DashboardViews.submission);
+  public currentView$: BehaviorSubject<DashboardViews> = new BehaviorSubject(
+    DashboardViews.submission,
+  );
 
   public get hasTaskSheet(): boolean {
     return this.task$.value?.definition?.hasTaskSheet;
@@ -46,6 +53,13 @@ export class SelectedTaskService {
     } else {
       this.task$.next(task);
 
+      if (!task) {
+        this.currentPdfUrl$.next(null);
+        this.currentView$.next(DashboardViews.submission);
+        this.checkFooterHeight();
+        return;
+      }
+
       task?.getSubmissionDetails().subscribe();
     }
     this.checkFooterHeight();
@@ -61,8 +75,30 @@ export class SelectedTaskService {
     this.currentView$.next(DashboardViews.similarity);
   }
 
+  public showStaffNotes() {
+    this.currentView$.next(DashboardViews.staff_notes);
+  }
+
+  public showTutorNotes() {
+    this.currentView$.next(DashboardViews.tutor_notes);
+  }
+
+  public showOverseerReports() {
+    this.currentView$.next(DashboardViews.submission_history);
+  }
+
+  public showSubmissionHistory() {
+    this.currentView$.next(DashboardViews.submission_history);
+  }
+
+  public showDiscussionPrompts() {
+    this.currentView$.next(DashboardViews.discussion_prompts);
+  }
+
   public showSubmission() {
-    if (!this.task$.value) return;
+    if (!this.task$.value) {
+      return;
+    }
     this.currentPdfUrl$.next(this.task$.value.submissionUrl(false));
     this.currentView$.next(DashboardViews.submission);
   }

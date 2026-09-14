@@ -1,8 +1,8 @@
-import { ActivityType } from 'src/app/api/models/doubtfire-model';
-import { Injectable } from '@angular/core';
-import { CachedEntityService } from 'ngx-entity-service';
-import API_URL from 'src/app/config/constants/apiURL';
-import { HttpClient } from '@angular/common/http';
+import {CachedEntityService} from 'ngx-entity-service';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {ActivityType} from 'src/app/api/models/doubtfire-model';
+import API_URL from 'src/app/config/constants/apiUrl';
 
 @Injectable()
 export class ActivityTypeService extends CachedEntityService<ActivityType> {
@@ -11,16 +11,12 @@ export class ActivityTypeService extends CachedEntityService<ActivityType> {
   constructor(httpClient: HttpClient) {
     super(httpClient, API_URL);
 
-    this.mapping.addKeys(
-      'id',
-      'name',
-      'abbreviation',
-    );
+    this.mapping.addKeys('id', 'name', 'abbreviation');
 
     this.mapping.mapAllKeysToJsonExcept('id');
   }
 
-  public createInstanceFrom(json: object, other?: any): ActivityType {
+  public createInstanceFrom(_json: object): ActivityType {
     return new ActivityType();
   }
 }

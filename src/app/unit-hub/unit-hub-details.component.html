@@ -1,0 +1,207 @@
+@if (content; as detail) {
+  <header class="details-header">
+    <div>
+      <p class="detail-unit">{{ detail.unitCode }} · {{ detail.unitName }}</p>
+      <h2 id="unit-hub-detail-title" mat-dialog-title tabindex="-1">{{ title }}</h2>
+    </div>
+    <button aria-label="Close details" mat-icon-button type="button" (click)="close()">
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </button>
+  </header>
+
+  <mat-dialog-content class="details-content">
+    @if (detail.demo) {
+      <aside class="detail-notice">
+        <mat-icon aria-hidden="true">science</mat-icon>
+        <p>
+          <strong>OnTrack demonstration</strong><br />This content and its schedule are fictional.
+          Calendar copies are labelled DEMO and are added only if you choose.
+          @if (detail.joinUrl) {
+            The joining button opens a real meeting supplied by the demo host; sample times are not
+            an official timetable.
+          }
+        </p>
+      </aside>
+    }
+    @if (detail.announcement; as announcement) {
+      <dl class="detail-facts">
+        <div>
+          <dt>Unit</dt>
+          <dd>{{ detail.unitCode }} · {{ detail.unitName }}</dd>
+        </div>
+        <div>
+          <dt>Source</dt>
+          <dd>{{ sourceLabel }}</dd>
+        </div>
+        @if (announcement.published_at) {
+          <div>
+            <dt>Published</dt>
+            <dd>
+              <time [attr.datetime]="announcement.published_at">{{
+                announcement.published_at | date: 'EEEE, d MMMM yyyy, h:mm a'
+              }}</time
+              ><small>{{ deviceTimeZone }}</small>
+            </dd>
+          </div>
+        }
+        @if (announcement.author_name) {
+          <div>
+            <dt>Posted by</dt>
+            <dd>{{ announcement.author_name }}</dd>
+          </div>
+        }
+        @if (announcement.expires_at) {
+          <div>
+            <dt>Visible until</dt>
+            <dd>
+              {{ announcement.expires_at | date: 'd MMMM yyyy, h:mm a'
+              }}<small>{{ deviceTimeZone }}</small>
+            </dd>
+          </div>
+        }
+        @if (announcement.pinned) {
+          <div>
+            <dt>Priority</dt>
+            <dd>Pinned announcement</dd>
+          </div>
+        }
+      </dl>
+      <section aria-label="Full announcement" class="full-content">
+        <p>{{ announcement.body }}</p>
+      </section>
+      @if (safeUrl(announcement.source_url)) {
+        <a
+          class="detail-source"
+          rel="noopener noreferrer"
+          target="_blank"
+          [href]="safeUrl(announcement.source_url)"
+          >Open original post <mat-icon aria-hidden="true">open_in_new</mat-icon></a
+        >
+      }
+    }
+
+    @if (detail.session; as session) {
+      @if (session.cancelled) {
+        <p class="cancelled-notice" role="status">
+          <strong>Cancelled</strong> · this session will not run.
+        </p>
+      }
+      <dl class="detail-facts">
+        <div>
+          <dt>Session</dt>
+          <dd>{{ sessionKind }}</dd>
+        </div>
+        <div>
+          <dt>Unit</dt>
+          <dd>{{ detail.unitCode }} · {{ detail.unitName }}</dd>
+        </div>
+        <div>
+          <dt>Starts</dt>
+          <dd>
+            <time [attr.datetime]="session.start_at">{{
+              session.start_at | date: 'EEEE, d MMMM yyyy, h:mm a'
+            }}</time
+            ><small>{{ deviceTimeZone }}</small>
+          </dd>
+        </div>
+        <div>
+          <dt>Ends</dt>
+          <dd>
+            <time [attr.datetime]="session.end_at">{{
+              session.end_at | date: 'EEEE, d MMMM yyyy, h:mm a'
+            }}</time
+            ><small>{{ deviceTimeZone }}</small>
+          </dd>
+        </div>
+        @if (session.timezone !== deviceTimeZone) {
+          <div>
+            <dt>Schedule time zone</dt>
+            <dd>
+              {{ session.timezone }}<small>Dates above are converted to your time zone.</small>
+            </dd>
+          </div>
+        }
+        @if (session.location) {
+          <div>
+            <dt>Location</dt>
+            <dd>{{ session.location }}</dd>
+          </div>
+        }
+        <div>
+          <dt>Repeat</dt>
+          <dd>
+            {{ session.recurrence === 'weekly' ? 'Part of a weekly series' : 'One session' }}
+            @if (session.recurrence === 'weekly' && session.recurrence_until) {
+              <small>Series ends {{ session.recurrence_until | date: 'd MMMM yyyy' }}</small>
+            }
+          </dd>
+        </div>
+      </dl>
+      <section aria-label="Full session description" class="full-content">
+        <p>{{ session.description || 'Your teaching team has not added any further details.' }}</p>
+      </section>
+      @if (safeUrl(session.source_url)) {
+        <a
+          class="detail-source"
+          rel="noopener noreferrer"
+          target="_blank"
+          [href]="safeUrl(session.source_url)"
+          >View original session details <mat-icon aria-hidden="true">open_in_new</mat-icon></a
+        >
+      }
+      @if (!session.cancelled) {
+        <aside class="calendar-guidance">
+          <h3>Choose how to add this session</h3>
+          <p>
+            Google Calendar and .ics downloads add a copy of this occurrence. Copies do not receive
+            changes.
+            @if (!detail.demo) {
+              Use Calendar settings to opt in to a subscription that follows schedule updates.
+            } @else {
+              Demo schedules are not available as subscriptions.
+            }
+          </p>
+          @if (!detail.demo) {
+            <button mat-button type="button" (click)="calendarSettings()">
+              Open calendar settings
+            </button>
+          }
+        </aside>
+      }
+      @if (detail.canManage && !detail.demo && !session.cancelled) {
+        <f-teams-meeting-composer [draft]="session" [unitCode]="detail.unitCode" />
+      }
+    }
+    <p class="detail-status" role="status">{{ status }}</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="details-actions">
+    @if (detail.session && !detail.session.cancelled) {
+      @if (safeUrl(detail.joinUrl)) {
+        <a
+          mat-flat-button
+          rel="noopener noreferrer"
+          target="_blank"
+          [href]="safeUrl(detail.joinUrl)"
+          ><mat-icon aria-hidden="true">videocam</mat-icon
+          >{{ detail.demo ? 'Join hosted demo' : 'Join session' }}</a
+        >
+      }
+      @if (safeUrl(detail.googleCalendarUrl)) {
+        <a
+          mat-stroked-button
+          rel="noopener noreferrer"
+          target="_blank"
+          [href]="safeUrl(detail.googleCalendarUrl)"
+          >{{ detail.demo ? 'Preview DEMO in Google Calendar' : 'Add to Google Calendar' }}</a
+        >
+      }
+      @if (detail.download) {
+        <button mat-button type="button" (click)="download()">
+          {{ detail.demo ? 'Download DEMO .ics' : 'Download .ics' }}
+        </button>
+      }
+    }
+    <button mat-button type="button" (click)="close()">Close</button>
+  </mat-dialog-actions>
+}

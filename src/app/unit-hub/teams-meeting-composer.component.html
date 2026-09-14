@@ -1,0 +1,59 @@
+<section aria-label="Prepare a Teams meeting" class="teams-composer">
+  <h3>Make a Teams meeting</h3>
+  <p>Open a draft with these session details. Check the invitation, then press Send in Teams.</p>
+  @if (draft) {
+    <p class="meeting-subject">
+      <strong>{{ unitCode }} · {{ draft.title }}</strong
+      ><br />{{ schedule }}
+    </p>
+    <label class="field">
+      <span>Attendees (optional)</span>
+      <input
+        autocapitalize="none"
+        autocomplete="off"
+        maxlength="5100"
+        placeholder="name@university.edu, another@university.edu"
+        spellcheck="false"
+        type="text"
+        [formControl]="attendees"
+        (keydown.enter)="$event.preventDefault()"
+      />
+      <small>Use university sign-in email addresses. You can add more people in Teams.</small>
+    </label>
+    <label class="field">
+      <span>Teams details</span>
+      <textarea maxlength="20500" rows="5" [formControl]="content"></textarea>
+      <small>Edits here apply to the Teams draft. Your OnTrack session stays as entered.</small>
+    </label>
+    @if (draft.recurrence === 'weekly') {
+      <p class="repeat-note">
+        This opens one session. Set the weekly repeat schedule in Teams before sending.
+        @if (draft.recurrence_until) {
+          Use {{ draft.recurrence_until }} as the last date.
+        }
+      </p>
+    }
+  }
+  @let result = launch;
+  @if (result.url) {
+    <a
+      aria-label="Open Teams draft in a new tab"
+      mat-flat-button
+      rel="noopener noreferrer"
+      target="_blank"
+      [href]="result.url"
+      >Open Teams draft</a
+    >
+  } @else {
+    <button disabled mat-flat-button type="button">Open Teams draft</button>
+    <p class="draft-error" role="status">{{ result.error }}</p>
+  }
+  <p class="handoff-note">
+    Your OnTrack form stays open. After sending in Teams, copy the meeting’s join link back into the
+    session and save it.
+  </p>
+  <p class="fallback-note">
+    Teams may ask you to sign in or choose its app or website. If the draft does not open on your
+    phone, use a desktop browser or copy the details into Teams.
+  </p>
+</section>

@@ -1,4 +1,4 @@
-@import '../../../../styles/common/hero-sidebar-layout.scss';
+@use 'styles/common/hero-sidebar-layout' as *;
 
 .sign-in-form {
   section {
@@ -9,7 +9,7 @@
   }
 }
 
-.subcontainer {
+.content-panel {
   overflow-y: hidden;
 }
 
@@ -18,4 +18,8 @@
   .custom-md-h-screen {
     height: 100vh !important;
   }
+}
+
+.custom-md-h-screen {
+  height: 100vh !important;
 }

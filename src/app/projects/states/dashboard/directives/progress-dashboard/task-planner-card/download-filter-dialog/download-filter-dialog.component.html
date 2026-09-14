@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>Download options</h2>
+
+<mat-dialog-content class="pt-1">
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Grade</mat-label>
+    <mat-select class="w-full" [(ngModel)]="grade">
+      @for (value of data.gradeValues; track value) {
+        <mat-option [value]="value">{{ data.gradeLabel(value) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-button-toggle-group
+    aria-label="Grade range"
+    class="mb-2 w-full"
+    vertical
+    [(ngModel)]="direction"
+  >
+    <mat-button-toggle class="w-full" value="upTo">Up to this grade</mat-button-toggle>
+    <mat-button-toggle class="w-full" value="andAbove">This grade and above</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <p class="mb-3 text-sm text-gray-600">{{ directionLabel }}</p>
+
+  <mat-checkbox [(ngModel)]="excludeCompleted">Exclude completed tasks</mat-checkbox>
+
+  @if (!canConfirm) {
+    <p class="mt-3 text-sm text-red-600">No tasks match this selection.</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" [mat-dialog-close]="undefined">Cancel</button>
+  <button
+    color="primary"
+    mat-flat-button
+    type="button"
+    [disabled]="!canConfirm"
+    (click)="confirm()"
+  >
+    Download .ics
+  </button>
+</mat-dialog-actions>

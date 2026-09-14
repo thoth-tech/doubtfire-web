@@ -1,27 +1,33 @@
-import { Entity } from 'ngx-entity-service';
-import { AppInjector } from 'src/app/app-injector';
-import { Task, TaskSimilarityService } from './doubtfire-model';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { Observable } from 'rxjs';
+import {Entity} from 'ngx-entity-service';
+import {Observable} from 'rxjs';
+import {AppInjector} from 'src/app/app-injector';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {Task, TaskSimilarityService, User} from './doubtfire-model';
 
 export enum TaskSimilarityType {
+  Jplag = 'JplagTaskSimilarity',
   Moss = 'MossTaskSimilarity',
   TurnItIn = 'TiiTaskSimilarity',
 }
 
 /**
  * Represents teh format for a part of a similarity report for a task.
- * This is html for moss, and pdf for turn it in.
+ *
+ * HTML for moss
+ * PDF for TurnItIn
+ * jplag for JPlag
  */
 export enum TaskSimilarityPartFormat {
   Html = 'html',
   Pdf = 'pdf',
+  Jplag = 'jplag',
 }
 
 export class TaskSimilarityPart {
   idx: number;
   format: TaskSimilarityPartFormat;
   description: string;
+  panelOpenState?: boolean;
 }
 
 /**
@@ -36,6 +42,8 @@ export class TaskSimilarity extends Entity {
   parts: TaskSimilarityPart[];
   task: Task;
   readyForViewer: boolean = false;
+  otherTask?: Task;
+  otherStudent?: User;
 
   constructor(task: Task) {
     super();
@@ -62,6 +70,8 @@ export class TaskSimilarity extends Entity {
 
   public get friendlyTypeName(): string {
     switch (this.type) {
+      case TaskSimilarityType.Jplag:
+        return 'JPLAG';
       case TaskSimilarityType.Moss:
         return 'MOSS';
       case TaskSimilarityType.TurnItIn:

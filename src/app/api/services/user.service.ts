@@ -1,11 +1,11 @@
-import { UnitRole, UnitService, User } from 'src/app/api/models/doubtfire-model';
-import { CachedEntityService, RequestOptions } from 'ngx-entity-service';
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import API_URL from 'src/app/config/constants/apiURL';
-import { AppInjector } from 'src/app/app-injector';
-import { AuthenticationService } from './authentication.service';
-import { Observable, tap } from 'rxjs';
+import {CachedEntityService} from 'ngx-entity-service';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {UnitRole, UnitService, User} from 'src/app/api/models/doubtfire-model';
+import {AppInjector} from 'src/app/app-injector';
+import {type ThemePreference} from 'src/app/common/theme/theme.service';
+import API_URL from 'src/app/config/constants/apiUrl';
 
 @Injectable()
 export class UserService extends CachedEntityService<User> {
@@ -32,14 +32,20 @@ export class UserService extends CachedEntityService<User> {
       'receiveTaskNotifications',
       'receivePortfolioNotifications',
       'receiveFeedbackNotifications',
+      'displayPeerProgress',
+      'themePreference',
+      'themePreferenceUpdatedAt',
       'hasRunFirstTimeSetup',
       'pronouns',
-      'acceptedTiiEula'
+      'acceptedTiiEula',
     );
 
     this._currentUser = this.anonymousUser;
 
-    this.mapping.mapAllKeysToJsonExcept('id');
+    // Theme sync has a deliberately narrow writer below. Profile updates must
+    // not replay a stale account timestamp or turn a missing preference into an
+    // accidental choice.
+    this.mapping.mapAllKeysToJsonExcept('id', 'themePreference', 'themePreferenceUpdatedAt');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
@@ -72,19 +78,15 @@ export class UserService extends CachedEntityService<User> {
     this._currentUser = user;
   }
 
-  // Specific to the User entity
-  public override update(pathIds: object | User, options?: RequestOptions<User>): Observable<User> {
-    return super.update(pathIds, options).pipe(
-      tap((user) => {
-        if (user === this.currentUser) {
-          AppInjector.get(AuthenticationService).saveCurrentUser();
-        }
-      })
-    );
+  public getTutors(): Observable<User[]> {
+    return this.query(undefined, {endpointFormat: this.tutorEndpointFormat});
   }
 
-  public getTutors(): Observable<User[]> {
-    return this.query(undefined, { endpointFormat: this.tutorEndpointFormat });
+  public updateThemePreference(user: User, preference: ThemePreference): Observable<User> {
+    return this.update(user, {
+      entity: user,
+      body: {user: {theme_preference: preference}},
+    });
   }
 
   public adminRoleFor(unitId: number, user: User): UnitRole {
@@ -97,7 +99,7 @@ export class UserService extends CachedEntityService<User> {
     result.user = user;
 
     const unitService = AppInjector.get(UnitService);
-    result.unit = unitService.cache.getOrCreate(unitId, unitService, { id: unitId });
+    result.unit = unitService.cache.getOrCreate(unitId, unitService, {id: unitId});
 
     return result;
   }
