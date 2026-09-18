@@ -5,12 +5,11 @@
     [ngClass]="{expanded: showSearchOptions, mobile: mobile}"
   >
     <div class="flex items-center">
-      <button aria-label="Search Icon" class="flex flex-none items-center" disabled mat-icon-button>
-        <mat-icon class="flex items-center" disabled>search</mat-icon>
-      </button>
+      <mat-icon aria-hidden="true" class="flex items-center">search</mat-icon>
 
       <div class="grow">
         <input
+          aria-label="Search the inbox"
           autocomplete="off"
           class="search w-full"
           placeholder="Search Inbox"

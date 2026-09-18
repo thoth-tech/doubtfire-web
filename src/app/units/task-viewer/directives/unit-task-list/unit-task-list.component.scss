@@ -47,7 +47,11 @@ $my-palette: mat.m2-define-palette($md-formatif);
   .search {
     background-color: transparent;
     border: hidden;
-    outline: none;
+  }
+
+  .search:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
   }
 
   .mdc-icon-button {
