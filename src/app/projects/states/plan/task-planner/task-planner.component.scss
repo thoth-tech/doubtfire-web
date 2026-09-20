@@ -1,0 +1,49 @@
+:host ::ng-deep .flexible-dates .gantt-links-overlay svg {
+  z-index: 999 !important;
+  pointer-events: none;
+}
+
+:host ::ng-deep .flexible-dates .gantt-links-overlay-main {
+  height: 1px;
+  overflow: visible !important;
+  pointer-events: none;
+}
+
+:host ::ng-deep gantt-calendar-header .secondary-text {
+  font-size: 11px;
+  line-height: 1.15;
+  transform: translateY(-0.45em);
+  white-space: pre-line;
+}
+
+:host ::ng-deep gantt-calendar-header .today-rect {
+  display: flex;
+  height: 28px !important;
+  transform: translateY(-0.35rem);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  line-height: 1;
+}
+
+:host ::ng-deep gantt-calendar-header .today-weekday {
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.gantt-bar {
+  background-color: var(--bar-bg);
+}
+
+// The bar is reachable by tab, so its focus has to be visible. currentColor is already
+// chosen per bar to contrast with that bar's background, so it works on every colour the
+// planner uses.
+.gantt-bar:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
+}
+
+.flash {
+  transition: background-color 500ms ease-in-out;
+}

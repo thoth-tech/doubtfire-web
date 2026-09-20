@@ -1,24 +1,27 @@
-import {Component, ViewChild} from '@angular/core';
-import {MatSort, Sort} from '@angular/material/sort';
-import {MatTableDataSource, MatTable} from '@angular/material/table';
+import {AfterViewInit, ChangeDetectionStrategy, Component, ViewChild} from '@angular/core';
 import {UntypedFormControl, Validators} from '@angular/forms';
+import {MatSort, Sort} from '@angular/material/sort';
+import {MatTable, MatTableDataSource} from '@angular/material/table';
 import {Campus, CampusService} from 'src/app/api/models/doubtfire-model';
 import {EntityFormComponent} from 'src/app/common/entity-form/entity-form.component';
+import {ConfirmationModalService} from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
 import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'campus-list',
   templateUrl: 'campus-list.component.html',
   styleUrls: ['campus-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class CampusListComponent extends EntityFormComponent<Campus> {
+export class CampusListComponent extends EntityFormComponent<Campus> implements AfterViewInit {
   @ViewChild(MatTable, {static: true}) table: MatTable<Campus>;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   syncModes = ['timetable', 'automatic', 'manual'];
 
   // Set up the table
-  columns: string[] = ['name', 'abbreviation', 'mode', 'active', 'options'];
+  columns: string[] = ['name', 'abbreviation', 'mode', 'timezone', 'active', 'options'];
   campuses: Campus[] = new Array<Campus>();
   dataSource = new MatTableDataSource(this.campuses);
 
@@ -27,12 +30,14 @@ export class CampusListComponent extends EntityFormComponent<Campus> {
   constructor(
     private campusService: CampusService,
     private alerts: AlertService,
+    private confirmationModal: ConfirmationModalService,
   ) {
     super(
       {
         abbreviation: new UntypedFormControl('', [Validators.required]),
         name: new UntypedFormControl('', [Validators.required]),
         mode: new UntypedFormControl('', [Validators.required]),
+        timezone: new UntypedFormControl('', [Validators.required]),
         active: new UntypedFormControl(false),
       },
       'Campus',
@@ -57,9 +62,15 @@ export class CampusListComponent extends EntityFormComponent<Campus> {
   // Push the values that will be displayed in the table
   // to the datasource
   private pushToTable(value: Campus | Campus[]) {
-    if (!value) return;
+    if (!value) {
+      return;
+    }
 
-    value instanceof Array ? this.campuses.push(...value) : this.campuses.push(value);
+    if (value instanceof Array) {
+      this.campuses.push(...value);
+    } else {
+      this.campuses.push(value);
+    }
     this.dataSource.sort = this.sort;
   }
 
@@ -71,14 +82,22 @@ export class CampusListComponent extends EntityFormComponent<Campus> {
 
   // This method is called when the delete button is clicked
   deleteCampus(campus: Campus) {
-    this.delete(campus, this.campuses, this.campusService).subscribe({
-      next: () => {
-        this.alerts.success(`${campus.name} has been deleted.`, 2000);
+    this.confirmationModal.show(
+      `Delete campus ${campus.name}`,
+      'This campus is used by tutorials and students across every unit. Deleting it cannot be undone.',
+      () => {
+        this.delete(campus, this.campuses, this.campusService).subscribe({
+          next: () => {
+            this.alerts.success(`${campus.name} has been deleted.`, 2000);
+          },
+          error: (response) => {
+            this.alerts.error(response.error?.error || 'Unable to delete campus.');
+          },
+        });
       },
-      error: (response) => {
-        this.alerts.error(response.error?.error || 'Unable to delete campus.');
-      },
-    });
+      undefined,
+      'Delete',
+    );
   }
 
   // Sorting function to sort data when sort
@@ -91,6 +110,7 @@ export class CampusListComponent extends EntityFormComponent<Campus> {
       case 'name':
       case 'abbreviation':
       case 'mode':
+      case 'timezone':
       case 'active':
         return super.sortTableData(sort);
     }

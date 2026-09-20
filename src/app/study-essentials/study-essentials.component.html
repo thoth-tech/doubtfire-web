@@ -1,0 +1,33 @@
+@if (links.length) {
+  <section aria-label="Study essentials" class="study-essentials">
+    <div class="essentials-heading">
+      <div>
+        <h2>Study essentials</h2>
+        <p>Your Deakin services, together.</p>
+      </div>
+      <span class="external-note">Opens in a new tab</span>
+    </div>
+    <ul class="essentials-links">
+      @for (link of links; track link.url) {
+        <li>
+          <a
+            referrerpolicy="no-referrer"
+            rel="noopener noreferrer"
+            target="_blank"
+            [href]="link.url"
+          >
+            <span class="essential-icon"
+              ><mat-icon aria-hidden="true">{{ link.icon }}</mat-icon></span
+            >
+            <span class="essential-copy">
+              <strong>{{ link.title }}</strong>
+              <span>{{ link.description }}</span>
+              <span class="visually-hidden">Opens in a new tab</span>
+            </span>
+            <mat-icon aria-hidden="true" class="external-icon">open_in_new</mat-icon>
+          </a>
+        </li>
+      }
+    </ul>
+  </section>
+}

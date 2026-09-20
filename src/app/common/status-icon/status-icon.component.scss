@@ -1,4 +1,4 @@
-@import '../../../styles/mixins/task-status-colors-generator.scss';
+@use 'styles/mixins/task-status-colors-generator' as *;
 
 :host {
   font-size: 1em;
@@ -32,11 +32,17 @@
   &.time-exceeded {
     @include status-icon('time-exceeded');
   }
+  &.assess-in-portfolio {
+    @include status-icon('assess-in-portfolio');
+  }
   &.redo {
     @include status-icon('redo');
   }
   &.discuss {
     @include status-icon('discuss');
+  }
+  &.rediscuss {
+    @include status-icon('rediscuss');
   }
   &.demonstrate {
     @include status-icon('demonstrate');
@@ -46,5 +52,8 @@
   }
   &.fail {
     @include status-icon('fail');
+  }
+  &.attention-required {
+    @include status-icon('attention-required');
   }
 }

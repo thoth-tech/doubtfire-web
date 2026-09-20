@@ -1,0 +1,130 @@
+<button
+  class="notification-bell-button"
+  mat-icon-button
+  matTooltip="Notifications"
+  [attr.aria-label]="bellLabel"
+  [matBadge]="unreadCount"
+  [matBadgeHidden]="unreadCount === 0"
+  [matMenuTriggerFor]="notificationMenu"
+  (menuOpened)="onMenuOpened()"
+>
+  <mat-icon class="notification-bell-icon">notifications</mat-icon>
+</button>
+
+<mat-menu #notificationMenu="matMenu" class="notification-dropdown-menu">
+  <div class="flex items-center justify-between pr-2">
+    <h2 class="my-2 ml-3.5" mat-subheader>Notifications</h2>
+    @if (unreadCount) {
+      <button class="notification-mark-all" mat-menu-item (click)="markAllRead($event)">
+        Mark all read
+      </button>
+    }
+  </div>
+
+  <!--
+    Rows win whenever there are any. A refresh that fails while the list is
+    already on screen leaves the old list up, which is stale but true, and is
+    better than replacing something readable with an apology. The apology goes
+    above it instead, because a list nobody could refresh looks exactly like a
+    list nothing has happened to.
+  -->
+  @if (recent.length) {
+    @if (loadFailed) {
+      <p class="notification-stale mx-4 my-1">
+        These may be out of date, the last refresh did not work.
+      </p>
+    }
+
+    @for (notification of recent; track notification.id) {
+      <div class="notification-item flex w-full items-center">
+        <!--
+          A button and not a div. MatMenu's key manager only moves focus, it
+          does not synthesise a click, so on a div the arrow keys reach the row
+          and then Enter does nothing at all.
+
+          The delete button is a sibling of the row rather than sitting inside
+          it, because a button inside a button is not valid html and the browser
+          unnests it.
+        -->
+        <button
+          class="notification-row grow"
+          mat-menu-item
+          [attr.aria-label]="rowLabel(notification)"
+          (click)="open(notification)"
+        >
+          <!--
+            The same three parts, in the same order, as a row on the full page.
+            Both lay themselves out with .notification-line rather than letting
+            Material do it, because mat-menu-item and mat-list-item wrap their
+            content differently and the two would never line up.
+          -->
+          <span class="notification-line">
+            <!--
+              The category, as a colour and a glyph. notificationType is all the
+              api sends, so this is five categories and not one icon per event.
+            -->
+            <span class="notification-glyph" [class]="'tone-' + toneFor(notification)">
+              <mat-icon>{{ iconFor(notification) }}</mat-icon>
+            </span>
+
+            <span class="notification-body">
+              <span class="notification-message" [class.unread]="!notification.isRead">{{
+                notification.message
+              }}</span>
+              <span class="notification-time">{{ timeAgo(notification) }}</span>
+            </span>
+
+            <!--
+              Kept in the layout when read rather than removed, so the delete
+              button beside it does not shuffle sideways row by row. The state
+              it carries is in the button's aria-label, since a dot is not
+              something everyone can see.
+            -->
+            <span
+              aria-hidden="true"
+              class="notification-unread-dot"
+              [class.is-read]="notification.isRead"
+            ></span>
+          </span>
+        </button>
+        <button
+          class="notification-delete"
+          mat-menu-item
+          matTooltip="Delete"
+          [attr.aria-label]="'Delete notification: ' + notification.message"
+          (click)="confirmDelete(notification, $event)"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+
+    <!--
+      A button and not a routerLink, so this component keeps needing exactly one
+      thing from the router and its spec can keep handing it a stub.
+    -->
+    <button class="notification-see-all" mat-menu-item (click)="seeAll()">
+      See all notifications
+    </button>
+  } @else if (loading) {
+    <div class="flex items-center gap-3 px-4 py-3">
+      <mat-spinner [diameter]="20"></mat-spinner>
+      <span class="notification-empty">Loading your notifications</span>
+    </div>
+  } @else if (loadFailed) {
+    <!--
+      Not the empty state. "You have nothing" and "we could not find out" look
+      the same on screen and mean opposite things, and only one of them is worth
+      opening the menu again for.
+    -->
+    <div class="px-4 py-3">
+      <p class="notification-empty m-0">We could not load your notifications.</p>
+      <p class="notification-time m-0">Close this and open it again to try once more.</p>
+    </div>
+  } @else {
+    <div class="px-4 py-3">
+      <p class="notification-empty m-0">You are all caught up.</p>
+      <p class="notification-time m-0">Anything new will show up here.</p>
+    </div>
+  }
+</mat-menu>

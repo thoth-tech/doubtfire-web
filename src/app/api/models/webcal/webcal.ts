@@ -1,10 +1,11 @@
-import { Entity, EntityMapping } from 'ngx-entity-service';
+import {Entity, EntityMapping} from 'ngx-entity-service';
 
 export class Webcal extends Entity {
   enabled: boolean;
   id: number;
   guid: string;
   includeStartDates: boolean;
+  includeLearningSessions: boolean = false;
   userId: number;
   reminder: {
     time: number;
@@ -15,7 +16,10 @@ export class Webcal extends Entity {
   // Used only when updating the webcal. Never returned from the API.
   shouldChangeGuid?: boolean;
 
-  public override toJson<T extends Entity>(mappingData: EntityMapping<T>, ignoreKeys?: string[]): object {
+  public override toJson<T extends Entity>(
+    mappingData: EntityMapping<T>,
+    ignoreKeys?: string[],
+  ): object {
     return {
       webcal: super.toJson(mappingData, ignoreKeys),
     };

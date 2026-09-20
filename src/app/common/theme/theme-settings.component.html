@@ -1,0 +1,27 @@
+<section
+  aria-labelledby="theme-preference-title"
+  class="theme-preference m-0 flex size-full min-h-full min-w-full flex-col"
+>
+  <h3 id="theme-preference-title">Appearance</h3>
+  <mat-radio-group
+    aria-describedby="theme-preference-description"
+    aria-labelledby="theme-preference-title"
+    class="theme-preference__options flex flex-col gap-1 sm:flex-row sm:gap-4"
+    name="themePreference"
+    [value]="preference()"
+    (change)="onPreferenceChange($event)"
+  >
+    <mat-radio-button color="primary" id="theme-preference-light" value="light"
+      >Light</mat-radio-button
+    >
+    <mat-radio-button color="primary" id="theme-preference-dark" value="dark"
+      >Dark</mat-radio-button
+    >
+    <mat-radio-button color="primary" id="theme-preference-system" value="system"
+      >System</mat-radio-button
+    >
+  </mat-radio-group>
+  <small id="theme-preference-description">
+    System follows your device's Light or Dark setting and updates automatically if it changes.
+  </small>
+</section>

@@ -1,0 +1,95 @@
+// OnTrack theme tokens — DARK.
+// Generated to the values fixed in docs/theme/THEME-CONTRACT.md sections 7 and 8.
+// The only block, with _light.scss, permitted to declare a colour value.
+// Applies exactly when the resolved theme marker is dark.
+
+:root[data-ot-theme='dark'] {
+  // --- 7. Semantic ---
+  // SPIKE (dark palette rework). The first pass had warm greys sitting too close
+  // together (muddy) and two competing accents. Reworked to one cohesive cool
+  // slate ramp with clearly stepped surfaces, softened whites (not #fff), and a
+  // single desaturated brand indigo used as the only accent. theme.scss builds the
+  // matching Material palette so chips/buttons/chrome use the same #818cf8.
+  --ot-color-page: #0f1216;
+  --ot-color-surface: #171b21;
+  --ot-color-surface-raised: #1f2530;
+  --ot-color-text: #e6e8ec;
+  --ot-color-text-muted: #99a2b0;
+  --ot-color-border: #434a58;
+  --ot-color-divider: #242a34;
+  // A mid indigo, not the earlier pale #818cf8: light enough to sit well on the
+  // slate, dark enough that WHITE text and icons read on it. That keeps the
+  // accent conventional (solid indigo, white label) and makes chips, buttons and
+  // the fab icon all agree instead of some going dark-on-accent.
+  // #6366f1 measured 4.47:1 against white — just under AA for normal text. Nudged
+  // to #5457e5 (white = 5.4:1) so filled buttons/chips keep white labels and pass.
+  --ot-color-focus: #5457e5;
+  --ot-color-link: #818cf8;
+  --ot-color-primary: #5457e5;
+  --ot-color-on-primary: #ffffff;
+  --ot-color-success: #5bb75b;
+  --ot-color-warning: #eb8f06;
+  --ot-color-error: #ef6445;
+  --ot-color-info: #0792ff;
+  --ot-color-inverse-surface: #e6e8ec;
+  --ot-color-inverse-text: #171b21;
+
+  // --- 8.1 Task status: --ot-status-<key> / -on ---
+  --ot-status-ready-for-feedback: #003f70;
+  --ot-status-ready-for-feedback-on: #47aeff;
+  --ot-status-not-started: #383838;
+  --ot-status-not-started-on: #a1a1a1;
+  --ot-status-working-on-it: #6d4303;
+  --ot-status-working-on-it-on: #fab042;
+  --ot-status-need-help: #31224e;
+  --ot-status-need-help-on: #9d86ca;
+  --ot-status-fix-and-resubmit: #685708;
+  --ot-status-fix-and-resubmit-on: #f1d44c;
+  --ot-status-feedback-exceeded: #5a2317;
+  --ot-status-feedback-exceeded-on: #dc8572;
+  --ot-status-redo: #703800;
+  --ot-status-redo-on: #ff9e3d;
+  --ot-status-discuss: #134c5d;
+  --ot-status-discuss-on: #5ec1de;
+  --ot-status-rediscuss: #115f4f;
+  --ot-status-rediscuss-on: #5be1c5;
+  --ot-status-demonstrate: #193a58;
+  --ot-status-demonstrate-on: #6ea6d6;
+  --ot-status-complete: #224e22;
+  --ot-status-complete-on: #78c478;
+  --ot-status-fail: #671a09;
+  --ot-status-fail-on: #f17c62;
+  --ot-status-time-exceeded: #671a09;
+  --ot-status-time-exceeded-on: #f17c62;
+  --ot-status-assess-in-portfolio: #685708;
+  --ot-status-assess-in-portfolio-on: #f1d44c;
+  --ot-status-attention-required: #682708;
+  --ot-status-attention-required-on: #f28a5a;
+
+  // --- 8.2 Everything else ---
+  --ot-urgency-overdue: #e06f4f;
+  --ot-urgency-soon: #fab143;
+  --ot-urgency-later: #adaaaf;
+
+  --ot-chart-1: #6c6cff;
+  --ot-chart-2: #007fe2;
+  --ot-chart-3: #5aa454;
+  --ot-chart-4: #e44d25;
+  --ot-chart-5: #c7587d;
+  --ot-chart-6: #eb8f06;
+  --ot-chart-grid: #353438;
+  --ot-chart-axis: #adaaaf;
+
+  --ot-code-surface: #0e0e11;
+  --ot-code-text: #e5e1e6;
+
+  --ot-scrim: rgba(0, 0, 0, 0.6);
+  --ot-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.5);
+
+  --ot-color-disabled-text: #6f6d72;
+  --ot-color-disabled-surface: #2a292d;
+
+  --ot-color-selected: #2e2e5c;
+  --ot-color-selected-text: #e5e1e6;
+  --ot-color-hover: rgba(255, 255, 255, 0.06);
+}

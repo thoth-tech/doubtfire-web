@@ -1,0 +1,34 @@
+@if (project) {
+  <article class="project-card">
+    <div class="project-card__header">
+      <div>
+        @if (project.unitCode) {
+          <p class="project-card__unit">{{ project.unitCode }}</p>
+        }
+        <h3 class="project-card__title">{{ project.title }}</h3>
+      </div>
+
+      <span class="project-card__status">
+        <span class="project-card__status-label">Project status: </span>{{ project.status }}
+      </span>
+    </div>
+
+    <p class="project-card__summary">
+      {{ project.progressSummary }}
+    </p>
+
+    @if (project.description) {
+      <p class="project-card__description">
+        {{ project.description }}
+      </p>
+    }
+
+    <a
+      class="project-card__link"
+      [attr.aria-label]="'Open ' + project.title + ' project details'"
+      [href]="project.destinationUrl"
+    >
+      Open project
+    </a>
+  </article>
+}

@@ -1,0 +1,5 @@
+# The App key is available only to the default-branch policy job. Keep every
+# workflow and the evaluator itself under lead review.
+/.github/workflows/ @ontrack-features-t2-2026/ontrack-leads
+/.github/review-policy/ @ontrack-features-t2-2026/ontrack-leads
+/.github/CODEOWNERS @ontrack-features-t2-2026/ontrack-leads

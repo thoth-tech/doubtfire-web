@@ -2,6 +2,8 @@
 module.exports = {
   content: ['./src/**/*.{html,ts}'],
   important: true,
+  // SPIKE (THM-F03): bind the dark: variant to the resolved marker, not the OS.
+  darkMode: ['selector', '[data-ot-theme="dark"]'],
   theme: {
     extend: {
       colors: {

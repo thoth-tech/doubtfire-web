@@ -1,0 +1,184 @@
+<div class="flex size-full min-h-0 max-w-full min-w-0 flex-col">
+  @if (isLoading) {
+    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-slate-600">
+      <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
+      <span>Loading archive...</span>
+    </div>
+  } @else if (errorMessage) {
+    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-red-700">
+      <mat-icon class="size-5">error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+  } @else if (!archiveFile) {
+    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-slate-600">
+      <mat-icon class="size-5">folder_zip</mat-icon>
+      <span>Select an archive to preview.</span>
+    </div>
+  } @else if (!hasFiles) {
+    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-slate-600">
+      <mat-icon class="size-5">folder_off</mat-icon>
+      <span>No files to display.</span>
+    </div>
+  } @else {
+    @if (!readOnly && saveEndpoint) {
+      <div class="flex items-center justify-end px-2 pt-2">
+        <button
+          class="flex items-center gap-1"
+          color="primary"
+          mat-flat-button
+          [disabled]="!canSave"
+          (click)="saveArchive()"
+        >
+          @if (isSaving) {
+            <mat-icon class="animate-spin">sync</mat-icon>
+          }
+          {{ isSaving ? 'Saving...' : 'Save Archive' }}
+        </button>
+      </div>
+    }
+
+    @if (navigationMode === 'tree') {
+      <div class="flex min-h-0 w-full flex-1 border-t border-slate-200">
+        <aside
+          class="w-44 max-w-[45%] min-w-52 shrink-0 overflow-y-auto border-r border-slate-200 bg-slate-50/60 py-1"
+        >
+          <ng-container
+            [ngTemplateOutlet]="treeNodesTemplate"
+            [ngTemplateOutletContext]="{$implicit: fileTreeNodes, depth: 0}"
+          ></ng-container>
+        </aside>
+        <div class="flex min-w-0 flex-1 flex-col">
+          <ng-container [ngTemplateOutlet]="selectedFilePane"></ng-container>
+        </div>
+      </div>
+    } @else {
+      <div
+        class="sticky top-0 z-10 w-full max-w-full min-w-0 shrink-0 overflow-x-auto overflow-y-hidden bg-white px-0.5 pb-0.5"
+      >
+        <div class="inline-block min-w-full">
+          <mat-button-toggle-group
+            class="inline-flex whitespace-nowrap"
+            style="display: inline-flex; width: max-content"
+            [value]="selectedTab"
+            (change)="selectTab($event.value)"
+          >
+            @for (file of files; track trackByPath($index, file); let i = $index) {
+              <mat-button-toggle class="flex-none" [title]="file.path" [value]="i">
+                <span class="inline-block max-w-36 truncate align-bottom">{{ file.tabLabel }}</span>
+              </mat-button-toggle>
+            }
+          </mat-button-toggle-group>
+        </div>
+      </div>
+      <ng-container [ngTemplateOutlet]="selectedFilePane"></ng-container>
+    }
+  }
+</div>
+
+<ng-template #selectedFilePane>
+  @if (selectedFile; as file) {
+    <div class="flex min-h-0 w-full flex-1 flex-col">
+      @if (showPreview) {
+        @if (file.isLoading || !file.isLoaded) {
+          <div
+            class="flex min-h-[350px] w-full flex-1 items-center justify-center gap-2 text-slate-600"
+          >
+            <mat-spinner [diameter]="42"></mat-spinner>
+            <span>Loading {{ file.name }}...</span>
+          </div>
+        } @else if (isArchiveCodeOrTextFile(file)) {
+          <div class="archive-editor-wrapper flex min-h-0 flex-1 flex-col">
+            <ng-container
+              [ngTemplateOutlet]="filePathLabel"
+              [ngTemplateOutletContext]="{$implicit: file.path}"
+            ></ng-container>
+            <ngx-monaco-editor
+              class="archive-monaco block size-full flex-1"
+              [ngModel]="file.textContent"
+              [options]="editorOptionsForSelectedFile"
+              (ngModelChange)="onEditorChange($event)"
+            ></ngx-monaco-editor>
+          </div>
+        } @else if (isArchiveImageFile(file)) {
+          <div class="flex min-h-0 w-full flex-1 flex-col">
+            <ng-container
+              [ngTemplateOutlet]="filePathLabel"
+              [ngTemplateOutletContext]="{$implicit: file.path}"
+            ></ng-container>
+            <div class="flex min-h-[350px] w-full flex-1 items-center justify-center p-2.5">
+              <img
+                class="max-h-full max-w-full object-contain"
+                [alt]="file.name"
+                [src]="file.blobUrl"
+              />
+            </div>
+          </div>
+        } @else if (isArchivePdfFile(file)) {
+          <div class="archive-pdf-wrapper flex min-h-0 flex-1 flex-col">
+            <ng-container
+              [ngTemplateOutlet]="filePathLabel"
+              [ngTemplateOutletContext]="{$implicit: file.path}"
+            ></ng-container>
+            <f-pdf-viewer class="block size-full flex-1" [pdfUrl]="file.blobUrl"></f-pdf-viewer>
+          </div>
+        } @else {
+          <div
+            class="flex min-h-[350px] flex-1 items-center justify-center gap-2.5 px-2.5 text-slate-600"
+          >
+            <mat-icon class="size-6">insert_drive_file</mat-icon>
+            <div>
+              <p class="mb-2">This file type cannot be previewed.</p>
+              <button color="primary" mat-stroked-button (click)="downloadSelectedFile()">
+                <mat-icon>download</mat-icon>
+                Download {{ file.name }}
+              </button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+</ng-template>
+
+<ng-template #treeNodesTemplate let-depth="depth" let-nodes>
+  @for (node of nodes; track trackTreeNode($index, node)) {
+    @if (node.isDirectory) {
+      <div
+        class="flex items-center gap-0.5 py-0.5 pr-1 text-slate-600"
+        [style.paddingLeft.px]="8 + depth * 14"
+        [title]="node.path"
+      >
+        <mat-icon class="small-icon text-slate-500">folder</mat-icon>
+        <span class="truncate">{{ node.name }}</span>
+      </div>
+      <ng-container
+        [ngTemplateOutlet]="treeNodesTemplate"
+        [ngTemplateOutletContext]="{$implicit: node.children, depth: depth + 1}"
+      ></ng-container>
+    } @else {
+      <button
+        class="flex w-full items-center gap-0.5 py-0.5 pr-1 text-left hover:bg-slate-200/70"
+        type="button"
+        [ngClass]="{
+          'bg-slate-200/80 text-slate-900': selectedTab === node.fileIndex,
+          'text-slate-700': selectedTab !== node.fileIndex,
+        }"
+        [style.paddingLeft.px]="8 + depth * 14"
+        [title]="node.path"
+        (click)="selectTreeNode(node)"
+      >
+        <mat-icon class="small-icon text-slate-500">description</mat-icon>
+        <span class="truncate">{{ treeNodeLabel(node) }}</span>
+      </button>
+    }
+  }
+</ng-template>
+
+<ng-template #filePathLabel let-path>
+  <div
+    class="shrink-0 truncate overflow-hidden px-2.5 py-1 whitespace-nowrap text-slate-700"
+    [title]="path"
+  >
+    {{ path }}
+  </div>
+</ng-template>

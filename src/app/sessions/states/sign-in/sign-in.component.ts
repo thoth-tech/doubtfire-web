@@ -1,10 +1,14 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
-import { StateService, Transition } from '@uirouter/core';
-import { AuthenticationService } from 'src/app/api/services/authentication.service';
-import { AlertService } from 'src/app/common/services/alert.service';
-import { DoubtfireConstants } from 'src/app/config/constants/doubtfire-constants';
-import { GlobalStateService } from 'src/app/projects/states/index/global-state.service';
+import {HttpClient} from '@angular/common/http';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {BehaviorSubject} from 'rxjs';
+import {AuthenticationService} from 'src/app/api/services/authentication.service';
+import {UserService} from 'src/app/api/services/user.service';
+import {AlertService} from 'src/app/common/services/alert.service';
+import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
+import {GlobalStateService} from 'src/app/projects/states/index/global-state.service';
+import {consumeAuthCallback} from 'src/app/security/auth-callback';
+import {AuthReturnUrlService} from 'src/app/security/auth-return-url.service';
 
 type signInData =
   | {
@@ -25,32 +29,73 @@ type signInData =
   selector: 'f-sign-in',
   templateUrl: './sign-in.component.html',
   styleUrls: ['./sign-in.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SignInComponent implements OnInit {
-  signingIn: boolean;
-  showCredentials = false;
-  invalidCredentials: boolean;
-  api: string;
-  SSOLoginUrl: any;
-  authMethodLoaded: boolean;
-  externalName: any;
-  formData: signInData;
+  public signingIn: boolean;
+  public showCredentials: boolean = false;
+  public invalidCredentials: boolean;
+  public api: string;
+  public SSOLoginUrl: string;
+  public authMethodLoaded: boolean;
+  public externalName: BehaviorSubject<string>;
+  public formData: signInData;
+  public isLoading: boolean = true;
+  public authMethodFailed: boolean = false;
+
+  public redirectingSSO: boolean = false;
+
+  private postSignInNavigationStarted = false;
+
+  // Get query params from the resolve in the router state
+  @Input() username: string;
+  @Input() authToken: string;
+  @Input() ltiToken: string;
+  @Input() ltik: string;
+  @Input() isLtiLogin: boolean;
+
   constructor(
-    private authService: AuthenticationService,
-    private state: StateService,
+    public authService: AuthenticationService,
+    private userService: UserService,
+    private router: Router,
     private constants: DoubtfireConstants,
     private http: HttpClient,
-    private transition: Transition,
     private globalState: GlobalStateService,
     private alerts: AlertService,
+    private authReturnUrl: AuthReturnUrlService,
   ) {}
 
   ngOnInit(): void {
+    const callback = consumeAuthCallback();
+    this.username = callback?.username ?? this.username;
+    this.authToken = callback?.authToken ?? this.authToken;
+    this.ltiToken = callback?.ltiToken ?? this.ltiToken;
+    this.ltik = callback?.ltik ?? this.ltik;
+    this.isLtiLogin = callback?.isLtiLogin ?? this.isLtiLogin;
+
+    this.authService.afterAuthCall((result) => {
+      if (result) {
+        this.isLoading = false;
+        return this.actionSignInSuccess();
+      }
+      this.isLoading = true;
+    });
+
+    this.globalState.onLoad(() => this.initAfterGlobalLoad());
+  }
+
+  private initAfterGlobalLoad(): void {
+    if (!this.isLoading) {
+      // return out if we're already redirecting elsewhere in the afterAuthCall
+      return;
+    }
+
     this.formData = {
       username: '',
       password: '',
-      remember: false,
-      autoLogin: localStorage.getItem('autoLogin') ? true : false,
+      remember: this.authService.rememberMe,
+      autoLogin: this.autoLogin,
     };
     // Check for SSO
     this.globalState.hideHeader();
@@ -58,48 +103,115 @@ export class SignInComponent implements OnInit {
     this.externalName = this.constants.ExternalName;
 
     // wait 2 seconds with rxjs
-    const wait = new Promise((resolve) => setTimeout(resolve, 2000));
-    this.http.get(`${this.constants.API_URL}/auth/method`).subscribe((response: any) => {
-      // if there is a string in response.data.redirect_to
-      this.SSOLoginUrl = response.redirect_to || false;
+    const wait = new Promise((resolve) => setTimeout(resolve, 3000));
+    this.http.get(`${this.constants.API_URL}/auth/method`).subscribe({
+      next: (response: {redirect_to?: string}) => {
+        this.isLoading = false;
 
-      if (this.SSOLoginUrl) {
-        if (this.transition.params().authToken) {
-          // This is SSO and we just got an auth_token? Must request to sign in
+        // if there is a string in response.data.redirect_to
+        this.SSOLoginUrl = response.redirect_to || '';
+
+        if (this.authToken) {
+          // We have an auth token - so attempt to convert to access token
           return this.signIn({
-            auth_token: this.transition.params().authToken,
-            username: this.transition.params().username,
-            remember: true,
+            auth_token: this.authToken,
+            username: this.username,
+            remember: this.authService.rememberMe,
           });
-        } else if (this.formData.autoLogin) {
-          return wait.then(() => {
-            // Double check in case changed in the meantime
-            if (this.formData.autoLogin) {
-              this.redirectToSSO();
-            }
-          });
+        } else if (this.ltiToken) {
+          // We have a signed Lti token containing user data
+          // Forward it to the API and request a one time auth token
+          this.signingIn = true;
+
+          this.authService
+            .signInWithLti({
+              ltik: this.ltik,
+              lti_token: this.ltiToken,
+            })
+            .subscribe({
+              next: () => {
+                // this.globalState.goHome();
+                // this.actionSignInSuccess();
+              },
+              error: (err) => {
+                this.signingIn = false;
+                this.formData.password = '';
+                this.invalidCredentials = true;
+                this.alerts.error(err, 6000);
+              },
+            });
+        } else if (this.SSOLoginUrl) {
+          if (this.autoLogin) {
+            this.redirectingSSO = true;
+            return wait.then(() => {
+              // Double check in case changed in the meantime
+              if (this.autoLogin) {
+                this.redirectToSSO();
+              } else {
+                this.redirectingSSO = false;
+              }
+            });
+          } else {
+            this.globalState.isLoadingSubject.next(false);
+            // We are SSO and no credentials
+            this.showCredentials = false;
+            return wait.then();
+          }
         } else {
-          // We are SSO and no credentials
-          this.showCredentials = false;
+          this.globalState.isLoadingSubject.next(false);
+          this.authMethodLoaded = true;
+          this.showCredentials = true;
           return wait.then();
         }
-      } else {
-        this.authMethodLoaded = true;
-        this.showCredentials = true;
-        return wait.then();
-      }
-    }),
-      function (err) {
+      },
+      error: (_err) => {
         this.authMethodFailed = true;
-        this.error = err;
+        // this.error = err;
 
-        // return after waiting 1500 with the wait promise
+        // return after waiting with the wait promise
         return wait.then();
-      };
+      },
+    });
+  }
 
-    if (this.authService.isAuthenticated()) {
-      this.state.go('home');
+  public get autoLogin(): boolean {
+    // Check if autoLogin is set in localStorage
+    return localStorage.getItem('autoLogin') === 'true';
+  }
+
+  public set autoLogin(value: boolean) {
+    // Set autoLogin in localStorage
+    localStorage.setItem('autoLogin', value ? 'true' : 'false');
+  }
+
+  /**
+   * Perform the actions needed when the user successfully signs in.
+   */
+  private actionSignInSuccess(): void {
+    // Authentication completion is observed both by afterAuthCall and by the
+    // direct sign-in subscription. Only the first observer should navigate;
+    // otherwise the second one can replace a restored deep link with /home.
+    if (this.postSignInNavigationStarted) {
+      return;
     }
+    this.postSignInNavigationStarted = true;
+
+    if (this.isLtiLogin && this.ltik) {
+      this.authReturnUrl.clear();
+      this.globalState.hideHeader();
+      this.userService.currentUser.ltik = this.ltik;
+      void this.router.navigateByUrl('/lti');
+      return;
+    }
+
+    if (this.userService.currentUser.hasRunFirstTimeSetup === false) {
+      this.authReturnUrl.clear();
+      void this.router.navigateByUrl('/welcome');
+      return;
+    }
+
+    this.globalState.goHome();
+    void this.router.navigateByUrl(this.authReturnUrl.consume() ?? '/home');
   }
 
   /**
@@ -107,7 +219,7 @@ export class SignInComponent implements OnInit {
    */
   private redirectToSSO(): void {
     if (this.SSOLoginUrl) {
-      if (this.formData.autoLogin) {
+      if (this.autoLogin) {
         localStorage.setItem('autoLogin', 'true');
       } else {
         localStorage.removeItem('autoLogin');
@@ -117,18 +229,26 @@ export class SignInComponent implements OnInit {
     }
   }
 
-  signIn(signInCredentials: signInData): void {
+  /**
+   * Sign in using the provided credentials. For SSO, this will redirect to the SSO login URL
+   * if the auth token is not provided. Then when the api redirects hack to us, with the auth token,
+   * we will then use the passed login auth token to get an access token.#form
+   *
+   * For all logins, if rememberMe is set, the api will also send a secure cookie
+   * with the refresh token. This will be used to get an access token when the user
+   * refreshes the page / returns to the app / etc.
+   */
+  public signIn(signInCredentials: signInData): void {
+    // Redirect to SSO if we do not have an auth token already (from SSO callback)
     if (this.SSOLoginUrl && !signInCredentials.auth_token) {
       return this.redirectToSSO();
     }
 
-    signInCredentials.remember = true;
+    // Indicate we are signing in...
     this.signingIn = true;
 
     this.authService.signIn(signInCredentials).subscribe({
-      next: () => {
-        this.state.go('home');
-      },
+      next: () => this.actionSignInSuccess(),
       error: (err) => {
         this.signingIn = false;
         this.formData.password = '';

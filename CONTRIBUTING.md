@@ -15,11 +15,28 @@ Before continuing, **please read the [contributing document](https://github.com/
   - [Project structure](#project-structure)
   - [Testing](#testing)
   - [Formatting](#formatting)
-  - [Migrating components](#migrating-components)
+  - [Component conventions](#component-conventions)
 
 ## Project structure
 
-Coming...
+The Angular application lives under `src/app`.
+
+- `src/app/api/models` contains client-side models for Doubtfire data.
+- `src/app/api/services` contains services used to access and work with API data.
+- `src/app/api/fixtures` contains API-related fixture data.
+- `src/app/common` contains components and other UI code shared by multiple features.
+- Feature-specific code lives in feature folders under `src/app`, such as
+  `account`, `admin`, `dashboard`, `projects`, `tasks`, and `units`.
+- Keep components that belong to one feature with that feature rather than
+  moving them into `common`.
+- Components wired through the main Angular module use `standalone: false`.
+- Doubtfire component selectors use the `f-` prefix.
+- New non-standalone components must be imported and declared in
+  `src/app/doubtfire-angular.module.ts`.
+- `src/main.ts` bootstraps `DoubtfireAngularModule`, so registering a
+  non-standalone component in that module is required before it can be used.
+- Follow the structure and naming of a nearby component when adding new
+  component TypeScript, template, style, and test files.
 
 ## Testing
 
@@ -33,7 +50,7 @@ npm test
 
 - [ESLint] is used in the project to enforce code style and should be
   configured in your [editor](https://eslint.org/docs/user-guide/integrations).
-- [Prettier] is also used and apply automatically by ESLint.
+- [Prettier] is also used and applied automatically by ESLint.
 
 We also use a number of framework plugins:
 
@@ -54,11 +71,24 @@ npm run lint:fix
 
 Please note that not all issues can be fixed by ESLint and Prettier.
 
-## Migrating components
+## Component conventions
 
-See [MIGRATION-GUIDE.md](MIGRATION-GUIDE.md)
+The Angular.js migration is complete, so new work should follow the current
+Angular application structure rather than the old migration process.
 
-[ESLint](https://eslint.org/)
-[Prettier](https://prettier.io/)
-[TypeScript ESLint](https://github.com/typescript-eslint/typescript-eslint)
-[Angular ESLint](https://github.com/angular-eslint/angular-eslint)
+When adding a component:
+
+- place shared components under `src/app/common`;
+- place feature-specific components in the relevant feature folder;
+- use the `f-` selector prefix;
+- set `standalone: false` for components registered with the main module; and
+- import and add the component to the `declarations` in
+  `src/app/doubtfire-angular.module.ts`.
+
+Check a nearby existing component before adding a new one so its location,
+naming, and module registration match the surrounding feature.
+
+[ESLint]: https://eslint.org/
+[Prettier]: https://prettier.io/
+[TypeScript ESLint]: https://github.com/typescript-eslint/typescript-eslint
+[Angular ESLint]: https://github.com/angular-eslint/angular-eslint

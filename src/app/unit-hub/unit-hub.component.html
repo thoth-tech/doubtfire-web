@@ -1,0 +1,704 @@
+<main aria-labelledby="unit-hub-title" class="unit-hub">
+  <header class="hub-heading">
+    <div>
+      <a class="back-link" routerLink="/home"
+        ><mat-icon aria-hidden="true">arrow_back</mat-icon> Home</a
+      >
+      <p class="eyebrow">YOUR LEARNING, TOGETHER</p>
+      <h1 id="unit-hub-title">Unit Hub</h1>
+      <p>Announcements, HelpHubs and classes for the units you belong to.</p>
+    </div>
+    <div class="heading-actions">
+      <button mat-stroked-button type="button" [disabled]="demo.enabled" (click)="openCalendar()">
+        <mat-icon aria-hidden="true">calendar_add_on</mat-icon> Calendar settings
+      </button>
+      @if (manageableUnits.length) {
+        <button mat-flat-button type="button" [disabled]="saving" (click)="toggleManage()">
+          <mat-icon aria-hidden="true">edit_calendar</mat-icon>
+          {{ managing ? 'View student feed' : 'Manage updates' }}
+        </button>
+      }
+    </div>
+  </header>
+  <f-study-essentials />
+
+  @if (demo.enabled) {
+    <aside aria-label="Demonstration content" class="notice demo-notice">
+      <mat-icon aria-hidden="true">science</mat-icon>
+      <div>
+        <strong>Demo: a student enrolled in SIT111</strong>
+        <p>
+          Fictional announcements and schedules. SIT102 content is excluded. A host can add real
+          meeting links in demo controls; the sample times are not an official timetable.
+          Subscriptions and editing are disabled. Calendar copies are clearly marked DEMO and are
+          only added if you choose.
+        </p>
+        <a routerLink="/demo-controls">Open demo controls to return to real data</a>
+      </div>
+    </aside>
+  }
+  <p class="status" role="status">{{ status }}</p>
+
+  @if (loading) {
+    <section class="empty-state" role="status">
+      <mat-icon aria-hidden="true">hourglass_top</mat-icon>
+      <h2>Loading your unit updates…</h2>
+    </section>
+  } @else if (loadError) {
+    <section class="empty-state" role="alert">
+      <mat-icon aria-hidden="true">cloud_off</mat-icon>
+      <h2>Updates are unavailable</h2>
+      <p>{{ loadError }}</p>
+      <button mat-stroked-button type="button" (click)="reload()">Try again</button>
+    </section>
+  } @else if (managing) {
+    <section aria-labelledby="manage-title" class="manage-panel">
+      <div class="section-heading">
+        <div>
+          <h2 id="manage-title">Manage unit updates</h2>
+          <p>
+            Publish an announcement or a class with its joining details. Changes are visible to
+            members of this unit.
+          </p>
+        </div>
+      </div>
+      <label class="field unit-filter" for="manage-unit"
+        >Unit you manage
+        <select
+          id="manage-unit"
+          [disabled]="saving"
+          [value]="managedUnitId"
+          (change)="loadStaff(+$any($event.target).value)"
+        >
+          @for (unit of manageableUnits; track unit.id) {
+            <option [selected]="unit.id === managedUnitId" [value]="unit.id">
+              {{ unit.code }} · {{ unit.name }}
+            </option>
+          }
+        </select>
+      </label>
+      <p class="help-text">
+        @if (managedTeamsConfigured) {
+          Automatic Teams announcements are configured for this unit. Posts appear after a
+          successful update. Change imported posts in Teams; they cannot be edited here.
+        } @else {
+          Publish updates here or link to their original Teams post. Your university can connect
+          this unit's Teams announcements through administrator setup. Microsoft sign-in alone does
+          not turn that connection on.
+        }
+        Session schedules are maintained here.
+      </p>
+      @if (staffError) {
+        <p class="notice error-notice" role="alert">
+          {{ staffError }}
+          <button mat-button type="button" (click)="loadStaff(managedUnitId)">Retry</button>
+        </p>
+      }
+      @if (staffLoading) {
+        <p role="status">Loading drafts and published content…</p>
+      }
+      @if (!staffLoading && canManageSelected) {
+        <div class="actions">
+          <button mat-flat-button type="button" [disabled]="saving" (click)="editAnnouncement()">
+            New announcement</button
+          ><button mat-stroked-button type="button" [disabled]="saving" (click)="editSession()">
+            New session
+          </button>
+        </div>
+        @if (editor) {
+          <section aria-labelledby="editor-title" class="editor">
+            <h3 id="editor-title">{{ editingId ? 'Edit' : 'New' }} {{ editor }}</h3>
+            @if (editor === 'announcement') {
+              <form [formGroup]="announcementForm" (ngSubmit)="save()">
+                <fieldset [disabled]="saving">
+                  <label class="field" for="announcement-title"
+                    >Title
+                    <input formControlName="title" id="announcement-title" maxlength="200" required
+                  /></label>
+                  <label class="field" for="announcement-body"
+                    >Announcement
+                    <textarea
+                      formControlName="body"
+                      id="announcement-body"
+                      maxlength="20000"
+                      required
+                      rows="6"
+                    ></textarea>
+                  </label>
+                  <label class="field" for="announcement-source"
+                    >Original post link (optional)
+                    <input
+                      formControlName="source_url"
+                      id="announcement-source"
+                      placeholder="https://…"
+                      type="url"
+                  /></label>
+                  <label class="field" for="announcement-expires"
+                    >Hide after (optional, {{ deviceTimeZone }})
+                    <input
+                      formControlName="expires_at"
+                      id="announcement-expires"
+                      type="datetime-local"
+                  /></label>
+                  <label class="check-field"
+                    ><input formControlName="pinned" type="checkbox" /> Pin this announcement</label
+                  >
+                  <label class="check-field"
+                    ><input formControlName="published" type="checkbox" /> Publish to this
+                    unit</label
+                  >
+                  <p class="help-text">
+                    Leave Publish unchecked to save a draft that students cannot see.
+                  </p>
+                </fieldset>
+                <ng-container *ngTemplateOutlet="editorActions"></ng-container>
+              </form>
+            } @else {
+              <form [formGroup]="sessionForm" (ngSubmit)="save()">
+                <fieldset [disabled]="saving">
+                  <label class="field" for="session-title"
+                    >Title
+                    <input formControlName="title" id="session-title" maxlength="200" required
+                  /></label>
+                  <div class="form-grid">
+                    <label class="field" for="session-kind"
+                      >Session type
+                      <select formControlName="kind" id="session-kind">
+                        @for (kind of sessionKinds; track kind.value) {
+                          <option [value]="kind.value">{{ kind.label }}</option>
+                        }
+                      </select></label
+                    >
+                    <label class="field" for="session-zone"
+                      >Time zone
+                      <input
+                        formControlName="timezone"
+                        id="session-zone"
+                        list="hub-timezones"
+                        required /><datalist id="hub-timezones">
+                        <option value="Australia/Melbourne"></option>
+                        <option value="Australia/Sydney"></option>
+                        <option value="Australia/Brisbane"></option>
+                        <option value="Australia/Perth"></option>
+                        <option value="UTC"></option></datalist
+                    ></label>
+                    <label class="field" for="session-start"
+                      >Starts
+                      <input
+                        formControlName="start_at"
+                        id="session-start"
+                        required
+                        type="datetime-local"
+                    /></label>
+                    <label class="field" for="session-end"
+                      >Ends
+                      <input
+                        formControlName="end_at"
+                        id="session-end"
+                        required
+                        type="datetime-local"
+                    /></label>
+                  </div>
+                  <p class="help-text">
+                    Enter both times in the named time zone. Weekly sessions keep this local time
+                    when daylight saving changes.
+                  </p>
+                  <div class="form-grid">
+                    <label class="field" for="session-recurrence"
+                      >Repeat
+                      <select formControlName="recurrence" id="session-recurrence">
+                        <option value="none">Does not repeat</option>
+                        <option value="weekly">Every week</option>
+                      </select></label
+                    >
+                    @if (sessionForm.controls.recurrence.value === 'weekly') {
+                      <label class="field" for="session-repeat-until"
+                        >Last date (within six months)
+                        <input
+                          formControlName="recurrence_until"
+                          id="session-repeat-until"
+                          required
+                          type="date"
+                      /></label>
+                    }
+                  </div>
+                  <label class="field" for="session-description"
+                    >Description (optional)
+                    <textarea
+                      formControlName="description"
+                      id="session-description"
+                      maxlength="20000"
+                      rows="3"
+                    ></textarea>
+                  </label>
+                  <label class="field" for="session-join"
+                    >Join meeting link (optional)
+                    <input
+                      formControlName="join_url"
+                      id="session-join"
+                      placeholder="https://teams.microsoft.com/…"
+                      type="url"
+                  /></label>
+                  <label class="field" for="session-location"
+                    >Location (optional)
+                    <input
+                      formControlName="location"
+                      id="session-location"
+                      maxlength="300"
+                      placeholder="Online in Teams or campus room"
+                  /></label>
+                  <label class="field" for="session-source"
+                    >Original post or timetable link (optional)
+                    <input
+                      formControlName="source_url"
+                      id="session-source"
+                      placeholder="https://…"
+                      type="url"
+                  /></label>
+                  <label class="check-field"
+                    ><input formControlName="published" type="checkbox" /> Publish to this
+                    unit</label
+                  >
+                  @if (editingId) {
+                    <label class="check-field"
+                      ><input formControlName="cancelled" type="checkbox" /> Session cancelled (all
+                      weekly occurrences)</label
+                    >
+                  }
+                  <p class="help-text">
+                    Leave Publish unchecked for a draft. Editing a repeating session changes the
+                    whole series.
+                  </p>
+                </fieldset>
+                <ng-container *ngTemplateOutlet="editorActions"></ng-container>
+              </form>
+              <f-teams-meeting-composer
+                unavailableReason="Enter a title and valid start, end and time zone above to prepare a Teams meeting."
+                [draft]="teamsDraft"
+                [unitCode]="unitCode(managedUnitId)"
+              />
+            }
+            <ng-template #editorActions>
+              @if (formError) {
+                <p class="notice error-notice" role="alert">{{ formError }}</p>
+              }
+              <div class="actions">
+                <button mat-flat-button type="submit" [disabled]="saving">
+                  {{ saving ? 'Saving…' : 'Save changes' }}</button
+                ><button mat-button type="button" [disabled]="saving" (click)="editor = null">
+                  Cancel editing
+                </button>
+              </div>
+            </ng-template>
+          </section>
+        }
+        @if (deleteCandidate) {
+          <div class="notice delete-notice" role="alert">
+            <div>
+              <strong>{{
+                deleteCandidate.kind === 'sessions'
+                  ? 'Cancel this session?'
+                  : 'Remove this announcement?'
+              }}</strong>
+              <p>
+                {{ deleteCandidate.title }}.
+                {{
+                  deleteCandidate.kind === 'sessions'
+                    ? 'All weekly occurrences will be cancelled and calendar subscriptions will update on their next refresh.'
+                    : 'This removes it from the unit feed.'
+                }}
+              </p>
+              <div class="actions">
+                <button mat-flat-button type="button" [disabled]="saving" (click)="confirmRemove()">
+                  Confirm
+                  {{ deleteCandidate.kind === 'sessions' ? 'cancellation' : 'removal' }}</button
+                ><button
+                  mat-button
+                  type="button"
+                  [disabled]="saving"
+                  (click)="deleteCandidate = null"
+                >
+                  Keep it
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+        <div class="management-lists">
+          <section aria-labelledby="staff-announcements-title">
+            <h3 id="staff-announcements-title">Announcements</h3>
+            @for (row of staffAnnouncements; track row.id) {
+              <article class="managed-row">
+                <div>
+                  <strong>{{ row.title }}</strong
+                  ><span
+                    >{{ row.published_at ? 'Published or scheduled' : 'Draft'
+                    }}{{ row.pinned ? ' · Pinned' : ''
+                    }}{{ isManagedExternally(row) ? ' · From Teams' : '' }}</span
+                  >
+                </div>
+                <div class="actions">
+                  @if (isManagedExternally(row)) {
+                    @if (safeUrl(row.source_url)) {
+                      <a
+                        mat-button
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        [href]="safeUrl(row.source_url)"
+                        >Manage in Teams</a
+                      >
+                    } @else {
+                      <span>Managed in Teams</span>
+                    }
+                  } @else {
+                    <button
+                      mat-button
+                      type="button"
+                      [attr.aria-label]="'Edit ' + row.title"
+                      [disabled]="saving"
+                      (click)="editAnnouncement(row)"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      mat-button
+                      type="button"
+                      [attr.aria-label]="'Remove ' + row.title"
+                      [disabled]="saving"
+                      (click)="
+                        deleteCandidate = {id: row.id, title: row.title, kind: 'announcements'}
+                      "
+                    >
+                      Remove
+                    </button>
+                  }
+                </div>
+              </article>
+            } @empty {
+              <p class="help-text">No announcements yet. Create a draft to get started.</p>
+            }
+          </section>
+          <section aria-labelledby="staff-sessions-title">
+            <h3 id="staff-sessions-title">Sessions</h3>
+            @for (row of staffSessions; track row.id) {
+              <article class="managed-row">
+                <div>
+                  <strong>{{ row.title }}</strong
+                  ><span
+                    >{{ row.cancelled ? 'Cancelled' : row.published ? 'Published' : 'Draft' }} ·
+                    {{ row.start_at | date: 'medium'
+                    }}{{ row.recurrence === 'weekly' ? ' · Weekly' : '' }}</span
+                  >
+                </div>
+                <div class="actions">
+                  <button
+                    mat-button
+                    type="button"
+                    [attr.aria-label]="'Edit ' + row.title"
+                    [disabled]="saving"
+                    (click)="editSession(row)"
+                  >
+                    Edit
+                  </button>
+                  @if (!row.cancelled) {
+                    <button
+                      mat-button
+                      type="button"
+                      [attr.aria-label]="'Cancel ' + row.title"
+                      [disabled]="saving"
+                      (click)="deleteCandidate = {id: row.id, title: row.title, kind: 'sessions'}"
+                    >
+                      Cancel session
+                    </button>
+                  }
+                </div>
+              </article>
+            } @empty {
+              <p class="help-text">No sessions yet. Add a HelpHub, lecture or class.</p>
+            }
+          </section>
+        </div>
+      }
+    </section>
+  } @else if (!units.length) {
+    <section class="empty-state">
+      <mat-icon aria-hidden="true">school</mat-icon>
+      <h2>No active units to show</h2>
+      <p>
+        Your announcements and sessions will appear here when you are enrolled in an active unit, or
+        assigned to teach one.
+      </p>
+    </section>
+  } @else {
+    <div class="hub-filters">
+      <label class="field unit-filter" for="hub-unit"
+        >Showing updates for
+        <select
+          id="hub-unit"
+          [value]="selectedUnitId"
+          (change)="selectUnit($any($event.target).value)"
+        >
+          <option value="0" [selected]="!selectedUnitId">All my units</option>
+          @for (unit of units; track unit.id) {
+            <option [selected]="unit.id === selectedUnitId" [value]="unit.id">
+              {{ unit.code }} · {{ unit.name }}
+            </option>
+          }
+        </select>
+      </label>
+      <nav aria-label="Type of update" class="view-switch">
+        <button type="button" [attr.aria-pressed]="tab === 'all'" (click)="tab = 'all'">
+          All updates
+        </button>
+        <button
+          type="button"
+          [attr.aria-pressed]="tab === 'announcements'"
+          (click)="tab = 'announcements'"
+        >
+          Announcements
+        </button>
+        <button type="button" [attr.aria-pressed]="tab === 'sessions'" (click)="tab = 'sessions'">
+          Sessions
+        </button>
+      </nav>
+    </div>
+    @if (unavailableUnit) {
+      <div class="notice" role="alert">
+        This unit is not available to your account. Choose one of your units above.
+      </div>
+    }
+    <div class="hub-columns" [class.single-column]="tab !== 'all'">
+      @if (tab !== 'sessions') {
+        <section aria-labelledby="announcements-title" class="announcements-column">
+          <div class="section-heading">
+            <h2 id="announcements-title">Announcements</h2>
+            <span class="count">{{ announcements.length }}</span>
+          </div>
+          @if (feed.announcements_truncated) {
+            <p class="help-text">
+              Showing the latest 100 announcements. Check the original unit channel for older
+              updates.
+            </p>
+          }
+          @for (announcement of announcements; track announcement.id) {
+            <article class="announcement-card">
+              <div class="card-meta">
+                <span class="unit-badge">{{ unitCode(announcement.unit_id) }}</span>
+                @if (isManagedExternally(announcement)) {
+                  <span>From Teams</span>
+                }
+                @if (announcement.pinned) {
+                  <span class="pinned"
+                    ><mat-icon aria-hidden="true">push_pin</mat-icon> Pinned</span
+                  >
+                }
+                <time [attr.datetime]="announcement.published_at">{{
+                  announcement.published_at | date: 'd MMM'
+                }}</time>
+              </div>
+              <h3>
+                <button
+                  class="details-title"
+                  type="button"
+                  (click)="openAnnouncement(announcement)"
+                >
+                  {{ announcement.title }}
+                </button>
+              </h3>
+              <p class="preserve-lines card-preview">{{ announcement.body }}</p>
+              <button
+                class="details-link"
+                mat-button
+                type="button"
+                [attr.aria-label]="'Read announcement: ' + announcement.title"
+                (click)="openAnnouncement(announcement)"
+              >
+                Read full announcement <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+              </button>
+              @if (safeUrl(announcement.source_url)) {
+                <a
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  [href]="safeUrl(announcement.source_url)"
+                  >Open original post <mat-icon aria-hidden="true">open_in_new</mat-icon></a
+                >
+              }
+            </article>
+          } @empty {
+            <div class="empty-card">
+              <mat-icon aria-hidden="true">campaign</mat-icon>
+              <h3>You're up to date</h3>
+              <p>No announcements have been published for these units.</p>
+            </div>
+          }
+        </section>
+      }
+      @if (tab !== 'announcements') {
+        <section aria-labelledby="sessions-title" class="sessions-column">
+          <div class="section-heading">
+            <h2 id="sessions-title">HelpHubs &amp; classes</h2>
+            <span class="count">{{ sessions.length }}</span>
+          </div>
+          <p class="help-text time-note">
+            Times shown in {{ deviceTimeZone }}.
+            @if (feed.window_end) {
+              Scheduled sessions through {{ feed.window_end | date: 'd MMM yyyy' }}.
+            }
+          </p>
+          @for (session of sessions; track session.occurrence_id || session.id + session.start_at) {
+            <article class="session-card" [class.is-cancelled]="session.cancelled">
+              <div class="session-identity">
+                <span class="session-icon"
+                  ><mat-icon aria-hidden="true">{{ kindIcon(session.kind) }}</mat-icon></span
+                >
+                <div>
+                  <div class="card-meta">
+                    <span class="unit-badge">{{ unitCode(session.unit_id) }}</span
+                    ><span>{{ kindLabel(session.kind) }}</span>
+                  </div>
+                  <h3>
+                    <button class="details-title" type="button" (click)="openSession(session)">
+                      {{ session.title }}
+                    </button>
+                  </h3>
+                </div>
+              </div>
+              <div class="session-time">
+                <mat-icon aria-hidden="true">schedule</mat-icon>
+                <div>
+                  <strong>{{ session.start_at | date: 'EEE, d MMM' }}</strong
+                  ><span
+                    >{{ session.start_at | date: 'h:mm a' }} – {{ session.end_at | date: 'h:mm a' }}
+                    @if (
+                      (session.start_at | date: 'yyyyMMdd') !== (session.end_at | date: 'yyyyMMdd')
+                    ) {
+                      · ends {{ session.end_at | date: 'd MMM' }}
+                    }
+                  </span>
+                </div>
+                @if (sessionLive(session)) {
+                  <span class="live-badge">On now</span>
+                }
+              </div>
+              @if (session.cancelled) {
+                <p class="cancelled-label">Cancelled · this session will not run</p>
+              }
+              @if (session.description) {
+                <p class="preserve-lines card-preview">{{ session.description }}</p>
+              }
+              @if (session.location) {
+                <p class="location">
+                  <mat-icon aria-hidden="true">location_on</mat-icon>{{ session.location }}
+                </p>
+              }
+              @if (session.recurrence === 'weekly') {
+                <p class="help-text">Part of a weekly series</p>
+              }
+              <button
+                class="details-link"
+                mat-button
+                type="button"
+                [attr.aria-label]="'View session details: ' + session.title"
+                (click)="openSession(session)"
+              >
+                View full details <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+              </button>
+              @if (!session.cancelled) {
+                <div class="session-actions">
+                  @if (demo.enabled) {
+                    @if (joinUrl(session)) {
+                      <a
+                        mat-flat-button
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        [href]="joinUrl(session)"
+                        ><mat-icon aria-hidden="true">videocam</mat-icon>Join hosted demo</a
+                      >
+                    } @else {
+                      <span class="help-text"
+                        >No host meeting linked. Add a meeting in demo controls.</span
+                      >
+                    }
+                    <a
+                      mat-stroked-button
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      [href]="googleUrl(session, unitCode(session.unit_id))"
+                      >Preview DEMO in Google Calendar</a
+                    >
+                    <button mat-button type="button" (click)="downloadSession(session)">
+                      Download DEMO .ics
+                    </button>
+                  } @else {
+                    @if (joinUrl(session)) {
+                      <a
+                        mat-flat-button
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        [href]="joinUrl(session)"
+                        ><mat-icon aria-hidden="true">videocam</mat-icon>Join session</a
+                      >
+                    } @else {
+                      <span class="help-text">{{
+                        session.location
+                          ? 'See location details above.'
+                          : 'Joining details will be added by your teaching team.'
+                      }}</span>
+                    }
+                    <a
+                      mat-stroked-button
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      [href]="googleUrl(session, unitCode(session.unit_id))"
+                      >Add to Google Calendar</a
+                    >
+                    <button mat-button type="button" (click)="downloadSession(session)">
+                      Download .ics
+                    </button>
+                  }
+                </div>
+              }
+              @if (safeUrl(session.source_url)) {
+                <a
+                  class="source-link"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  [href]="safeUrl(session.source_url)"
+                  >View original details <mat-icon aria-hidden="true">open_in_new</mat-icon></a
+                >
+              }
+            </article>
+          } @empty {
+            <div class="empty-card">
+              <mat-icon aria-hidden="true">event_available</mat-icon>
+              <h3>No sessions scheduled yet</h3>
+              <p>Your teaching team can add HelpHubs, lectures and other classes here.</p>
+            </div>
+          }
+          <aside class="calendar-note">
+            <mat-icon aria-hidden="true">calendar_month</mat-icon>
+            <div>
+              <strong>Keep your calendar up to date</strong>
+              <p>
+                Google Calendar and .ics buttons add a copy of one session. Copies do not update
+                automatically. In Calendar settings, opt in to HelpHubs and classes and subscribe to
+                receive schedule changes.
+              </p>
+              <p>
+                For Google, set up the subscription in a desktop browser; it will then appear in
+                your mobile calendar. Calendar providers control refresh times.
+              </p>
+              <button mat-button type="button" [disabled]="demo.enabled" (click)="openCalendar()">
+                Open calendar settings
+              </button>
+            </div>
+          </aside>
+        </section>
+      }
+    </div>
+    <p class="hub-footer">
+      Only members of a unit can see its updates. Content comes from your teaching team or connected
+      unit announcement channels; linked meetings may also require your university sign-in.
+    </p>
+  }
+</main>
