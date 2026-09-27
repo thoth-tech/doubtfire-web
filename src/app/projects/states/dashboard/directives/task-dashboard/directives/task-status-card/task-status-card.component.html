@@ -1,6 +1,12 @@
-<mat-card appearance="outlined">
+<mat-card
+  appearance="outlined"
+  class="task-status-card"
+  [style.--tsc]="taskStatusColor ? 'var(--ot-status-' + taskStatusColor + ')' : null"
+  [style.--tsc-on]="taskStatusColor ? 'var(--ot-status-' + taskStatusColor + '-on)' : null"
+>
   @if (triggers?.length > 0) {
     <mat-form-field appearance="outline" class="px-2.5 pt-2.5">
+      <mat-label>Task status</mat-label>
       <mat-select
         [disabled]="task?.blockedByPrerequisiteTasks() && !isTutor"
         [value]="$safeNavigationMigration(task?.status)"
@@ -9,17 +15,24 @@
         <mat-select-trigger>
           <span style="display: inline-flex">
             <status-icon
+              aria-hidden="true"
               style="margin-right: 10px"
               [status]="$safeNavigationMigration(task?.status)"
             ></status-icon>
-            <h2 class="mb-0">{{ task?.statusLabel() }}</h2>
+            <span class="mb-0 text-xl">{{ task?.statusLabel() }}</span>
           </span>
         </mat-select-trigger>
         @for (trigger of triggers; track trigger) {
           <mat-option [value]="trigger.status">
             <div class="flex items-center">
-              <status-icon [showTooltip]="false" [status]="trigger.status"></status-icon>
-              <h5 class="m-0 ml-2">{{ trigger.label }}</h5>
+              <!-- The label beside it says the same thing, so the icon is decorative
+                   here and its own role="img" would announce the status twice. -->
+              <status-icon
+                aria-hidden="true"
+                [showTooltip]="false"
+                [status]="trigger.status"
+              ></status-icon>
+              <span class="m-0 ml-2">{{ trigger.label }}</span>
             </div>
           </mat-option>
         }
@@ -33,7 +46,7 @@
           style="margin-right: 10px"
           [status]="$safeNavigationMigration(task?.status)"
         ></status-icon>
-        <h5>{{ task?.statusLabel() }}</h5>
+        <span>{{ task?.statusLabel() }}</span>
       </span>
     </mat-card-title>
   }
@@ -47,36 +60,42 @@
     }
   </mat-card-content>
 
-  <mat-card-actions class="w-full justify-between">
-    <div class="space-x-1">
-      <button
-        mat-stroked-button
-        [disabled]="
-          isReadyForFeedback() ||
-          (task?.blockedByPrerequisiteTasks() && !isTutor) ||
-          isSubmittedForPortfolio()
-        "
-        (click)="uploadSubmission()"
-      >
-        Upload Submission
-      </button>
+  <mat-card-actions class="task-status-actions">
+    <div class="task-status-primary-actions">
+      @if (showUploadSubmission) {
+        <button
+          mat-stroked-button
+          [disabled]="(task?.blockedByPrerequisiteTasks() && !isTutor) || isSubmittedForPortfolio()"
+          (click)="uploadSubmission()"
+        >
+          <mat-icon aria-hidden="true">upload</mat-icon>
+          Upload submission
+        </button>
+      }
 
       @if (task?.canApplyForExtension()) {
-        <button mat-stroked-button (click)="applyForExtension()">Request extension</button>
+        <button mat-stroked-button (click)="applyForExtension()">
+          <mat-icon aria-hidden="true">more_time</mat-icon>
+          Request extension
+        </button>
       }
-      @if (task?.inSubmittedState() && task?.requiresFileUpload()) {
-        <button mat-stroked-button (click)="updateFilesInSubmission()">Upload new files</button>
+      @if (showUploadNewFiles) {
+        <button
+          mat-stroked-button
+          [disabled]="submissionActionPending"
+          (click)="updateFilesInSubmission()"
+        >
+          <mat-icon aria-hidden="true">upload_file</mat-icon>
+          Upload new files
+        </button>
       }
     </div>
 
-    <div>
-      <button aria-label="More task options" mat-icon-button [matMenuTriggerFor]="menu">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <div fxFlex></div>
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="openFeedbackAppealModal()">Request Feedback Review</button>
-      </mat-menu>
-    </div>
+    <button aria-label="More task options" mat-icon-button [matMenuTriggerFor]="menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="openFeedbackAppealModal()">Request feedback review</button>
+    </mat-menu>
   </mat-card-actions>
 </mat-card>

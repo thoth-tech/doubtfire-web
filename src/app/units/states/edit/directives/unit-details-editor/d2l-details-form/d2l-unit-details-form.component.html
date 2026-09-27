@@ -1,39 +1,43 @@
-<mat-dialog-content class="mat-typography">
-  <div class="modal-header">
-    <h1>D2L Unit Details</h1>
-  </div>
-  <div class="modal-body">
-    <p>Enter the D2L identifier to allow grades to be transfered once entered.</p>
-    <mat-form-field appearance="outline">
-      <input
-        matInput
-        name="orgUnitId"
-        placeholder="Org Unit Id"
-        required
-        type="text"
-        [(ngModel)]="d2lDataMapping.orgUnitId"
-      />
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-      <input
-        matInput
-        name="orgUnitId"
-        placeholder="Grade Object Id"
-        type="text"
-        [(ngModel)]="d2lDataMapping.gradeObjectId"
-      />
-      <mat-hint align="start">Created during grades transfer if not set</mat-hint>
-    </mat-form-field>
+<h2 mat-dialog-title>D2L details</h2>
+<mat-dialog-content>
+  <p class="m-0 mb-5 text-sm leading-relaxed text-ot-muted">
+    Enter the D2L course's org unit ID so grades can be sent to D2L once they are entered.
+  </p>
+  <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium text-ot-text" for="d2l-org-unit-id">Org unit ID</label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <input
+          id="d2l-org-unit-id"
+          matInput
+          name="orgUnitId"
+          required
+          type="text"
+          [(ngModel)]="d2lDataMapping.orgUnitId"
+        />
+      </mat-form-field>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium text-ot-text" for="d2l-grade-object-id">
+        Grade object ID
+      </label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <input
+          id="d2l-grade-object-id"
+          matInput
+          name="gradeObjectId"
+          type="text"
+          [(ngModel)]="d2lDataMapping.gradeObjectId"
+        />
+        <mat-hint>Leave empty and one is created the first time grades are sent.</mat-hint>
+      </mat-form-field>
+    </div>
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   @if (d2lDataMapping.id) {
-    <button color="warn" mat-stroked-button (click)="delete()">Delete</button>
+    <button class="mr-auto" mat-button type="button" (click)="delete()">Remove D2L details</button>
   }
-  <button class="pull-right" mat-stroked-button (click)="saveAndClose()">
-    @if (d2lDataMapping.hasChanges(d2lAssessmentMappingService.mapping)) {
-      <span>Save and </span>
-    }
-    Close
-  </button>
+  <button mat-button type="button" (click)="dialogRef.close()">Cancel</button>
+  <button color="primary" mat-flat-button type="button" (click)="saveAndClose()">Save</button>
 </mat-dialog-actions>

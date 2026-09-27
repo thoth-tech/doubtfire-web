@@ -92,7 +92,11 @@
             <span matListItemLine>{{ break.numberOfWeeks }} week(s)</span>
           </span>
           <span class="grow"></span>
-          <button mat-icon-button (click)="deleteBreak(newOrSelectedTeachingPeriod, break)">
+          <button
+            aria-label="Delete teaching break"
+            mat-icon-button
+            (click)="deleteBreak(newOrSelectedTeachingPeriod, break)"
+          >
             <mat-icon>delete</mat-icon>
           </button>
         </span>
@@ -129,6 +133,7 @@
       </mat-form-field>
 
       <button
+        aria-label="Add teaching break"
         class="self-start"
         mat-icon-button
         [disabled]="!(tempBreak.startDate && tempBreak.numberOfWeeks)"

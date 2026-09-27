@@ -1,18 +1,88 @@
+@use '@angular/material' as mat;
+
 .empty-state-icon {
   height: 120px;
   width: 120px;
   font-size: 120px;
-  color: #c5c5c5;
+  color: var(--ot-color-text-muted);
 }
 
 .no-selection-text {
   font-size: 2.5rem;
-  color: #c5c5c5;
+  color: var(--ot-color-text-muted);
 }
 
+.submission-view {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-rows: auto minmax(20rem, 1fr);
+  height: 100%;
+  min-height: 0;
+  padding: 0.75rem;
+}
+
+.submission-preview {
+  min-height: 20rem;
+  min-width: 0;
+}
+
+// On a wider screen the submission view scrolls as one: the summary card, then the
+// PDF as tall as the panel. Scrolling past the card gives the document the whole
+// panel instead of the strip the card left it. (Phones size it to the screen below.)
+@media (min-width: 640px) {
+  .task-dashboard-body {
+    container-type: size;
+  }
+
+  .submission-view {
+    grid-template-rows: auto auto;
+    height: auto;
+  }
+
+  .submission-preview {
+    height: calc(100cqh - 1.5rem);
+  }
+}
+
+.submission-preview-placeholder {
+  align-items: center;
+  border: 1px dashed var(--ot-color-border);
+  border-radius: 0.75rem;
+  color: var(--ot-color-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 16rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.submission-preview-placeholder mat-icon {
+  font-size: 3rem;
+  height: 3rem;
+  width: 3rem;
+}
+
+// Keep the tab strip aligned to its start so narrow screens can reach every label.
 :host ::ng-deep .task-dashboard-tabs {
   .mat-mdc-tab-header {
-    justify-content: center;
+    // Filled-control primary colours are not text colours on every theme surface.
+    @include mat.tabs-overrides(
+      (
+        active-label-text-color: var(--ot-color-link),
+        active-focus-label-text-color: var(--ot-color-link),
+        active-hover-label-text-color: var(--ot-color-link),
+        active-indicator-color: var(--ot-color-link),
+        active-focus-indicator-color: var(--ot-color-link),
+        active-hover-indicator-color: var(--ot-color-link),
+        inactive-label-text-color: var(--ot-color-text-muted),
+        inactive-focus-label-text-color: var(--ot-color-text-muted),
+        inactive-hover-label-text-color: var(--ot-color-text-muted),
+      )
+    );
+
+    justify-content: flex-start;
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
@@ -21,7 +91,7 @@
 
   .mat-mdc-tab-label-container {
     flex: 0 0 auto;
-    margin: 0 auto;
+    margin: 0;
     overflow: visible;
   }
 
@@ -29,4 +99,56 @@
   .mat-mdc-tab-labels {
     width: max-content;
   }
+}
+
+// A card with nothing to show leaves an empty host, or a host around a hidden card.
+// Either one still counts as a flex item, so it added a second gap and the space
+// between cards jumped about. ::ng-deep because the hidden card is in the child's view.
+:host ::ng-deep .task-details > :empty,
+:host ::ng-deep .task-details > :has(> [hidden]:only-child) {
+  display: none;
+}
+
+@media (max-width: 639.98px) {
+  // Details is a normal document on phones. PDF, submission, history and
+  // moderation views keep their purpose-built bounded viewers.
+  .task-dashboard-shell--document {
+    height: auto !important;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .task-dashboard-body--document {
+    min-height: 0;
+    flex: none;
+    overflow: visible;
+  }
+
+  .submission-view {
+    grid-template-rows: auto minmax(18rem, 1fr);
+    padding: 0.5rem;
+  }
+
+  // The page scrolls as one document on a phone, so a PDF sized to "100%" of it fell
+  // back to its minimum height and left blank page below. It takes the screen under
+  // the sticky task tabs instead, and once the headings above it have scrolled away
+  // it runs from the tabs to the bottom edge, through the page's bottom padding.
+  .task-dashboard-body > f-pdf-viewer,
+  .submission-preview {
+    display: block;
+    height: calc(100dvh - var(--mobile-task-tabs-height));
+    margin-bottom: calc(-1 * var(--mobile-page-bottom-padding));
+  }
+
+  .submission-view {
+    padding-bottom: 0;
+  }
+}
+
+// Full screen, the reading tabs (notes, history, details) keep a comfortable line length
+// in the middle of the page. The PDF viewers keep the whole width.
+.dashboard-reading-measure {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
 }

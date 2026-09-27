@@ -1,3 +1,16 @@
+:host {
+  display: block;
+  color: var(--ot-color-text);
+}
+
+.planner-empty {
+  margin: 0;
+  padding: 16px;
+  color: var(--ot-color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 :host ::ng-deep .flexible-dates .gantt-links-overlay svg {
   z-index: 999 !important;
   pointer-events: none;
@@ -17,6 +30,9 @@
 }
 
 :host ::ng-deep gantt-calendar-header .today-rect {
+  // The chip is filled with the warning colour (styles.scss), so its date takes the
+  // matching on-colour rather than the library's white.
+  color: var(--ot-color-on-warning) !important;
   display: flex;
   height: 28px !important;
   transform: translateY(-0.35rem);
@@ -36,6 +52,233 @@
   background-color: var(--bar-bg);
 }
 
+// The bar is reachable by tab, so its focus has to be visible. currentColor is already
+// chosen per bar to contrast with that bar's background, so it works on every colour the
+// planner uses.
+.gantt-bar:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
+}
+
 .flash {
   transition: background-color 500ms ease-in-out;
+}
+
+// Legend: a swatch per bar colour, and the today line drawn the way the chart
+// draws it, so each key reads as the mark it explains.
+.planner-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+// Each swatch keeps the bar's fill and gets an edge in the matching graphic colour
+// (set per swatch in the template), so it holds 3:1 against the dark card too.
+.planner-legend__swatch {
+  width: 1rem;
+  height: 0.625rem;
+  flex: none;
+  border: 1px solid;
+  border-radius: var(--ot-radius-xs);
+}
+
+.planner-legend__today {
+  width: 2px;
+  height: 0.875rem;
+  flex: none;
+  background: var(--ot-color-warning);
+}
+
+// Inset, because the gantt clips its table cells and an outward ring would be cut off.
+.planner-task-link:focus-visible {
+  outline: 2px solid var(--ot-color-focus);
+  outline-offset: -3px;
+}
+
+.planner-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.planner-toggles,
+.planner-date-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobile-planner {
+  display: none;
+}
+
+@media (max-width: 639.98px) {
+  :host {
+    display: block;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .planner-toolbar,
+  .planner-toggles,
+  .planner-date-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .planner-toolbar {
+    gap: 0.875rem;
+    padding: 0.75rem 0 !important;
+  }
+
+  .planner-toggles {
+    gap: 0.5rem;
+  }
+
+  .planner-toggles mat-slide-toggle,
+  .planner-date-actions button {
+    min-height: 44px;
+  }
+
+  .planner-legend,
+  .desktop-planner {
+    display: none !important;
+  }
+
+  .mobile-planner {
+    display: grid;
+    gap: 0.75rem;
+    padding-bottom: var(--ontrack-safe-bottom-space, 1rem);
+  }
+
+  .mobile-planner-empty {
+    padding: 2rem 1rem;
+    border: 1px solid var(--ot-color-border);
+    border-radius: 0.75rem;
+    color: var(--ot-color-text-muted);
+    text-align: center;
+  }
+
+  .mobile-task-card {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--ot-color-border);
+    border-radius: 0.75rem;
+    background: var(--ot-color-surface);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
+  }
+
+  .mobile-task-card__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+  }
+
+  .mobile-task-card__header h3 {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-size: 1rem;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+
+  .mobile-task-card__grade {
+    margin: 0 0 0.25rem;
+    color: var(--ot-color-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .mobile-task-card__status {
+    display: flex;
+    max-width: 8.5rem;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    color: var(--ot-color-text);
+    font-size: 0.75rem;
+    line-height: 1.2;
+    text-align: right;
+  }
+
+  .mobile-task-card__date-summary {
+    margin: 0.875rem 0 0;
+    color: var(--ot-color-text);
+    font-size: 0.875rem;
+  }
+
+  .mobile-task-card__dates {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 0.75rem 0 0;
+  }
+
+  .mobile-task-card__dates > div {
+    min-width: 0;
+    padding: 0.625rem;
+    border-radius: 0.5rem;
+    background: var(--ot-color-surface-raised);
+  }
+
+  .mobile-task-card__dates dt {
+    color: var(--ot-color-text-muted);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .mobile-task-card__dates dd {
+    margin: 0.25rem 0 0;
+    color: var(--ot-color-text);
+    font-size: 0.8125rem;
+    line-height: 1.25;
+  }
+
+  .mobile-task-card__connections {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    color: var(--ot-color-text);
+    font-size: 0.8125rem;
+  }
+
+  .mobile-task-card__connections mat-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 1.25rem;
+    font-size: 1.25rem;
+  }
+
+  .mobile-task-card__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.875rem;
+  }
+
+  .mobile-task-card__actions button,
+  .mobile-task-card__actions a {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .mobile-task-card__header,
+  .mobile-task-card__dates,
+  .mobile-task-card__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mobile-task-card__status {
+    max-width: none;
+    justify-content: flex-start;
+    text-align: left;
+  }
 }

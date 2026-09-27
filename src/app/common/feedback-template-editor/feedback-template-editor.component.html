@@ -1,6 +1,6 @@
-<div class="rounded-xl border border-gray-200 bg-white p-3.5 shadow">
+<div class="rounded-xl border border-ot-divider bg-ot-surface p-3.5 shadow">
   <div class="mb-0.5">
-    <h4 class="text-base font-bold text-gray-900">Edit Feedback Templates for Outcome</h4>
+    <h4 class="text-base font-bold text-ot-text">Edit Feedback Templates for Outcome</h4>
 
     <div class="flex flex-col gap-5">
       <table
@@ -126,8 +126,17 @@
         <tr
           *matRowDef="let row; columns: templateColumns"
           mat-row
-          [style.background]="selectedTemplate === row ? 'lightblue' : ''"
+          [style.background]="selectedTemplate === row ? 'var(--ot-color-selected)' : ''"
         ></tr>
+        <tr *matNoDataRow class="mat-row">
+          <td class="mat-cell !border-b-0" [attr.colspan]="templateColumns.length">
+            <f-empty-state
+              hint="Add a template to reuse feedback for this outcome."
+              icon="forum"
+              message="No feedback templates yet"
+            ></f-empty-state>
+          </td>
+        </tr>
       </table>
 
       <span class="flex items-center">
@@ -142,11 +151,11 @@
         ></mat-paginator>
         <span class="flex-grow"></span>
         @if (context) {
-          <label>Feedback CSV</label>
-          <button mat-icon-button (click)="downloadCsv()">
+          <span>Feedback CSV</span>
+          <button aria-label="Download feedback CSV" mat-icon-button (click)="downloadCsv()">
             <mat-icon>download</mat-icon>
           </button>
-          <button mat-icon-button (click)="uploadCsv()">
+          <button aria-label="Upload feedback CSV" mat-icon-button (click)="uploadCsv()">
             <mat-icon>upload_file</mat-icon>
           </button>
           <span class="flex-grow"></span>
@@ -158,7 +167,7 @@
 
       @if (selectedTemplate) {
         <div>
-          <h4 class="mt-0.5 text-base font-bold text-gray-900">Edit Template</h4>
+          <h4 class="mt-0.5 text-base font-bold text-ot-text">Edit Template</h4>
 
           <div class="flex flex-row gap-2.5">
             @if (selectedTemplate.isNew) {

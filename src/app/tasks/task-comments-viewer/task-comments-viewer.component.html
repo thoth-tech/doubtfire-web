@@ -1,23 +1,24 @@
 <div
   appDragDrop
-  class="comments-panel h-full min-h-[350px]"
-  fxLayout="column"
+  class="comments-panel flex h-full min-h-0 flex-col"
   (fileDropped)="uploadFiles($event)"
 >
   <div
     #commentsBody
-    class="comments-body"
-    fxFlex
-    fxLayout="column"
+    class="comments-body flex flex-1 flex-col"
     style="place-content: stretch !important"
   >
-    <div class="h-full" fxLayout="row" fxLayoutAlign="center center" [hidden]="!loading">
+    <div class="flex h-full flex-row items-center justify-center" [hidden]="!loading">
       <mat-spinner color="accent" diameter="100" strokeWidth="2"></mat-spinner>
     </div>
 
-    @if (!task || task.comments.length === 0) {
-      <div fxFlexFill fxLayout="column" fxLayoutAlign="center center">
-        <mat-icon id="noView">forum</mat-icon>
+    @if (!loading && (!task || task.comments.length === 0)) {
+      <div
+        class="m-0 flex size-full min-h-full min-w-full flex-col items-center justify-center px-3 text-center"
+        role="status"
+      >
+        <mat-icon aria-hidden="true" id="noView">forum</mat-icon>
+        <p>No comments on this task yet.</p>
       </div>
     }
 
@@ -25,12 +26,7 @@
       <div class="comments-scroll-content" [hidden]="loading">
         <span>
           @for (comment of task.comments; track comment) {
-            <div
-              class="anchor"
-              id="comment-{{ comment.id }}"
-              (mouseout)="comment.hover = false"
-              (mouseover)="comment.hover = true"
-            >
+            <div class="anchor" id="comment-{{ comment.id }}">
               @if (comment.shouldShowTimestamp) {
                 <p
                   id="commentTimestamp"
@@ -38,15 +34,15 @@
                   [matTooltip]="comment.createdAt | localizedDateTime"
                   [ngClass]="{own: comment.authorIsMe}"
                 >
-                  {{ comment.author.preferredName }} {{ comment.author.lastName }}
+                  {{ comment.author.displayName }}
                   {{ comment.createdAt | humanizedDate }}
                 </p>
               }
               <div
-                class="comment"
-                fxLayoutAlign="start end"
-                [fxLayout]="comment.authorIsMe ? 'row-reverse' : 'row'"
+                class="comment flex items-end justify-start"
                 [ngClass]="{
+                  'flex-row-reverse': comment.authorIsMe,
+                  'flex-row': !comment.authorIsMe,
                   'comment-by-other-user': !comment.authorIsMe,
                   'new-comment': comment.isNew,
                 }"
@@ -55,7 +51,7 @@
                   <div class="comment-user-icon-wrapper">
                     @if (comment.shouldShowAvatar && shouldShowAuthorIcon(comment.commentType)) {
                       <user-icon
-                        matTooltip="{{ comment.author.name }}"
+                        matTooltip="{{ comment.author.displayName }}"
                         matTooltipPosition="left"
                         [ngClass]="{'hidden-xs hidden-sm': comment.authorIsMe}"
                         [size]="28"
@@ -67,9 +63,8 @@
                 }
 
                 <div
-                  class="comment-container"
-                  fxLayoutAlign="start center"
-                  [fxLayout]="comment.authorIsMe ? 'row-reverse' : 'row'"
+                  class="comment-container flex items-center justify-start"
+                  [ngClass]="comment.authorIsMe ? 'flex-row-reverse' : 'flex-row'"
                 >
                   @switch (comment.commentType) {
                     @case ('status') {
@@ -92,12 +87,14 @@
                       >
                         <mat-card appearance="outlined" class="w-full self-end">
                           <mat-card-header>
-                            <mat-icon class="m-auto" style="color: #9696969d">group</mat-icon>
+                            <mat-icon class="m-auto" style="color: var(--ot-color-text-muted)"
+                              >group</mat-icon
+                            >
                           </mat-card-header>
 
                           <mat-card-content
                             class="flex flex-col items-center justify-center"
-                            style="color: #9696969d"
+                            style="color: var(--ot-color-text-muted)"
                           >
                             {{ comment.text }}
                           </mat-card-content>
@@ -114,12 +111,14 @@
                       >
                         <mat-card appearance="outlined" class="w-full self-end">
                           <mat-card-header>
-                            <mat-icon class="m-auto" style="color: #9696969d">comment</mat-icon>
+                            <mat-icon class="m-auto" style="color: var(--ot-color-text-muted)"
+                              >comment</mat-icon
+                            >
                           </mat-card-header>
 
                           <mat-card-content
                             class="flex flex-col items-center justify-center"
-                            style="color: #9696969d"
+                            style="color: var(--ot-color-text-muted)"
                           >
                             {{ comment.text }}
                           </mat-card-content>
@@ -136,12 +135,14 @@
                       >
                         <mat-card appearance="outlined" class="w-full self-end">
                           <mat-card-header>
-                            <mat-icon class="m-auto" style="color: #9696969d">how_to_reg</mat-icon>
+                            <mat-icon class="m-auto" style="color: var(--ot-color-text-muted)"
+                              >how_to_reg</mat-icon
+                            >
                           </mat-card-header>
 
                           <mat-card-content
                             class="flex flex-col items-center justify-center"
-                            style="color: #9696969d"
+                            style="color: var(--ot-color-text-muted)"
                           >
                             {{ comment.text }}
                           </mat-card-content>
@@ -161,7 +162,7 @@
                     }
 
                     @case ('assessment') {
-                      <div class="comment-assessment mx-auto max-w-[350px] overflow-x-scroll">
+                      <div class="comment-assessment mx-auto max-w-87.5 overflow-x-scroll">
                         @if (
                           overseerEnabled && asAssessmentComment(comment);
                           as assessmentComment
@@ -185,9 +186,12 @@
 
                   <div class="bubble" [ngClass]="commentClasses(comment)">
                     @if (!!comment.replyToId) {
-                      <a
-                        class="original-comment"
-                        (click)="scrollToComment(comment.originalComment.id)"
+                      <button
+                        class="original-comment w-full text-left"
+                        type="button"
+                        [class.disabled]="!comment.originalComment"
+                        [disabled]="!comment.originalComment"
+                        (click)="scrollToComment(comment.originalComment?.id)"
                       >
                         <p class="reply-text">
                           <mat-icon inline>reply</mat-icon>
@@ -197,9 +201,33 @@
                               : 'comment removed'
                           }}
                         </p>
-                      </a>
+                      </button>
                     }
 
+                    @if (
+                      comment.commentType === 'document' || comment.commentType === 'spreadsheet'
+                    ) {
+                      <div class="flex max-w-full flex-col gap-2 p-3 break-all">
+                        <strong>{{ comment.attachmentFileName || 'Attachment' }}</strong>
+                        <span
+                          >{{
+                            comment.commentType === 'spreadsheet' ? 'Spreadsheet' : 'Document'
+                          }}
+                          · {{ comment.attachmentByteSize }} bytes · Download only</span
+                        >
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          [attr.aria-label]="
+                            'Download ' + (comment.attachmentFileName || 'attachment')
+                          "
+                          (click)="downloadAttachment(comment)"
+                        >
+                          <mat-icon aria-hidden="true">download</mat-icon>Download
+                        </button>
+                        <p>{{ comment.text }}</p>
+                      </div>
+                    }
                     @switch (comment.commentType) {
                       @case ('extension') {
                         <div class="comment-extension">
@@ -273,13 +301,20 @@
                           ></pdf-image-comment>
                         </div>
                       }
+
+                      @case ('document') {
+                        <sent-attachment-card
+                          action="download"
+                          [comment]="comment"
+                          (activate)="downloadCommentAttachment(comment)"
+                        ></sent-attachment-card>
+                      }
                     }
                   </div>
                   @if (comment.isBubbleComment) {
                     <div class="comment-overflow">
                       <comment-bubble-action
                         [comment]="comment"
-                        [hidden]="!comment.hover"
                         [sharedData]="sharedCommentComposerData"
                       ></comment-bubble-action>
                     </div>
@@ -304,10 +339,12 @@
         </span>
       </div>
     }
+    <div #conversationEnd aria-hidden="true" class="conversation-end"></div>
   </div>
   <!--/comment-list-->
-  <div class="comments-footer" id="commentComposerFoter">
+  <div #commentsFooter class="comments-footer" id="commentComposerFoter">
     <task-comment-composer
+      #commentComposer
       [sharedData]="sharedCommentComposerData"
       [task]="task"
     ></task-comment-composer>

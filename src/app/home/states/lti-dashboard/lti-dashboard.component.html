@@ -1,98 +1,81 @@
-<div class="h-screen w-full items-center justify-center px-12" id="home">
-  <div class="mx-auto flex h-screen w-full max-w-2xl flex-col items-center justify-center gap-3">
+<div class="flex min-h-screen w-full items-center justify-center px-4 sm:px-12" id="home">
+  <div class="mx-auto flex w-full max-w-2xl flex-col items-center justify-center gap-5 py-10">
     <div class="flex items-center justify-center">
       <mat-icon
-        aria-label="Formatif logo"
+        aria-hidden="true"
         class="formatif-icon size-[100px]"
         svgIcon="formatif-logo"
       ></mat-icon>
-      <h1 class="m-0 ml-3 text-4xl">OnTrack</h1>
+      <h1 class="m-0 ml-3 text-4xl font-semibold tracking-tight text-ot-text">OnTrack</h1>
     </div>
 
     @if (isLoading) {
       @if (unauthorised) {
-        <div class="w-full rounded-lg bg-red-200 p-3 text-center font-semibold text-red-800">
-          An error occurred. Please refresh the page.
+        <div class="lti-callout w-full" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <p class="m-0">
+            Something went wrong connecting to your course. Launch OnTrack from your course again.
+          </p>
         </div>
       } @else {
-        <!-- TODO: spinner -->
-        <p>Loading...</p>
+        <p class="m-0 flex items-center gap-3 text-ot-muted" role="status">
+          <mat-spinner aria-hidden="true" diameter="24"></mat-spinner>
+          Connecting to your course...
+        </p>
       }
     } @else {
-      <div class="flex justify-center gap-3">
-        @if (currentUser?.systemRole === 'Convenor' || currentUser?.systemRole === 'Admin') {
+      @if (canManageLink) {
+        <div class="flex flex-wrap justify-center gap-3">
           <button
-            aria-label=""
-            class="relative size-[60px]"
-            color="default"
-            mat-fab
-            matTooltip="Sync enrolments"
-            matTooltipPosition="above"
+            mat-stroked-button
+            type="button"
             [disabled]="!linkedUnit || isSyncingEnrolments || isSyncingGrades"
-            [ngClass]="{'bg-gray-300': isSyncingEnrolments}"
             (click)="syncEnrolments()"
           >
             @if (isSyncingEnrolments) {
-              <mat-spinner
-                class="absolute top-1/2 left-1/2 z-50 -translate-1/2"
-                diameter="35"
-              ></mat-spinner>
+              <mat-spinner aria-hidden="true" class="mr-2 inline-block" diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon aria-hidden="true">people</mat-icon>
             }
-            <mat-icon mat-icon-button>people</mat-icon>
+            {{ isSyncingEnrolments ? 'Syncing enrolments...' : 'Sync enrolments' }}
           </button>
           <button
-            aria-label=""
-            class="relative size-[60px]"
-            color="default"
-            mat-fab
-            matTooltip="Sync grades"
-            matTooltipPosition="above"
+            mat-stroked-button
+            type="button"
             [disabled]="!linkedUnit || isSyncingEnrolments || isSyncingGrades"
-            [ngClass]="{'bg-gray-300': isSyncingGrades}"
             (click)="syncStudentsGrades()"
           >
-            <mat-icon mat-icon-button>grade</mat-icon>
-
             @if (isSyncingGrades) {
-              <mat-spinner
-                class="absolute top-1/2 left-1/2 z-50 -translate-1/2"
-                diameter="35"
-              ></mat-spinner>
+              <mat-spinner aria-hidden="true" class="mr-2 inline-block" diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon aria-hidden="true">grade</mat-icon>
             }
+            {{ isSyncingGrades ? 'Syncing grades...' : 'Sync grades' }}
           </button>
-        }
-      </div>
+        </div>
+      }
       <button
-        class="my-3 h-[50px] w-full max-w-lg"
+        class="h-12 w-full max-w-lg"
         color="primary"
-        extended
-        mat-fab
-        target="_blank"
+        mat-flat-button
+        type="button"
         (click)="launchApplication()"
       >
-        <mat-icon>rocket_launch</mat-icon>
+        <mat-icon aria-hidden="true">rocket_launch</mat-icon>
         Launch {{ linkedUnit ? linkedUnit.code : 'OnTrack' }}
       </button>
-      <div class="mt-2.5 w-full text-center text-gray-300">
+      <div class="flex w-full flex-col items-center gap-1 text-center text-ot-muted">
         @if (linkedUnit) {
-          {{ linkedUnit.code }} &mdash; {{ linkedUnit.name }}
-          @if (currentUser?.systemRole === 'Convenor' || currentUser?.systemRole === 'Admin') {
-            <br />
-            <button class="text-blue-400 underline" mat-button (click)="removeLink()">
-              Unlink
-            </button>
+          <p class="m-0">{{ linkedUnit.code }} &mdash; {{ linkedUnit.name }}</p>
+          @if (canManageLink) {
+            <button mat-button type="button" (click)="removeLink()">Unlink this unit</button>
           }
         } @else {
-          This course has not yet been linked to an OnTrack Unit.
-
-          @if (currentUser?.systemRole === 'Convenor' || currentUser?.systemRole === 'Admin') {
-            <br />
-            <button class="text-blue-400 underline" mat-button (click)="goToLinkUnit()">
-              Link it now
-            </button>
+          <p class="m-0">This course has not been linked to an OnTrack unit yet.</p>
+          @if (canManageLink) {
+            <button mat-button type="button" (click)="goToLinkUnit()">Link it now</button>
           } @else {
-            <br />
-            Only OnTrack staff are permitted to link this course.
+            <p class="m-0">Only OnTrack staff can link this course.</p>
           }
         }
       </div>

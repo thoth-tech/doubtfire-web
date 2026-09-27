@@ -1,54 +1,55 @@
-<div class="flex flex-col">
-  <div class="flex flex-grow flex-row">
-    <table mat-table [dataSource]="dataSource">
+<div class="flex flex-col gap-3">
+  <div
+    class="relative overflow-x-auto"
+    [ngClass]="{'rounded-ot-md border border-ot-divider': staffView}"
+  >
+    <table class="w-full" mat-table [dataSource]="dataSource">
       <ng-container matColumnDef="task-definition">
         <th *matHeaderCellDef mat-header-cell>Task</th>
         <td
           *matCellDef="let link"
           mat-cell
-          [class.line-through]="link.hasMetRequiredState($safeNavigationMigration(task?.project))"
+          [class.line-through]="!staffView && link.hasMetRequiredState(task?.project)"
         >
-          {{ link.prerequisite?.abbreviation }} {{ link.prerequisite?.name }}
+          <span class="font-semibold tabular-nums">{{ link.prerequisite?.abbreviation }}</span>
+          {{ link.prerequisite?.name }}
         </td>
       </ng-container>
 
       <ng-container matColumnDef="minimum-required-state">
         <th *matHeaderCellDef mat-header-cell>
           @if (staffView) {
-            Minimum Required Status
+            Needs at least
           } @else {
             Current Status
           }
         </th>
         <td
           *matCellDef="let link"
+          class="py-2"
           mat-cell
-          [class.line-through]="link.hasMetRequiredState($safeNavigationMigration(task?.project))"
+          [class.line-through]="!staffView && link.hasMetRequiredState(task?.project)"
         >
           @if (!staffView) {
             <status-icon
               matBadgePosition="before"
-              [status]="
-                link.prerequisite?.projectTask($safeNavigationMigration(task?.project))?.status ??
-                'not_started'
-              "
+              [status]="link.prerequisite?.projectTask(task?.project)?.status ?? 'not_started'"
             ></status-icon>
           } @else {
-            @if (link.taskStatus) {
+            <mat-form-field appearance="outline" class="w-52" subscriptSizing="dynamic">
               <mat-select
-                matTooltip="Task must reach this state before students can submit"
-                matTooltipShowDelay="1000"
-                placeholder="Select required status"
+                placeholder="Pick a status"
+                [aria-label]="
+                  'Status ' + (link.prerequisite?.abbreviation ?? 'this task') + ' needs'
+                "
                 [(value)]="link.taskStatus"
                 (selectionChange)="updateTaskPrerequisite(link)"
               >
-                @for (state of stateOptions; track state) {
-                  <mat-option [value]="state.value">
-                    {{ state.label }}
-                  </mat-option>
+                @for (state of stateOptions; track state.value) {
+                  <mat-option [value]="state.value">{{ state.label }}</mat-option>
                 }
               </mat-select>
-            }
+            </mat-form-field>
           }
         </td>
       </ng-container>
@@ -56,23 +57,23 @@
       <ng-container matColumnDef="actions">
         <th *matHeaderCellDef class="whitespace-nowrap" mat-header-cell>
           @if (staffView) {
-            Actions
+            <span class="sr-only">Remove</span>
           } @else {
             Required Status
           }
         </th>
-        <td *matCellDef="let link" mat-cell>
+        <td *matCellDef="let link" class="w-12" mat-cell>
           @if (staffView) {
-            <td class="px-2 py-1 text-right">
-              <button
-                aria-label="Remove prerequisite"
-                color="warn"
-                mat-icon-button
-                (click)="removePrerequisite(link)"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
+            <button
+              class="text-ot-muted"
+              mat-icon-button
+              matTooltip="Remove this prerequisite"
+              type="button"
+              [attr.aria-label]="'Remove prerequisite ' + (link.prerequisite?.abbreviation ?? '')"
+              (click)="removePrerequisite(link)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
           } @else {
             <status-icon
               matBadgePosition="before"
@@ -83,37 +84,57 @@
       </ng-container>
       <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
       <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+      <tr *matNoDataRow class="mat-row">
+        <td class="mat-cell !border-b-0" [attr.colspan]="displayedColumns.length">
+          <f-empty-state
+            hint="Add a task that must be done first."
+            icon="account_tree"
+            message="No prerequisites"
+          ></f-empty-state>
+        </td>
+      </tr>
     </table>
   </div>
 
   @if (staffView) {
-    <div class="flex flex-grow flex-row items-center">
-      <mat-form-field appearance="outline" class="mt-[22px] w-full">
-        <input
-          matInput
-          placeholder="Select a task prerequisite"
-          type="text"
-          [formControl]="searchCtrl"
-          [matAutocomplete]="auto"
-          [(ngModel)]="selectedTaskPrerequisite"
-        />
+    @if (taskDefinition.isNew) {
+      <p
+        class="m-0 rounded-ot-md border border-dashed border-ot-border px-4 py-3 text-sm text-ot-muted"
+      >
+        Save the task first. Then you can add prerequisites.
+      </p>
+    } @else {
+      <div class="flex flex-wrap items-center gap-3">
+        <mat-form-field
+          appearance="outline"
+          class="min-w-0 flex-1 basis-64"
+          subscriptSizing="dynamic"
+        >
+          <mat-label>Add a prerequisite task</mat-label>
+          <mat-icon aria-hidden="true" class="text-ot-muted" matPrefix>search</mat-icon>
+          <input matInput type="text" [formControl]="searchCtrl" [matAutocomplete]="auto" />
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            [displayWith]="displayFn"
+            (optionSelected)="onPrerequisitePicked($event)"
+          >
+            @for (td of filteredTaskDefs; track td) {
+              <mat-option [value]="td">{{ td.abbreviation }} - {{ td.name }}</mat-option>
+            }
+          </mat-autocomplete>
+          <mat-hint>Only tasks at the same grade or lower can be prerequisites</mat-hint>
+        </mat-form-field>
         <button
-          class="mr-2.5"
           color="primary"
-          mat-raised-button
-          matSuffix
+          mat-flat-button
+          type="button"
           [disabled]="!selectedTaskPrerequisite"
           (click)="addTaskPrerequisite($event)"
         >
-          <mat-icon class="icon_display">add</mat-icon>
+          <mat-icon aria-hidden="true">add</mat-icon>
           Add
         </button>
-        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-          @for (td of filteredTaskDefs; track td) {
-            <mat-option [value]="td"> {{ td.abbreviation }} - {{ td.name }} </mat-option>
-          }
-        </mat-autocomplete>
-      </mat-form-field>
-    </div>
+      </div>
+    }
   }
 </div>

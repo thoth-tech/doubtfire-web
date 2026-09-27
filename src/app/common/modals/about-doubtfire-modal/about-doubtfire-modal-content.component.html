@@ -1,0 +1,159 @@
+<header class="about__header">
+  <img alt="" class="about__logo" src="/assets/images/logo.svg" />
+  <div class="about__identity">
+    <h2 class="about__name" id="about-dialog-title" mat-dialog-title>
+      {{ data.externalName }}
+      @if (data.externalName === 'Doubtfire') {
+        <span class="about__version">Version 6</span>
+      }
+    </h2>
+    <p class="about__tagline">Task-based learning, feedback and portfolio assessment.</p>
+  </div>
+</header>
+
+<mat-dialog-content class="about__content">
+  <section aria-labelledby="about-lead-heading" class="about__section">
+    <h3 class="about__label" id="about-lead-heading">
+      <mat-icon aria-hidden="true" class="about__label-icon">workspace_premium</mat-icon>
+      Lead contributors
+    </h3>
+    <ul class="about__lead-grid">
+      @for (person of data.mainContributors; track person.login; let i = $index) {
+        <li class="about__card" [style.--about-i]="i">
+          <img
+            class="about__avatar"
+            height="80"
+            width="80"
+            [alt]="person.name || person.login"
+            [src]="person.avatar_url"
+          />
+          <div class="about__person">
+            <span class="about__person-name">{{ person.name || person.login }}</span>
+            <span class="about__person-login">&#64;{{ person.login }}</span>
+          </div>
+          @if (person.html_url) {
+            <a
+              class="about__icon-link"
+              mat-icon-button
+              rel="noopener noreferrer"
+              target="_blank"
+              [attr.aria-label]="(person.name || person.login) + ' on GitHub (opens in a new tab)'"
+              [href]="person.html_url"
+            >
+              <mat-icon aria-hidden="true">open_in_new</mat-icon>
+            </a>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="about-contributors-heading" class="about__section">
+    <h3 class="about__label" id="about-contributors-heading">
+      <mat-icon aria-hidden="true" class="about__label-icon">groups</mat-icon>
+      Contributors
+    </h3>
+    <div aria-label="All contributors" class="about__table-frame" role="region" tabindex="0">
+      <table
+        class="about__table"
+        mat-table
+        matSort
+        [dataSource]="data.allContributors"
+        (matSortChange)="sortData($event)"
+      >
+        <!-- Login Column -->
+        <ng-container matColumnDef="contributor">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Contributor</th>
+          <td *matCellDef="let element" mat-cell>
+            <a
+              class="about__table-person"
+              rel="noopener noreferrer"
+              target="_blank"
+              [href]="element.htmlUrl"
+            >
+              <img
+                alt=""
+                class="about__table-avatar"
+                height="32"
+                loading="lazy"
+                width="32"
+                [src]="element.avatarUrl"
+              />
+              <span class="about__table-login">&#64;{{ element.login }}</span>
+            </a>
+          </td>
+        </ng-container>
+        <!-- Contributions Column -->
+        <ng-container matColumnDef="contributions">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Contributions</th>
+          <td *matCellDef="let element" mat-cell>{{ element.totalContributions }}</td>
+        </ng-container>
+        <!-- API Contributions Column -->
+        <ng-container matColumnDef="api-contributions">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>API</th>
+          <td *matCellDef="let element" mat-cell>{{ element.apiContributions }}</td>
+        </ng-container>
+        <!-- Web Contributions Column -->
+        <ng-container matColumnDef="web-contributions">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Web</th>
+          <td *matCellDef="let element" mat-cell>{{ element.webContributions }}</td>
+        </ng-container>
+        <!-- Deploy Contributions Column -->
+        <ng-container matColumnDef="deploy-contributions">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Deploy</th>
+          <td *matCellDef="let element" mat-cell>{{ element.deployContributions }}</td>
+        </ng-container>
+        <!-- Doubtfire.io Contributions Column -->
+        <ng-container matColumnDef="io-contributions">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>doubtfire.io</th>
+          <td *matCellDef="let element" mat-cell>{{ element.ioContributions }}</td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+        <tr *matNoDataRow class="mat-row">
+          <td class="mat-cell !border-b-0" [attr.colspan]="displayedColumns.length">
+            <f-empty-state icon="group_off" message="No contributors to show"></f-empty-state>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="about-open-source-heading" class="about__section">
+    <h3 class="about__label" id="about-open-source-heading">
+      <mat-icon aria-hidden="true" class="about__label-icon">code</mat-icon>
+      Open source
+    </h3>
+    <div class="about__open-source">
+      <p class="about__note">
+        {{ data.externalName }} is licensed under the GNU Affero General Public License (AGPL) v3.0.
+        <span class="about__note-muted">&copy; 2012&ndash;2023. Made in Melbourne.</span>
+      </p>
+      <div class="about__source-links">
+        <a
+          href="https://github.com/doubtfire-lms"
+          mat-stroked-button
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <mat-icon aria-hidden="true">hub</mat-icon>
+          Organisation
+        </a>
+        <a
+          href="https://github.com/doubtfire-lms/doubtfire-web"
+          mat-stroked-button
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <mat-icon aria-hidden="true">star</mat-icon>
+          Star on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="about__actions">
+  <button mat-dialog-close mat-stroked-button type="button">Close</button>
+</mat-dialog-actions>

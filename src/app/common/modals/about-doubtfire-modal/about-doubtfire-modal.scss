@@ -1,0 +1,397 @@
+// About dialog. Theme tokens only, so light and dark both follow the resolved theme.
+// Spacing sits on a 24px dialog gutter with 16px and 8px steps inside it.
+
+$ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+$gutter: 24px;
+
+:host {
+  // Material renders the dialog host as display: contents, so it is left alone and
+  // only carries inherited values.
+  color: var(--ot-color-text);
+
+  // The dark border token sits just above the surface, so it reads as an edge. In
+  // light the same token is a strong grey, so the card edge is softened towards it.
+  --about-card-border: color-mix(in srgb, var(--ot-color-border) 45%, var(--ot-color-surface));
+}
+
+:host-context([data-ot-theme='dark']) {
+  --about-card-border: var(--ot-color-border);
+}
+
+// --- Header ---------------------------------------------------------------
+
+.about__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: $gutter $gutter 16px;
+}
+
+.about__logo {
+  flex: none;
+  width: 40px;
+  height: 40px;
+}
+
+.about__identity {
+  min-width: 0;
+}
+
+// Material's dialog title brings its own padding and a 40px baseline strut. The
+// header owns the spacing here, so both are cleared.
+.about__name.mat-mdc-dialog-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin: 0;
+  padding: 0;
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ot-color-text);
+
+  &::before {
+    display: none;
+  }
+}
+
+.about__version {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ot-color-text-muted);
+}
+
+.about__tagline {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--ot-color-text-muted);
+}
+
+// --- Body -----------------------------------------------------------------
+
+.about__content.mat-mdc-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: $gutter;
+  padding: 8px $gutter $gutter;
+  color: var(--ot-color-text);
+  container-type: inline-size;
+}
+
+.about__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.about__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ot-color-text);
+}
+
+.about__label-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  color: var(--ot-color-text-muted);
+}
+
+// --- Lead contributor cards -----------------------------------------------
+
+.about__lead-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@container (min-width: 440px) {
+  .about__lead-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 640px) {
+  .about__lead-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.about__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px 16px 16px;
+  border: 1px solid var(--about-card-border);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface);
+  text-align: center;
+  animation: about-card-in 200ms $ease-out both;
+  animation-delay: calc(var(--about-i, 0) * 50ms);
+}
+
+@keyframes about-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.about__avatar {
+  display: block;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--ot-radius-circle);
+  object-fit: cover;
+  background: var(--ot-color-surface-raised);
+  box-shadow:
+    0 0 0 3px var(--ot-color-surface),
+    0 0 0 4px var(--about-card-border);
+  transition: transform 200ms $ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .about__card:hover .about__avatar {
+    transform: translateY(-2px);
+  }
+}
+
+.about__person {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.about__person-name {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ot-color-text);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.about__person-login {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--ot-color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+// A small outlined icon button, pinned to the card foot so buttons line up across
+// cards of equal height.
+.about__icon-link.mat-mdc-icon-button {
+  --mat-icon-button-state-layer-size: 36px;
+  --mat-icon-button-icon-size: 18px;
+  margin-top: auto;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  border: 1px solid var(--about-card-border);
+  border-radius: var(--ot-radius-circle);
+  color: var(--ot-color-text-muted);
+
+  .mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    line-height: 18px;
+  }
+}
+
+// One column: a compact row per person, so a phone does not stack three tall cards.
+// The link sits under the name so the name keeps the full text column and wraps
+// only at a space.
+@container (max-width: 439px) {
+  .about__card {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 8px;
+    padding: 16px;
+    text-align: start;
+  }
+
+  .about__avatar {
+    grid-row: span 2;
+    width: 72px;
+    height: 72px;
+  }
+
+  .about__person {
+    align-self: end;
+  }
+
+  .about__person-name,
+  .about__person-login {
+    overflow-wrap: break-word;
+  }
+
+  .about__icon-link.mat-mdc-icon-button {
+    align-self: start;
+    justify-self: start;
+    margin-top: 0;
+  }
+}
+
+// --- Contributors table ---------------------------------------------------
+
+.about__table-frame {
+  overflow-x: auto;
+  border: 1px solid var(--about-card-border);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface);
+}
+
+// The frame scrolls sideways on wider dialogs, so it takes keyboard focus as a region.
+.about__table-frame:focus-visible,
+.about__table-person:focus-visible {
+  outline: 2px solid var(--ot-color-focus);
+  outline-offset: 3px;
+}
+
+.about__table {
+  --mat-table-background-color: transparent;
+  width: 100%;
+  background: transparent;
+
+  .mat-mdc-header-cell {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--ot-color-text-muted);
+  }
+
+  .mat-mdc-cell {
+    color: var(--ot-color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mat-mdc-row:last-of-type .mat-mdc-cell {
+    border-bottom: 0;
+  }
+}
+
+.about__table-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding-block: 8px;
+  color: var(--ot-color-text);
+  text-decoration: none;
+
+  &:hover .about__table-login {
+    color: var(--ot-color-link);
+    text-decoration: underline;
+  }
+}
+
+.about__table-avatar {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--ot-radius-circle);
+  background: var(--ot-color-surface-raised);
+}
+
+.about__table-login {
+  overflow-wrap: anywhere;
+}
+
+// Narrow dialogs keep the contributor and total, and drop the per-repository split,
+// so the table never scrolls sideways on a phone.
+@container (max-width: 559px) {
+  // Sub-pixel column widths can leave a 1px overflow that would show a scrollbar.
+  .about__table-frame {
+    overflow-x: clip;
+  }
+
+  .about__table {
+    .mat-column-api-contributions,
+    .mat-column-web-contributions,
+    .mat-column-deploy-contributions,
+    .mat-column-io-contributions {
+      display: none;
+    }
+
+    .mat-mdc-header-cell,
+    .mat-mdc-cell {
+      padding-inline: 12px 8px;
+    }
+
+    .about__table-person {
+      gap: 8px;
+    }
+  }
+}
+
+// --- Open source ----------------------------------------------------------
+
+.about__open-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+}
+
+.about__note {
+  flex: 1 1 260px;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ot-color-text);
+}
+
+.about__note-muted {
+  display: block;
+  color: var(--ot-color-text-muted);
+}
+
+.about__source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// --- Footer ---------------------------------------------------------------
+
+.about__actions.mat-mdc-dialog-actions {
+  gap: 8px;
+  min-height: 0;
+  padding: 8px $gutter $gutter;
+}
+
+// --- Reduced motion -------------------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .about__card {
+    animation: none;
+  }
+
+  .about__avatar {
+    transition: none;
+  }
+
+  .about__card:hover .about__avatar {
+    transform: none;
+  }
+}

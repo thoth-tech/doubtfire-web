@@ -3,33 +3,36 @@
     aria-label="React to this comment">
     <mat-icon>tag_faces</mat-icon>
   </button> -->
-  <mat-icon
-    aria-label="Example icon-button with a heart icon"
+  <button
+    aria-label="Reply to this comment"
+    class="bubble-action"
     matTooltip="Reply to this comment"
     matTooltipPosition="above"
     type="button"
     (click)="reply()"
   >
-    reply</mat-icon
-  >
-  <mat-icon
+    <mat-icon>reply</mat-icon>
+  </button>
+  <button
     aria-label="Edit this comment"
+    class="bubble-action"
     matTooltip="Edit this comment"
     matTooltipPosition="above"
     type="button"
     [hidden]="!comment.currentUserCanEdit"
     (click)="edit()"
   >
-    edit</mat-icon
-  >
-  <mat-icon
-    aria-label="Example icon-button with a heart icon"
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button
+    aria-label="Delete this comment"
+    class="bubble-action"
     matTooltip="Delete this comment"
     matTooltipPosition="above"
     type="button"
     [hidden]="!comment.currentUserCanDelete"
     (click)="delete()"
   >
-    delete</mat-icon
-  >
+    <mat-icon>delete</mat-icon>
+  </button>
 </div>

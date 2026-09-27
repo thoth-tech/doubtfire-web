@@ -1,15 +1,15 @@
-<section class="welcome custom-md-h-screen flex flex-row">
+<section class="welcome signed-out-shell flex flex-row">
   <f-hero-sidebar class="sidebar h-full flex-col self-start"></f-hero-sidebar>
-  <section class="content custom-md-h-screen flex flex-col">
+  <section class="content signed-out-content flex min-w-0 flex-1 flex-col">
     @if (!isLoading) {
       @if (!isLoading) {
-        <div class="m-auto w-full max-w-md p-4">
+        <div class="signed-out-card m-auto w-full max-w-md p-4">
           <div class="subcontainer">
-            <div class="wordmark flex-row place-content-start">
-              <img alt="Homepage Logo" src="../../../assets/images/logo-bw.svg" width="40px" />
+            <div class="wordmark flex-row items-center justify-center text-center">
+              <img alt="OnTrack logo" src="/assets/images/logo.svg" width="40px" />
               <p>{{ externalName.value }}</p>
             </div>
-            <h1 class="welcome-heading flex flex-row place-content-start">
+            <h1 class="welcome-heading flex flex-row justify-center text-center">
               Welcome to {{ externalName.value }}
             </h1>
             <form
@@ -27,13 +27,20 @@
               @if (showCredentials) {
                 <mat-form-field appearance="outline" class="size-full flex-1">
                   <mat-label>Username</mat-label>
-                  <input matInput name="username" required [(ngModel)]="formData.username" />
+                  <input
+                    autocomplete="username"
+                    matInput
+                    name="username"
+                    required
+                    [(ngModel)]="formData.username"
+                  />
                 </mat-form-field>
               }
               @if (showCredentials) {
                 <mat-form-field appearance="outline" class="size-full flex-1">
                   <mat-label>Password</mat-label>
                   <input
+                    autocomplete="current-password"
                     matInput
                     name="password"
                     required
@@ -67,6 +74,7 @@
                 </div>
               </button>
             </form>
+            <f-pwa-install-button></f-pwa-install-button>
           </div>
         </div>
       }

@@ -11,7 +11,8 @@ import {GithubProfile} from './github-profile';
 
 @Component({
   selector: 'about-doubtfire-dialog',
-  templateUrl: 'about-doubtfire-modal-content.tpl.html',
+  templateUrl: 'about-doubtfire-modal-content.component.html',
+  styleUrls: ['about-doubtfire-modal.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
@@ -35,7 +36,7 @@ export class AboutDoubtfireModalContent {
 /**
  * The about doubtfire modal service - used to create and show the modal
  */
-// eslint-disable-next-line max-classes-per-file
+
 @Injectable()
 export class AboutDoubtfireModal {
   private loaded: boolean;

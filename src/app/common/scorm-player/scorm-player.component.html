@@ -1,3 +1,8 @@
 @if (iframeSrc) {
-  <iframe [src]="iframeSrc"></iframe>
+  <iframe
+    data-sentry-block
+    referrerpolicy="no-referrer"
+    title="SCORM activity"
+    [src]="iframeSrc"
+  ></iframe>
 }

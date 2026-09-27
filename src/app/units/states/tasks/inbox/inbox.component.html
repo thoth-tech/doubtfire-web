@@ -1,46 +1,84 @@
 <ng-template #TaskListSkeleton>
-  <div class="h-full overflow-hidden">
-    <ngx-skeleton-loader
-      [theme]="{height: '48px', 'border-radius': '16px', margin: '0 0 14px'}"
-    ></ngx-skeleton-loader>
-    @for (row of [0, 1, 2, 3, 4, 5, 6, 7]; track row) {
-      <div class="flex h-[60px] items-center gap-[10px] px-[6px]">
-        <ngx-skeleton-loader
-          appearance="circle"
-          [theme]="{width: '8px', height: '8px', margin: '0'}"
-        ></ngx-skeleton-loader>
-        <ngx-skeleton-loader
-          appearance="circle"
-          [theme]="{width: '30px', height: '30px', margin: '0'}"
-        ></ngx-skeleton-loader>
-        <div class="min-w-0 flex-1">
-          <ngx-skeleton-loader
-            [theme]="{height: '10px', width: '78%', 'border-radius': '999px', margin: '6px 0'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            [theme]="{height: '10px', width: '56%', 'border-radius': '999px', margin: '6px 0'}"
-          ></ngx-skeleton-loader>
-        </div>
-        <ngx-skeleton-loader
-          appearance="circle"
-          [theme]="{width: '32px', height: '32px', margin: '0'}"
-        ></ngx-skeleton-loader>
-      </div>
-    }
+  <div aria-busy="true" aria-label="Loading task inbox" class="h-full overflow-hidden">
+    <f-skeleton-loader shape="row" [count]="1"></f-skeleton-loader>
+    <f-skeleton-loader shape="list-row" [count]="8"></f-skeleton-loader>
   </div>
 </ng-template>
 
 <ng-template #BlankPanelSkeleton>
-  <ngx-skeleton-loader
+  <f-skeleton-loader
     class="block size-full"
-    [theme]="{height: '100%', width: '100%', 'border-radius': '8px', margin: '0'}"
-  ></ngx-skeleton-loader>
+    shape="card"
+    [count]="1"
+    [theme]="{height: '100%'}"
+  ></f-skeleton-loader>
+</ng-template>
+
+<!-- The heading row of the comments overlay on a phone. -->
+<ng-template #CommentsHeader>
+  <div class="flex h-12 shrink-0 items-center gap-2 border-b border-ot-divider pr-1 pl-3">
+    <mat-icon aria-hidden="true" class="!size-5 shrink-0 !text-xl !leading-none text-ot-muted"
+      >forum</mat-icon
+    >
+    <h2 class="m-0 min-w-0 flex-1 truncate text-base font-semibold text-ot-text">Comments</h2>
+    @if (isCommentsNarrow && !commentsCollapsed) {
+      <button
+        aria-label="Hide comments"
+        mat-icon-button
+        matTooltip="Hide comments"
+        type="button"
+        (click)="toggleCommentsPanel()"
+      >
+        <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      </button>
+    }
+  </div>
+</ng-template>
+
+<ng-template #CommentsBody>
+  @if (loading) {
+    <div class="min-h-0 flex-1 p-2">
+      <ng-container *ngTemplateOutlet="BlankPanelSkeleton"></ng-container>
+    </div>
+  } @else if (taskData?.selectedTask) {
+    <task-comments-viewer
+      class="block min-h-0 flex-1"
+      [task]="taskData.selectedTask"
+    ></task-comments-viewer>
+  } @else {
+    <div class="flex min-h-0 flex-1 items-center justify-center px-4">
+      <f-empty-state
+        hint="Comments for the task you select show here."
+        icon="forum"
+        message="No task selected"
+      ></f-empty-state>
+    </div>
+  }
 </ng-template>
 
 @if (!isMobileView) {
-  <div class="min-h-0 px-3" fxFill fxHide fxLayout="column" fxShow.gt-xs>
-    <div class="min-h-0" fxFlex fxLayout="row" fxLayoutAlign="center stretch">
-      <div #inboxpanel class="staff-task-list inbox-panel overflow-hidden" id="inboxpanel">
+  <!-- The shared panel layout: list, task and comments in an even 12px frame, with the
+       marking bar below running edge to edge. -->
+  <div class="flex size-full min-h-0 flex-col">
+    <app-panel-layout
+      class="min-h-0 flex-1"
+      [page]="panelPage"
+      [(activePanel)]="activePanel"
+      [(fullscreenPanel)]="fullscreenPanel"
+    >
+      <app-panel
+        #inboxpanel
+        bodyClass="p-2"
+        icon="inbox"
+        id="inboxpanel"
+        panelId="list"
+        panelTitle="Task list"
+        resizeEdge="end"
+        [maxWidth]="500"
+        [minWidth]="panelMinWidths.list"
+        [showHeader]="false"
+        [width]="350"
+      >
         @if (loading) {
           <ng-container *ngTemplateOutlet="TaskListSkeleton"></ng-container>
         } @else if (taskData) {
@@ -54,21 +92,18 @@
             [viewType]="viewType"
           ></df-staff-task-list>
         }
-      </div>
-      @if (subs$ | async) {
-        <div
-          #leftResizerEl
-          cdkDrag
-          cdkDragLockAxis="x"
-          class="resizer"
-          id="leftResizerEl"
-          (cdkDragEnded)="stoppedDragging($event, inboxpanel)"
-          (cdkDragMoved)="dragging($event, inboxpanel)"
-          (cdkDragStarted)="startedDragging($event, inboxpanel)"
-        ></div>
-      }
+      </app-panel>
 
-      <div class="inbox-panel overflow-hidden" fxFlex>
+      <app-panel
+        bodyClass="p-1"
+        icon="assignment"
+        panelId="task"
+        panelTitle="Selected task"
+        [collapsible]="false"
+        [flex]="true"
+        [minWidth]="panelMinWidths.task"
+        [showHeader]="false"
+      >
         @if (loading) {
           <ng-container *ngTemplateOutlet="BlankPanelSkeleton"></ng-container>
         } @else {
@@ -77,64 +112,36 @@
             (visiblePdfUrlChange)="visiblePdfUrl = $event"
           ></f-inbox-dashboard>
         }
-      </div>
-      @if (isCommentsNarrow && commentsCollapsed && !loading && taskData?.selectedTask) {
-        <button
-          aria-label="Open task comments"
-          class="comments-floating-toggle"
-          color="primary"
-          mat-mini-fab
-          matTooltip="Open comments"
-          type="button"
-          (click)="toggleCommentsPanel()"
-        >
-          <mat-icon class="comments-floating-toggle__edge-icon">chevron_left</mat-icon>
-          <mat-icon class="comments-floating-toggle__hover-icon">forum</mat-icon>
-        </button>
-      }
-      <div
-        #rightResizerEl
-        cdkDrag
-        cdkDragLockAxis="x"
-        class="resizer"
-        id="rightResizerEl"
-        [class.hidden]="isCommentsNarrow"
-        (cdkDragEnded)="stoppedDragging($event, commentspanel)"
-        (cdkDragMoved)="dragging($event, commentspanel)"
-        (cdkDragStarted)="startedDragging($event, commentspanel)"
-      ></div>
-      <div
-        #commentspanel
-        class="task-comment-panel comments-sidebar inbox-panel overflow-hidden"
-        [class.comments-sidebar--narrow]="isCommentsNarrow"
-        [class.hidden]="commentsPanelCollapsed"
+      </app-panel>
+
+      <app-panel
+        class="inbox-comments"
+        icon="forum"
+        panelId="comments"
+        panelTitle="Comments"
+        resizeEdge="start"
+        [fullscreenable]="!!taskData?.selectedTask"
+        [maxWidth]="500"
+        [minWidth]="panelMinWidths.comments"
+        [width]="350"
       >
-        @if (isCommentsNarrow && !commentsCollapsed) {
-          <button
-            aria-label="Collapse task comments"
-            class="comments-sidebar__collapse"
-            mat-icon-button
-            matTooltip="Collapse comments"
-            type="button"
-            (click)="toggleCommentsPanel()"
-          >
-            <mat-icon>chevron_right</mat-icon>
-          </button>
+        @if (fullscreenPanel === 'comments' && taskData?.selectedTask) {
+          <span class="ml-1.5 font-normal text-ot-muted" panelSubtitle>
+            {{ taskData.selectedTask.definition?.abbreviation }} ·
+            {{ taskData.selectedTask.project?.student?.name }}
+          </span>
         }
-        @if (loading) {
-          <ng-container *ngTemplateOutlet="BlankPanelSkeleton"></ng-container>
-        } @else {
-          <task-comments-viewer [task]="taskData.selectedTask"> </task-comments-viewer>
-        }
-      </div>
-    </div>
+        <ng-container *ngTemplateOutlet="CommentsBody"></ng-container>
+      </app-panel>
+    </app-panel-layout>
     <f-footer class="z-10 shrink-0" [viewType]="viewType"></f-footer>
   </div>
 } @else {
-  <div #mobile fxFill fxHide fxLayout="row" fxShow.xs>
-    <div
+  <div class="flex size-full min-h-0 flex-col">
+    <section
       #inboxpanel
-      class="inbox-panel mobile overflow-hidden"
+      aria-label="Task list"
+      class="inbox-panel min-h-0 flex-1 overflow-hidden bg-ot-surface p-2"
       id="inboxpanel"
       [hidden]="taskSelected"
     >
@@ -151,39 +158,59 @@
           [viewType]="viewType"
         ></df-staff-task-list>
       }
-    </div>
-    <div fxFill fxLayout="column" fxLayoutAlign="space-between stretch" [hidden]="!taskSelected">
-      <div class="flex items-center">
+    </section>
+    <div
+      class="min-h-0 flex-1 flex-col"
+      [hidden]="!taskSelected"
+      [ngClass]="taskSelected ? 'flex' : 'hidden'"
+    >
+      <div class="flex shrink-0 items-center gap-1 border-b border-ot-divider bg-ot-surface pr-1">
         <button
-          aria-label="Back to inbox"
+          aria-label="Back to the task list"
           mat-icon-button
-          matTooltip="Back to inbox"
+          matTooltip="Back to the task list"
+          type="button"
           (click)="taskSelected = false"
         >
-          <mat-icon>arrow_back_ios_new</mat-icon>
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>
         </button>
-        <h3 class="mb-0">{{ taskData?.selectedTask?.project.student.nickname }}</h3>
-        <div fxFlex></div>
+        <div class="min-w-0 flex-1">
+          <p class="m-0 truncate text-sm font-semibold text-ot-text">
+            {{
+              taskData?.selectedTask?.project?.student?.displayName ||
+                taskData?.selectedTask?.project?.student?.name
+            }}
+          </p>
+          <p class="m-0 truncate text-xs text-ot-muted">
+            {{ taskData?.selectedTask?.definition?.abbreviation }}
+            {{ taskData?.selectedTask?.definition?.name }}
+          </p>
+        </div>
         <button
-          aria-label="Open current document"
+          aria-label="Download this document"
           mat-icon-button
-          matTooltip="Open current document"
+          matTooltip="Download this document"
+          type="button"
           [disabled]="!visiblePdfUrl"
           (click)="openPdfInNewTab()"
         >
-          <mat-icon>description</mat-icon>
+          <mat-icon aria-hidden="true">download</mat-icon>
         </button>
         <button
-          aria-label="Go to student"
+          aria-label="Open the student's page"
           mat-icon-button
-          matTooltip="Go to student"
+          matTooltip="Open the student's page"
+          type="button"
           (click)="goToStudent()"
         >
-          <mat-icon>account_circle</mat-icon>
+          <mat-icon aria-hidden="true">account_circle</mat-icon>
         </button>
       </div>
 
-      <div class="inbox-panel mobile overflow-hidden" fxFlex>
+      <section
+        aria-label="Selected task"
+        class="inbox-panel min-h-0 flex-1 overflow-hidden bg-ot-surface"
+      >
         @if (loading) {
           <ng-container *ngTemplateOutlet="BlankPanelSkeleton"></ng-container>
         } @else {
@@ -192,41 +219,46 @@
             (visiblePdfUrlChange)="visiblePdfUrl = $event"
           ></f-inbox-dashboard>
         }
-      </div>
+      </section>
       @if (isCommentsNarrow && commentsCollapsed && !loading && taskData?.selectedTask) {
         <button
-          aria-label="Open task comments"
+          aria-label="Show comments"
           class="comments-floating-toggle"
           color="primary"
           mat-mini-fab
-          matTooltip="Open comments"
+          matTooltip="Show comments"
           type="button"
           (click)="toggleCommentsPanel()"
         >
-          <mat-icon class="comments-floating-toggle__edge-icon">chevron_left</mat-icon>
-          <mat-icon class="comments-floating-toggle__hover-icon">forum</mat-icon>
+          <mat-icon aria-hidden="true" class="comments-floating-toggle__edge-icon">
+            chevron_left
+          </mat-icon>
+          <mat-icon aria-hidden="true" class="comments-floating-toggle__hover-icon">forum</mat-icon>
         </button>
       }
-      <div
-        class="task-comment-panel comments-sidebar comments-sidebar--mobile inbox-panel overflow-hidden"
-        [class.hidden]="commentsPanelCollapsed || !taskData?.selectedTask"
+      <section
+        aria-label="Comments"
+        class="comments-sidebar comments-sidebar--mobile flex-col overflow-hidden bg-ot-surface"
+        [ngClass]="commentsPanelCollapsed || !taskData?.selectedTask ? 'hidden' : 'flex'"
       >
-        @if (isCommentsNarrow && !commentsCollapsed) {
-          <button
-            aria-label="Collapse task comments"
-            class="comments-sidebar__collapse"
-            mat-icon-button
-            matTooltip="Collapse comments"
-            type="button"
-            (click)="toggleCommentsPanel()"
-          >
-            <mat-icon>chevron_right</mat-icon>
-          </button>
-        }
-        @if (!loading && taskData?.selectedTask) {
-          <task-comments-viewer [task]="taskData.selectedTask"> </task-comments-viewer>
-        }
-      </div>
+        <ng-container *ngTemplateOutlet="CommentsHeader"></ng-container>
+        <ng-container *ngTemplateOutlet="CommentsBody"></ng-container>
+      </section>
+      <f-footer
+        class="z-10 block shrink-0"
+        role="region"
+        [attr.aria-label]="
+          taskData?.selectedTask
+            ? 'Assessment actions for ' +
+              taskData.selectedTask.definition.abbreviation +
+              ', ' +
+              (taskData.selectedTask.project.student.displayName ||
+                taskData.selectedTask.project.student.name ||
+                'selected student')
+            : 'Assessment actions'
+        "
+        [viewType]="viewType"
+      ></f-footer>
     </div>
   </div>
 }

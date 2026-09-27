@@ -1,175 +1,271 @@
-<div class="flex h-full flex-col">
-  <!-- @if (!loadingStaffNotes && project?.staffNoteCount === 0) {
-    <div class="flex justify-center items-center w-full h-full text-gray-300">
-      No staff notes for {{ project.student.preferredName }} {{ project.student.lastName }}
-    </div>
-  } -->
-  <div #tutorNotesContainer class="flex-1 overflow-auto p-2.5">
-    @if (!loadingTutorNotes) {
-      @for (note of filteredNotes; track note) {
-        @if (note.replyToId) {
-          <div
-            class="flex items-center justify-between rounded-t-md border border-gray-300 p-1 text-sm select-none"
-          >
-            <div
-              class="flex items-center"
-              [ngClass]="note.replyTo && 'cursor-pointer hover:text-blue-500 hover:underline'"
-              (click)="scrollToNote(note.replyTo)"
-            >
-              <mat-icon class="mr-2">reply</mat-icon>
-              <div class="flex flex-col">
-                @if (note.replyTo) {
-                  <span class="font-medium">
-                    Replying to {{ note.replyTo.user.preferredName }}
-                    {{ note.replyTo.user.lastName }} ({{ note.replyTo.user.nickname }})
-                  </span>
-                  <span class="text-xs text-gray-600">{{ note.replyTo.note }}</span>
+<!-- The list keeps a usable height. When the space is too short for it and the footer,
+     the whole block scrolls instead, so Submit can never be cut off. -->
+<div class="flex h-full min-h-0 flex-col overflow-y-auto">
+  <div #tutorNotesContainer class="min-h-40 flex-1 overflow-auto p-4">
+    @if (loadingTutorNotes) {
+      <div
+        aria-label="Loading the notes"
+        class="flex min-h-40 items-center justify-center"
+        role="status"
+      >
+        <mat-spinner [diameter]="32"></mat-spinner>
+      </div>
+    } @else if (loadError) {
+      <div class="flex flex-col items-center">
+        <f-empty-state
+          hint="Check your connection, then try again."
+          icon="cloud_off"
+          message="The notes did not load"
+        ></f-empty-state>
+        <button mat-stroked-button type="button" (click)="loadNotes()">Try again</button>
+      </div>
+    } @else if (allNotes.length === 0) {
+      <f-empty-state
+        hint="Notes staff leave about marking and feedback will show here."
+        icon="rate_review"
+        message="No moderation notes yet"
+      ></f-empty-state>
+    } @else if (filteredNotes.length === 0) {
+      <f-empty-state
+        hint="Pick All tasks below to see every note."
+        icon="filter_list"
+        message="No notes for the selected tasks"
+      ></f-empty-state>
+    } @else {
+      <ol class="m-0 flex list-none flex-col gap-3 p-0">
+        @for (note of filteredNotes; track note) {
+          <li class="note-card rounded-ot-lg border border-ot-divider p-3" [id]="'note-' + note.id">
+            <div class="flex items-start gap-3">
+              <user-icon
+                aria-hidden="true"
+                class="mt-0.5 shrink-0"
+                [size]="32"
+                [user]="note.user"
+              ></user-icon>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="m-0 flex min-w-0 flex-wrap items-baseline gap-x-2 pt-1.5">
+                    <span class="min-w-0 truncate text-sm font-semibold text-ot-text">
+                      {{ note.user?.displayName }}
+                    </span>
+                    <span
+                      class="text-xs text-ot-muted"
+                      matTooltipPosition="above"
+                      matTooltipShowDelay="1000"
+                      [matTooltip]="note.createdAt | localizedDateTime"
+                    >
+                      {{ note.createdAt | humanizedDate }}
+                    </span>
+                  </p>
+                  <div class="note-actions flex shrink-0 items-center">
+                    @if (note.authorIsMe) {
+                      <button
+                        aria-label="Edit this note"
+                        class="note-action"
+                        mat-icon-button
+                        matTooltip="Edit this note"
+                        type="button"
+                        (click)="editNote(note)"
+                      >
+                        <mat-icon aria-hidden="true" class="!size-5 !text-xl">edit</mat-icon>
+                      </button>
+                    }
+                    <button
+                      aria-label="Reply to this note"
+                      class="note-action"
+                      mat-icon-button
+                      matTooltip="Reply to this note"
+                      type="button"
+                      (click)="replyToNote(note)"
+                    >
+                      <mat-icon aria-hidden="true" class="!size-5 !text-xl">reply</mat-icon>
+                    </button>
+                    <button
+                      aria-label="Delete this note"
+                      class="note-action"
+                      mat-icon-button
+                      matTooltip="Delete this note"
+                      type="button"
+                      (click)="deleteNote(note)"
+                    >
+                      <mat-icon aria-hidden="true" class="!size-5 !text-xl">delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                @if (note.replyToId) {
+                  @if (note.replyTo) {
+                    <button
+                      class="mt-1 flex w-full min-w-0 cursor-pointer items-start gap-1.5 rounded-ot-md border-0 bg-ot-hover px-2 py-1 text-left text-xs text-ot-muted hover:text-ot-link"
+                      type="button"
+                      (click)="scrollToNote(note.replyTo)"
+                    >
+                      <mat-icon aria-hidden="true" class="mt-px !size-4 shrink-0 !text-base">
+                        reply
+                      </mat-icon>
+                      <span class="min-w-0">
+                        <span class="block font-medium">
+                          Replying to {{ note.replyTo.user.displayName }} ({{
+                            note.replyTo.user.nickname
+                          }})
+                        </span>
+                        <span class="line-clamp-2 block wrap-anywhere">
+                          {{ note.replyTo.note }}
+                        </span>
+                      </span>
+                    </button>
+                  } @else {
+                    <p class="m-0 mt-1 text-xs text-ot-muted italic">Replying to a deleted note</p>
+                  }
+                }
+
+                @if (editingNote && editingNote.id === note.id) {
+                  <div class="mt-2 flex flex-col gap-2">
+                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                      <mat-label>Edit note</mat-label>
+                      <textarea
+                        #tutorNoteEditor
+                        class="resize-none overflow-hidden"
+                        matInput
+                        [(ngModel)]="editingNoteText"
+                        (input)="autoResizeTutorNoteEditor()"
+                      ></textarea>
+                    </mat-form-field>
+                    <div class="flex justify-end gap-2">
+                      <button mat-button type="button" (click)="cancelEditingNote()">Cancel</button>
+                      <button color="primary" mat-flat-button type="button" (click)="updateNote()">
+                        Save
+                      </button>
+                    </div>
+                  </div>
                 } @else {
-                  <span class="text-xs text-gray-400 italic">Replying to: Deleted note</span>
+                  <div
+                    class="markdown-to-html mt-1 text-sm wrap-anywhere text-ot-text"
+                    [innerHTML]="note.note | marked"
+                  ></div>
+                }
+
+                @if (
+                  note.taskDefinition || note.project || note.readByUnitRole || note.noteIsForMe
+                ) {
+                  <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex min-w-0 flex-wrap items-center gap-2 text-xs">
+                      @if (note.taskDefinition) {
+                        <span
+                          class="max-w-full truncate rounded-ot-pill border border-ot-divider px-2 py-0.5 text-ot-muted"
+                        >
+                          {{ note.taskDefinition?.abbreviation }} {{ note.taskDefinition.name }}
+                        </span>
+                      }
+                      @if (note.project) {
+                        <a
+                          class="truncate text-ot-link hover:underline"
+                          matTooltip="Open this student's task in a new tab"
+                          matTooltipPosition="above"
+                          rel="noopener"
+                          target="_blank"
+                          [href]="projectLink(note)"
+                        >
+                          {{ note.project?.student.displayName }}
+                        </a>
+                      }
+                    </div>
+                    @if (!note.readByUnitRole) {
+                      @if (note.noteIsForMe) {
+                        <button
+                          color="primary"
+                          mat-stroked-button
+                          type="button"
+                          (click)="markAsRead(note)"
+                        >
+                          Mark as read
+                        </button>
+                      }
+                    } @else {
+                      <span class="text-xs text-ot-muted italic">Read by tutor</span>
+                    }
+                  </div>
                 }
               </div>
             </div>
-          </div>
+          </li>
         }
-        <mat-card
-          class="mb-2.5 p-3 pb-7"
-          [id]="'note-' + note.id"
-          (mouseout)="hoveredNoteId = null"
-          (mouseover)="hoveredNoteId = note.id"
-        >
-          <div class="absolute right-3 bottom-3 flex items-center gap-3">
-            <div class="flex items-center" [hidden]="hoveredNoteId !== note.id">
-              @if (note.authorIsMe) {
-                <mat-icon type="button" (click)="editNote(note)">edit</mat-icon>
-              }
-              <mat-icon type="button" (click)="replyToNote(note)">reply</mat-icon>
-              <mat-icon type="button" (click)="deleteNote(note)">delete</mat-icon>
-            </div>
-            @if (!note.readByUnitRole) {
-              @if (note.noteIsForMe) {
-                <button color="primary" mat-stroked-button (click)="markAsRead(note)">
-                  Mark as read
-                </button>
-              }
-            } @else {
-              <div class="px-3 text-gray-400 italic">Read by tutor</div>
-            }
-          </div>
-
-          <div class="flex justify-between">
-            <mat-card-title class="flex items-center">
-              <user-icon style="margin-right: 8px" [size]="25" [user]="note.user"></user-icon>
-              {{ note.user?.firstName }} {{ note.user?.lastName }}</mat-card-title
-            >
-            <div class="flex items-center">
-              <mat-card-subtitle
-                matTooltipPosition="above"
-                matTooltipShowDelay="1000"
-                [matTooltip]="note.createdAt | localizedDateTime"
-                >{{ note.createdAt | humanizedDate }}</mat-card-subtitle
-              >
-            </div>
-          </div>
-
-          <div class="flex gap-3 py-1">
-            @if (note.taskDefinition) {
-              <mat-chip class="w-fit"
-                >{{ note.taskDefinition?.abbreviation }} {{ note.taskDefinition.name }}</mat-chip
-              >
-            }
-            @if (note.project) {
-              <mat-chip
-                chipListSelectable
-                class="w-fit cursor-pointer"
-                matTooltip="Click to view student"
-                matTooltipPosition="above"
-                (click)="openProject($event, note)"
-                >{{ note.project?.student.name }}</mat-chip
-              >
-            }
-          </div>
-
-          <mat-card-content class="py-2.5">
-            @if (editingNote && editingNote.id === note.id) {
-              <mat-form-field appearance="outline" class="flex w-full items-center">
-                <mat-label>Update Note</mat-label>
-                <textarea
-                  #tutorNoteEditor
-                  class="w-full resize-none overflow-hidden px-1 py-0.5 placeholder:px-1 placeholder:py-0.5"
-                  matInput
-                  [(ngModel)]="editingNoteText"
-                  (input)="autoResizeTutorNoteEditor()"
-                ></textarea>
-                <div class="flex justify-end gap-1">
-                  <button color="" mat-raised-button (click)="cancelEditingNote()">Cancel</button>
-                  <button color="primary" mat-raised-button (click)="updateNote()">
-                    Update Note
-                  </button>
-                </div>
-              </mat-form-field>
-            } @else {
-              <div class="markdown-to-html" [innerHTML]="note.note | marked"></div>
-            }
-          </mat-card-content>
-        </mat-card>
-      }
-    } @else {
-      <!-- <div id="spinner">
-          <mat-spinner
-            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
-          ></mat-spinner>
-        </div> -->
+      </ol>
     }
   </div>
 
-  <div class="h-[150px] border-t border-gray-300 p-2.5">
-    <mat-chip-listbox class="mb-2.5" multiple selectable>
-      <mat-chip-option
-        value="all"
-        [selected]="selectedTaskDefinitions.get('all')"
-        (click)="toggleSelection('all')"
-        >All Tasks</mat-chip-option
-      >
-      @for (option of taskDefinitionFilters; track option) {
+  <div class="shrink-0 border-t border-ot-divider p-4">
+    <!-- Filters only mean something once there are notes to filter. -->
+    @if (allNotes.length > 0) {
+      <mat-chip-listbox aria-label="Show notes for" class="mb-3" multiple selectable>
         <mat-chip-option
-          [selected]="selectedTaskDefinitions.get(option)"
-          [value]="option"
-          (click)="toggleSelection(option)"
+          value="all"
+          [selected]="selectedTaskDefinitions.get('all')"
+          (selectionChange)="onFilterChange('all', $event)"
+          >All tasks</mat-chip-option
         >
-          {{ option }}
-        </mat-chip-option>
-      }
-    </mat-chip-listbox>
+        @for (option of taskDefinitionFilters; track option) {
+          <mat-chip-option
+            [selected]="selectedTaskDefinitions.get(option)"
+            [value]="option"
+            (selectionChange)="onFilterChange(option, $event)"
+          >
+            {{ option }}
+          </mat-chip-option>
+        }
+      </mat-chip-listbox>
+    }
 
     @if (replyingToNote) {
       <div
-        class="flex items-center justify-between rounded-t-md border border-b-0 border-gray-300 p-1 text-sm select-none"
+        class="mb-3 flex items-start gap-2 rounded-ot-md border border-ot-divider bg-ot-raised py-1 pr-1 pl-3"
       >
-        <div class="flex items-center">
-          <mat-icon class="mt-0.5 mr-2">reply</mat-icon>
-          <div class="flex flex-col">
-            <span class="font-medium">
-              Replying to {{ replyingToNote.user.firstName }} {{ replyingToNote.user.lastName }} ({{
-                replyingToNote.user.nickname
-              }})
-            </span>
-            <span class="text-xs text-gray-600">{{ replyingToNote.note }}</span>
-          </div>
+        <mat-icon aria-hidden="true" class="mt-2 !size-4 shrink-0 !text-base text-ot-muted">
+          reply
+        </mat-icon>
+        <div class="min-w-0 flex-1 py-1">
+          <p class="m-0 truncate text-sm font-medium text-ot-text">
+            Replying to {{ replyingToNote.user.displayName }} ({{ replyingToNote.user.nickname }})
+          </p>
+          <p class="m-0 truncate text-xs text-ot-muted">{{ replyingToNote.note }}</p>
         </div>
-        <mat-icon class="cursor-pointer" (click)="cancelReplyingToNote()">close</mat-icon>
+        <button
+          aria-label="Stop replying"
+          mat-icon-button
+          matTooltip="Stop replying"
+          type="button"
+          (click)="cancelReplyingToNote()"
+        >
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
       </div>
     }
 
-    <mat-form-field appearance="outline" class="flex w-full items-center">
-      <mat-label>Tutor note</mat-label>
+    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+      <mat-label>Add a note</mat-label>
       <textarea
-        class="w-full resize-none px-1 py-0.5 placeholder:px-1 placeholder:py-0.5"
+        cdkAutosizeMaxRows="8"
+        cdkAutosizeMinRows="2"
+        cdkTextareaAutosize
+        class="resize-none"
         matInput
         [(ngModel)]="noteText"
       ></textarea>
-      <div class="flex justify-end">
-        <button color="primary" mat-raised-button (click)="submitNote()">Submit</button>
-      </div>
     </mat-form-field>
+    <!-- disabledInteractive keeps focus on the button when submitting empties the field.
+         submitNote ignores a click with nothing to send. -->
+    <div class="mt-3 flex justify-end">
+      <button
+        color="primary"
+        mat-flat-button
+        type="button"
+        [disabled]="!noteText?.trim()"
+        [disabledInteractive]="true"
+        (click)="submitNote()"
+      >
+        <mat-icon aria-hidden="true">save</mat-icon>
+        Submit
+      </button>
+    </div>
   </div>
 </div>

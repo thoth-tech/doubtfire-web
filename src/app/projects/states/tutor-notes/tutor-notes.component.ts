@@ -6,6 +6,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
+import {MatChipSelectionChange} from '@angular/material/chips';
 import {Task, UnitRole, UserService} from 'src/app/api/models/doubtfire-model';
 import {TutorNote} from 'src/app/api/models/tutor-note';
 import {TutorNoteService} from 'src/app/api/services/tutor-note.service';
@@ -27,6 +28,8 @@ export class TutorNotesComponent implements OnInit {
   @Input() task: Task;
 
   loadingTutorNotes: boolean = true;
+  /** The last load failed, so the list offers a retry instead of saying there are none. */
+  loadError = false;
 
   noteText: string = '';
 
@@ -34,8 +37,6 @@ export class TutorNotesComponent implements OnInit {
   editingNoteText?: string = '';
 
   replyingToNote?: TutorNote;
-
-  hoveredNoteId: number | null = null;
 
   constructor(
     private userService: UserService,
@@ -48,17 +49,32 @@ export class TutorNotesComponent implements OnInit {
       this.unitRole = this.task.tutor;
     }
 
-    this.loadingTutorNotes = true;
-    this.tutorNoteService.loadTutorNotes(this.unitRole).subscribe((_notes) => {
-      this.loadingTutorNotes = false;
-      this.tutorNoteService.updateTutorNoteReplies(this.unitRole?.tutorNotesCache.currentValues);
-      this.scrollDown();
-    });
+    this.loadNotes();
     if (this.task) {
       this.selectedTaskDefinitions.set(this.task.definition.abbreviation, true);
     } else {
       this.selectedTaskDefinitions.set('all', true);
     }
+  }
+
+  public loadNotes(): void {
+    this.loadingTutorNotes = true;
+    this.loadError = false;
+    this.tutorNoteService.loadTutorNotes(this.unitRole).subscribe({
+      next: (_notes) => {
+        this.loadingTutorNotes = false;
+        this.tutorNoteService.updateTutorNoteReplies(this.unitRole?.tutorNotesCache.currentValues);
+        this.scrollDown();
+      },
+      error: () => {
+        this.loadingTutorNotes = false;
+        this.loadError = true;
+      },
+    });
+  }
+
+  public get allNotes(): readonly TutorNote[] {
+    return this.unitRole?.tutorNotesCache?.currentValues ?? [];
   }
 
   scrollToComment(commentID: number) {
@@ -84,7 +100,7 @@ export class TutorNotesComponent implements OnInit {
       .addNote(this.unitRole, noteText, this.task, this.replyingToNote)
       .subscribe({
         next: (_note) => {
-          this.alertService.success('Succesfully submitted note', 4000);
+          this.alertService.success('Successfully submitted note', 4000);
           this.scrollDown();
           this.replyingToNote = null;
           this.tutorNoteService.updateTutorNoteReplies(
@@ -106,7 +122,7 @@ export class TutorNotesComponent implements OnInit {
 
     this.tutorNoteService.updateNote(this.unitRole, this.editingNote, noteText).subscribe({
       next: (_note) => {
-        this.alertService.success('Succesfully updated note', 4000);
+        this.alertService.success('Successfully updated note', 4000);
         this.editingNote = null;
         this.editingNoteText = '';
       },
@@ -199,12 +215,13 @@ export class TutorNotesComponent implements OnInit {
     );
   }
 
-  toggleSelection(option: string) {
-    if (this.selectedTaskDefinitions.get(option)) {
-      this.selectedTaskDefinitions.set(option, false);
-    } else {
-      this.selectedTaskDefinitions.set(option, true);
+  // Follows the chip's own selection event rather than a click, so a keyboard toggle
+  // filters the list too. Programmatic changes from the [selected] binding are ignored.
+  onFilterChange(option: string, change: MatChipSelectionChange) {
+    if (!change.isUserInput) {
+      return;
     }
+    this.selectedTaskDefinitions.set(option, change.selected);
   }
 
   public get taskDefinitionFilters() {
@@ -217,11 +234,9 @@ export class TutorNotesComponent implements OnInit {
     return Array.from(new Set(abbrs));
   }
 
-  openProject(event: Event, note: TutorNote) {
-    event.stopPropagation();
-    const link = document.createElement('a');
-    link.href = `/projects/${note.project.id}/dashboard/${note.taskDefinition.abbreviation}?tutor=true`;
-    link.target = '_blank';
-    link.click();
+  /** The student's task, opened as staff. A real link, so it works from the keyboard. */
+  projectLink(note: TutorNote): string {
+    const abbreviation = note.taskDefinition?.abbreviation ?? '';
+    return `/projects/${note.project.id}/dashboard/${abbreviation}?tutor=true`;
   }
 }

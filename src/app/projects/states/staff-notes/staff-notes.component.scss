@@ -1,27 +1,52 @@
-.mat-icon {
-  color: #9696969d;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  vertical-align: middle;
-  text-align: center;
-  margin-left: 0.3em;
+// The card paints its surface here rather than with bg-ot-surface: Tailwind utilities are
+// !important in this app, and an !important background would block the flash below.
+.note-card {
+  background-color: var(--ot-color-surface);
 }
 
-.mat-icon:hover {
-  color: black;
+// Compact icon buttons for edit, reply and delete on each note card.
+.note-action {
+  --mat-icon-button-state-layer-size: 32px;
+  --mat-icon-button-icon-size: 20px;
+  color: var(--ot-color-text-muted);
 }
 
-@keyframes blueGlowFade {
+.note-action:hover,
+.note-action:focus-visible {
+  color: var(--ot-color-text);
+}
+
+// The row used to be shown by a mouseover handler writing hoveredNoteId, which no keyboard
+// user could ever set. The reveal is CSS now, so it answers to focus inside the note as
+// well as to the pointer. It has to be opacity rather than display or visibility, both of
+// which would drop the buttons out of the tab order and leave :focus-within with no way to
+// ever become true.
+.note-actions {
+  opacity: 0;
+}
+
+.note-card:hover .note-actions,
+.note-card:focus-within .note-actions {
+  opacity: 1;
+}
+
+// A touch screen has no hover to reveal them with, so they stay in view there.
+@media (hover: none) {
+  .note-actions {
+    opacity: 1;
+  }
+}
+
+// Picking the note a reply points at scrolls to it and flashes it.
+@keyframes note-flash {
   0% {
-    background-color: rgba(66, 133, 244, 0.6);
+    background-color: var(--ot-color-selected);
   }
   100% {
-    background-color: transparent;
+    background-color: var(--ot-color-surface);
   }
 }
 
 .flash-highlight {
-  animation: blueGlowFade 1s ease-out;
+  animation: note-flash 1s ease-out;
 }

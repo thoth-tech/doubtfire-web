@@ -22,6 +22,8 @@ export class GradeTaskModalComponent implements OnInit {
   // Grade Select
   selectedGrade: number;
 
+  readonly formatQualityRating = (value: number): string => `${value} out of ${this.totalRating}`;
+
   constructor(
     public dialogRef: MatDialogRef<GradeTaskModalComponent>,
     @Inject(MAT_DIALOG_DATA) public dialogData: {task: Task},

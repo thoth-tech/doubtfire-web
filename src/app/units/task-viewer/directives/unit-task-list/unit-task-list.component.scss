@@ -6,7 +6,8 @@
 $my-palette: mat.m2-define-palette($md-formatif);
 
 :host {
-  --background-gray: rgba(0, 0, 0, 0.04);
+  --background-gray: var(--ot-color-selected);
+  color: var(--ot-color-text);
   padding-right: 8px;
 }
 
@@ -35,23 +36,225 @@ $my-palette: mat.m2-define-palette($md-formatif);
   @include scrollable();
 }
 
-.omnisearch {
-  font-size: 15px;
-  padding-right: 10px;
+// The same controls as the inbox list: a search pill on its own row, then the status
+// filter and the view options. The panel is narrow at every width, so the search
+// never shares its row and never truncates its placeholder.
+.task-list-controls {
+  padding: 0.25rem 0.25rem 0.5rem;
   text-align: left;
+}
 
-  &.expanded {
-    height: 100%;
+.task-list-controls-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.task-search-control {
+  grid-column: 1 / -1;
+}
+
+.task-status-control {
+  grid-column: 1;
+}
+
+.task-search-control,
+.task-status-control {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+// The labels stay for screen readers. On screen the placeholder and the selected
+// status say what each control is, as on the rest of the staff pages.
+.task-control-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.task-search-field {
+  display: flex;
+  height: 44px;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 999px;
+  background: var(--ot-color-surface);
+  padding: 0 0.25rem 0 0.75rem;
+
+  &:focus-within {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 1px;
+  }
+
+  > mat-icon {
+    flex: none;
+    color: var(--ot-color-text-muted);
   }
 
   .search {
-    background-color: transparent;
-    border: hidden;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--ot-color-text);
+    font-size: 0.875rem;
     outline: none;
   }
 
-  .mdc-icon-button {
-    display: flex;
+  button {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    place-items: center;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ot-color-text-muted);
+
+    &:hover {
+      background: var(--ot-color-hover);
+    }
+  }
+}
+
+.task-status-control {
+  position: relative;
+}
+
+// The status picker keeps the search field's pill: same height, border and fill,
+// with Material's own arrow in the theme's muted colour.
+.task-status-select {
+  display: flex;
+  box-sizing: border-box;
+  height: 40px;
+  align-items: center;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 999px;
+  background-color: var(--ot-color-surface);
+  // the status circle sits 12px in from the pill edge, same as the text inset
+  padding: 0 0.75rem 0 12px;
+  color: var(--ot-color-text);
+  font-size: 0.875rem;
+
+  --mat-select-enabled-trigger-text-color: var(--ot-color-text);
+  --mat-select-enabled-arrow-color: var(--ot-color-text-muted);
+  --mat-select-focused-arrow-color: var(--ot-color-primary);
+
+  // one focus ring: the pill border itself turns the focus colour, no second outline
+  &:focus-visible,
+  &.mat-select-focused,
+  &.mat-mdc-select-focused {
+    outline: none;
+    border-color: var(--ot-color-focus);
+    box-shadow: 0 0 0 1px var(--ot-color-focus);
+  }
+}
+
+.task-status-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.task-status-option__all {
+  width: 24px;
+  height: 20px;
+  flex: none;
+  color: var(--ot-color-text-muted);
+  font-size: 20px;
+}
+
+// status-icon is a 36px circle by default. In the pill and the menu it drops to
+// 24px so a row of options reads as a list, not a column of badges.
+:host ::ng-deep .task-status-option__icon .status-chip,
+::ng-deep .task-status-filter-panel .task-status-option__icon .status-chip {
+  // !important beats the size-9 utility status-icon puts on its own element
+  width: 24px !important;
+  height: 24px !important;
+  margin: 0 !important;
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+}
+
+// In the closed pill the circle is only a hint of the colour, not a badge: 20px with a
+// 12px glyph, so it sits inside the pill's padding instead of filling its height.
+:host ::ng-deep .task-status-select .task-status-option__icon .status-chip {
+  width: 20px !important;
+  height: 20px !important;
+
+  mat-icon {
+    width: 12px;
+    height: 12px;
+    font-size: 12px;
+  }
+}
+
+// The menu sits in the overlay, outside this component, so its colours are set on
+// the panel class. Both themes come from the tokens.
+::ng-deep .task-status-filter-panel {
+  --mat-select-panel-background-color: var(--ot-color-surface-raised);
+  --mat-option-label-text-color: var(--ot-color-text);
+  --mat-option-hover-state-layer-color: var(--ot-color-hover);
+  --mat-option-selected-state-layer-color: var(--ot-color-selected);
+  --mat-option-selected-state-label-text-color: var(--ot-color-text);
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-md) !important;
+}
+
+.task-view-options {
+  grid-column: 2;
+  width: 44px;
+  height: 44px;
+}
+
+// Inside a panel layout the list's own collapse button joins the status row, the
+// same size as the filter button beside it. The button lives in the collapse
+// component's view, so it is reached through ::ng-deep from this row.
+.task-list-controls-row:has(.task-panel-collapse) {
+  grid-template-columns: minmax(0, 1fr) 44px 44px;
+}
+
+.task-list-controls-row ::ng-deep .task-panel-collapse {
+  grid-column: 3;
+  width: 44px;
+  height: 44px;
+}
+
+.task-status-filter-summary {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  border-radius: 0.5rem;
+  background: var(--ot-color-selected);
+  padding: 0.375rem 0.5rem 0.375rem 0.75rem;
+  color: var(--ot-color-selected-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  button {
+    min-height: 32px;
+    flex: none;
+    border: 0;
+    background: transparent;
+    color: var(--ot-color-link);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 }
 
@@ -88,7 +291,7 @@ $my-palette: mat.m2-define-palette($md-formatif);
 
 .mat-mdc-list-item .item-content {
   height: 60px;
-  border-radius: 6px;
+  border-radius: var(--ot-radius-sm);
 }
 
 .mat-mdc-list-item .item-content:hover {
@@ -105,4 +308,174 @@ $my-palette: mat.m2-define-palette($md-formatif);
 
 .tasks-viewport {
   height: 100%;
+}
+
+.task-row-content {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.task-list-row:not(.h-21) {
+  height: auto !important;
+  min-height: 4.5rem;
+}
+
+.task-row-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.task-row-heading {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: var(--ot-color-text);
+  line-height: 1.25;
+
+  strong {
+    flex: none;
+    font-size: 0.8125rem;
+  }
+
+  span {
+    overflow: hidden;
+    min-width: 0;
+    font-size: 0.9375rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.task-row-keyline,
+.task-row-secondary,
+.task-row-urgency {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.task-row-keyline {
+  flex-wrap: wrap;
+  gap: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.task-row-status {
+  color: var(--ot-color-text);
+  font-weight: 700;
+}
+
+.task-row-urgency {
+  gap: 0.125rem;
+
+  mat-icon {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+  }
+}
+
+.task-row-secondary {
+  gap: 0.125rem;
+  color: var(--ot-color-text-muted);
+  font-size: 0.7rem;
+  line-height: 1.2;
+
+  mat-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    font-size: 0.875rem;
+  }
+}
+
+.task-list-empty {
+  display: flex;
+  min-height: 10rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 1.5rem;
+  color: var(--ot-color-text-muted);
+  text-align: center;
+
+  > mat-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 2rem;
+  }
+
+  strong {
+    color: var(--ot-color-text);
+  }
+}
+
+.task-list-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+
+  button {
+    min-height: 44px;
+    border: 1px solid var(--ot-color-focus);
+    border-radius: 0.5rem;
+    background: var(--ot-color-surface-raised);
+    padding: 0.5rem 0.75rem;
+    color: var(--ot-color-link);
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 639.98px) {
+  :host {
+    display: block;
+    width: 100%;
+    padding-right: 0;
+  }
+
+  .task-list {
+    height: auto;
+    min-height: 0;
+  }
+
+  .task-list-row:not(.h-21) {
+    min-height: 5.25rem;
+  }
+
+  .task-row-heading {
+    align-items: flex-start;
+
+    span {
+      display: -webkit-box;
+      overflow: hidden;
+      white-space: normal;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+  }
+
+  .task-row-secondary {
+    display: none;
+  }
+
+  // Let the page own vertical movement on phones. The desktop split-pane list
+  // intentionally keeps the bounded scrollbar declared above.
+  .scrollable {
+    height: auto;
+    min-height: 0;
+    flex: none;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
 }

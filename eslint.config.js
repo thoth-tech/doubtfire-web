@@ -31,11 +31,14 @@ const htmlTemplateConfigs = (configs) =>
 // Export our config array, which is composed together thanks to the typed utility function from typescript-eslint
 module.exports = tseslint.config(
   {
-    ignores: ['build/**', 'coverage/**', 'dist/**', 'docs/**', '**/*.tpl.html'],
+    ignores: ['build/**', 'coverage/**', 'dist/**', 'docs/**'],
   },
   {
     linterOptions: {
-      reportUnusedDisableDirectives: false,
+      // Surface eslint-disable directives that no longer suppress anything, so
+      // stale suppressions get pruned instead of accumulating unaudited. `npm
+      // run lint` treats warnings as failures, so a dead directive is caught in CI.
+      reportUnusedDisableDirectives: 'warn',
     },
   },
   {
@@ -123,11 +126,10 @@ module.exports = tseslint.config(
         },
       ],
       '@angular-eslint/template/prefer-control-flow': 'error',
-      // TODO: remove below eslint rule ignores to improve accessibility
-      '@angular-eslint/template/label-has-associated-control': 'off',
-      '@angular-eslint/template/mouse-events-have-key-events': 'off',
-      '@angular-eslint/template/click-events-have-key-events': 'off',
-      '@angular-eslint/template/interactive-supports-focus': 'off',
+      '@angular-eslint/template/mouse-events-have-key-events': 'error',
+      '@angular-eslint/template/label-has-associated-control': 'error',
+      '@angular-eslint/template/click-events-have-key-events': 'error',
+      '@angular-eslint/template/interactive-supports-focus': 'error',
     },
   },
 );
