@@ -1,0 +1,196 @@
+<div class="motion-demo">
+  <header class="intro">
+    <h1>Motion</h1>
+    <p>
+      Every state on one page, so they can be judged next to each other. How often a person sees an
+      interaction decides how much motion it gets. A student submits a few times a week, so a
+      submission can be marked. A tutor changes a status a hundred times a day, so that one stays
+      silent.
+    </p>
+    @if (reducedMotion) {
+      <p class="warn">
+        <mat-icon>info</mat-icon>
+        Your system asks for reduced motion, so everything below plays as a short fade.
+      </p>
+    }
+  </header>
+
+  <section class="group">
+    <h2>Submitted for feedback</h2>
+    <p class="group__lede">
+      Plays once when a student's own task reaches Ready for Feedback. In the app it now plays
+      inside the upload dialog the student started from, which then closes itself. The buttons here
+      show the same states as an overlay, because there is no dialog to sit in.
+    </p>
+    <ul class="triggers">
+      @for (trigger of submissionTriggers; track trigger.label) {
+        <li>
+          <button mat-stroked-button type="button" (click)="playSubmission(trigger)">
+            {{ trigger.label }}
+          </button>
+          <span class="triggers__note">{{ trigger.note }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="group">
+    <h2>Signed off</h2>
+    <p class="group__lede">
+      Shown when a student opens their unit and finds work signed off since the last visit. Once per
+      change, never on a first visit.
+    </p>
+    <div class="row">
+      <button mat-stroked-button type="button" (click)="playMilestone('one')">One task</button>
+      <button mat-stroked-button type="button" (click)="playMilestone('several')">
+        Three, with a grade and stars
+      </button>
+      <button mat-stroked-button type="button" (click)="playMilestone('mixed')">
+        Three, plus other changes
+      </button>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>The mark on its own</h2>
+    <p class="group__lede">
+      The ring draws, then the tick draws inside it. It never starts from nothing, so it settles
+      into place instead of appearing.
+    </p>
+    <div class="marks">
+      <figure>
+        <f-animated-check tone="success" [size]="48" />
+        <figcaption>Success</figcaption>
+      </figure>
+      <figure>
+        <f-animated-check tone="primary" [size]="48" />
+        <figcaption>Primary</figcaption>
+      </figure>
+      <figure>
+        <f-animated-check tone="neutral" [size]="48" />
+        <figcaption>Neutral</figcaption>
+      </figure>
+      <figure>
+        <span class="marks__burst">
+          <f-celebration-particles [count]="10" [delay]="400" [spread]="42" />
+          <f-animated-check tone="success" [size]="48" />
+        </span>
+        <figcaption>With the burst</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <h2 class="candidates-heading">Candidates</h2>
+  <p class="candidates-lede">
+    Not shipped yet. Each one says who sees it and how often, because that is what decides whether
+    it earns its motion.
+  </p>
+
+  <section class="group candidate">
+    <h3>Status changing in place</h3>
+    <p class="candidate__who"><strong>Student and tutor.</strong> Several times a session.</p>
+    <p class="group__lede">
+      A short blur carries the old label into the new one, so it reads as one pill changing rather
+      than two swapping. The press scale confirms the click landed before the request comes back.
+    </p>
+    <div class="sample">
+      <button
+        class="status-pill"
+        type="button"
+        [attr.data-tone]="status.tone"
+        [class.bridging]="statusBridging()"
+        (click)="advanceStatus()"
+      >
+        <mat-icon>{{ status.icon }}</mat-icon>
+        <span>{{ status.label }}</span>
+      </button>
+      <span class="sample__hint">Click it</span>
+    </div>
+  </section>
+
+  <section class="group candidate">
+    <h3>Progress moving</h3>
+    <p class="candidate__who"><strong>Student.</strong> A few times a week.</p>
+    <p class="group__lede">
+      The bar grows with a clip, not a width, so it stays off the main thread. It is slower than
+      normal UI on purpose: this is the one number a student came to the page to see.
+    </p>
+    <div class="sample sample--stack">
+      <div class="progress" [style.--progress]="progress() + '%'">
+        <span class="progress__fill"></span>
+      </div>
+      <div class="row">
+        <span class="progress__value">{{ progress() }}%</span>
+        <button mat-stroked-button type="button" (click)="bumpProgress()">Advance</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="group candidate">
+    <h3>A row that just changed</h3>
+    <p class="candidate__who"><strong>Student.</strong> Rare, on returning to a list.</p>
+    <p class="group__lede">
+      A wash passes across the row once. Nothing moves, so a list of twenty does not jump while it
+      is being read.
+    </p>
+    <div class="sample sample--stack">
+      <div class="task-row" [class.washed]="washing()">
+        <mat-icon>check_circle</mat-icon>
+        <span class="task-row__name">5.3D Leadership progress report</span>
+        <span class="task-row__status">Complete</span>
+      </div>
+      <button mat-stroked-button type="button" (click)="washRow()">Play</button>
+    </div>
+  </section>
+
+  <section class="group candidate">
+    <h3>A comment arriving</h3>
+    <p class="candidate__who"><strong>Both.</strong> Tutors, many times an hour.</p>
+    <p class="group__lede">
+      It rises from where the composer sits rather than fading in, so the eye follows it down the
+      thread. Kept to 180ms because a tutor sends these all day.
+    </p>
+    <div class="sample sample--stack">
+      <div class="thread">
+        @for (comment of comments(); track comment.id) {
+          <p class="bubble" [class.bubble--mine]="comment.mine">{{ comment.body }}</p>
+        }
+      </div>
+      <div class="row">
+        <button mat-stroked-button type="button" (click)="sendComment()">Send</button>
+        <button mat-stroked-button type="button" (click)="clearComments()">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="group candidate">
+    <h3>Files landing</h3>
+    <p class="candidate__who"><strong>Student.</strong> A few times a week.</p>
+    <p class="group__lede">
+      Rows settle in at 40ms apart. The stagger is what makes four files read as four things rather
+      than one block appearing.
+    </p>
+    <div class="sample sample--stack">
+      <ul class="files">
+        @for (file of files(); track file; let index = $index) {
+          <li class="files__row" [style.--row-delay]="index * 40 + 'ms'">
+            <mat-icon>description</mat-icon>
+            <span>{{ file }}</span>
+            <f-animated-check tone="success" [delay]="index * 40 + 160" [size]="20" />
+          </li>
+        }
+      </ul>
+      <button mat-stroked-button type="button" (click)="dropFiles()">Drop four files</button>
+    </div>
+  </section>
+
+  <section class="group candidate candidate--none">
+    <h3>What stays still</h3>
+    <p class="candidate__who"><strong>Tutor.</strong> Hundreds of times a day.</p>
+    <p class="group__lede">
+      Marking a task, moving to the next student, and anything reached by a keyboard shortcut get no
+      animation at all. At that frequency motion reads as lag, and the tutor is already looking at
+      the next thing before it finishes.
+    </p>
+  </section>
+</div>

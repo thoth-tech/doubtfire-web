@@ -1,0 +1,527 @@
+// Six ways to get from "uploading" to "submitted". The markup is the same for all
+// of them; everything below the shared block is one variant's stylesheet, so the
+// one that wins can go back into the real dialog as CSS alone.
+
+$ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+$ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+:host {
+  display: block;
+}
+
+// ---- Shared: the parts, with no opinion about how they change ----
+.flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 320px;
+  padding: 32px 16px;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md, 10px);
+  background: var(--ot-color-surface);
+  text-align: center;
+}
+
+.flow__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // Reserves the confirmation's height from the start, so nothing below it moves
+  // when the circle grows. Every variant inherits this.
+  height: 104px;
+}
+
+.flow__ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ot-color-primary) 14%, transparent);
+  color: var(--ot-color-primary);
+}
+
+.flow__glyph {
+  width: 28px;
+  height: 28px;
+  font-size: 28px;
+}
+
+.flow__title {
+  margin: 14px 0 0;
+  color: var(--ot-color-text);
+  font-size: 1.05rem;
+  font-weight: 620;
+  line-height: 1.3;
+}
+
+.flow__detail {
+  max-width: 32ch;
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.flow__track {
+  position: relative;
+  overflow: hidden;
+  width: min(300px, 100%);
+  height: 8px;
+  margin-block-start: 14px;
+  border-radius: 999px;
+  background: var(--ot-color-surface-raised);
+}
+
+.flow__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ot-color-primary);
+  clip-path: inset(0 calc(100% - var(--progress, 0%)) 0 0);
+  transition:
+    clip-path 200ms linear,
+    background-color 300ms ease;
+}
+
+.flow__actions {
+  margin-block-start: 16px;
+
+  button {
+    transition: transform 140ms $ease-out;
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+}
+
+// Every variant agrees on these two: the circle turns green when the bytes land,
+// and the words get bigger once it is confirmed.
+.flow--landed .flow__ring {
+  background: color-mix(in srgb, var(--ot-color-success) 16%, transparent);
+  color: var(--ot-color-success);
+}
+
+.flow--landed .flow__fill {
+  background: var(--ot-color-success);
+}
+
+.flow--done {
+  .flow__ring {
+    width: 104px;
+    height: 104px;
+    background: transparent;
+  }
+
+  .flow__title {
+    max-width: 18ch;
+    margin-block-start: 18px;
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    font-weight: 680;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .flow__track {
+    height: 0;
+    margin-block-start: 0;
+    opacity: 0;
+  }
+}
+
+// ============================================================================
+// 1. Blur. Everything softens away, changes, and sharpens back.
+// ============================================================================
+:host([data-variant='blur']) {
+  .flow__ring,
+  .flow__title,
+  .flow__track {
+    transition:
+      width 300ms $ease-in-out,
+      height 300ms $ease-in-out,
+      margin 300ms $ease-out,
+      font-size 300ms $ease-out,
+      background-color 300ms ease,
+      color 300ms ease,
+      opacity 200ms ease,
+      filter 200ms ease;
+  }
+
+  .flow__glyph,
+  .flow__detail,
+  .flow__actions {
+    transition:
+      opacity 200ms ease,
+      filter 200ms ease;
+  }
+
+  .flow--swapping {
+    .flow__title,
+    .flow__detail,
+    .flow__glyph,
+    .flow__actions {
+      opacity: 0;
+      filter: blur(4px);
+    }
+
+    .flow__track {
+      opacity: 0;
+    }
+  }
+}
+
+// ============================================================================
+// 2. Lift. The old line leaves upward and the new one arrives from below, the
+//    way a departure board changes. Direction carries the sense of progress.
+// ============================================================================
+:host([data-variant='lift']) {
+  .flow__ring {
+    transition:
+      width 320ms $ease-in-out,
+      height 320ms $ease-in-out,
+      background-color 300ms ease,
+      color 300ms ease;
+  }
+
+  .flow__title,
+  .flow__detail,
+  .flow__actions {
+    transition:
+      transform 200ms $ease-out,
+      opacity 180ms ease;
+  }
+
+  .flow__track {
+    transition:
+      height 240ms $ease-out,
+      margin 240ms $ease-out,
+      opacity 180ms ease;
+  }
+
+  .flow--swapping {
+    .flow__title,
+    .flow__detail,
+    .flow__actions {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    .flow__track {
+      opacity: 0;
+    }
+  }
+
+  .flow--done {
+    .flow__title {
+      animation: lab-lift-in 320ms $ease-out both;
+    }
+
+    .flow__detail {
+      animation: lab-lift-in 320ms $ease-out both;
+      animation-delay: 70ms;
+    }
+
+    .flow__actions {
+      animation: lab-lift-in 320ms $ease-out both;
+      animation-delay: 160ms;
+    }
+  }
+}
+
+@keyframes lab-lift-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// ============================================================================
+// 3. Circle led. The mark grows first and everything else waits for it. The
+//    circle is the subject; the words are a caption that catches up.
+// ============================================================================
+:host([data-variant='circle']) {
+  .flow__ring {
+    transition:
+      width 420ms $ease-in-out,
+      height 420ms $ease-in-out,
+      background-color 300ms ease,
+      color 300ms ease;
+  }
+
+  .flow__title,
+  .flow__detail,
+  .flow__actions,
+  .flow__track {
+    transition:
+      opacity 160ms ease,
+      height 300ms $ease-out,
+      margin 300ms $ease-out;
+  }
+
+  // The circle starts growing while the words are still leaving.
+  .flow--swapping {
+    .flow__ring {
+      width: 104px;
+      height: 104px;
+      background: transparent;
+    }
+
+    .flow__title,
+    .flow__detail,
+    .flow__actions,
+    .flow__track {
+      opacity: 0;
+    }
+  }
+
+  .flow--done {
+    .flow__title {
+      animation: lab-fade-up 300ms $ease-out both;
+      animation-delay: 240ms;
+    }
+
+    .flow__detail {
+      animation: lab-fade-up 300ms $ease-out both;
+      animation-delay: 320ms;
+    }
+
+    .flow__actions {
+      animation: lab-fade-up 300ms $ease-out both;
+      animation-delay: 420ms;
+    }
+  }
+}
+
+@keyframes lab-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// ============================================================================
+// 4. Wipe. A clip runs down the text block and back, so the words are uncovered
+//    rather than faded. Nothing moves, which keeps a long headline steady.
+// ============================================================================
+:host([data-variant='wipe']) {
+  .flow__ring {
+    transition:
+      width 320ms $ease-in-out,
+      height 320ms $ease-in-out,
+      background-color 300ms ease,
+      color 300ms ease;
+  }
+
+  .flow__title,
+  .flow__detail {
+    transition: clip-path 240ms $ease-in-out;
+    clip-path: inset(0 0 0 0);
+  }
+
+  .flow__track,
+  .flow__actions {
+    transition: opacity 200ms ease;
+  }
+
+  .flow--swapping {
+    .flow__title,
+    .flow__detail {
+      clip-path: inset(0 0 100% 0);
+    }
+
+    .flow__track,
+    .flow__actions {
+      opacity: 0;
+    }
+  }
+
+  .flow--done {
+    .flow__title {
+      animation: lab-wipe-in 320ms $ease-in-out both;
+    }
+
+    .flow__detail {
+      animation: lab-wipe-in 320ms $ease-in-out both;
+      animation-delay: 90ms;
+    }
+
+    .flow__actions {
+      animation: lab-fade-up 280ms $ease-out both;
+      animation-delay: 240ms;
+    }
+  }
+}
+
+@keyframes lab-wipe-in {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+// ============================================================================
+// 5. Collapse. The bar draws in from both ends into the middle, the circle takes
+//    the hit, and the mark draws out of it. The one that treats the bar and the
+//    mark as the same object rather than two.
+// ============================================================================
+:host([data-variant='collapse']) {
+  .flow__ring {
+    transition:
+      width 380ms $ease-in-out,
+      height 380ms $ease-in-out,
+      background-color 300ms ease,
+      color 300ms ease;
+  }
+
+  .flow__track {
+    transition:
+      width 300ms $ease-in-out,
+      height 200ms $ease-out 260ms,
+      margin 200ms $ease-out 260ms,
+      opacity 160ms ease 280ms;
+  }
+
+  .flow__title,
+  .flow__detail,
+  .flow__actions {
+    transition:
+      opacity 180ms ease,
+      transform 200ms $ease-out;
+  }
+
+  .flow--swapping {
+    // The bar narrows to nothing, then the circle answers it.
+    .flow__track {
+      width: 0;
+    }
+
+    .flow__ring {
+      animation: lab-absorb 320ms $ease-out 240ms both;
+    }
+
+    .flow__title,
+    .flow__detail,
+    .flow__actions {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  .flow--done {
+    .flow__track {
+      width: 0;
+    }
+
+    .flow__title {
+      animation: lab-fade-up 300ms $ease-out both;
+      animation-delay: 160ms;
+    }
+
+    .flow__detail {
+      animation: lab-fade-up 300ms $ease-out both;
+      animation-delay: 240ms;
+    }
+
+    .flow__actions {
+      animation: lab-fade-up 300ms $ease-out both;
+      animation-delay: 340ms;
+    }
+  }
+}
+
+@keyframes lab-absorb {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.07);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+// ============================================================================
+// 6. Settle. The whole panel dips a little and comes back. One gesture for the
+//    whole thing, instead of each part having its own opinion.
+// ============================================================================
+:host([data-variant='settle']) {
+  .flow {
+    transition:
+      transform 200ms $ease-out,
+      opacity 160ms ease;
+  }
+
+  .flow__ring {
+    transition:
+      width 340ms $ease-in-out,
+      height 340ms $ease-in-out,
+      background-color 300ms ease,
+      color 300ms ease;
+  }
+
+  .flow__track {
+    transition:
+      height 240ms $ease-out,
+      margin 240ms $ease-out,
+      opacity 180ms ease;
+  }
+
+  .flow--swapping {
+    transform: scale(0.96);
+    opacity: 0.4;
+
+    .flow__track {
+      opacity: 0;
+    }
+  }
+
+  .flow--done {
+    animation: lab-settle-in 360ms $ease-out both;
+  }
+}
+
+@keyframes lab-settle-in {
+  from {
+    opacity: 0.6;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow,
+  .flow *,
+  .flow--done,
+  .flow--done * {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    clip-path: none !important;
+    transform: none !important;
+  }
+}

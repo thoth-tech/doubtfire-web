@@ -1,0 +1,60 @@
+<div class="lab">
+  <header class="lab__intro">
+    <h1>Submitting</h1>
+    <p>
+      The same panel six ways. Each one uploads, lands, and becomes the confirmation. What changes
+      between them is only how the handover in the middle is done, so whichever reads best can go
+      back into the dialog as a stylesheet.
+    </p>
+    <div class="lab__controls">
+      <button mat-flat-button type="button" (click)="playAll()">Play all</button>
+      <button mat-stroked-button type="button" (click)="resetAll()">Reset</button>
+    </div>
+    @if (reducedMotion) {
+      <p class="lab__warn">
+        <mat-icon aria-hidden="true">info</mat-icon>
+        Your system asks for reduced motion, so every panel below jumps straight to its end state.
+        Turn that off to compare them.
+      </p>
+    }
+  </header>
+
+  <div class="lab__grid">
+    @for (card of variants; track card.variant) {
+      <section class="lab__card">
+        <h2>{{ card.name }}</h2>
+        <p class="lab__idea">{{ card.idea }}</p>
+        <f-submit-flow-lab [variant]="card.variant" />
+        <p class="lab__cost">{{ card.cost }}</p>
+      </section>
+    }
+  </div>
+
+  <section class="lab__note">
+    <h2>Handing in a portfolio</h2>
+    <p>
+      The end of a whole unit, which a student reaches once per unit per trimester. It is the rarest
+      thing here, so it is the slowest: the mark draws at 2.6 times the usual pace, the words arrive
+      after it lands, and the facts settle one at a time. It has no timer, because this is the one
+      moment worth staying on.
+    </p>
+    <div class="lab__controls">
+      <button mat-flat-button type="button" (click)="playPortfolio(true)">
+        Eleven tasks, for a High Distinction
+      </button>
+      <button mat-stroked-button type="button" (click)="playPortfolio(false)">
+        One task, no target grade
+      </button>
+    </div>
+  </section>
+
+  <section class="lab__note">
+    <h2>What is the same in all six</h2>
+    <p>
+      The circle turns green the moment the bytes land, before the confirmation is worked out, so
+      the wait for the server is not dead time. The mark's space is reserved from the start, so
+      nothing below it moves when the circle grows. And the bar never disappears: it folds to
+      nothing, because something vanishing is the thing that reads as a new screen.
+    </p>
+  </section>
+</div>

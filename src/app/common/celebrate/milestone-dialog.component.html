@@ -1,0 +1,95 @@
+<div class="ot-milestone" [class.reduced-motion]="reducedMotion">
+  <header class="ot-milestone__hero">
+    <div class="ot-milestone__burst">
+      <f-celebration-particles [count]="12" [delay]="160" [spread]="72" />
+      <f-animated-check tone="success" [delay]="40" [size]="56" />
+    </div>
+    <h2 class="ot-milestone__heading" mat-dialog-title>{{ heading }}</h2>
+    @if (data.unitCode) {
+      <p class="ot-milestone__unit">{{ data.unitCode }}</p>
+    }
+  </header>
+
+  <mat-dialog-content class="ot-milestone__content">
+    <section class="ot-milestone__progress">
+      <div class="ot-milestone__progress-text">
+        <span>{{ progressLabel }}</span>
+        <span class="ot-milestone__progress-value">{{ progressTo }}%</span>
+      </div>
+      <div
+        aria-valuemax="100"
+        aria-valuemin="0"
+        class="ot-milestone__track"
+        role="progressbar"
+        [attr.aria-label]="progressLabel"
+        [attr.aria-valuenow]="progressTo"
+        [attr.aria-valuetext]="
+          progressTo > progressFrom
+            ? progressTo + ' percent, up from ' + progressFrom + ' percent'
+            : progressTo + ' percent'
+        "
+      >
+        <div
+          class="ot-milestone__fill"
+          [style.--progress-from]="progressFrom / 100"
+          [style.--progress-to]="progressTo / 100"
+        ></div>
+      </div>
+      @if (progressTo > progressFrom) {
+        <p class="ot-milestone__delta">Up from {{ progressFrom }}%</p>
+      }
+    </section>
+
+    <ul aria-label="Tasks signed off" class="ot-milestone__rows">
+      @for (row of data.completed; track row.taskDefinitionId; let index = $index) {
+        <li class="ot-milestone__row" [style.--row-delay]="rowDelay(index) + 'ms'">
+          <f-animated-check tone="success" [delay]="rowDelay(index) + 60" [size]="20" />
+          <span class="ot-milestone__abbr">{{ row.abbreviation }}</span>
+          <span class="ot-milestone__name">{{ row.name }}</span>
+          @if (row.grade) {
+            <span class="ot-milestone__grade">{{ row.grade }}</span>
+          }
+          @if (row.stars) {
+            <span
+              class="ot-milestone__stars"
+              [attr.aria-label]="row.stars.earned + ' of ' + row.stars.max + ' stars'"
+            >
+              <span aria-hidden="true">&#9733; {{ row.stars.earned }}/{{ row.stars.max }}</span>
+            </span>
+          }
+        </li>
+      }
+    </ul>
+
+    @if (data.alsoChanged.length > 0) {
+      <section class="ot-milestone__also">
+        <h3 class="ot-milestone__also-heading">Also changed</h3>
+        <ul class="ot-milestone__also-list">
+          @for (change of data.alsoChanged; track change.taskDefinitionId + change.label) {
+            <li class="ot-milestone__also-row">
+              <span class="ot-milestone__abbr">{{ change.abbreviation }}</span>
+              <span class="ot-milestone__name">{{ change.name }}</span>
+              <span class="ot-milestone__also-label">{{ change.label }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="ot-milestone__actions">
+    <button class="ot-milestone__button" mat-button type="button" (click)="close('close')">
+      Close
+    </button>
+    <button
+      cdkFocusInitial
+      class="ot-milestone__button"
+      color="primary"
+      mat-flat-button
+      type="button"
+      (click)="close('view')"
+    >
+      View completed tasks
+    </button>
+  </mat-dialog-actions>
+</div>

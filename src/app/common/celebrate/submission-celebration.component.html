@@ -1,0 +1,22 @@
+@if (celebration(); as view) {
+  <button
+    class="toast"
+    type="button"
+    [attr.aria-label]="view.headline + '. ' + view.detail + ' Dismiss.'"
+    [class.tone-neutral]="view.tone === 'neutral'"
+    [class.tone-primary]="view.tone === 'primary'"
+    [class.tone-success]="view.tone === 'success'"
+    (click)="dismiss.emit()"
+  >
+    <span class="mark">
+      @if (view.particles) {
+        <f-celebration-particles [count]="8" [delay]="480" [spread]="34" />
+      }
+      <f-animated-check [delay]="80" [size]="36" [tone]="view.tone" />
+    </span>
+    <span class="copy">
+      <span class="headline">{{ view.headline }}</span>
+      <span class="detail">{{ view.detail }}</span>
+    </span>
+  </button>
+}

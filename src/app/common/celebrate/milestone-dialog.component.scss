@@ -1,0 +1,269 @@
+@use './motion' as motion;
+
+// The dialog surface itself. Material starts it at scale(0.8), which reads as a
+// pop. This one settles in from 0.95 on the shared ease-out curve, and stays
+// centred because the transform origin is the middle of the surface.
+.cdk-overlay-pane.ot-milestone-dialog {
+  .mat-mdc-dialog-surface {
+    transform: scale(0.95);
+    transition-timing-function: motion.$ease-out;
+  }
+
+  .mdc-dialog--open .mat-mdc-dialog-surface {
+    transform: none;
+  }
+
+  @include motion.reduced-motion {
+    .mat-mdc-dialog-surface {
+      transform: none;
+    }
+  }
+}
+
+.ot-milestone {
+  @include motion.tokens;
+
+  display: flex;
+  flex-direction: column;
+  color: var(--ot-color-text);
+}
+
+.ot-milestone__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 28px 24px 8px;
+  text-align: center;
+}
+
+.ot-milestone__burst {
+  position: relative;
+  display: inline-flex;
+  margin-bottom: 8px;
+}
+
+.ot-milestone .ot-milestone__heading {
+  margin: 0;
+  padding: 0;
+  color: var(--ot-color-text);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  animation: celebrate-rise motion.$duration-enter motion.$ease-out both;
+  animation-delay: 80ms;
+
+  &::before {
+    display: none;
+  }
+}
+
+.ot-milestone__unit {
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 14px;
+  animation: celebrate-rise motion.$duration-enter motion.$ease-out both;
+  animation-delay: 120ms;
+}
+
+.ot-milestone .ot-milestone__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 12px;
+  color: var(--ot-color-text);
+}
+
+.ot-milestone__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ot-milestone__progress-text {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--ot-color-text-muted);
+  font-size: 13px;
+}
+
+.ot-milestone__progress-value {
+  color: var(--ot-color-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ot-milestone__track {
+  position: relative;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--ot-color-divider);
+}
+
+.ot-milestone__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ot-color-success);
+  transform-origin: left center;
+  transform: scaleX(var(--progress-to, 0));
+  animation: ot-milestone-fill 600ms motion.$ease-in-out both;
+  animation-delay: 320ms;
+}
+
+[dir='rtl'] .ot-milestone__fill {
+  transform-origin: right center;
+}
+
+@keyframes ot-milestone-fill {
+  from {
+    transform: scaleX(var(--progress-from, 0));
+  }
+
+  to {
+    transform: scaleX(var(--progress-to, 0));
+  }
+}
+
+.ot-milestone__delta {
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 12px;
+}
+
+.ot-milestone__rows,
+.ot-milestone__also-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ot-milestone__rows {
+  gap: 2px;
+}
+
+.ot-milestone__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--ot-color-divider);
+  animation: celebrate-rise motion.$duration-enter motion.$ease-out both;
+  animation-delay: var(--row-delay, 0ms);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.ot-milestone__abbr {
+  flex: none;
+  min-width: 3.5em;
+  color: var(--ot-color-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ot-milestone__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ot-milestone__grade,
+.ot-milestone__stars {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--ot-color-divider);
+  border-radius: 999px;
+  color: var(--ot-color-text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ot-milestone__also {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+  animation: celebrate-fade motion.$duration-enter motion.$ease-out both;
+  animation-delay: 420ms;
+}
+
+.ot-milestone .ot-milestone__also-heading {
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.ot-milestone__also-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px;
+  font-size: 13px;
+}
+
+.ot-milestone__also-label {
+  flex: none;
+  color: var(--ot-color-text-muted);
+}
+
+.ot-milestone .ot-milestone__actions {
+  gap: 8px;
+  padding: 8px 24px 20px;
+}
+
+.ot-milestone .ot-milestone__button {
+  @include motion.press;
+}
+
+@mixin ot-milestone-still {
+  .ot-milestone__heading,
+  .ot-milestone__unit,
+  .ot-milestone__row,
+  .ot-milestone__also {
+    animation: celebrate-fade 120ms linear both;
+    animation-delay: 0ms;
+  }
+
+  .ot-milestone__fill {
+    animation: none;
+  }
+
+  .ot-milestone__button,
+  .ot-milestone__button:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+.ot-milestone.reduced-motion {
+  @include ot-milestone-still;
+}
+
+@include motion.reduced-motion {
+  .ot-milestone {
+    @include ot-milestone-still;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .ot-milestone__hero {
+    padding-inline: 16px;
+  }
+
+  .ot-milestone .ot-milestone__actions {
+    padding-inline: 16px;
+  }
+}

@@ -1,0 +1,44 @@
+@use './motion' as motion;
+
+:host {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0) scale(0.9);
+  animation: particle-burst 620ms motion.$ease-out forwards;
+  animation-delay: calc(var(--burst-delay, 0ms) + var(--particle-delay, 0ms));
+  will-change: transform, opacity;
+}
+
+@keyframes particle-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-8px) scale(0.9);
+  }
+
+  15% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--distance) * -1))
+      scale(0.5);
+  }
+}
+
+@include motion.reduced-motion {
+  .particle {
+    display: none;
+  }
+}

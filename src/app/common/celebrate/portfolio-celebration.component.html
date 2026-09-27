@@ -1,0 +1,35 @@
+<div class="ot-portfolio" [class.ot-portfolio--still]="reducedMotion">
+  <div class="ot-portfolio__stage">
+    <span aria-hidden="true" class="ot-portfolio__mark">
+      <f-celebration-particles [count]="16" [delay]="1450" [spread]="132" />
+      <f-animated-check tone="success" [delay]="320" [pace]="2.6" [size]="124" />
+    </span>
+
+    <p class="ot-portfolio__eyebrow">{{ data.unitCode }}</p>
+    <h2 class="ot-portfolio__headline" mat-dialog-title>{{ data.headline }}</h2>
+    <p class="ot-portfolio__detail">{{ data.detail }}</p>
+  </div>
+
+  <mat-dialog-content class="ot-portfolio__content">
+    @if (data.facts.length) {
+      <dl class="ot-portfolio__facts">
+        @for (fact of data.facts; track fact.label; let index = $index) {
+          <div class="ot-portfolio__fact" [style.--fact-delay]="factDelay(index)">
+            <mat-icon aria-hidden="true">{{ fact.icon }}</mat-icon>
+            <dt>{{ fact.label }}</dt>
+            <dd>{{ fact.value }}</dd>
+          </div>
+        }
+      </dl>
+    }
+
+    <p class="ot-portfolio__next">
+      <mat-icon aria-hidden="true">schedule</mat-icon>
+      <span>{{ data.next }}</span>
+    </p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="ot-portfolio__actions">
+    <button mat-flat-button type="button" (click)="close()">Done</button>
+  </mat-dialog-actions>
+</div>

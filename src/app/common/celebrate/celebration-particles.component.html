@@ -1,0 +1,13 @@
+@if (!reducedMotion) {
+  @for (particle of particles(); track $index) {
+    <span
+      class="particle"
+      [style.--angle]="particle.angle + 'deg'"
+      [style.--distance]="particle.distance + 'px'"
+      [style.--particle-delay]="particle.delay + 'ms'"
+      [style.background]="particle.colour"
+      [style.height.px]="particle.size"
+      [style.width.px]="particle.size"
+    ></span>
+  }
+}

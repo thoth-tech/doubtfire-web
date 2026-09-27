@@ -1,0 +1,60 @@
+// Motion tokens for milestone moments. Celebrations are rare, so they may take
+// a little longer than everyday UI, but every single piece stays under 300ms and
+// a whole sequence finishes inside about 1.2s. Exits are quicker than entries.
+
+$ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+$ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+$duration-exit: 150ms;
+$duration-enter: 220ms;
+$duration-draw: 280ms;
+$stagger: 50ms;
+
+// Expose the same values as custom properties on a host, so templates can set
+// per-item delays with calc() against one source of truth.
+@mixin tokens {
+  --ease-out: #{$ease-out};
+  --ease-in-out: #{$ease-in-out};
+  --celebrate-duration-exit: #{$duration-exit};
+  --celebrate-duration-enter: #{$duration-enter};
+  --celebrate-duration-draw: #{$duration-draw};
+  --celebrate-stagger: #{$stagger};
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+@mixin press {
+  transition: transform 120ms $ease-out;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+// A soft rise used by labels and rows. Never starts from nothing: a small offset
+// and a near-full scale, so it reads as settling in place.
+@keyframes celebrate-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes celebrate-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

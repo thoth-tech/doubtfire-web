@@ -1,0 +1,35 @@
+<div
+  class="flow"
+  [class.flow--done]="done"
+  [class.flow--landed]="landed"
+  [class.flow--swapping]="swapping"
+  [style.--progress.%]="progress()"
+>
+  <span aria-hidden="true" class="flow__mark">
+    <span class="flow__ring">
+      @if (done) {
+        <f-celebration-particles [count]="12" [delay]="900" [spread]="66" />
+        <f-animated-check tone="success" [delay]="120" [pace]="1.9" [size]="80" />
+      } @else {
+        <mat-icon class="flow__glyph">{{ landed ? 'check' : 'upload_file' }}</mat-icon>
+      }
+    </span>
+  </span>
+
+  <p class="flow__title">{{ title }}</p>
+  <p class="flow__detail">{{ detail }}</p>
+
+  <div class="flow__track">
+    <span class="flow__fill"></span>
+  </div>
+
+  <div class="flow__actions">
+    @if (done) {
+      <button mat-stroked-button type="button" (click)="reset()">Done</button>
+    } @else if (running) {
+      <button mat-stroked-button type="button" (click)="reset()">Cancel upload</button>
+    } @else {
+      <button mat-flat-button type="button" (click)="play()">Submit</button>
+    }
+  </div>
+</div>

@@ -1,0 +1,106 @@
+@use './motion' as motion;
+
+:host {
+  @include motion.tokens;
+
+  --check-color: var(--ot-color-success);
+  // Multiplies every duration and delay below. A rare, full-surface moment is
+  // worth drawing more slowly than the same mark inside a toast.
+  --check-pace: 1;
+  display: inline-block;
+  flex: none;
+  line-height: 0;
+  color: var(--check-color);
+}
+
+:host(.tone-primary) {
+  --check-color: var(--ot-color-primary);
+}
+
+:host(.tone-neutral) {
+  --check-color: var(--ot-color-text-muted);
+}
+
+svg {
+  display: block;
+  overflow: visible;
+  // The small settle after the tick lands. Crisp, not bouncy: 6% at most.
+  animation: check-settle calc(240ms * var(--check-pace)) motion.$ease-out both;
+  animation-delay: calc(var(--check-delay, 0ms) + 520ms * var(--check-pace));
+}
+
+.ring-track {
+  stroke: currentColor;
+  opacity: 0.16;
+}
+
+.ring,
+.tick {
+  stroke: currentColor;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.ring {
+  stroke-linecap: round;
+  animation: check-draw calc(#{motion.$duration-draw} * var(--check-pace)) motion.$ease-out forwards;
+  animation-delay: var(--check-delay, 0ms);
+}
+
+.tick {
+  animation: check-draw calc(240ms * var(--check-pace)) motion.$ease-out forwards;
+  animation-delay: calc(var(--check-delay, 0ms) + 260ms * var(--check-pace));
+}
+
+@keyframes check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes check-settle {
+  0% {
+    transform: scale(0.95);
+  }
+
+  60% {
+    transform: scale(1.06);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@mixin static-end-state {
+  svg {
+    animation: celebrate-check-fade 120ms linear both;
+    animation-delay: var(--check-delay, 0ms);
+  }
+
+  .ring,
+  .tick {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes celebrate-check-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+:host(.reduced-motion) {
+  @include static-end-state;
+}
+
+@include motion.reduced-motion {
+  :host {
+    @include static-end-state;
+  }
+}

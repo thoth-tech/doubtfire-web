@@ -1,0 +1,35 @@
+<svg
+  aria-hidden="true"
+  focusable="false"
+  viewBox="0 0 52 52"
+  [attr.height]="size()"
+  [attr.width]="size()"
+>
+  <circle
+    class="ring-track"
+    cx="26"
+    cy="26"
+    fill="none"
+    r="23"
+    [attr.stroke-width]="strokeWidth()"
+  />
+  <circle
+    class="ring"
+    cx="26"
+    cy="26"
+    fill="none"
+    pathLength="1"
+    r="23"
+    transform="rotate(-90 26 26)"
+    [attr.stroke-width]="strokeWidth()"
+  />
+  <path
+    class="tick"
+    d="M16 27 l7 7 l13 -14"
+    fill="none"
+    pathLength="1"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    [attr.stroke-width]="strokeWidth()"
+  />
+</svg>

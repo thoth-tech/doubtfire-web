@@ -1,0 +1,236 @@
+// The end of a unit. Everything here is slower than the rest of the app on
+// purpose: the mark draws at 2.6x the usual pace, the words arrive after it has
+// landed, and the facts settle one at a time. Nothing times out.
+@use './motion' as motion;
+
+$portfolio-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+.ot-portfolio-dialog {
+  // Material reads its own token for this. Setting justify-content on the
+  // actions loses to the rule that reads the token, so the button stayed right.
+  --mat-dialog-actions-alignment: center;
+}
+
+.ot-portfolio-dialog .mat-mdc-dialog-surface {
+  overflow: hidden;
+  border-radius: var(--ot-radius-lg, 16px);
+  background: var(--ot-color-surface);
+}
+
+.ot-portfolio {
+  display: flex;
+  flex-direction: column;
+  // The surface is capped by the dialog config, so the middle scrolls rather
+  // than the ends being cut off on a short window.
+  min-height: 0;
+  max-height: 100%;
+  color: var(--ot-color-text);
+  text-align: center;
+}
+
+// ---- The mark and the words ----
+.ot-portfolio__stage {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px 8px;
+  // A soft wash behind the mark, so the top of the dialog is the subject.
+  background: radial-gradient(
+    120% 90% at 50% 0%,
+    color-mix(in srgb, var(--ot-color-success) 14%, transparent),
+    transparent 70%
+  );
+}
+
+.ot-portfolio__mark {
+  position: relative;
+  display: inline-flex;
+}
+
+.ot-portfolio__eyebrow {
+  margin: 24px 0 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  animation: portfolio-rise 360ms $portfolio-ease-out both;
+  animation-delay: 1050ms;
+}
+
+.ot-portfolio__headline {
+  max-width: 16ch;
+  margin: 8px 0 0;
+  color: var(--ot-color-text);
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  animation: portfolio-rise 420ms $portfolio-ease-out both;
+  animation-delay: 1180ms;
+}
+
+.ot-portfolio__detail {
+  max-width: 38ch;
+  margin: 12px 0 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  animation: portfolio-rise 380ms $portfolio-ease-out both;
+  animation-delay: 1320ms;
+}
+
+// ---- The facts ----
+.ot-portfolio__content.mat-mdc-dialog-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  max-height: none;
+  padding: 24px;
+  color: inherit;
+}
+
+.ot-portfolio__facts {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  margin: 0;
+}
+
+.ot-portfolio__fact {
+  display: grid;
+  align-items: center;
+  gap: 0 12px;
+  grid-template-areas:
+    'icon label'
+    'icon value';
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 12px 14px;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md, 10px);
+  background: var(--ot-color-surface-raised);
+  text-align: start;
+  animation: portfolio-rise 320ms $portfolio-ease-out both;
+  animation-delay: var(--fact-delay, 1500ms);
+
+  mat-icon {
+    grid-area: icon;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    color: var(--ot-color-success);
+    font-size: 22px;
+    line-height: 22px;
+    overflow: visible;
+  }
+
+  dt {
+    grid-area: label;
+    margin: 0;
+    color: var(--ot-color-text-muted);
+    font-size: 0.7rem;
+    font-weight: 650;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  dd {
+    grid-area: value;
+    margin: 0;
+    color: var(--ot-color-text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+}
+
+.ot-portfolio__next {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 14px;
+  border-radius: var(--ot-radius-md, 10px);
+  background: var(--ot-color-surface-raised);
+  color: var(--ot-color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: start;
+  animation: portfolio-rise 320ms $portfolio-ease-out both;
+  animation-delay: 2100ms;
+
+  mat-icon {
+    // Without flex: none the glyph is squashed by the text beside it and the
+    // clock loses its right edge.
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-block-start: 1px;
+    font-size: 18px;
+    line-height: 18px;
+    overflow: visible;
+  }
+}
+
+// ---- Leaving ----
+// No timer. It waits, because this is the one moment worth staying on.
+.ot-portfolio__actions.mat-mdc-dialog-actions {
+  flex: none;
+  justify-content: center;
+  padding: 0 24px max(28px, env(safe-area-inset-bottom, 0px));
+  animation: portfolio-rise 320ms $portfolio-ease-out both;
+  animation-delay: 2300ms;
+
+  button {
+    min-width: 140px;
+    transition: transform 140ms $portfolio-ease-out;
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+}
+
+@keyframes portfolio-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@mixin portfolio-still {
+  .ot-portfolio__eyebrow,
+  .ot-portfolio__headline,
+  .ot-portfolio__detail,
+  .ot-portfolio__fact,
+  .ot-portfolio__next,
+  .ot-portfolio__actions.mat-mdc-dialog-actions {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .ot-portfolio__actions button {
+    transition: none;
+  }
+}
+
+.ot-portfolio--still {
+  @include portfolio-still;
+}
+
+@include motion.reduced-motion {
+  .ot-portfolio {
+    @include portfolio-still;
+  }
+}

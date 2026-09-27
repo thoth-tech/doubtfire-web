@@ -1,0 +1,408 @@
+// Every colour resolves from an --ot-* token, so this page repaints with the theme.
+@use '../motion' as motion;
+
+:host {
+  @include motion.tokens;
+
+  display: block;
+  background: var(--ot-color-page);
+  color: var(--ot-color-text);
+}
+
+.motion-demo {
+  box-sizing: border-box;
+  max-width: 880px;
+  margin-inline: auto;
+  padding: clamp(16px, 4vw, 32px);
+}
+
+.intro {
+  margin-block-end: 32px;
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 1.75rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    max-width: 62ch;
+    margin: 0;
+    color: var(--ot-color-text-muted);
+    line-height: 1.55;
+  }
+}
+
+.warn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-block-start: 12px !important;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.group {
+  margin-block-end: 16px;
+  padding: 20px;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md, 10px);
+  background: var(--ot-color-surface);
+
+  h2,
+  h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    font-weight: 620;
+  }
+}
+
+.group__lede {
+  max-width: 62ch;
+  margin: 0 0 16px;
+  color: var(--ot-color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.candidates-heading {
+  margin: 40px 0 6px;
+  font-size: 1.3rem;
+  font-weight: 650;
+}
+
+.candidates-lede {
+  max-width: 62ch;
+  margin: 0 0 16px;
+  color: var(--ot-color-text-muted);
+  line-height: 1.55;
+}
+
+.candidate__who {
+  margin: 0 0 10px;
+  color: var(--ot-color-text-muted);
+  font-size: 0.84rem;
+}
+
+.candidate--none {
+  opacity: 0.8;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.triggers {
+  display: grid;
+  gap: 12px 20px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+.triggers__note {
+  color: var(--ot-color-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+
+  figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+
+  figcaption {
+    color: var(--ot-color-text-muted);
+    font-size: 0.8rem;
+  }
+}
+
+.marks__burst {
+  position: relative;
+  display: inline-flex;
+}
+
+.sample {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.sample--stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.sample__hint {
+  color: var(--ot-color-text-muted);
+  font-size: 0.8rem;
+}
+
+// ---- Candidate 1: status pill ----------------------------------------------
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ot-status-not-started);
+  color: var(--ot-status-not-started-on);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 560;
+  cursor: pointer;
+  transition:
+    transform 140ms var(--ease-out),
+    background-color 200ms ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  // The label and glyph blur through the swap. Two objects crossfading read as
+  // two objects; blurred, they read as one changing.
+  mat-icon,
+  span {
+    transition:
+      filter 110ms ease,
+      opacity 110ms ease;
+  }
+
+  &.bridging {
+    mat-icon,
+    span {
+      opacity: 0.4;
+      filter: blur(3px);
+    }
+  }
+
+  @each $tone in not-started, working-on-it, ready-for-feedback, discuss, complete {
+    &[data-tone='#{$tone}'] {
+      background: var(--ot-status-#{$tone});
+      color: var(--ot-status-#{$tone}-on);
+    }
+  }
+}
+
+// ---- Candidate 2: progress --------------------------------------------------
+.progress {
+  position: relative;
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--ot-color-surface-raised);
+}
+
+.progress__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ot-color-primary);
+  // Clipping keeps this on the compositor. Animating width would lay out every frame.
+  clip-path: inset(0 calc(100% - var(--progress, 0%)) 0 0);
+  transition: clip-path 520ms var(--ease-in-out);
+}
+
+.progress__value {
+  min-width: 3.5rem;
+  color: var(--ot-color-text-muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+// ---- Candidate 3: the wash --------------------------------------------------
+.task-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  padding: 12px 14px;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md, 10px);
+  background: var(--ot-color-surface-raised);
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--ot-status-complete);
+    font-size: 20px;
+  }
+
+  // A band of light crosses once. It sits above the row and below nothing else.
+  &::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 55%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--ot-color-primary) 16%, transparent),
+      transparent
+    );
+    content: '';
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-100%);
+  }
+
+  &.washed::after {
+    animation: row-wash 900ms var(--ease-in-out) both;
+  }
+}
+
+.task-row__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.task-row__status {
+  color: var(--ot-color-text-muted);
+  font-size: 0.8rem;
+}
+
+@keyframes row-wash {
+  from {
+    opacity: 1;
+    transform: translateX(-100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(220%);
+  }
+}
+
+// ---- Candidate 4: comments --------------------------------------------------
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 60px;
+  padding: 12px;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md, 10px);
+  background: var(--ot-color-surface-raised);
+}
+
+.bubble {
+  max-width: 34ch;
+  margin: 0;
+  padding: 9px 13px;
+  border-radius: 14px 14px 14px 4px;
+  background: var(--ot-color-surface);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  // Rises from the composer, so the eye follows it into place.
+  animation: bubble-in 180ms var(--ease-out) both;
+}
+
+.bubble--mine {
+  align-self: flex-end;
+  border-radius: 14px 14px 4px;
+  background: var(--ot-color-primary);
+  color: var(--ot-color-on-primary);
+}
+
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// ---- Candidate 5: files -----------------------------------------------------
+.files {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.files__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md, 10px);
+  background: var(--ot-color-surface-raised);
+  font-size: 0.875rem;
+  animation: celebrate-rise 200ms var(--ease-out) both;
+  animation-delay: var(--row-delay, 0ms);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--ot-color-text-muted);
+    font-size: 18px;
+  }
+
+  span {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+@include motion.reduced-motion {
+  .progress__fill,
+  .status-pill,
+  .status-pill mat-icon,
+  .status-pill span {
+    transition-duration: 1ms;
+  }
+
+  .task-row.washed::after,
+  .bubble,
+  .files__row {
+    animation: celebrate-fade 120ms linear both;
+  }
+}
