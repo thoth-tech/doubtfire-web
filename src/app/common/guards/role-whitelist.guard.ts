@@ -1,4 +1,4 @@
-import {inject} from '@angular/core';
+import {inject, isDevMode} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivateFn, Router, UrlTree} from '@angular/router';
 import {Observable, filter, map, of, take} from 'rxjs';
 import {AuthenticationService, UserService} from 'src/app/api/models/doubtfire-model';
@@ -14,6 +14,14 @@ export const roleWhitelistGuard: CanActivateFn = (
   const roleWhitelist = route.data['roleWhitelist'] as string[] | undefined;
 
   if (!roleWhitelist?.length) {
+    // A route that asks for the guard and gives it no whitelist lets everybody through. Keep
+    // letting them through so production behaviour does not change, but say so while developing.
+    if (isDevMode()) {
+      console.error(
+        `roleWhitelistGuard is on route '${routePath(route)}' with no roleWhitelist in its data, ` +
+          'so it allows every signed in user. Add a roleWhitelist or drop the guard.',
+      );
+    }
     return of(true);
   }
 
@@ -28,6 +36,15 @@ export const roleWhitelistGuard: CanActivateFn = (
     }),
   );
 };
+
+function routePath(route: ActivatedRouteSnapshot): string {
+  return (
+    route.pathFromRoot
+      .map((snapshot) => snapshot.routeConfig?.path)
+      .filter((path) => !!path)
+      .join('/') || '/'
+  );
+}
 
 function roleForRoute(
   route: ActivatedRouteSnapshot,

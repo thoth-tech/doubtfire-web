@@ -1,4 +1,4 @@
-<div class="institution-settings-container">
+<div>
   <!-- <h1 class="py-2 text-center text-gray-800">Institution settings</h1> -->
   <mat-tab-group
     class="mx-auto mb-6 max-w-fit"
@@ -14,30 +14,42 @@
   <div class="min-h-0 flex-1">
     @switch (currentTab.routeSegment) {
       @case ('campuses') {
-        <campus-list></campus-list>
+        <f-page-container>
+          <campus-list></campus-list>
+        </f-page-container>
       }
       @case ('activities') {
-        <activity-type-list></activity-type-list>
+        <f-page-container>
+          <activity-type-list></activity-type-list>
+        </f-page-container>
       }
       @case ('teaching-periods') {
-        <f-teaching-period-list></f-teaching-period-list>
+        <f-page-container>
+          <f-teaching-period-list></f-teaching-period-list>
+        </f-page-container>
       }
       @case ('learning-outcomes') {
-        <div class="learning-outcomes-container">
-          <div class="header">
-            <div class="mt-6">
-              <h1 class="mb-0.5">Learning Outcomes</h1>
-              <p>Manage global learning outcomes for the institution</p>
+        <f-page-container>
+          <div class="learning-outcomes-container">
+            <div class="header">
+              <div class="mt-6">
+                <h1 class="mb-0.5">Learning Outcomes</h1>
+                <p>Manage global learning outcomes for the institution</p>
+              </div>
             </div>
+            <f-learning-outcome-editor></f-learning-outcome-editor>
           </div>
-          <f-learning-outcome-editor></f-learning-outcome-editor>
-        </div>
+        </f-page-container>
       }
       @case ('overseer-images') {
-        <overseer-image-list></overseer-image-list>
+        <f-page-container>
+          <overseer-image-list></overseer-image-list>
+        </f-page-container>
       }
       @case ('turnitin') {
-        <f-tii-action-log></f-tii-action-log>
+        <div class="px-20">
+          <f-tii-action-log></f-tii-action-log>
+        </div>
       }
     }
   </div>

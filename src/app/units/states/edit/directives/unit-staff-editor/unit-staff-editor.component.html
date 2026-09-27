@@ -1,160 +1,194 @@
-<div>
-  <div class="header">
-    <h3>Unit Staff</h3>
-    <p>Manage unit staff by adding members and assigning them as convenors or tutors.</p>
-  </div>
-  <table mat-table matSort [dataSource]="dataSource">
-    <ng-container matColumnDef="name">
-      <th *matHeaderCellDef mat-header-cell>Name</th>
-
-      <td *matCellDef="let unitRole" mat-cell>
-        <div class="flex items-center gap-3">
-          <user-icon aria-hidden="true" [size]="30" [user]="unitRole.user"></user-icon
-          >{{ unitRole.user.name }}
-        </div>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="role">
-      <th *matHeaderCellDef mat-header-cell>Role</th>
-      <td *matCellDef="let unitRole" mat-cell>
-        <mat-button-toggle-group
-          appearance="legacy"
-          class="my-3"
-          hideSingleSelectionIndicator
-          name="role"
-          [ngModel]="unitRole.role"
-          (change)="onRoleChange(unitRole, $event)"
+<section
+  aria-label="Unit staff"
+  class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+>
+  <div
+    class="flex flex-col gap-3 border-b border-ot-divider p-4 sm:flex-row sm:flex-wrap sm:items-end sm:px-5"
+  >
+    <div class="flex min-w-0 flex-col gap-1.5 sm:w-96">
+      <label class="text-sm font-medium text-ot-text" for="unit-staff-search">
+        Add a staff member
+      </label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-icon aria-hidden="true" class="text-ot-muted" matPrefix>person_add</mat-icon>
+        <input
+          aria-describedby="unit-staff-search-hint"
+          autocomplete="off"
+          id="unit-staff-search"
+          matInput
+          [matAutocomplete]="staffSearch"
+          [(ngModel)]="searchTerm"
+          (focus)="filterStaffList()"
+          (ngModelChange)="filterStaffList()"
+        />
+        <mat-autocomplete
+          #staffSearch="matAutocomplete"
+          [displayWith]="displayStaffName"
+          (optionSelected)="addSelectedStaff($event.option.value)"
         >
-          <mat-button-toggle
-            matTooltip="Tutors deliver unit content"
-            matTooltipPosition="above"
-            matTooltipShowDelay="1000"
-            value="Tutor"
-            >Tutor</mat-button-toggle
-          >
-          <mat-button-toggle
-            matTooltip="Convenors manage the unit"
-            matTooltipPosition="above"
-            matTooltipShowDelay="1000"
-            value="Convenor"
-            >Convenor</mat-button-toggle
-          >
-        </mat-button-toggle-group>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="main-convenor">
-      <th *matHeaderCellDef mat-header-cell>Main Convenor</th>
-      <td *matCellDef="let unitRole" mat-cell>
-        @if (unitRole?.role === 'Convenor') {
-          <button
-            aria-label="Make staff member the Main Convenor"
-            mat-icon-button
-            [disabled]="unitRole.id === unit?.mainConvenor?.id"
-            (click)="changeMainConvenor(unitRole)"
-          >
-            <mat-icon aria-hidden="true">
-              {{ unitRole.id === unit?.mainConvenor?.id ? 'check' : 'close' }}
-            </mat-icon>
-          </button>
-        }
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="observer-only">
-      <th *matHeaderCellDef mat-header-cell>Observer Only</th>
-      <td *matCellDef="let unitRole" mat-cell>
-        <mat-slide-toggle
-          matTooltip="This staff member will have read-only access as an observer"
-          matTooltipPosition="above"
-          matTooltipShowDelay="1000"
-          [checked]="unitRole.observerOnly"
-          [disabled]="unitRole.id === unit.mainConvenor.id"
-          (change)="toggleObserverOnly(unitRole)"
-        ></mat-slide-toggle>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="overflow-marking">
-      <th *matHeaderCellDef mat-header-cell>Overflow Marking</th>
-      <td *matCellDef="let unitRole" mat-cell>
-        <mat-slide-toggle
-          matTooltip="This staff member can mark overflow tasks"
-          matTooltipPosition="above"
-          matTooltipShowDelay="1000"
-          [checked]="unitRole.canMarkOverflowTasks"
-          (change)="toggleCanOverflowMark(unitRole)"
-        ></mat-slide-toggle>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="mentor">
-      <th *matHeaderCellDef mat-header-cell>Mentor</th>
-      <td *matCellDef="let unitRole" mat-cell>
-        <mat-select
-          class="w-full min-w-[140px]"
-          [ngModel]="unitRole.mentorId"
-          (selectionChange)="selectMentor(unitRole, $event)"
-        >
-          <mat-option value="">(None)</mat-option>
-          @for (unitRole of unitStaff; track unitRole) {
-            <mat-option class="w-full min-w-fit" [value]="unitRole.id">
-              {{ unitRole.user.name }}</mat-option
-            >
+          @for (person of filteredStaff; track person.id) {
+            <mat-option [value]="person">
+              <span class="block">{{ person.name }}</span>
+              <span class="block text-sm text-ot-muted">{{ person.email }}</span>
+            </mat-option>
           }
-        </mat-select>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th *matHeaderCellDef mat-header-cell>Actions</th>
-      <td *matCellDef="let unitRole" mat-cell>
-        <div class="flex gap-1">
-          <button
-            mat-icon-button
-            matTooltip="View Moderation Notes"
-            (click)="openTutorNotes(unitRole)"
-          >
-            <mat-icon>local_library</mat-icon>
-          </button>
-          <button color="warn" mat-icon-button (click)="removeStaff(unitRole)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-      </td>
-    </ng-container>
-    <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-    <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
-  </table>
-  <div class="mt-3 flex flex-col items-center gap-2 md:flex-row md:items-start">
-    <mat-form-field appearance="outline" class="w-full">
-      <input
-        matInput
-        placeholder="Staff Name"
-        [matAutocomplete]="auto"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="filterStaffList()"
-      />
-      <mat-autocomplete
-        #auto="matAutocomplete"
-        [displayWith]="displayStaffName"
-        (optionSelected)="addSelectedStaff($event.option.value)"
-      >
-        @for (staff of filteredStaff; track staff) {
-          <mat-option [value]="staff">
-            {{ staff.name }}
-          </mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-
+        </mat-autocomplete>
+      </mat-form-field>
+    </div>
+    <p class="m-0 text-sm text-ot-muted sm:flex-1 sm:pb-3.5" id="unit-staff-search-hint">
+      Search by name or email. New staff join as tutors.
+    </p>
     <button
-      class="mt-[11px] min-w-fit"
-      color="primary"
+      class="self-start sm:self-auto"
       mat-stroked-button
       type="button"
       (click)="openBulkImportModal()"
     >
-      Bulk Import
+      <mat-icon aria-hidden="true">group_add</mat-icon>
+      Add by email
     </button>
   </div>
-</div>
+
+  <!-- The table scrolls sideways on its own on a narrow screen, never the page. -->
+  <div class="relative overflow-x-auto">
+    <table class="w-full min-w-[60rem]" mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="name">
+        <th *matHeaderCellDef mat-header-cell>Name</th>
+        <td *matCellDef="let unitRole" mat-cell>
+          <div class="flex min-w-0 items-center gap-3 py-2">
+            <user-icon aria-hidden="true" [size]="32" [user]="unitRole.user"></user-icon>
+            <div class="min-w-0">
+              <p class="m-0 font-medium text-ot-text">{{ unitRole.user?.displayName }}</p>
+              <p class="m-0 truncate text-sm text-ot-muted">{{ unitRole.user?.email }}</p>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th *matHeaderCellDef mat-header-cell>Role</th>
+        <td *matCellDef="let unitRole" mat-cell>
+          <mat-button-toggle-group
+            hideSingleSelectionIndicator
+            name="role"
+            [attr.aria-label]="'Role for ' + unitRole.user?.displayName"
+            [ngModel]="unitRole.role"
+            (change)="onRoleChange(unitRole, $event)"
+          >
+            <mat-button-toggle value="Tutor">Tutor</mat-button-toggle>
+            <mat-button-toggle value="Convenor">Convenor</mat-button-toggle>
+          </mat-button-toggle-group>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="main-convenor">
+        <th *matHeaderCellDef mat-header-cell>Main convenor</th>
+        <td *matCellDef="let unitRole" mat-cell>
+          @if (isMainConvenor(unitRole)) {
+            <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ot-text">
+              <mat-icon aria-hidden="true" class="!size-5 !text-xl !leading-none text-ot-primary">
+                star
+              </mat-icon>
+              Main convenor
+            </span>
+          } @else if (unitRole.role === 'Convenor') {
+            <button
+              mat-button
+              type="button"
+              [attr.aria-label]="'Make ' + unitRole.user?.displayName + ' the main convenor'"
+              (click)="changeMainConvenor(unitRole)"
+            >
+              Make main
+            </button>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="observer-only">
+        <th *matHeaderCellDef mat-header-cell>
+          <span matTooltip="Observers can see the unit but cannot change anything">
+            Observer only
+          </span>
+        </th>
+        <td *matCellDef="let unitRole" mat-cell>
+          <mat-slide-toggle
+            [aria-label]="unitRole.user?.displayName + ' is an observer only'"
+            [checked]="unitRole.observerOnly"
+            [disabled]="isMainConvenor(unitRole)"
+            (change)="toggleObserverOnly(unitRole)"
+          ></mat-slide-toggle>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="overflow-marking">
+        <th *matHeaderCellDef mat-header-cell>
+          <span matTooltip="Can mark work from the overflow queue">Overflow marking</span>
+        </th>
+        <td *matCellDef="let unitRole" mat-cell>
+          <mat-slide-toggle
+            [aria-label]="unitRole.user?.displayName + ' can mark overflow work'"
+            [checked]="unitRole.canMarkOverflowTasks"
+            (change)="toggleCanOverflowMark(unitRole)"
+          ></mat-slide-toggle>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="mentor">
+        <th *matHeaderCellDef mat-header-cell>Mentor</th>
+        <td *matCellDef="let unitRole" mat-cell>
+          <mat-form-field appearance="outline" class="w-48 py-2" subscriptSizing="dynamic">
+            <mat-select
+              canSelectNullableOptions
+              [aria-label]="'Mentor for ' + unitRole.user?.displayName"
+              [ngModel]="unitRole.mentorId ?? null"
+              (selectionChange)="selectMentor(unitRole, $event)"
+            >
+              <mat-option [value]="null">No mentor</mat-option>
+              @for (other of mentorOptions(unitRole); track other.id) {
+                <mat-option [value]="other.id">{{ other.user?.displayName }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th *matHeaderCellDef mat-header-cell><span class="sr-only">Actions</span></th>
+        <td *matCellDef="let unitRole" mat-cell>
+          <div class="flex justify-end gap-1">
+            <button
+              mat-icon-button
+              matTooltip="Moderation notes"
+              type="button"
+              [attr.aria-label]="'Moderation notes for ' + unitRole.user?.displayName"
+              (click)="openTutorNotes(unitRole)"
+            >
+              <mat-icon aria-hidden="true">sticky_note_2</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              matTooltip="Remove from unit"
+              type="button"
+              [attr.aria-label]="'Remove ' + unitRole.user?.displayName + ' from the unit'"
+              (click)="removeStaff(unitRole)"
+            >
+              <mat-icon aria-hidden="true">person_remove</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+      <tr *matNoDataRow class="mat-row">
+        <td class="mat-cell !border-b-0" [attr.colspan]="displayedColumns.length">
+          <f-empty-state
+            hint="Search for a staff member above to add them."
+            icon="group_off"
+            message="No staff added yet"
+          ></f-empty-state>
+        </td>
+      </tr>
+    </table>
+  </div>
+</section>

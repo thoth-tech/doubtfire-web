@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+.connection-status {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--ot-color-warning);
+  background: var(--ot-color-surface);
+  color: var(--ot-color-text);
+  text-align: center;
+  line-height: 1.5;
+}

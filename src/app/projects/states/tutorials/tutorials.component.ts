@@ -91,17 +91,40 @@ export class TutorialsComponent implements OnInit, OnDestroy {
 
   /**
    * Formats the passed-in time string to the format of: HH:mm
-   * Todo: Add date validation
+   * Falls back to the raw value (or a missing-time label) when it is not a
+   * "hours:minutes" string, instead of throwing.
+   *
    * @param meetingTime
    *
    * @returns string
    */
-  shortTime(meetingTime: string): string {
+  shortTime(meetingTime?: string): string {
+    if (!meetingTime) {
+      return 'Not set';
+    }
+
     const [hours, minutes] = meetingTime.split(':');
+    if (minutes === undefined) {
+      return meetingTime;
+    }
     const formattedHours = hours.padStart(2, '0');
     const formattedMinutes = minutes.padStart(2, '0');
 
     return `${formattedHours}:${formattedMinutes}`;
+  }
+
+  tutorialStreamLabel(tutorial: Tutorial): string {
+    return this.unit?.tutorialStreamsCache?.size > 0
+      ? tutorial.tutorialStream?.name || 'All streams'
+      : 'Not applicable';
+  }
+
+  tutorialCampusLabel(tutorial: Tutorial): string {
+    return tutorial.campus?.name || 'All campuses';
+  }
+
+  tutorialValue(value: string | null | undefined): string {
+    return value?.trim() || 'Not set';
   }
 
   private sortCompare(

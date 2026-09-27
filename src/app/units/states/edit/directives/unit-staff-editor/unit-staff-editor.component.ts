@@ -1,8 +1,9 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {MatButtonToggleChange} from '@angular/material/button-toggle';
 import {MatSelectChange} from '@angular/material/select';
 import {MatTableDataSource} from '@angular/material/table';
-import {Tutorial, User} from 'src/app/api/models/doubtfire-model';
+import {Subscription} from 'rxjs';
+import {Tutorial, UnitService, User} from 'src/app/api/models/doubtfire-model';
 import {Unit} from 'src/app/api/models/unit';
 import {UnitRole} from 'src/app/api/models/unit-role';
 import {UnitRoleService} from 'src/app/api/services/unit-role.service';
@@ -23,15 +24,13 @@ import {BulkImportStaffModalService} from './bulk-import-staff-modal/bulk-import
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class UnitStaffEditorComponent implements OnInit {
+export class UnitStaffEditorComponent implements OnInit, OnDestroy {
   @Input() unit: Unit;
   @Input() staff: User[];
 
-  temp = [];
-  users = [];
-  unitStaff: UnitRole[];
+  unitStaff: UnitRole[] = [];
   filteredStaff: User[] = []; // Filtered staff members
-  searchTerm: string = ''; // Search term entered by the user
+  searchTerm: string | User = ''; // Search term entered by the user, or the person picked
 
   displayedColumns: string[] = [
     'name',
@@ -44,6 +43,8 @@ export class UnitStaffEditorComponent implements OnInit {
   ];
   dataSource: MatTableDataSource<UnitRole> = new MatTableDataSource();
 
+  private subscriptions: Subscription[] = [];
+
   // Inject services here
   constructor(
     private alertService: AlertService,
@@ -53,14 +54,39 @@ export class UnitStaffEditorComponent implements OnInit {
     private tutorNotesModal: TutorNotesModalService,
     private bulkImportStaffModal: BulkImportStaffModalService,
     private csvResultModal: CsvResultModalService,
+    private unitService: UnitService,
   ) {}
 
   ngOnInit(): void {
     // Subscribe to staff cache
-    this.unit.staffCache.values.subscribe((staff: UnitRole[]) => {
-      this.unitStaff = staff;
-      this.dataSource.data = staff;
-    });
+    this.subscriptions.push(
+      this.unit.staffCache.values.subscribe((staff: UnitRole[]) => {
+        this.unitStaff = staff;
+        this.dataSource.data = staff;
+      }),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+  }
+
+  /**
+   * A unit can be without a main convenor, for example straight after it is created,
+   * and reading the id off a missing convenor used to break the whole table.
+   */
+  isMainConvenor(unitRole: UnitRole): boolean {
+    return !!unitRole?.id && unitRole.id === this.unit?.mainConvenor?.id;
+  }
+
+  /**
+   * Everyone who could mentor this person. That is the rest of the staff, plus whoever
+   * mentors them now, so the field never shows blank.
+   */
+  mentorOptions(unitRole: UnitRole): UnitRole[] {
+    return this.unitStaff.filter(
+      (other) => other.id !== unitRole.id || other.id === unitRole.mentorId,
+    );
   }
 
   onRoleChange(unitRole: UnitRole, event: MatButtonToggleChange) {
@@ -86,7 +112,7 @@ export class UnitStaffEditorComponent implements OnInit {
     unitRole.roleId = roleId;
     unitRole.role = role;
     this.unitRoleService.update(unitRole).subscribe({
-      next: () => this.alertService.success('Role changed', 2000),
+      next: () => this.alertService.success(`${unitRole.user.displayName} is now a ${role}.`, 2000),
       error: (response) => {
         // Revert changes on error
         unitRole.roleId = previousRoleId;
@@ -101,7 +127,7 @@ export class UnitStaffEditorComponent implements OnInit {
     unitRole.observerOnly = !unitRole.observerOnly;
     unitRole.roleId = unitRole.role === 'Tutor' ? 2 : 3;
     this.unitRoleService.update(unitRole).subscribe({
-      next: () => this.alertService.success('Observer status updated', 2000),
+      next: () => this.alertService.success('Observer setting updated', 2000),
       error: (response) => {
         // Revert changes on error
         unitRole.observerOnly = previousValue;
@@ -115,7 +141,7 @@ export class UnitStaffEditorComponent implements OnInit {
     unitRole.canMarkOverflowTasks = !unitRole.canMarkOverflowTasks;
     unitRole.roleId = unitRole.role === 'Tutor' ? 2 : 3;
     this.unitRoleService.update(unitRole).subscribe({
-      next: () => this.alertService.success('Overflow marking permissions updated', 2000),
+      next: () => this.alertService.success('Overflow marking updated', 2000),
       error: (response) => {
         // Revert changes on error
         unitRole.canMarkOverflowTasks = previousValue;
@@ -126,7 +152,8 @@ export class UnitStaffEditorComponent implements OnInit {
 
   selectMentor(unitRole: UnitRole, event: MatSelectChange) {
     const previousValue = unitRole.mentorId;
-    unitRole.mentorId = event.value;
+    // "No mentor" is null, which the api reads as removing the mentor.
+    unitRole.mentorId = event.value ?? null;
     unitRole.roleId = unitRole.role === 'Tutor' ? 2 : 3;
 
     this.unitRoleService.update(unitRole).subscribe({
@@ -138,23 +165,31 @@ export class UnitStaffEditorComponent implements OnInit {
       },
     });
   }
+
   /**
-   * Changes who the `Main Convenor` of the unit is.
-   *
-   * @param UnitRole staff
-   *
-   * @returns void
+   * Makes a convenor the main convenor of the unit. Only the convenor is sent, so this
+   * cannot also send some other field of the unit that differs from what was loaded.
    */
   changeMainConvenor(staff: UnitRole) {
     this.confirmationModalService.show(
-      'Set Main Convenor',
-      `Do you want to make ${staff.user.name} the main convenor for this unit?`,
+      'Change the main convenor?',
+      `${staff.user.displayName} will become the main convenor of ${this.unit.code}.`,
       () => {
-        this.unit.changeMainConvenor(staff).subscribe({
-          next: (_response) => this.alertService.success('Main convenor changed', 2000),
-          error: (response) => this.alertService.error(response, 6000),
+        const previous = this.unit.mainConvenor;
+        this.unit.mainConvenor = staff;
+        this.unitService.update(this.unit, {body: {unit: {main_convenor_id: staff.id}}}).subscribe({
+          next: () => {
+            this.unit.mainConvenor = staff;
+            this.alertService.success(`${staff.user.displayName} is now the main convenor`, 2000);
+          },
+          error: (response) => {
+            this.unit.mainConvenor = previous;
+            this.alertService.error(response, 6000);
+          },
         });
       },
+      undefined,
+      'Change',
     );
   }
 
@@ -169,7 +204,7 @@ export class UnitStaffEditorComponent implements OnInit {
     if (selectedStaff?.id) {
       this.unit.addStaff(selectedStaff).subscribe({
         next: () => {
-          this.alertService.success('Staff member added', 2000);
+          this.alertService.success(`${selectedStaff.name} added as a tutor`, 2000);
           this.searchTerm = ''; // Clear the input field
           this.filterStaffList(); // Refilter the list
         },
@@ -206,10 +241,11 @@ export class UnitStaffEditorComponent implements OnInit {
     if (typeof this.searchTerm !== 'string') {
       return;
     }
-    this.filteredStaff = this.staff.filter(
+    const term = this.searchTerm.trim().toLowerCase();
+    this.filteredStaff = (this.staff ?? []).filter(
       (staff) =>
-        staff.matches(this.searchTerm.toLowerCase()) && // Find by name
-        !this.unit.staff.find((listStaff) => staff.id === listStaff.user.id) && // Not already assigned to the unit
+        staff.matches(term) && // Find by name
+        !this.unit.staff.find((listStaff) => staff.id === listStaff.user?.id) && // Not already assigned to the unit
         // Filter out students from the staff search
         // NOTE: This is a hotfix to an issue where loading the inbox populates this.staff with students...
         staff.isStaff,
@@ -223,7 +259,10 @@ export class UnitStaffEditorComponent implements OnInit {
    *
    * @returns void
    */
-  displayStaffName(staff: User): string {
+  displayStaffName(staff: User | string): string {
+    if (typeof staff === 'string') {
+      return staff;
+    }
     return staff ? staff.name : '';
   }
 
@@ -242,17 +281,19 @@ export class UnitStaffEditorComponent implements OnInit {
 
       if (!targetRole) {
         this.alertService.error(
-          'Unable to reassign tutorials because there is no valid staff member to receive them.',
+          `${staff.user.displayName} still runs tutorials, and there is no one to give them to. Add another convenor first.`,
           6000,
         );
         return;
       }
 
       const tutorialList = assignedTutorials.map((tutorial) => tutorial.abbreviation).join(', ');
+      const toCurrentUser = targetRole.user?.id === this.userService.currentUser?.id;
+      const targetName = toCurrentUser ? 'you' : targetRole.user.displayName;
 
       this.confirmationModalService.show(
-        'Reassign Tutorials',
-        `You cannot remove ${staff.user.name} from the unit as they tutor the following tutorials: ${tutorialList}.`,
+        `Remove ${staff.user.displayName}?`,
+        `${staff.user.displayName} runs ${tutorialList}. Removing them gives these tutorials to ${targetName}.`,
         () => {
           this.unitRoleService
             .delete(staff, {
@@ -264,38 +305,43 @@ export class UnitStaffEditorComponent implements OnInit {
                 assignedTutorials.forEach((tutorial) => {
                   tutorial.tutor = targetRole.user;
                 });
-                this.alertService.success('Staff member removed and tutorials reassigned', 2000);
+                this.alertService.success(
+                  `${staff.user.displayName} removed, and their tutorials moved to ${targetName}`,
+                  2000,
+                );
               },
               error: (response) => this.alertService.error(response, 6000),
             });
         },
         undefined,
-        'Reassign to me',
+        toCurrentUser ? 'Remove and give them to me' : `Remove and give them to ${targetName}`,
         'Cancel',
       );
       return;
     }
 
     this.confirmationModalService.show(
-      'Remove staff member',
-      `Are you sure you want to remove ${staff.user.name} from ${this.unit.code} ${this.unit.name}?`,
+      `Remove ${staff.user.displayName}?`,
+      `${staff.user.displayName} will no longer be able to work in ${this.unit.code} ${this.unit.name}.`,
       () => {
         this.unitRoleService.delete(staff, {cache: this.unit.staffCache}).subscribe({
-          next: () => this.alertService.success('Staff member removed', 2000),
+          next: () => this.alertService.success(`${staff.user.displayName} removed`, 2000),
           error: (response) => this.alertService.error(response, 6000),
         });
       },
+      undefined,
+      'Remove',
     );
   }
 
   private tutorialsForUnitRole(unitRole: UnitRole): Tutorial[] {
-    return this.unit.tutorials.filter((tutorial) => tutorial.tutor?.id === unitRole.user.id);
+    return this.unit.tutorials.filter((tutorial) => tutorial.tutor?.id === unitRole.user?.id);
   }
 
   private reassignmentTargetFor(unitRole: UnitRole): UnitRole | undefined {
     const currentUserRole = this.unit.staff.find(
       (staffRole) =>
-        staffRole.user.id === this.userService.currentUser.id && staffRole.id !== unitRole.id,
+        staffRole.user?.id === this.userService.currentUser?.id && staffRole.id !== unitRole.id,
     );
 
     if (currentUserRole) {
@@ -307,10 +353,6 @@ export class UnitStaffEditorComponent implements OnInit {
     }
 
     return undefined;
-  }
-
-  groupSetName(id: number) {
-    return this.unit.groupSetsCache.get(id).name || 'Individual Work';
   }
 
   openTutorNotes(unitRole: UnitRole) {
@@ -328,11 +370,11 @@ export class UnitStaffEditorComponent implements OnInit {
 
     const existingStaffEmails: Set<string> = new Set(
       this.unit.staff
-        .map((unitRole) => unitRole.user.email?.trim().toLowerCase())
+        .map((unitRole) => unitRole.user?.email?.trim().toLowerCase())
         .filter((email): email is string => !!email),
     );
     const staffByEmail = new Map(
-      this.staff
+      (this.staff ?? [])
         .filter((staff) => staff.isStaff && staff.email)
         .map((staff) => [staff.email.trim().toLowerCase(), staff] as const),
     );

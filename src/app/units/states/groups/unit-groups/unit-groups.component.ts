@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Observable, Subscription, of} from 'rxjs';
+import {Observable, Subscription, distinctUntilChanged, of} from 'rxjs';
 import {GroupSet, Unit, UnitRole, UserService} from 'src/app/api/models/doubtfire-model';
 import {GlobalStateService, ViewType} from 'src/app/projects/states/index/global-state.service';
 
@@ -9,7 +9,6 @@ import {GlobalStateService, ViewType} from 'src/app/projects/states/index/global
 @Component({
   selector: 'f-unit-groups',
   templateUrl: './unit-groups.component.html',
-  styleUrl: './unit-groups.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
@@ -30,19 +29,30 @@ export class UnitGroupsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.unit$ = this.unit$ ?? of(this.route.parent.snapshot.data.unit);
-    this.unitSub = this.unit$?.subscribe((unit) => {
-      if (!unit) {
-        return;
-      }
+    this.unitSub = this.unit$
+      ?.pipe(distinctUntilChanged((a, b) => a?.id === b?.id))
+      .subscribe((unit) => {
+        if (!unit) {
+          return;
+        }
 
-      this.unit = unit;
-      this.unitRole = this.findUnitRole(unit.id);
-      this.selectedGroupSet = this.selectedGroupSet ?? unit.groupSets?.[0];
-    });
+        this.unit = unit;
+        this.unitRole = this.findUnitRole(unit.id);
+        this.selectedGroupSet =
+          this.selectedGroupSet?.unit?.id === unit.id ? this.selectedGroupSet : unit.groupSets?.[0];
+      });
   }
 
   ngOnDestroy(): void {
     this.unitSub?.unsubscribe();
+  }
+
+  /**
+   * Group sets are made in unit administration, which only convenors, admins and
+   * auditors can open. Tutors are not offered a link they would be turned away from.
+   */
+  public get canManageGroupSets(): boolean {
+    return !!this.unit?.currentUserCanViewUnitAdmin;
   }
 
   private findUnitRole(unitId: number): UnitRole {
@@ -55,8 +65,10 @@ export class UnitGroupsComponent implements OnInit, OnDestroy {
       }
     }
 
+    // Same null-safe lookup as the route guard: a role whose unit is not filled in yet
+    // used to throw here and leave the page blank.
     let unitRole = this.globalStateService.loadedUnitRoles.currentValues.find(
-      (role) => role.unit.id === unitId,
+      (role) => role.unit?.id === unitId,
     );
 
     if (

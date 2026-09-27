@@ -1,125 +1,146 @@
-<div class="flex size-full flex-col">
-  <mat-tab-group
-    class="mx-auto mb-6"
-    dynamicHeight
-    [selectedIndex]="currentIndex"
-    (selectedTabChange)="onTabChange($event)"
-  >
-    @for (tab of tabs; track tab.routeSegment) {
-      <mat-tab [label]="tab.label"></mat-tab>
-    }
-  </mat-tab-group>
+<f-page-container>
+  <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-2 pb-4">
+    <div class="min-w-0">
+      <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">
+        Unit administration
+      </h1>
+      <p class="m-0 mt-1.5 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+        @if (unit) {
+          {{ unit.code }} {{ unit.name }}
+          @if (unit.teachingPeriod?.name) {
+            <span aria-hidden="true">·</span> {{ unit.teachingPeriod.name }}
+          }
+        } @else if (loadingUnit) {
+          Loading the unit…
+        } @else {
+          Set up how a unit runs, who teaches it and who is enrolled.
+        }
+      </p>
+    </div>
 
-  <div class="min-h-0 flex-1">
-    @if (loadingUnit) {
-      <div aria-busy="true" aria-label="Loading unit details" class="mx-auto max-w-[90vw]">
-        <div class="flex flex-col">
-          <ngx-skeleton-loader
-            [theme]="{width: '220px', height: '24px', 'border-radius': '999px', margin: '0 0 8px'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            [theme]="{width: '420px', height: '14px', 'border-radius': '999px', margin: '0'}"
-          ></ngx-skeleton-loader>
-        </div>
-
-        <div class="mt-3 rounded">
-          <ngx-skeleton-loader
-            animation="pulse"
-            [theme]="{width: '100%', height: '300px', 'border-radius': '4px', margin: '0 0 14px'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            [theme]="{width: '50%', height: '14px', 'border-radius': '999px', margin: '0 0 10px'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            [theme]="{width: '75%', height: '14px', 'border-radius': '999px', margin: '0 0 10px'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            animation="pulse"
-            [theme]="{width: '100%', height: '300px', 'border-radius': '4px', margin: '0 0 14px'}"
-          ></ngx-skeleton-loader>
-        </div>
+    @if (unit) {
+      <div class="flex flex-wrap items-center gap-3">
+        <a
+          mat-stroked-button
+          matTooltip="Start a copy of this unit in another teaching period"
+          [routerLink]="['/units', unit.id, 'rollover']"
+        >
+          <mat-icon aria-hidden="true">content_copy</mat-icon>
+          Copy to a new teaching period
+        </a>
       </div>
-    } @else {
-      @switch (currentTab.routeSegment) {
-        @case ('details') {
-          @if (unit) {
-            <div class="mx-auto max-w-[90vw]">
-              <f-unit-details-editor [unit]="unit"></f-unit-details-editor>
-            </div>
-          }
-        }
-        @case ('learning-outcomes') {
-          @if (unit) {
-            <div class="mx-auto max-w-[90vw]">
-              <div class="header">
-                <h3>Unit Learning Outcomes</h3>
-                <p>Manage unit outcomes and related feedback templates.</p>
-              </div>
-              <f-learning-outcome-editor [context]="unit"></f-learning-outcome-editor>
-            </div>
-          }
-        }
-        @case ('staff') {
-          @if (unit) {
-            <div class="mx-auto max-w-[90vw]">
-              <unit-staff-editor [staff]="staff" [unit]="unit"></unit-staff-editor>
-            </div>
-          }
-        }
-        @case ('tutorials') {
-          @if (unit) {
-            <div class="mx-auto max-w-[90vw]">
-              <div class="header">
-                <h3>Tutorials</h3>
-                <p>Manage tutorial streams and classes for this unit.</p>
-              </div>
-              <unit-tutorials-manager [unit]="unit"></unit-tutorials-manager>
-            </div>
-          }
-        }
-        @case ('students') {
-          @if (unit) {
-            <div class="mx-auto max-w-[90vw]">
-              <unit-students-editor [unit]="unit"></unit-students-editor>
-            </div>
-          }
-        }
-        @case ('tasks') {
-          @if (unit) {
-            <div class="mx-auto max-w-[90vw]">
-              <f-unit-task-editor [unit]="unit"></f-unit-task-editor>
-            </div>
-          }
-        }
-        @case ('groups') {
-          @if (unit) {
-            <div class="mx-auto max-w-[90vw]">
-              <div class="header">
-                <h3>Groups</h3>
-                <p>Configure group sets and manage team-based activities.</p>
-              </div>
-              <f-unit-group-set-editor
-                [unit]="unit"
-                [unitRole]="assessingUnitRole"
-              ></f-unit-group-set-editor>
-            </div>
-          }
-        }
-        @case ('communication') {
-          @if (unit) {
-            <div class="mx-auto max-w-[90vw]">
-              <div class="header">
-                <h3>Communication System</h3>
-                <p>
-                  Create communication sets and rules to target students and automate follow-up
-                  actions.
-                </p>
-              </div>
-              <f-unit-communications-editor [unit]="unit"></f-unit-communications-editor>
-            </div>
-          }
-        }
+    }
+  </header>
+
+  @if (unit) {
+    <!-- Links, not buttons: each tab has its own address, so it can be bookmarked or
+         opened in a new tab. Moving between tabs replaces the history entry, as the
+         old tab strip did, so Back leaves the page instead of stepping through tabs. -->
+    <nav aria-label="Unit administration sections" mat-tab-nav-bar [tabPanel]="tabPanel">
+      @for (tab of tabs; track tab.routeSegment) {
+        <a
+          mat-tab-link
+          [active]="isCurrent(tab)"
+          [replaceUrl]="true"
+          [routerLink]="['/units', unit.id, 'admin', tab.routeSegment]"
+        >
+          {{ tab.label }}
+        </a>
+      }
+    </nav>
+  }
+</f-page-container>
+
+<mat-tab-nav-panel #tabPanel class="block pt-6 pb-10">
+  @if (loadingUnit) {
+    <f-page-container>
+      <div aria-busy="true" aria-label="Loading unit details" class="flex flex-col gap-4">
+        <f-skeleton-loader
+          shape="line"
+          [count]="1"
+          [theme]="{width: 'min(100%, 220px)', height: '20px', 'border-radius': '999px'}"
+        ></f-skeleton-loader>
+        <f-skeleton-loader
+          shape="card"
+          [count]="1"
+          [theme]="{height: '240px', 'border-radius': '12px'}"
+        ></f-skeleton-loader>
+      </div>
+    </f-page-container>
+  } @else if (!unit) {
+    <f-page-container>
+      <section
+        class="rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+      >
+        <f-empty-state
+          hint="It may have been removed, or you may no longer have access to it."
+          icon="error_outline"
+          message="This unit could not be loaded"
+        ></f-empty-state>
+        <div class="flex justify-center pb-8">
+          <a mat-stroked-button routerLink="/home">Go to my units</a>
+        </div>
+      </section>
+    </f-page-container>
+  } @else {
+    @if (currentTab.description) {
+      <f-page-container>
+        <div class="mb-5">
+          <h2 class="m-0 text-lg leading-snug font-semibold text-ot-text">
+            {{ currentTab.label }}
+          </h2>
+          <p class="m-0 mt-1 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+            {{ currentTab.description }}
+          </p>
+        </div>
+      </f-page-container>
+    }
+
+    @switch (currentTab.routeSegment) {
+      @case ('details') {
+        <f-page-container>
+          <f-unit-details-editor [unit]="unit"></f-unit-details-editor>
+        </f-page-container>
+      }
+      @case ('learning-outcomes') {
+        <f-page-container>
+          <f-learning-outcome-editor [context]="unit"></f-learning-outcome-editor>
+        </f-page-container>
+      }
+      @case ('staff') {
+        <f-page-container>
+          <unit-staff-editor [staff]="staff" [unit]="unit"></unit-staff-editor>
+        </f-page-container>
+      }
+      @case ('tutorials') {
+        <f-page-container>
+          <unit-tutorials-manager [unit]="unit"></unit-tutorials-manager>
+        </f-page-container>
+      }
+      @case ('students') {
+        <f-page-container>
+          <unit-students-editor [unit]="unit"></unit-students-editor>
+        </f-page-container>
+      }
+      @case ('tasks') {
+        <!-- The same width as the other tabs, so its edges line up with the header. -->
+        <f-page-container>
+          <f-unit-task-editor [unit]="unit"></f-unit-task-editor>
+        </f-page-container>
+      }
+      @case ('groups') {
+        <f-page-container>
+          <f-unit-group-set-editor
+            [unit]="unit"
+            [unitRole]="assessingUnitRole"
+          ></f-unit-group-set-editor>
+        </f-page-container>
+      }
+      @case ('communication') {
+        <f-page-container>
+          <f-unit-communications-editor [unit]="unit"></f-unit-communications-editor>
+        </f-page-container>
       }
     }
-  </div>
-</div>
+  }
+</mat-tab-nav-panel>

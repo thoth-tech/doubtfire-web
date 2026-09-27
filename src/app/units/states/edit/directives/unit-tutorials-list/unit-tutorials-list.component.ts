@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import {UntypedFormControl, Validators} from '@angular/forms';
-import {MatSort, Sort} from '@angular/material/sort';
+import {MatSort} from '@angular/material/sort';
 import {MatTable, MatTableDataSource} from '@angular/material/table';
 import {Subscription} from 'rxjs';
 import {
@@ -95,6 +95,23 @@ export class UnitTutorialsListComponent
       },
       'Tutorial',
     );
+
+    // Sort on what each column shows. The column ids are not the property names, so the
+    // table's default look-up sorted location, day and time on undefined.
+    this.dataSource.sortingDataAccessor = (tutorial: Tutorial, column: string) =>
+      this.sortValue(tutorial, column);
+  }
+
+  /**
+   * Tutorials without a stream are older ones. The api only creates tutorials inside a
+   * stream, so that list has no row for adding one.
+   */
+  public get canAddTutorials(): boolean {
+    return !!this.stream;
+  }
+
+  public get headingId(): string {
+    return `tutorial-stream-${this.stream?.abbreviation ?? 'none'}`;
   }
 
   ngOnInit(): void {
@@ -103,9 +120,13 @@ export class UnitTutorialsListComponent
       this.origName = this.stream.name;
     }
 
-    this.campusService.query().subscribe((campuses) => {
-      this.campuses.push(...campuses);
-    });
+    this.dataSource.sort = this.sort;
+
+    this.subscriptions.push(
+      this.campusService.query().subscribe((campuses) => {
+        this.campuses = [...campuses];
+      }),
+    );
 
     this.filterTutorials();
 
@@ -118,6 +139,45 @@ export class UnitTutorialsListComponent
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
+  // A capacity of -1 means the tutorial has no limit.
+  public capacityLabel(tutorial: Tutorial): string {
+    const enrolled = tutorial.numStudents ?? 0;
+    if (Number(tutorial.capacity) === -1) {
+      return `${enrolled}, no limit`;
+    }
+    return `${enrolled} of ${tutorial.capacity ?? 0}`;
+  }
+
+  public sortValue(tutorial: Tutorial, column: string): string | number {
+    switch (column) {
+      case 'campus':
+        return tutorial.campus?.name ?? '';
+      case 'location':
+        return tutorial.meetingLocation ?? '';
+      case 'day': {
+        const index = this.days.indexOf(tutorial.meetingDay);
+        return index >= 0 ? index : this.days.length;
+      }
+      case 'time':
+        return this.minutesIntoDay(tutorial.meetingTime);
+      case 'tutor':
+        return tutorial.tutor?.name ?? '';
+      case 'capacity':
+        return Number(tutorial.capacity) || 0;
+      default:
+        return tutorial.abbreviation ?? '';
+    }
+  }
+
+  // Times are typed by hand, so "9:30" has to sort before "10:00".
+  private minutesIntoDay(time: string): number {
+    const match = /^(\d{1,2}):(\d{2})/.exec(time ?? '');
+    if (!match) {
+      return Number.MAX_SAFE_INTEGER;
+    }
+    return Number(match[1]) * 60 + Number(match[2]);
+  }
+
   private filterTutorials(): void {
     this.tutorials = this.unit.tutorials.filter(
       (tutorial) =>
@@ -127,20 +187,41 @@ export class UnitTutorialsListComponent
   }
 
   public saveStream(): void {
+    const previousAbbreviation = this.origStreamAbbr;
     this.tutorialStreamService
-      .update({abbreviation: this.origStreamAbbr, unit_id: this.unit.id}, {entity: this.stream})
+      .update({abbreviation: previousAbbreviation, unit_id: this.unit.id}, {entity: this.stream})
       .subscribe({
         next: (stream: TutorialStream) => {
           this.stream = stream;
           this.origStreamAbbr = stream.abbreviation;
           this.origName = stream.name;
           this.editingStream = false;
-          this.alerts.success('Stream updated successfully', 2000);
+          if (stream.abbreviation !== previousAbbreviation) {
+            this.rekeyStream(stream, previousAbbreviation);
+          }
+          this.alerts.success(`${stream.name} saved`, 2000);
         },
         error: (error: HttpErrorResponse) => {
-          this.alerts.error('Something went wrong - ' + JSON.stringify(error.error), 6000);
+          this.alerts.error(`Could not save the stream. ${this.errorText(error)}`, 6000);
         },
       });
+  }
+
+  /**
+   * The unit keeps its streams under their short name. After a rename the old name
+   * still pointed at the stream, so deleting it afterwards could not find it and it
+   * stayed on the page. The streams are filed again in their order, so the renamed one
+   * does not jump to the bottom. A stream with an unsaved rename of its own is left
+   * where it is, since the name it is filed under is not known from here, and filing
+   * it again would list it twice.
+   */
+  private rekeyStream(stream: TutorialStream, previousAbbreviation: string): void {
+    const cache = this.unit.tutorialStreamsCache;
+    const ordered = cache.currentValuesClone();
+    cache.delete(previousAbbreviation);
+    const refile = ordered.filter((other) => other === stream || cache.get(other.key) === other);
+    refile.filter((other) => other !== stream).forEach((other) => cache.delete(other));
+    refile.forEach((other) => cache.add(other));
   }
 
   public setEditStream(value: boolean): void {
@@ -153,38 +234,35 @@ export class UnitTutorialsListComponent
 
   // This method is passed to the submit method on the parent
   // and is only run when an entity is successfully created or updated
-  onSuccess(response: Tutorial, isNew: boolean): void {
-    if (isNew) {
-      this.pushToTable(response);
-    }
-  }
-
-  // Push the values that will be displayed in the table
-  // to the datasource
-  private pushToTable(value: Tutorial | Tutorial[]) {
-    if (!value) {
-      return;
-    }
-    if (value instanceof Array) {
-      this.tutorials.push(...value);
-    } else {
-      this.tutorials.push(value);
-    }
-    this.renderTable();
+  onSuccess(_response: Tutorial, _isNew: boolean): void {
+    // A new tutorial reaches the unit's cache before this runs, so reading the list
+    // again picks it up once. Pushing it here as well showed it twice.
+    this.filterTutorials();
   }
 
   // Handle the removal of a tutorial
   public deleteTutorial(tutorial: Tutorial): void {
-    this.tutorialService.delete(tutorial, this.optionsOnRequest('delete')).subscribe((_result) => {
-      this.cancelEdit();
-      this.filterTutorials();
-      this.renderTable();
-    });
-  }
-
-  private renderTable() {
-    this.dataSource.sort = this.sort;
-    this.table.renderRows();
+    this.confirmationModal.show(
+      `Delete ${tutorial.abbreviation}?`,
+      'Students in this tutorial will no longer be enrolled in it. This cannot be undone.',
+      () => {
+        this.tutorialService.delete(tutorial, this.optionsOnRequest('delete')).subscribe({
+          next: () => {
+            this.cancelEdit();
+            this.filterTutorials();
+            this.alerts.success(`${tutorial.abbreviation} deleted`, 2000);
+          },
+          error: (error) => {
+            this.alerts.error(
+              `Could not delete ${tutorial.abbreviation}. ${this.errorText(error)}`,
+              6000,
+            );
+          },
+        });
+      },
+      undefined,
+      'Delete',
+    );
   }
 
   // This method is called when the form is submitted,
@@ -193,28 +271,33 @@ export class UnitTutorialsListComponent
     super.submit(this.tutorialService, this.alerts, this.onSuccess.bind(this));
   }
 
-  protected formDataToNewObject(endPointKey: string, _associations?: object): object {
-    this.selected = new Tutorial(this.unit);
-    this.copyChangesFromForm();
-    this.selected.tutorialStream = this.stream;
-    super.formDataToNewObject(endPointKey);
-    return this.selected;
+  /**
+   * The new tutorial is built on the side, not as the selected row. The base form
+   * treats a selected row as one being edited, so a create that failed used to leave
+   * the add row hidden until the page was reloaded.
+   */
+  protected formDataToNewObject(_endPointKey: string, _associations?: object): object {
+    const tutorial = new Tutorial(this.unit);
+    for (const key of Object.keys(this.formData.controls)) {
+      tutorial[key] = this.formData.get(key).value;
+    }
+    tutorial.tutorialStream = this.stream;
+    return tutorial;
   }
 
-  // This comparison function is required to determine what campus or user
-  // to render in the associated mat-select components when editing a
-  // tutorial. The function is bound to the compareFn attribute on the related
-  // mat-selects.
-  // See: https://angular.io/api/forms/SelectControlValueAccessor
-  compareSelection(aEntity: User | Campus | {user_id: number}, bEntity: User | Campus) {
+  // Which campus or tutor the selects show when a row is edited. A tutorial's tutor is
+  // a user, so users and campuses both match on id. The user_id form is kept for any
+  // older value still shaped that way.
+  compareSelection(
+    aEntity: User | Campus | {user_id: number} | null,
+    bEntity: User | Campus | {user_id: number} | null,
+  ): boolean {
     if (!aEntity || !bEntity) {
-      return;
+      return aEntity === bEntity;
     }
-    if (bEntity instanceof User) {
-      return 'user_id' in aEntity && aEntity.user_id === bEntity.id;
-    } else {
-      return 'id' in aEntity && aEntity.id === bEntity.id;
-    }
+    const idOf = (entity: object) =>
+      'user_id' in entity ? entity.user_id : (entity as {id?: number}).id;
+    return idOf(aEntity) === idOf(bEntity);
   }
 
   // Handle the deletion of a stream
@@ -222,21 +305,23 @@ export class UnitTutorialsListComponent
     const stream: TutorialStream = this.stream;
 
     this.confirmationModal.show(
-      `Delete Tutorial Stream ${stream.abbreviation}`,
-      'Are you sure you want to delete this tutorial stream? This action is final and will delete all associated tutorials.',
+      `Delete ${stream.name}?`,
+      `This deletes the ${stream.abbreviation} stream and every tutorial in it. This cannot be undone.`,
       () =>
         this.unit.deleteStream(stream).subscribe({
           next: (response: boolean) => {
             if (response) {
-              this.alerts.success(`Deleted stream. ${stream.abbreviation}`, 8000);
+              this.alerts.success(`${stream.name} deleted`, 4000);
             } else {
-              this.alerts.error(`Failed to delete stream.`, 8000);
+              this.alerts.error(`Could not delete ${stream.name}.`, 8000);
             }
           },
           error: (message) => {
-            this.alerts.error(`Failed to delete stream. ${message}`, 8000);
+            this.alerts.error(`Could not delete ${stream.name}. ${message}`, 8000);
           },
         }),
+      undefined,
+      'Delete',
     );
   }
 
@@ -252,34 +337,10 @@ export class UnitTutorialsListComponent
     };
   }
 
-  // Sorting function to sort data when sort
-  // event is triggered
-  sortTableData(sort: Sort): void {
-    if (!sort.active || sort.direction === '') {
-      return;
+  private errorText(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      return error.error?.error ?? error.message;
     }
-    switch (sort.active) {
-      case 'abbreviation':
-      case 'location':
-      case 'day':
-      case 'time':
-      case 'capacity':
-        return super.sortTableData(sort);
-    }
-    this.dataSource.data = this.dataSource.data.sort((a, b) => {
-      const isAsc = sort.direction === 'asc';
-      switch (sort.active) {
-        case 'campus':
-          return this.sortCompare(
-            a.campus ? a.campus.abbreviation : '',
-            b.campus ? b.campus.abbreviation : '',
-            isAsc,
-          );
-        case 'tutor':
-          return this.sortCompare(a.tutor.name, b.tutor.name, isAsc);
-        default:
-          return 0;
-      }
-    });
+    return `${error ?? ''}`;
   }
 }

@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
-import {MatSort, Sort} from '@angular/material/sort';
+import {MatSort} from '@angular/material/sort';
 import {MatTable, MatTableDataSource} from '@angular/material/table';
 import {Router} from '@angular/router';
 import {Subscription, finalize, timer} from 'rxjs';
@@ -55,6 +55,7 @@ export class UnitStudentsEditorComponent implements OnInit, AfterViewInit, OnDes
   ];
   dataSource: MatTableDataSource<Project> = new MatTableDataSource([]);
   loadingStudents = true;
+  loadError = false;
 
   // Calls the parent's constructor, passing in an object
   // that maps all of the form controls that this form consists of.
@@ -74,6 +75,10 @@ export class UnitStudentsEditorComponent implements OnInit, AfterViewInit, OnDes
   ngOnInit(): void {
     this.dataSource.data = this.unit.studentCache.currentValuesClone();
     this.dataSource.filterPredicate = (data: Project, filter: string) => data.matches(filter);
+    // The name and email columns live on the student, not the project, so the table's
+    // own look-up sorted them on undefined and the order came out scrambled.
+    this.dataSource.sortingDataAccessor = (project: Project, column: string) =>
+      this.sortValue(project, column);
 
     this.subscriptions.push(
       this.unit.studentCache.values.subscribe((students) => {
@@ -94,12 +99,38 @@ export class UnitStudentsEditorComponent implements OnInit, AfterViewInit, OnDes
     this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
+  public get filtering(): boolean {
+    return !!this.dataSource.filter;
+  }
+
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  public sortValue(project: Project, column: string): string | number {
+    switch (column) {
+      case 'username':
+      case 'firstName':
+      case 'lastName':
+      case 'email':
+        return (project.student?.[column] ?? '').toString().toLowerCase();
+      case 'campus':
+        return project.campus?.name?.toLowerCase() ?? '';
+      case 'enrolled':
+        return project.enrolled ? 1 : 0;
+      default:
+        return '';
+    }
+  }
+
+  public reloadStudents(): void {
+    this.loadError = false;
+    this.loadingStudents = true;
+    this.refreshStudentsAfterRender();
   }
 
   private refreshStudentsAfterRender(): void {
@@ -111,37 +142,20 @@ export class UnitStudentsEditorComponent implements OnInit, AfterViewInit, OnDes
             this.loadingStudents = false;
           }),
         )
-        .subscribe(() => {
-          // projects included in unit...
+        .subscribe({
+          // The students arrive through the unit's cache, which the table already follows.
+          next: () => {},
+          error: () => {
+            this.loadError = true;
+          },
         }),
     );
   }
 
-  private sortCompare(aValue: number | string, bValue: number | string, isAsc: boolean) {
-    return (aValue < bValue ? -1 : 1) * (isAsc ? 1 : -1);
-  }
-
-  // Sorting function to sort data when sort
-  // event is triggered
-  sortTableData(sort: Sort) {
-    if (!sort.active || sort.direction === '') {
-      return;
-    }
-    this.dataSource.data = this.dataSource.data.sort((a, b) => {
-      const isAsc = sort.direction === 'asc';
-      switch (sort.active) {
-        case 'username':
-        case 'firstName':
-        case 'lastName':
-        case 'email':
-        case 'enrolled':
-          return this.sortCompare(a[sort.active], b[sort.active], isAsc);
-        case 'campus':
-          return this.sortCompare(a.campus?.abbreviation, b.campus?.abbreviation, isAsc);
-        default:
-          return 0;
-      }
-    });
+  // Changing the box saves it. This used to run on any click on the box's row area,
+  // which also sent a save, and a success message, when the box had not changed.
+  public enrolmentChanged(project: Project): void {
+    project.updateUnitEnrolment();
   }
 
   public gotoStudent(student: Project) {

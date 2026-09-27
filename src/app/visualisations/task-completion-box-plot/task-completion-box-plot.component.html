@@ -1,0 +1,61 @@
+<mat-card appearance="outlined">
+  <mat-card-header><mat-card-title>Task Completion Stats</mat-card-title></mat-card-header>
+  <mat-card-content>
+    <mat-form-field appearance="outline">
+      <mat-label>Group completion statistics</mat-label>
+      <mat-select [(ngModel)]="group" (selectionChange)="updateData()">
+        <mat-option value="selection">Selected unit or tutorial</mat-option>
+        <mat-option value="grade">By target grade (whole unit)</mat-option>
+      </mat-select>
+    </mat-form-field>
+    @if (rows.length) {
+      @if (hasCompletions) {
+        <div aria-hidden="true" class="chart">
+          <ngx-charts-box-chart
+            [animations]="false"
+            [results]="series"
+            [showXAxisLabel]="false"
+            [strokeColor]="'currentColor'"
+            [tooltipDisabled]="true"
+            [yAxisLabel]="'Number of tasks completed'"
+          />
+        </div>
+      } @else {
+        <p>No completed tasks in this selection.</p>
+      }
+      <p>
+        The box shows the reported lower, median and upper values; whiskers show the minimum and
+        maximum.
+      </p>
+      <table>
+        <caption>
+          Task completion summary values
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Group</th>
+            <th scope="col">Minimum</th>
+            <th scope="col">Lower</th>
+            <th scope="col">Median</th>
+            <th scope="col">Upper</th>
+            <th scope="col">Maximum</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows; track row.name) {
+            <tr>
+              <th scope="row">{{ row.name }}</th>
+              <td>{{ row.summary.min }}</td>
+              <td>{{ row.summary.lower }}</td>
+              <td>{{ row.summary.median }}</td>
+              <td>{{ row.summary.upper }}</td>
+              <td>{{ row.summary.max }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p>No task completion data for this selection.</p>
+    }
+  </mat-card-content>
+</mat-card>

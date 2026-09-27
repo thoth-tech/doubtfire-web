@@ -144,8 +144,9 @@ export abstract class EntityFormComponent<T extends Entity> implements AfterView
         const data = this.formDataToNewObject(this.serverKey); // sent as path id and body
         response = service.create(data, this.optionsOnRequest('create'));
       } else {
-        // Nothing has changed if the selected value, so we want to inform the user
-        alertService.error(`${this.entityName} was not changed`, 6000);
+        // Nothing has changed on the selected value. This is not a failure, so
+        // use a neutral message rather than a red error snackbar.
+        alertService.message(`${this.entityName} was not changed`, 6000);
         return;
       }
 
@@ -175,8 +176,11 @@ export abstract class EntityFormComponent<T extends Entity> implements AfterView
       });
     } else {
       // Once we mark forms as touched, erroneous state will be rendered
-      // In the form's template accordingly
+      // In the form's template accordingly. Tell the user why the save did
+      // nothing, otherwise the button reads as dead when the invalid control
+      // is scrolled off screen.
       this.formData.markAllAsTouched();
+      alertService.error('Check the highlighted fields', 6000);
     }
   }
 

@@ -4,6 +4,7 @@ import {MatSort, Sort} from '@angular/material/sort';
 import {MatTable, MatTableDataSource} from '@angular/material/table';
 import {Campus, CampusService} from 'src/app/api/models/doubtfire-model';
 import {EntityFormComponent} from 'src/app/common/entity-form/entity-form.component';
+import {ConfirmationModalService} from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
 import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
@@ -29,6 +30,7 @@ export class CampusListComponent extends EntityFormComponent<Campus> implements 
   constructor(
     private campusService: CampusService,
     private alerts: AlertService,
+    private confirmationModal: ConfirmationModalService,
   ) {
     super(
       {
@@ -80,14 +82,22 @@ export class CampusListComponent extends EntityFormComponent<Campus> implements 
 
   // This method is called when the delete button is clicked
   deleteCampus(campus: Campus) {
-    this.delete(campus, this.campuses, this.campusService).subscribe({
-      next: () => {
-        this.alerts.success(`${campus.name} has been deleted.`, 2000);
+    this.confirmationModal.show(
+      `Delete campus ${campus.name}`,
+      'This campus is used by tutorials and students across every unit. Deleting it cannot be undone.',
+      () => {
+        this.delete(campus, this.campuses, this.campusService).subscribe({
+          next: () => {
+            this.alerts.success(`${campus.name} has been deleted.`, 2000);
+          },
+          error: (response) => {
+            this.alerts.error(response.error?.error || 'Unable to delete campus.');
+          },
+        });
       },
-      error: (response) => {
-        this.alerts.error(response.error?.error || 'Unable to delete campus.');
-      },
-    });
+      undefined,
+      'Delete',
+    );
   }
 
   // Sorting function to sort data when sort

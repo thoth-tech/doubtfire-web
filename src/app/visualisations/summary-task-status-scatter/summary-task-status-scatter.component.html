@@ -1,0 +1,65 @@
+<mat-card appearance="outlined">
+  <mat-card-header><mat-card-title>Task Status Stats</mat-card-title></mat-card-header>
+  <mat-card-content>
+    <mat-form-field appearance="outline">
+      <mat-label>Task</mat-label>
+      <mat-select [(ngModel)]="taskId" (selectionChange)="updateData()">
+        <mat-option [value]="null">All tasks</mat-option>
+        @for (task of unit?.taskDefinitions ?? []; track task.id) {
+          <mat-option [value]="task.id">{{ task.abbreviation }} — {{ task.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (rows.length) {
+      <p>Bubble size shows the number of tasks in each status.</p>
+      <div aria-hidden="true" class="chart" [style.height.px]="Math.max(360, series.length * 30)">
+        <ngx-charts-bubble-chart
+          [animations]="false"
+          [legend]="false"
+          [results]="series"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [tooltipDisabled]="true"
+          [xAxis]="true"
+          [xAxisLabel]="'Status'"
+          [xAxisTickFormatting]="formatStatus"
+          [xAxisTicks]="xTicks"
+          [xScaleMax]="statuses.length - 1"
+          [xScaleMin]="0"
+          [yAxis]="true"
+          [yAxisLabel]="'Task'"
+          [yAxisTickFormatting]="formatTask"
+          [yAxisTicks]="yTicks"
+          [yScaleMax]="Math.max(1, series.length - 1)"
+          [yScaleMin]="0"
+        />
+      </div>
+      <details>
+        <summary>View task status values</summary>
+        <table>
+          <caption>
+            Task counts for the selected tutorial and task
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Task</th>
+              <th scope="col">Status</th>
+              <th scope="col">Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows; track $index) {
+              <tr>
+                <th scope="row">{{ row.task }}</th>
+                <td>{{ row.status }}</td>
+                <td>{{ row.count }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </details>
+    } @else {
+      <p>No task status data for this selection.</p>
+    }
+  </mat-card-content>
+</mat-card>

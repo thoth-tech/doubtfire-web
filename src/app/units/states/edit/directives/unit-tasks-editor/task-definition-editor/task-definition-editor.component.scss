@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  min-width: 0;
+  color: var(--ot-color-text);
+}
+
+// Each part of the task is its own card, the same card the student pages use.
+// Written once here instead of as eleven copies of the same utility list.
+.task-section {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-lg);
+  background: var(--ot-color-surface);
+  box-shadow: var(--ot-elevation-1);
+  color: var(--ot-color-text);
+
+  @media (min-width: 640px) {
+    padding: 1.5rem;
+  }
+
+  // Focus arrives here from the section links. Show it to keyboard users only.
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+}
+
+.task-section__header {
+  margin-bottom: 1rem;
+}
+
+.task-section__title {
+  margin: 0;
+  color: var(--ot-color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5rem;
+}
+
+.task-section__hint {
+  max-width: 70ch;
+  margin: 0.25rem 0 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}

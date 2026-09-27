@@ -7,9 +7,5 @@ e2e
 CHANGELOG.md
 JPlag-Report-Viewer/
 .github/
-karma/
-Gruntfile.js
-karma.conf.js
 polyfills.ts
-test.ts
 main.ts

@@ -1,0 +1,39 @@
+<mat-card appearance="outlined">
+  <mat-card-header><mat-card-title>Target Grade Stats</mat-card-title></mat-card-header>
+  <mat-card-content>
+    @if (total) {
+      <div aria-hidden="true" class="chart">
+        <ngx-charts-pie-chart
+          [animations]="false"
+          [customColors]="colors"
+          [labels]="true"
+          [results]="series"
+          [tooltipDisabled]="true"
+        />
+      </div>
+      <table>
+        <caption>
+          Target grades for the selected tutorial enrolments
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Target grade</th>
+            <th scope="col">Count</th>
+            <th scope="col">Percentage</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of series; track row.name) {
+            <tr>
+              <th scope="row">{{ row.name }}</th>
+              <td>{{ row.value }}</td>
+              <td>{{ percentage(row.value) }}%</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p>No target grade data for this selection.</p>
+    }
+  </mat-card-content>
+</mat-card>

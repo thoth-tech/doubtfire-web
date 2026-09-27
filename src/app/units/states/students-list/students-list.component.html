@@ -1,222 +1,365 @@
-<div class="mx-auto max-w-[90vw]">
-  <div class="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
-    <div>
-      <h2>Students</h2>
-      <p>Browse progress, filter tutorial groups, and manage enrolments.</p>
+<f-page-container>
+  <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-2 pb-5">
+    <div class="min-w-0">
+      <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">Students</h1>
+      <p class="m-0 mt-1.5 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+        See how each student is going, and change their campus or tutorial.
+      </p>
     </div>
 
-    <mat-form-field appearance="outline" class="w-full lg:w-auto">
-      <mat-label>Search for students or tutors...</mat-label>
-      <input
-        matInput
-        [disabled]="loadingStudents"
-        [matAutocomplete]="studentSearch"
-        [(ngModel)]="searchText"
-        (ngModelChange)="onSearchChange()"
-      />
-      <mat-autocomplete #studentSearch="matAutocomplete">
-        @for (suggestion of filteredSuggestions; track suggestion) {
-          <mat-option [value]="suggestion">{{ suggestion }}</mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-  </div>
-
-  <div class="flex w-full justify-center">
-    <mat-button-toggle-group
-      class="w-full max-w-lg"
-      [disabled]="loadingStudents"
-      [ngModel]="staffFilter"
-      (ngModelChange)="setStaffFilter($event)"
-    >
-      <mat-button-toggle class="w-full" value="all">All Tutorials</mat-button-toggle>
-      <mat-button-toggle class="w-full" value="mine">My Tutorials</mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
-
-  @if (loadingStudents) {
-    <div aria-busy="true" aria-label="Loading students" class="overflow-hidden">
-      <div class="flex h-14 items-center gap-6 border-b border-gray-300 px-4">
-        @for (width of ['4%', '10%', '16%', '28%', '8%', '8%', '8%', '10%', '10%']; track $index) {
-          <ngx-skeleton-loader
-            [theme]="{width: width, height: '12px', 'border-radius': '999px', margin: '0'}"
-          ></ngx-skeleton-loader>
-        }
-      </div>
-
-      @for (row of [0, 1, 2, 3, 4, 5, 6, 7]; track row) {
-        <div class="flex h-[72px] items-center gap-6 border-b border-gray-300 px-4">
-          <ngx-skeleton-loader
-            appearance="circle"
-            [theme]="{width: '30px', height: '30px', margin: '0'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            class="w-[10%]"
-            [theme]="{width: '100%', height: '12px', 'border-radius': '999px', margin: '0'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            class="w-[16%]"
-            [theme]="{width: '100%', height: '12px', 'border-radius': '999px', margin: '0'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            class="w-[28%]"
-            [theme]="{width: '100%', height: '25px', 'border-radius': '4px', margin: '0'}"
-          ></ngx-skeleton-loader>
-          @for (column of [0, 1, 2, 3, 4]; track column) {
-            <ngx-skeleton-loader
-              class="w-[8%]"
-              [theme]="{width: '100%', height: '12px', 'border-radius': '999px', margin: '0'}"
-            ></ngx-skeleton-loader>
-          }
-        </div>
-      }
-    </div>
-  }
-
-  <div class="overflow-x-auto" [hidden]="loadingStudents">
-    <table
-      class="min-w-full"
-      mat-table
-      matSort
-      [dataSource]="dataSource"
-      [matSortActive]="sortState.active"
-      [matSortDirection]="sortState.direction"
-      (matSortChange)="sortTableData($event)"
-    >
-      <ng-container matColumnDef="avatar">
-        <th *matHeaderCellDef mat-header-cell></th>
-        <td *matCellDef="let project" mat-cell>
-          <user-icon [size]="30" [user]="project.student"></user-icon>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="username">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Username</th>
-        <td *matCellDef="let project" mat-cell>
-          {{ project.student?.username || 'N/A' }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="name">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Name</th>
-        <td *matCellDef="let project" mat-cell>
-          {{ project.student?.name || 'N/A' }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="stats">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header="stats">Stats</th>
-        <td *matCellDef="let project" mat-cell>
-          <div class="flex h-[25px] w-[400px] overflow-hidden rounded">
-            @for (bar of project.taskStats; track bar.key) {
-              <div
-                class="flex h-[25px] items-center justify-center overflow-hidden"
-                matTooltipDelay="100"
-                matTooltipPosition="above"
-                [matTooltip]="statusLabel(bar.key) + ' ' + bar.value + '%'"
-                [ngStyle]="{
-                  width: bar.value + '%',
-                  background: statusColor(bar.key),
-                }"
-              >
-                @if (bar.key === 'not_started') {
-                  <span class="text-black">{{ bar.value }}%</span>
-                }
-                @if (bar.key === 'complete') {
-                  <span class="text-white">{{ bar.value }}%</span>
-                }
-              </div>
-            }
-          </div>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="grade">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header="grade">Target Grade</th>
-        <td *matCellDef="let project" mat-cell>
-          <f-grade-icon [grade]="project.targetGrade" [unit]="unit"></f-grade-icon>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="portfolio">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header="portfolio">Portfolio</th>
-        <td *matCellDef="let project" mat-cell>
-          @if (project.hasPortfolio) {
-            <mat-icon [class.text-muted]="project.compilePortfolio">menu_book</mat-icon>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="similarity">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header="similarity">Similarity</th>
-        <td *matCellDef="let project" mat-cell>
-          @if (project.similarityFlag) {
-            <mat-icon>visibility</mat-icon>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="campus">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Campus</th>
-        <td *matCellDef="let project" mat-cell (click)="$event.stopPropagation()">
-          <div class="pt-[22px]">
-            <student-campus-select
-              [student]="project"
-              [unit]="unit"
-              [update]="true"
-            ></student-campus-select>
-          </div>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="tutorial">
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Tutorial</th>
-        <td *matCellDef="let project" mat-cell (click)="$event.stopPropagation()">
-          <div class="pt-[22px]">
-            <student-tutorial-select [student]="project" [unit]="unit"></student-tutorial-select>
-          </div>
-        </td>
-      </ng-container>
-
-      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-      <tr
-        *matRowDef="let project; columns: displayedColumns"
-        class="cursor-pointer"
-        mat-row
-        (click)="viewStudent(project)"
-      ></tr>
-
-      <tr *matNoDataRow class="mat-row">
-        <td class="mat-cell p-2.5 text-center" [attr.colspan]="displayedColumns.length">
-          No students were found using the filters specified.
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <div class="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
-    <div class="flex flex-wrap gap-1">
-      <button mat-stroked-button type="button" [disabled]="loadingStudents" (click)="exportCsv()">
-        <mat-icon>download</mat-icon>
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="loadingStudents || loadError"
+        (click)="exportCsv()"
+      >
+        <mat-icon aria-hidden="true">download</mat-icon>
         Export CSV
       </button>
       <button
         color="primary"
         mat-flat-button
         type="button"
-        [disabled]="loadingStudents"
+        [disabled]="!unit"
         (click)="showEnrolModal()"
       >
-        <mat-icon>person_add</mat-icon>
-        Enrol Student
+        <mat-icon aria-hidden="true">person_add</mat-icon>
+        Enrol student
       </button>
+    </div>
+  </header>
+
+  <div
+    aria-label="Filter students"
+    class="students-toolbar flex flex-col gap-3 pb-4 sm:flex-row sm:flex-wrap sm:items-center"
+    role="search"
+  >
+    <mat-form-field
+      appearance="outline"
+      class="w-full min-w-0 sm:max-w-96 sm:flex-1"
+      subscriptSizing="dynamic"
+    >
+      <mat-label>Search students</mat-label>
+      <mat-icon aria-hidden="true" class="text-ot-muted" matPrefix>search</mat-icon>
+      <input
+        #searchInput
+        autocomplete="off"
+        matInput
+        type="search"
+        [disabled]="loadingStudents"
+        [matAutocomplete]="studentSearch"
+        [(ngModel)]="searchText"
+        (ngModelChange)="onSearchChange()"
+      />
+      @if (searchText) {
+        <button
+          aria-label="Clear search"
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="clearSearch(); searchInput.focus()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-autocomplete #studentSearch="matAutocomplete">
+        @for (suggestion of filteredSuggestions; track suggestion) {
+          <mat-option [value]="suggestion">{{ suggestion }}</mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-button-toggle-group
+      aria-label="Show students from"
+      class="w-full sm:w-auto"
+      [disabled]="loadingStudents"
+      [ngModel]="staffFilter"
+      (ngModelChange)="setStaffFilter($event)"
+    >
+      <mat-button-toggle #allTutorialsToggle class="flex-1 sm:flex-none" value="all">
+        All tutorials
+      </mat-button-toggle>
+      <mat-button-toggle class="flex-1 sm:flex-none" value="mine">My tutorials</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    @if (!loadingStudents && !loadError && totalStudents > 0) {
+      <p aria-live="polite" class="m-0 text-sm text-ot-muted tabular-nums sm:ml-auto">
+        @if (shownStudents === totalStudents) {
+          {{ totalStudents }} {{ totalStudents === 1 ? 'student' : 'students' }}
+        } @else {
+          {{ shownStudents }} of {{ totalStudents }} students
+        }
+      </p>
+    }
+  </div>
+
+  <section
+    aria-label="Student list"
+    class="mb-6 overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+  >
+    @if (loadingStudents) {
+      <div aria-busy="true" role="status">
+        <span class="sr-only">Loading students...</span>
+        <div aria-hidden="true" class="motion-safe:animate-pulse">
+          @for (row of [0, 1, 2, 3, 4, 5, 6, 7]; track row) {
+            <div
+              class="flex h-14 items-center gap-4 border-b border-ot-divider px-4 last:border-b-0"
+            >
+              <div class="size-7 shrink-0 rounded-ot-circle bg-ot-divider"></div>
+              <div class="h-3 w-40 rounded-ot-pill bg-ot-divider"></div>
+              <div class="hidden h-3 w-28 rounded-ot-pill bg-ot-divider sm:block"></div>
+              <div class="hidden h-2.5 w-36 rounded-ot-pill bg-ot-divider md:block"></div>
+              <div class="hidden h-3 w-24 rounded-ot-pill bg-ot-divider lg:block"></div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else if (loadError) {
+      <div class="flex flex-col items-center pb-10" role="alert">
+        <f-empty-state
+          hint="Check your connection, then try again."
+          icon="error_outline"
+          message="Students could not be loaded"
+        ></f-empty-state>
+        <button class="-mt-6" mat-stroked-button type="button" (click)="loadStudents()">
+          Try again
+        </button>
+      </div>
+    } @else if (emptyState !== 'none') {
+      <div class="flex flex-col items-center pb-10">
+        @switch (emptyState) {
+          @case ('no-match') {
+            <f-empty-state
+              hint="Check the spelling, or search by username, tutorial or tutor."
+              icon="search_off"
+              [message]="noMatchMessage"
+            ></f-empty-state>
+            <button
+              class="-mt-6"
+              mat-stroked-button
+              type="button"
+              (click)="clearSearch(); searchInput.focus()"
+            >
+              Clear search
+            </button>
+          }
+          @case ('no-mine') {
+            <f-empty-state
+              hint="None of the students are in a tutorial you take."
+              icon="group"
+              message="No students in your tutorials"
+            ></f-empty-state>
+            <button
+              class="-mt-6"
+              mat-stroked-button
+              type="button"
+              (click)="setStaffFilter('all'); allTutorialsToggle.focus()"
+            >
+              Show all tutorials
+            </button>
+          }
+          @default {
+            <f-empty-state
+              hint="Students show here once they are enrolled in the unit."
+              icon="person_add"
+              message="No students enrolled yet"
+            ></f-empty-state>
+            <button
+              class="-mt-6"
+              color="primary"
+              mat-flat-button
+              type="button"
+              (click)="showEnrolModal()"
+            >
+              Enrol student
+            </button>
+          }
+        }
+      </div>
+    }
+
+    <!-- The table and paginator stay in the page while hidden: the data source is
+         bound to this paginator once, when the view starts. -->
+    <div
+      class="relative overflow-x-auto"
+      [hidden]="loadingStudents || loadError || emptyState !== 'none'"
+    >
+      <table
+        class="students-table min-w-full bg-transparent"
+        mat-table
+        matSort
+        [dataSource]="dataSource"
+        [matSortActive]="sortState.active"
+        [matSortDirection]="sortState.direction"
+        (matSortChange)="sortTableData($event)"
+      >
+        <ng-container matColumnDef="name">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Name</th>
+          <td *matCellDef="let project" mat-cell>
+            <div class="flex items-center gap-3">
+              <user-icon class="shrink-0" [size]="28" [user]="project.student"></user-icon>
+              <a
+                class="rounded-ot-xs font-medium whitespace-nowrap text-ot-text no-underline underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ot-focus"
+                [routerLink]="['/projects', project.id, 'dashboard']"
+                (click)="$event.stopPropagation()"
+              >
+                {{ project.student?.displayName || 'Unnamed student' }}
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="username">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Username</th>
+          <td *matCellDef="let project" class="whitespace-nowrap text-ot-muted" mat-cell>
+            {{ project.student?.username || 'Not set' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="stats">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header="stats">Progress</th>
+          <td *matCellDef="let project" mat-cell>
+            @let progress = progressFor(project);
+            <div class="flex items-center gap-2.5">
+              <div
+                class="flex h-2.5 w-28 shrink-0 gap-px overflow-hidden rounded-ot-pill bg-(--ot-meter-track)"
+                role="img"
+                [attr.aria-label]="progress.label"
+              >
+                @for (segment of progress.segments; track segment.key) {
+                  <span
+                    class="h-full min-w-1"
+                    matTooltipPosition="above"
+                    [matTooltip]="segment.label + ' ' + segment.value + '%'"
+                    [style.background-color]="segment.color"
+                    [style.flex-grow]="segment.value"
+                  ></span>
+                }
+              </div>
+              <span aria-hidden="true" class="w-9 text-right text-sm text-ot-text tabular-nums">
+                {{ progress.complete }}%
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="grade">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header="grade">Target grade</th>
+          <td *matCellDef="let project" mat-cell>
+            <f-grade-icon
+              class="inline-block text-xs"
+              [grade]="project.targetGrade"
+              [unit]="unit"
+            ></f-grade-icon>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolio">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header="portfolio">Portfolio</th>
+          <td *matCellDef="let project" mat-cell>
+            @if (project.hasPortfolio) {
+              <mat-icon
+                aria-hidden="true"
+                class="align-middle"
+                matTooltipPosition="above"
+                [matTooltip]="
+                  project.compilePortfolio ? 'Portfolio is being created' : 'Portfolio submitted'
+                "
+                [ngClass]="project.compilePortfolio ? 'text-ot-muted' : 'text-ot-success'"
+              >
+                menu_book
+              </mat-icon>
+              <span class="sr-only">
+                {{
+                  project.compilePortfolio ? 'Portfolio is being created' : 'Portfolio submitted'
+                }}
+              </span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="similarity">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header="similarity">Similarity</th>
+          <td *matCellDef="let project" mat-cell>
+            @if (project.similarityFlag) {
+              <mat-icon
+                aria-hidden="true"
+                class="align-middle text-ot-warning"
+                matTooltip="Similarity found in a submission"
+                matTooltipPosition="above"
+              >
+                visibility
+              </mat-icon>
+              <span class="sr-only">Similarity found in a submission</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="campus">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Campus</th>
+          <td *matCellDef="let project" mat-cell (click)="$event.stopPropagation()">
+            <mat-form-field appearance="outline" class="table-field w-36" subscriptSizing="dynamic">
+              <mat-select
+                placeholder="None"
+                [aria-label]="'Campus for ' + (project.student?.displayName || 'this student')"
+                [compareWith]="sameEntity"
+                [value]="project.campus ?? null"
+                (selectionChange)="changeCampus(project, $event.value)"
+              >
+                <mat-option [value]="null">None</mat-option>
+                @for (campus of campuses; track campus.id) {
+                  <mat-option [value]="campus">{{ campus.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tutorial">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Tutorial</th>
+          <td *matCellDef="let project" mat-cell (click)="$event.stopPropagation()">
+            <mat-form-field appearance="outline" class="table-field w-40" subscriptSizing="dynamic">
+              <mat-select
+                multiple
+                placeholder="None"
+                [aria-label]="'Tutorials for ' + (project.student?.displayName || 'this student')"
+                [compareWith]="sameEntity"
+                [value]="project.tutorials"
+              >
+                @for (group of tutorialGroupsFor(project); track group.label) {
+                  <mat-optgroup [label]="group.label">
+                    @for (tutorial of group.tutorials; track tutorial.id) {
+                      <mat-option
+                        [value]="tutorial"
+                        (onSelectionChange)="onTutorialOptionChange($event, project, tutorial)"
+                      >
+                        {{ tutorial.abbreviation }}
+                      </mat-option>
+                    }
+                  </mat-optgroup>
+                }
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr
+          *matRowDef="let project; columns: displayedColumns"
+          class="cursor-pointer hover:bg-ot-hover"
+          mat-row
+          (click)="viewStudent(project)"
+        ></tr>
+      </table>
     </div>
 
     <mat-paginator
+      class="border-t border-ot-divider bg-transparent"
       showFirstLastButtons
-      [disabled]="loadingStudents"
+      [hidden]="loadingStudents || loadError || emptyState !== 'none'"
       [pageSize]="15"
       [pageSizeOptions]="[15, 25, 50, 100]"
     ></mat-paginator>
-  </div>
-</div>
+  </section>
+</f-page-container>

@@ -1,73 +1,212 @@
 :host {
   display: block;
+  color: var(--ot-color-text);
 }
 
-.comments-floating-toggle {
-  position: fixed;
-  top: 50%;
-  right: -20px;
-  z-index: 300;
-  opacity: 0.55;
+.project-dashboard-shell {
+  // The demo banner, when shown, sits above the header and publishes its height.
+  height: calc((var(--vh, 1vh) * 100) - 100px - var(--ot-demo-banner-height, 0px));
+  overflow: hidden;
+}
+
+.desktop-task-dashboard {
+  display: block;
+  height: 100%;
+}
+
+.mobile-task-view,
+.mobile-overview-view {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.mobile-task-heading {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 0.75rem;
+  border-bottom: 1px solid var(--ot-color-divider);
+  background: var(--ot-color-surface);
+}
+
+.mobile-task-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--ot-color-divider);
+  border-bottom: 1px solid var(--ot-color-divider);
+  background: var(--ot-color-surface);
+}
+
+.mobile-task-tab {
+  display: flex;
+  min-width: 0;
+  min-height: 52px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  padding: 0.25rem 0.125rem;
+  border-bottom: 3px solid transparent;
+  color: var(--ot-color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
   transition:
-    opacity 150ms ease,
-    transform 150ms ease;
-  transform: translateY(-50%);
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
 }
 
-.comments-floating-toggle mat-icon {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  font-size: 20px;
-  height: 20px;
+.mobile-task-tab mat-icon {
   width: 20px;
-  transition: opacity 150ms ease;
+  height: 20px;
+  font-size: 20px;
 }
 
-.comments-floating-toggle:hover,
-.comments-floating-toggle:focus-visible {
-  opacity: 1;
-  transform: translate(-20px, -50%);
+.mobile-task-tab:hover,
+.mobile-task-tab:focus-visible {
+  background: var(--ot-color-hover);
 }
 
-.comments-floating-toggle__edge-icon {
-  opacity: 1;
-  transform: translateX(-6px);
+.mobile-task-tab:focus-visible {
+  outline: 2px solid var(--ot-color-focus);
+  outline-offset: -2px;
 }
 
-.comments-floating-toggle__hover-icon {
-  opacity: 0;
+// The 3px underline is the selected-state indicator (3:1). Primary on the selected fill
+// measures 2.18:1 in dark, link gives 4.55:1 dark and 5.39:1 light.
+.mobile-task-tab--active {
+  border-bottom-color: var(--ot-color-link);
+  background: var(--ot-color-selected);
+  color: var(--ot-color-selected-text);
 }
 
-.comments-floating-toggle:hover .comments-floating-toggle__edge-icon,
-.comments-floating-toggle:focus-visible .comments-floating-toggle__edge-icon {
-  opacity: 0;
+.mobile-task-tab:disabled {
+  cursor: default;
+  background: var(--ot-color-surface);
+  color: var(--ot-color-disabled-text);
 }
 
-.comments-floating-toggle:hover .comments-floating-toggle__hover-icon,
-.comments-floating-toggle:focus-visible .comments-floating-toggle__hover-icon {
-  opacity: 1;
+.mobile-task-pane {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  background: var(--ot-color-surface);
 }
 
-.comments-sidebar {
-  position: relative;
+.mobile-task-pane > f-task-dashboard,
+.mobile-task-pane > task-comments-viewer {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.comments-sidebar--narrow {
-  flex-basis: 375px !important;
-  min-width: 375px;
-  width: 375px !important;
-  border-radius: 0 !important;
-  box-shadow: -2px 0 6px rgba(15, 23, 42, 0.08);
-  z-index: 250;
+.mobile-overview-pane {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  background: var(--ot-color-surface);
 }
 
-.comments-sidebar__collapse {
-  position: absolute;
-  top: 50%;
-  left: -20px;
-  z-index: 260;
-  transform: translateY(-50%);
-  background: white;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+.mobile-overview-pane > f-progress-dashboard {
+  min-width: 0;
+}
+
+@media (max-width: 639.98px) {
+  .project-dashboard-shell {
+    display: block;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding-bottom: var(--mobile-page-bottom-padding);
+  }
+
+  // Only the compact task navigation stays in view. The selected-task heading,
+  // application header, and demo banner remain part of the document flow.
+  .mobile-task-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    min-height: var(--mobile-task-tabs-height);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  }
+
+  .project-dashboard-layout {
+    display: block;
+    height: auto !important;
+    min-height: 0;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .project-task-list-panel {
+    display: block;
+    height: auto !important;
+    width: 100% !important;
+    min-width: 0;
+    padding-right: 0.25rem !important;
+  }
+
+  .mobile-task-view,
+  .mobile-overview-view,
+  .mobile-task-pane,
+  .mobile-overview-pane {
+    display: block;
+    height: auto;
+    min-height: 0;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .mobile-task-pane > f-task-dashboard,
+  .mobile-task-pane > task-comments-viewer {
+    display: block;
+    height: auto;
+    min-height: 0;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .mobile-overview-pane {
+    overscroll-behavior-y: auto;
+    -webkit-overflow-scrolling: auto;
+  }
+
+  .project-task-list-panel--phone-hidden {
+    display: none !important;
+  }
+}
+
+// The comments panel: the viewer fills it, and full screen gives it a centred column
+// wide enough for longer messages without a line running edge to edge.
+.project-comments__viewer {
+  display: block;
+  min-height: 0;
+  flex: 1;
+}
+
+.project-comments__task {
+  margin-left: 0.375rem;
+  color: var(--ot-color-text-muted);
+  font-weight: 400;
+}
+
+.project-comments.app-panel--fullscreen .project-comments__viewer {
+  --comment-bubble-max-width: min(42rem, 75%);
+  --comments-gutter: 1.5rem;
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
 }

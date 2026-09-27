@@ -1,9 +1,27 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Observable, map, startWith} from 'rxjs';
-import {Group, GroupSet, Project, Unit, UnitRole} from 'src/app/api/models/doubtfire-model';
+import {Subscription, first} from 'rxjs';
+import {
+  Group,
+  GroupSet,
+  Project,
+  ProjectService,
+  Unit,
+  UnitRole,
+} from 'src/app/api/models/doubtfire-model';
 import {GroupService} from 'src/app/api/services/group.service';
 import {AlertService} from 'src/app/common/services/alert.service';
+
+// The add-a-student list shows this many matches at most; typing narrows it down.
+const MAX_CANDIDATES = 50;
 
 @Component({
   selector: 'f-group-set-manager',
@@ -12,7 +30,7 @@ import {AlertService} from 'src/app/common/services/alert.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class GroupSetManagerComponent implements OnInit {
+export class GroupSetManagerComponent implements OnInit, OnChanges, OnDestroy {
   @Input() project: Project;
   @Input() unit: Unit;
   @Input() selectedGroupSet: GroupSet;
@@ -23,54 +41,110 @@ export class GroupSetManagerComponent implements OnInit {
 
   editingGroupName = false;
 
-  control = new FormControl('');
-  projects: Project[] = [];
-  filteredProjects: Observable<Project[]>;
+  control: FormControl<string | Project> = new FormControl('');
+
+  // One function for the life of the component. A getter handed the selector a new
+  // function on every check, which counted as a changed input each time.
+  readonly groupSelectHandler = (group: Group) => this.newGroupSelected(group);
+
+  private originalGroupName: string;
+  private studentsSub?: Subscription;
 
   constructor(
     private groupService: GroupService,
     private alertService: AlertService,
+    private projectService: ProjectService,
   ) {}
 
   ngOnInit(): void {
-    this.filteredProjects = this.control.valueChanges.pipe(
-      startWith(''),
-      map((value) => this._filter(value)),
+    this.loadStudentsForStaff();
+    this.selectCurrentProjectGroup();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const unitChanged = changes['unit'] && !changes['unit'].firstChange;
+    const setChanged = changes['selectedGroupSet'] && !changes['selectedGroupSet'].firstChange;
+
+    // A group from another unit or another set must not stay open beside the new list.
+    if (
+      this.selectedGroup &&
+      (unitChanged || (setChanged && this.selectedGroup.groupSet !== this.selectedGroupSet))
+    ) {
+      this.newGroupSelected(null);
+    }
+
+    if (unitChanged || (changes['unitRole'] && !changes['unitRole'].firstChange)) {
+      this.loadStudentsForStaff();
+    }
+    if (changes['project'] || changes['selectedGroupSet']) {
+      this.selectCurrentProjectGroup();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.studentsSub?.unsubscribe();
+  }
+
+  public get canRenameGroup(): boolean {
+    return (
+      !!this.selectedGroup &&
+      (!!this.unitRole || !!this.selectedGroup.groupSet?.allowStudentsToManageGroups)
     );
   }
 
-  get groupSelectHandler() {
-    return (group: Group) => this.newGroupSelected(group);
+  /**
+   * Students in the unit who can join the open group and match what has been typed.
+   * Worked out from the current cache each time, so students who load after the
+   * group was opened, and members added or removed since, are reflected.
+   */
+  public get memberCandidates(): Project[] {
+    const group = this.selectedGroup;
+    if (!group || !this.unit) {
+      return [];
+    }
+
+    // The unit's filter reads the group's tutorial when groups stay in one class.
+    if (group.groupSet?.keepGroupsInSameClass && !group.tutorial) {
+      return [];
+    }
+
+    const value = this.control.value;
+    const text = typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+    return this.unit
+      .studentsForGroupTypeAhead(group)
+      .filter(
+        (project) =>
+          !text ||
+          project.student?.name?.toLowerCase().includes(text) ||
+          project.student?.username?.toLowerCase().includes(text),
+      )
+      .slice(0, MAX_CANDIDATES);
   }
 
   displayFn(project: Project): string {
-    return project && project.student.name ? project.student.name : '';
+    return project && project.student?.name ? project.student.name : '';
   }
 
-  newGroupSelected(group: Group) {
-    if (this.selectedGroup) {
+  onGroupSetChange(groupSet?: GroupSet): void {
+    if (groupSet) {
+      this.selectedGroupSet = groupSet;
+    }
+    this.newGroupSelected(null);
+    this.selectCurrentProjectGroup();
+  }
+
+  newGroupSelected(group: Group | null) {
+    // Throw away a rename that was never saved. A saved one is kept: this used to put
+    // the old name back on screen as soon as another group was opened.
+    if (this.selectedGroup && this.editingGroupName) {
       this.selectedGroup.name = this.originalGroupName;
     }
+
     this.editingGroupName = false;
     this.selectedGroup = group;
-
-    const students = this.unit.studentsForGroupTypeAhead(group) || [];
-    this.projects = students.filter((project) => !group.projects.find((p) => project.id === p.id));
-
-    this.originalGroupName = group.name;
-  }
-
-  private _filter(value: string | Project): Project[] {
-    if (typeof value !== 'string') {
-      return;
-    }
-
-    const filterValue = value.toLowerCase();
-    return this.projects.filter(
-      (project) =>
-        project.student.name.toLowerCase().includes(filterValue.toLowerCase()) && // Find by name
-        !this.selectedGroup.projects.find((p) => project.id === p.id), // Not already assigned to the group
-    );
+    this.originalGroupName = group?.name;
+    this.control.setValue('');
   }
 
   addMember(project: Project) {
@@ -78,28 +152,36 @@ export class GroupSetManagerComponent implements OnInit {
     this.control.setValue('');
   }
 
-  private originalGroupName: string;
   startEditingGroupName() {
     this.originalGroupName = this.selectedGroup.name;
     this.editingGroupName = true;
   }
 
-  stopEditinGroupName() {
+  stopEditingGroupName() {
     this.selectedGroup.name = this.originalGroupName;
     this.editingGroupName = false;
   }
 
   updateGroup() {
+    const group = this.selectedGroup;
+    const previousName = this.originalGroupName;
+
+    if (!group?.name?.trim()) {
+      return;
+    }
+
     this.editingGroupName = false;
+    this.originalGroupName = group.name;
+
     this.groupService
       .update(
         {
           unitId: this.unit.id,
-          groupSetId: this.selectedGroup.groupSet.id,
-          id: this.selectedGroup.id,
+          groupSetId: group.groupSet.id,
+          id: group.id,
         },
         {
-          entity: this.selectedGroup,
+          entity: group,
         },
       )
       .subscribe({
@@ -107,9 +189,44 @@ export class GroupSetManagerComponent implements OnInit {
           this.alertService.success('Successfully updated group', 3000);
         },
         error: (error) => {
-          this.selectedGroup.name = this.originalGroupName;
-          this.alertService.error(`Failed to update gorup: ${error}`, 6000);
+          // Put the name back on the group that was renamed, even if another group
+          // has been opened since.
+          group.name = previousName;
+          if (group === this.selectedGroup) {
+            this.originalGroupName = previousName;
+          }
+          this.alertService.error(`Failed to update group: ${error}`, 6000);
         },
       });
+  }
+
+  /**
+   * The add-a-student list comes from the unit's students. Opening this page straight
+   * from a link or a refresh left that list empty, because only the student list page
+   * fetched them. Staff fetch them here; the request is shared with that page's cache.
+   */
+  private loadStudentsForStaff(): void {
+    if (!this.unitRole || !this.unit) {
+      return;
+    }
+
+    this.studentsSub?.unsubscribe();
+    this.studentsSub = this.projectService
+      .loadStudents(this.unit)
+      .pipe(first())
+      .subscribe({
+        error: () => {
+          this.alertService.error(
+            'Students could not be loaded, so the list of students to add may be incomplete.',
+            6000,
+          );
+        },
+      });
+  }
+  private selectCurrentProjectGroup(): void {
+    const currentGroup = this.project?.groupForGroupSet(this.selectedGroupSet);
+    if (currentGroup && currentGroup.id !== this.selectedGroup?.id) {
+      this.newGroupSelected(currentGroup);
+    }
   }
 }

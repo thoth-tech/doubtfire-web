@@ -1,274 +1,594 @@
-<div
-  class="absolute top-1/2 left-1/2 z-40 h-screen w-screen -translate-1/2 transform overflow-hidden bg-gray-500/50 backdrop-blur"
-  [hidden]="!scanningQr"
->
-  @if (loadingStudentData) {
-    <mat-spinner
-      class="absolute top-1/2 left-1/2 z-50 -translate-x-1/2 transform"
-      color="blue"
-    ></mat-spinner>
-  }
-  <div [ngClass]="{'qr-reader-hide-bloat': hideQrScannerBloat}">
-    <div class="absolute top-1/2 w-full -translate-y-1/2 transform" id="qr-reader"></div>
-  </div>
-  <div
-    class="pointer-events-none absolute top-[150px] left-1/2 z-10 w-full -translate-x-1/2 transform px-6 py-3 text-center text-sm font-bold text-white"
-  >
-    Scan a student's QR code to instantly load their project and mark submissions.
-  </div>
-  <button
-    class="absolute bottom-[150px] left-1/2 my-3 max-w-md -translate-x-1/2 transform"
-    color="secondary"
-    mat-raised-button
-    (click)="closeQrReader()"
-  >
-    {{ project ? 'Cancel' : 'Exit' }}
-  </button>
-</div>
-
-<!-- We offset the height by 145px to compensate for the header -->
-<div class="mx-auto flex h-[calc(100vh-145px)] w-full max-w-7xl flex-col">
-  @if (attendance && unit) {
-    <div class="flex items-center gap-2.5">
-      <mat-form-field appearance="outline" class="mt-[22px] w-full">
-        <mat-select
-          placeholder="Select a task"
-          [disabled]="!!selectedTaskDefinition"
-          [(ngModel)]="selectedTaskDefinition"
-        >
-          @for (
-            td of $safeNavigationMigration(unit?.taskDefinitionCache.values) | async;
-            track td
-          ) {
-            <mat-option [value]="td">{{ td.abbreviation }} - {{ td.name }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      @if (selectedTaskDefinition) {
-        <button color="red" mat-raised-button (click)="selectedTaskDefinition = null">Clear</button>
-      }
+<f-page-container>
+  <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-2 pb-5">
+    <div class="min-w-0">
+      <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">
+        {{ attendance ? 'Check-in' : 'Discussion' }}
+        @if (unit?.code) {
+          <span class="font-normal text-ot-muted">in {{ unit.code }}</span>
+        }
+      </h1>
+      <p class="m-0 mt-1.5 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+        @if (attendance) {
+          Choose a task, then scan each student's QR code to check them in for it.
+        } @else {
+          Scan a student's QR code to open the tasks they want to talk about, then mark what you
+          discussed.
+        }
+      </p>
     </div>
-  }
+  </header>
 
-  <div class="task-inbox flex w-full flex-1 flex-col items-center justify-normal">
-    <div class="relative mb-5 flex w-full justify-between px-10">
-      @if (project && project?.student) {
-        <button
-          aria-label="Add engagement stamp"
-          color="primary"
-          mat-icon-button
-          matTooltip="Add engagement"
-          (click)="openAddEngagementDialog()"
-        >
-          <mat-icon>approval</mat-icon>
-        </button>
-        <div class="absolute left-1/2 -translate-x-1/2 transform text-center">
-          <div class="text-center">
-            {{ project?.student?.firstName }} {{ project?.student?.lastName }}
-            @if (project?.student.studentId) {
-              ({{ project?.student.studentId }})
-            }
-          </div>
-          <div class="text-center">
-            Target Grade: {{ getTargetTradeString($safeNavigationMigration(project?.targetGrade)) }}
-          </div>
-        </div>
-      } @else {
-        <div></div>
-        <div class="mt-3 text-gray-500 italic">Click the QR code to open the scanner..</div>
-      }
-      <button class="scale-[2]" color="primary" mat-icon-button (click)="scanQrCode()">
-        <mat-icon>qr_code_scanner</mat-icon>
-      </button>
-    </div>
-
-    @if (project && !filteredTasks.length) {
-      <div class="py-6 text-gray-400 italic">No tasks to discuss.</div>
-    }
-    <mat-selection-list #tasks class="m-0 h-min p-0">
-      @for (task of filteredTasks; track task) {
-        <mat-list-option
-          class="clearfix w-full"
-          style="padding: 0; min-height: 60px; height: min-content"
-          togglePosition="before"
-          [selected]="
-            (['discuss', 'rediscuss'].includes(task.status) || attendance) &&
-            (!task.definition.lockAssessmentsToTutorialStream ||
-              currentUserTutorsInStream(task.definition.tutorialStream))
-          "
-          [value]="task"
-        >
-          @if (task) {
-            <div class="w-full" id="{{ task.id }}">
-              <div
-                class="inbox-entry flex items-center"
-                [ngClass]="{hover: task.hover}"
-                (mouseout)="task.hover = task.optionsOpened"
-                (mouseover)="task.hover = allowHover"
+  <div class="flex flex-col gap-5 pb-6">
+    @if (attendance && hasUnit) {
+      <section
+        aria-labelledby="check-in-task-heading"
+        class="rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+      >
+        <div class="flex flex-col gap-3 p-5 sm:p-6">
+          <h2
+            class="m-0 text-lg leading-snug font-semibold text-ot-text"
+            id="check-in-task-heading"
+          >
+            Task to check in
+          </h2>
+          @if (loadingUnit) {
+            <p class="m-0 flex items-center gap-2 text-sm text-ot-muted" role="status">
+              <mat-spinner aria-hidden="true" diameter="18"></mat-spinner>
+              Loading the unit's tasks...
+            </p>
+          } @else if (unit) {
+            <div class="flex flex-wrap items-center gap-3">
+              <mat-form-field
+                appearance="outline"
+                class="discussion-field w-full sm:max-w-md"
+                subscriptSizing="dynamic"
               >
-                <span
-                  class="notification"
-                  [ngClass]="{
-                    active: task.numNewComments > 0 || task.similaritiesDetected,
-                    similarities: task.similaritiesDetected,
-                  }"
-                ></span>
-                <user-icon
-                  class="self-center"
-                  [size]="30"
-                  [user]="$safeNavigationMigration(project?.student)"
+                <mat-label>Task</mat-label>
+                <mat-select
+                  [disabled]="!!selectedTaskDefinition"
+                  [(ngModel)]="selectedTaskDefinition"
                 >
-                </user-icon>
-                <div class="mt-0 flex-1 break-words whitespace-normal" [hidden]="isNarrow">
-                  <h4 class="mt-[8px] mb-[2px] text-[15px]">{{ task.definition.name }}</h4>
-                  <span class="mb-0 inline text-[12px]">
-                    {{ task.definition.abbreviation }} -
-                    {{ getTargetTradeString(task.definition.targetGrade) }} Task
-                  </span>
-                </div>
-                @if (task.hasGrade()) {
-                  <div matTooltip="The grade assigned to the submission" matTooltipPosition="above">
-                    <mat-chip-option style="margin-right: 6px" [hidden]="isNarrow"
-                      >{{ task.gradeDesc() }}
-                    </mat-chip-option>
-                  </div>
-                }
-                <status-icon
-                  class="ml-2"
-                  matBadge="{{ task.status === 'attention_required' ? '!' : '' }}"
-                  matBadgeColor="warn"
-                  matBadgePosition="after"
-                  [hidden]="isNarrow"
-                  [status]="task.status"
-                ></status-icon>
-
-                <button
-                  aria-label="task-comments"
-                  mat-icon-button
-                  [ngClass]="task.id === selectedTask?.id ? 'text-blue-500' : 'text-gray-400'"
-                  (click)="loadTaskComments($event, task)"
-                >
-                  <mat-icon>chat-bubble</mat-icon>
-                </button>
-              </div>
-              <!--/badges-->
+                  @for (td of unit.taskDefinitions; track td.id) {
+                    <mat-option [value]="td">{{ td.abbreviation }} - {{ td.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              @if (selectedTaskDefinition) {
+                <button mat-button type="button" (click)="clearCheckInTask()">Change task</button>
+              }
             </div>
           }
-        </mat-list-option>
-      }
-
-      <!--/task-->
-    </mat-selection-list>
-    @if (project) {
-      <div class="mt-2.5 flex w-full justify-center">
-        @if (this.allTasks?.length > 0) {
-          @if (this.filteredTasks?.length < this.allTasks?.length) {
-            <button color="primary" mat-button (click)="viewAllSubmittedTasks()">
-              Load all submitted tasks
-            </button>
-          } @else {
-            <button color="primary" mat-button (click)="viewAllFilteredTasks()">
-              Hide all submitted tasks
-            </button>
-          }
-        }
-      </div>
+        </div>
+      </section>
     }
 
-    <!-- </cdk-virtual-scroll-viewport> -->
-  </div>
+    <!-- Always in the page, because the scanner draws its video into #qr-reader and sizes
+         it to this element. It is only shown while the camera is in use. -->
+    <section
+      aria-labelledby="scanner-heading"
+      class="rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+      [hidden]="!scanningQr"
+    >
+      <div class="flex flex-col items-center gap-4 p-4 sm:p-6">
+        <div class="text-center">
+          <h2 class="m-0 text-lg leading-snug font-semibold text-ot-text" id="scanner-heading">
+            Point the camera at the student's QR code
+          </h2>
+          <p class="m-0 mt-1 text-sm text-ot-muted">
+            It opens their tasks as soon as it reads the code.
+          </p>
+        </div>
 
-  @if (project && filteredTasks.length) {
-    <div class="mt-1">
-      <div class="my-2 flex w-full items-center justify-center gap-5">
-        @if (attendance) {
-          <button
-            class="medium-icon-button bg-gray-100"
-            color="secondary"
-            mat-fab
-            [disabled]="!tasks.selectedOptions.selected.length"
-            (click)="markSelectedTasksCheckedIn()"
-          >
-            <!-- Redo -->
-            <mat-icon>how_to_reg</mat-icon>
-          </button>
-        } @else {
-          <button
-            class="medium-icon-button bg-gray-100"
-            color="secondary"
-            mat-fab
-            [disabled]="!tasks.selectedOptions.selected.length"
-            (click)="setSelectedTasksStatus('fix_and_resubmit')"
-          >
-            <!-- Redo -->
-            <mat-icon>construction</mat-icon>
-          </button>
-          <button
-            class="medium-icon-button bg-green-400"
-            mat-fab
-            [disabled]="!canMarkSelectedTasksComplete"
-            (click)="setSelectedTasksStatus('complete')"
-          >
-            <!-- Mark as Complete -->
-            <mat-icon>done</mat-icon>
-          </button>
-
-          <button
-            class="medium-icon-button bg-blue-300"
-            mat-fab
-            [disabled]="!tasks.selectedOptions.selected.length"
-            (click)="markSelectedTasksDicussed()"
-          >
-            <!-- Mark as Discussed -->
-            <mat-icon>group</mat-icon>
-          </button>
-          @if (selectedTasksIncludeDiscuss) {
-            <button
-              class="medium-icon-button bg-[#126352] text-white"
-              mat-fab
-              matTooltip="Mark as Rediscuss"
-              [disabled]="!tasks.selectedOptions.selected.length"
-              (click)="setSelectedTasksStatus('rediscuss')"
-            >
-              <mat-icon>feedback</mat-icon>
-            </button>
+        <div
+          class="qr-viewfinder relative w-full max-w-md overflow-hidden rounded-ot-md bg-ot-code"
+        >
+          <div class="w-full" id="qr-reader"></div>
+          @if (cameraStarting || loadingStudentData) {
+            <div class="absolute inset-0 flex items-center justify-center p-4" role="status">
+              <span
+                class="inline-flex items-center gap-2 rounded-ot-pill bg-ot-inverse px-3 py-1.5 text-sm text-ot-on-inverse"
+              >
+                <mat-spinner aria-hidden="true" diameter="16"></mat-spinner>
+                {{
+                  loadingStudentData ? "Opening the student's tasks..." : 'Starting the camera...'
+                }}
+              </span>
+            </div>
           }
+        </div>
+
+        <!-- The live region stays in the page so a new note is read out when it appears. -->
+        <div aria-live="polite">
+          @if (scanHint) {
+            <p class="m-0 flex items-center gap-2 text-sm text-ot-text">
+              <mat-icon aria-hidden="true" class="text-ot-warning">info</mat-icon>
+              {{ scanHint }}
+            </p>
+          }
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          @if (cameras.length > 1) {
+            <mat-form-field
+              appearance="outline"
+              class="discussion-field w-64 max-w-full"
+              subscriptSizing="dynamic"
+            >
+              <mat-label>Camera</mat-label>
+              <mat-select [value]="selectedCameraId" (selectionChange)="switchCamera($event.value)">
+                @for (camera of cameras; track camera.id) {
+                  <mat-option [value]="camera.id">{{ camera.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+          <button mat-stroked-button type="button" (click)="closeQrReader()">Stop scanning</button>
+        </div>
+      </div>
+    </section>
+
+    @if (!scanningQr && !project && (hasUnit || !attendance)) {
+      <section
+        aria-labelledby="scan-start-heading"
+        class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+      >
+        <div class="flex flex-col gap-5 p-5 sm:p-6">
+          <div class="flex items-start gap-4">
+            <span aria-hidden="true" class="discussion-icon-tile">
+              <mat-icon>qr_code_scanner</mat-icon>
+            </span>
+            <div class="min-w-0">
+              <h2
+                class="m-0 text-lg leading-snug font-semibold text-ot-text"
+                id="scan-start-heading"
+              >
+                Scan a student's QR code
+              </h2>
+              <p class="m-0 mt-1 text-sm leading-relaxed text-ot-muted">
+                Students show their code from the QR button at the top of
+                {{ externalName | async }}. Your browser asks to use the camera when you start
+                scanning, and the camera turns off once the student's tasks open.
+              </p>
+            </div>
+          </div>
+
+          @if (loadingStudentData) {
+            <p class="m-0 flex items-center gap-2 text-sm text-ot-muted" role="status">
+              <mat-spinner aria-hidden="true" diameter="18"></mat-spinner>
+              Opening the student's tasks...
+            </p>
+          }
+
+          <ng-container *ngTemplateOutlet="pageMessages"></ng-container>
+
+          @if (attendance && hasUnit && !selectedTaskDefinition) {
+            <p class="m-0 text-sm text-ot-muted">Choose the task to check in before you scan.</p>
+          }
+        </div>
+
+        <footer
+          class="flex flex-wrap items-center justify-end gap-3 border-t border-ot-divider px-5 py-3 sm:px-6"
+        >
+          <button
+            color="primary"
+            mat-flat-button
+            type="button"
+            [disabled]="!canStartScanning"
+            (click)="scanQrCode()"
+          >
+            <mat-icon aria-hidden="true">qr_code_scanner</mat-icon>
+            {{
+              cameraProblem && cameraProblem !== 'unsupported'
+                ? 'Try the camera again'
+                : 'Start scanning'
+            }}
+          </button>
+        </footer>
+      </section>
+
+      @if (hasUnit) {
+        <section
+          aria-labelledby="student-lookup-heading"
+          class="rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+        >
+          <div class="flex flex-col gap-3 p-5 sm:p-6">
+            <div>
+              <h2
+                class="m-0 text-base leading-snug font-semibold text-ot-text"
+                id="student-lookup-heading"
+              >
+                No camera? Find the student instead
+              </h2>
+              <p class="m-0 mt-1 text-sm text-ot-muted">
+                Type their username or student ID, as it appears in the student list.
+              </p>
+            </div>
+            <ng-container *ngTemplateOutlet="lookupForm"></ng-container>
+          </div>
+        </section>
+      }
+    }
+
+    @if (!hasUnit && (attendance || (!scanningQr && !project))) {
+      <section
+        aria-labelledby="unit-picker-heading"
+        class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+      >
+        <div class="p-5 sm:p-6">
+          <h2 class="m-0 text-lg leading-snug font-semibold text-ot-text" id="unit-picker-heading">
+            Choose a unit
+          </h2>
+          <p class="m-0 mt-1 text-sm text-ot-muted">
+            @if (attendance) {
+              Check-in works one unit at a time.
+            } @else {
+              Open a unit to find a student without the camera.
+            }
+          </p>
+        </div>
+        @if (teachingUnits.length > 0) {
+          <ul class="m-0 list-none p-0">
+            @for (unitRole of teachingUnits; track unitRole.id) {
+              <li class="border-t border-ot-divider">
+                <a
+                  class="flex min-h-12 items-center justify-between gap-3 px-5 py-3 text-ot-text no-underline hover:bg-ot-hover focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ot-focus sm:px-6"
+                  [routerLink]="[
+                    '/units',
+                    unitRole.unit.id,
+                    attendance ? 'check-in' : 'discussion',
+                  ]"
+                >
+                  <span class="min-w-0">
+                    <span class="font-medium">{{ unitRole.unit.code }}</span>
+                    <span class="text-ot-muted"> {{ unitRole.unit.name }}</span>
+                  </span>
+                  <mat-icon aria-hidden="true" class="shrink-0 text-ot-muted"
+                    >chevron_right</mat-icon
+                  >
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <f-empty-state
+            hint="Units you teach appear here while they are running."
+            icon="school"
+            message="You are not teaching any active units"
+          ></f-empty-state>
         }
+      </section>
+    }
+
+    @if (project && !scanningQr) {
+      <!-- The way to the next student stays on the page once one is open, and so do the
+           messages about the camera or a lookup, next to the buttons they are about. -->
+      <section
+        aria-labelledby="next-student-heading"
+        class="flex flex-col gap-3 rounded-ot-lg border border-ot-divider bg-ot-surface p-4 shadow-(--ot-elevation-1) sm:px-5"
+      >
+        <h2 class="sr-only" id="next-student-heading">Next student</h2>
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            color="primary"
+            mat-flat-button
+            type="button"
+            [disabled]="!canStartScanning"
+            (click)="scanQrCode()"
+          >
+            <mat-icon aria-hidden="true">qr_code_scanner</mat-icon>
+            {{
+              cameraProblem && cameraProblem !== 'unsupported'
+                ? 'Try the camera again'
+                : 'Scan next student'
+            }}
+          </button>
+          @if (hasUnit) {
+            <span class="text-sm text-ot-muted">or find them</span>
+            <ng-container *ngTemplateOutlet="lookupForm"></ng-container>
+          }
+        </div>
+        @if (loadingStudentData) {
+          <p class="m-0 flex items-center gap-2 text-sm text-ot-muted" role="status">
+            <mat-spinner aria-hidden="true" diameter="18"></mat-spinner>
+            Opening the student's tasks...
+          </p>
+        }
+        <ng-container *ngTemplateOutlet="pageMessages"></ng-container>
+      </section>
+
+      <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <section
+          aria-labelledby="discussion-student-heading"
+          class="flex min-w-0 flex-col overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+        >
+          <div class="flex flex-wrap items-center gap-3 border-b border-ot-divider p-4 sm:px-5">
+            <user-icon class="shrink-0" [size]="40" [user]="project.student"></user-icon>
+            <div class="min-w-0 flex-1">
+              <h2
+                class="m-0 truncate text-lg leading-snug font-semibold text-ot-text"
+                id="discussion-student-heading"
+              >
+                {{ project.student?.displayName ?? project.student?.name }}
+              </h2>
+              <p class="m-0 text-sm text-ot-muted">
+                @if (project.student?.studentId) {
+                  <span class="tabular-nums">{{ project.student.studentId }}</span>
+                  <span aria-hidden="true"> · </span>
+                }
+                Target grade: {{ getTargetTradeString(project.targetGrade) }}
+              </p>
+            </div>
+            <button mat-stroked-button type="button" (click)="openAddEngagementDialog()">
+              <mat-icon aria-hidden="true">approval</mat-icon>
+              Add engagement
+            </button>
+          </div>
+
+          <h3
+            class="m-0 px-4 pt-4 text-base font-semibold text-ot-text sm:px-5"
+            id="discussion-tasks-heading"
+          >
+            @if (attendance) {
+              Check in for this task
+            } @else if (showingAllSubmitted) {
+              All submitted tasks
+            } @else {
+              Tasks to discuss
+            }
+          </h3>
+
+          @if (filteredTasks.length === 0) {
+            @if (attendance) {
+              <f-empty-state
+                hint="Check the task you chose, or scan the next student."
+                icon="event_busy"
+                message="No matching task for this student"
+              ></f-empty-state>
+            } @else {
+              <f-empty-state
+                hint="Nothing they submitted is waiting to be discussed."
+                icon="task_alt"
+                message="No tasks to discuss"
+              ></f-empty-state>
+            }
+          }
+
+          <mat-selection-list
+            #tasks
+            aria-labelledby="discussion-tasks-heading"
+            class="discussion-task-list"
+            [hidden]="filteredTasks.length === 0"
+          >
+            @for (task of filteredTasks; track task) {
+              <mat-list-option
+                class="discussion-task"
+                togglePosition="before"
+                [selected]="isPreselected(task)"
+                [value]="task"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  <status-icon class="shrink-0" [status]="task.status"></status-icon>
+                  <div class="min-w-0 flex-1">
+                    <p class="m-0 truncate font-medium text-ot-text">
+                      {{ task.definition?.name }}
+                    </p>
+                    <p class="m-0 truncate text-sm text-ot-muted">
+                      {{ task.definition?.abbreviation }} ·
+                      {{ getTargetTradeString(task.definition?.targetGrade) }} task
+                      @if (task.hasGrade()) {
+                        · Grade {{ task.gradeDesc() }}
+                      }
+                    </p>
+                  </div>
+                  @if (task.similaritiesDetected) {
+                    <span
+                      class="size-2 shrink-0 rounded-full bg-ot-error"
+                      matTooltip="Similarities found"
+                    ></span>
+                    <span class="sr-only">Similarities found.</span>
+                  } @else if (task.numNewComments > 0) {
+                    <span
+                      class="size-2 shrink-0 rounded-full bg-ot-primary"
+                      matTooltip="New comments"
+                    ></span>
+                    <span class="sr-only">New comments.</span>
+                  }
+                  <button
+                    mat-icon-button
+                    type="button"
+                    [attr.aria-label]="'Show comments on ' + task.definition?.name"
+                    [attr.aria-pressed]="task === selectedTask"
+                    [ngClass]="task === selectedTask ? 'text-ot-primary' : 'text-ot-muted'"
+                    (click)="loadTaskComments($event, task)"
+                  >
+                    <mat-icon>{{
+                      task === selectedTask ? 'chat_bubble' : 'chat_bubble_outline'
+                    }}</mat-icon>
+                  </button>
+                </div>
+              </mat-list-option>
+            }
+          </mat-selection-list>
+
+          @if (!attendance && (showingAllSubmitted || hasMoreSubmittedTasks)) {
+            <div class="px-4 pb-2 sm:px-5">
+              @if (showingAllSubmitted) {
+                <button mat-button type="button" (click)="viewAllFilteredTasks()">
+                  Show only tasks to discuss
+                </button>
+              } @else {
+                <button mat-button type="button" (click)="viewAllSubmittedTasks()">
+                  Show all {{ allTasks.length }} submitted tasks
+                </button>
+              }
+            </div>
+          }
+
+          @if (filteredTasks.length > 0) {
+            <footer
+              aria-label="Actions for the selected tasks"
+              class="flex flex-wrap items-center gap-2 border-t border-ot-divider px-4 py-3 sm:px-5"
+              role="group"
+            >
+              <!-- Read through the list itself: it is created in the same pass as this bar,
+                   so the component's view query is not filled in yet the first time. -->
+              <span aria-live="polite" class="mr-auto text-sm text-ot-muted tabular-nums">
+                {{ selectedCount(tasks) }} of {{ filteredTasks.length }} selected
+              </span>
+              @if (attendance) {
+                <button
+                  color="primary"
+                  mat-flat-button
+                  type="button"
+                  [disabled]="!selectedCount(tasks)"
+                  (click)="markSelectedTasksCheckedIn()"
+                >
+                  <mat-icon aria-hidden="true">how_to_reg</mat-icon>
+                  Check in
+                </button>
+              } @else {
+                <button
+                  class="discussion-complete"
+                  mat-flat-button
+                  type="button"
+                  [disabled]="!canCompleteSelection(tasks)"
+                  (click)="setSelectedTasksStatus('complete')"
+                >
+                  <mat-icon aria-hidden="true">done</mat-icon>
+                  Complete
+                </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  [disabled]="!selectedCount(tasks)"
+                  (click)="markSelectedTasksDicussed()"
+                >
+                  <mat-icon aria-hidden="true" class="text-(--ot-status-discuss-graphic)">
+                    forum
+                  </mat-icon>
+                  Mark discussed
+                </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  [disabled]="!selectedCount(tasks)"
+                  (click)="setSelectedTasksStatus('fix_and_resubmit')"
+                >
+                  <mat-icon aria-hidden="true" class="text-(--ot-status-fix-and-resubmit-graphic)">
+                    construction
+                  </mat-icon>
+                  Fix and resubmit
+                </button>
+                @if (selectionIncludesDiscuss(tasks)) {
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    [disabled]="!selectedCount(tasks)"
+                    (click)="setSelectedTasksStatus('rediscuss')"
+                  >
+                    <mat-icon aria-hidden="true" class="text-(--ot-status-rediscuss-graphic)">
+                      feedback
+                    </mat-icon>
+                    Rediscuss
+                  </button>
+                }
+              }
+            </footer>
+          }
+        </section>
+
+        <section
+          aria-label="Comments and notes"
+          class="discussion-side flex min-w-0 flex-col overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+        >
+          <mat-tab-group
+            class="shrink-0"
+            mat-stretch-tabs="false"
+            [selectedIndex]="footerTabView"
+            (selectedTabChange)="onTabChange($event)"
+          >
+            <mat-tab label="Task comments"></mat-tab>
+            <mat-tab
+              [label]="
+                'Student notes' +
+                (project.staffNoteCount ? ' (' + project.staffNoteCount + ')' : '')
+              "
+            ></mat-tab>
+            <mat-tab label="Discussion prompts"></mat-tab>
+          </mat-tab-group>
+
+          <div class="flex min-h-0 flex-1 flex-col border-t border-ot-divider">
+            @switch (footerTabView) {
+              @case (TutorDiscussionTabView.SHOW_COMMENTS) {
+                @if (selectedTask) {
+                  <p class="m-0 shrink-0 px-4 pt-3 text-sm text-ot-muted sm:px-5">
+                    Comments on
+                    <span class="font-medium text-ot-text">{{
+                      selectedTask.definition?.name
+                    }}</span>
+                  </p>
+                  <task-comments-viewer
+                    class="block min-h-0 flex-1"
+                    [project]="project"
+                    [task]="selectedTask"
+                  ></task-comments-viewer>
+                } @else {
+                  <f-empty-state
+                    hint="Use the comment button beside a task."
+                    icon="chat_bubble_outline"
+                    message="Choose a task to see its comments"
+                  ></f-empty-state>
+                }
+              }
+              @case (TutorDiscussionTabView.SHOW_STAFF_NOTES) {
+                <f-staff-notes class="block min-h-0 flex-1" [project]="project"></f-staff-notes>
+              }
+              @case (TutorDiscussionTabView.SHOW_DISCUSSION_PROMPTS) {
+                <f-discussion-prompts
+                  class="block min-h-0 flex-1 overflow-auto"
+                  [project]="project"
+                ></f-discussion-prompts>
+              }
+            }
+          </div>
+        </section>
+      </div>
+    }
+  </div>
+</f-page-container>
+
+<ng-template #pageMessages>
+  @if (loadError) {
+    <div class="discussion-callout discussion-callout--error" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <p class="m-0 text-sm">{{ loadError }}</p>
+    </div>
+  }
+  @if (cameraProblem; as problem) {
+    <div class="discussion-callout discussion-callout--warning" role="alert">
+      <mat-icon aria-hidden="true">
+        {{ problem === 'denied' ? 'no_photography' : 'videocam_off' }}
+      </mat-icon>
+      <div class="flex min-w-0 flex-col gap-0.5">
+        <p class="m-0 font-semibold">{{ cameraProblems[problem].title }}</p>
+        <p class="m-0 text-sm leading-relaxed">{{ cameraProblems[problem].detail }}</p>
       </div>
     </div>
   }
+</ng-template>
 
-  @if (selectedTask && project) {
-    <mat-tab-group dynamicHeight (selectedTabChange)="onTabChange($event)">
-      <mat-tab label="Task Comments"></mat-tab>
-
-      <mat-tab
-        label="Student Notes{{
-          project?.staffNoteCount ? ' (' + project.staffNoteCount + ')' : ''
-        }}"
-        [matBadge]="$safeNavigationMigration(project?.staffNoteCount)"
-      ></mat-tab>
-      <mat-tab label="Discussion Prompts"></mat-tab>
-    </mat-tab-group>
-
-    @if (footerTabView === TutorDiscussionTabView.SHOW_COMMENTS) {
-      <div #commentspanel class="task-comment-panel inbox-panel w-full flex-1">
-        <!-- <div class="w-full text-center py-2.5">{{ selectedTask?.definition.name }}</div> -->
-
-        <task-comments-viewer
-          class="h-full"
-          ng-if="selectedTask"
-          refocus-on-task-change="true"
-          style="padding: 0 8px 0 12px; background: white; border-radius: 12px"
-          [project]="project"
-          [task]="selectedTask"
-        >
-        </task-comments-viewer>
-      </div>
-    } @else if (footerTabView === TutorDiscussionTabView.SHOW_STAFF_NOTES) {
-      <f-staff-notes class="min-h-[350px]" [project]="project"></f-staff-notes>
-    } @else if (footerTabView === TutorDiscussionTabView.SHOW_DISCUSSION_PROMPTS) {
-      <f-discussion-prompts class="min-h-[350px]" [project]="project"></f-discussion-prompts>
-    }
-  }
-</div>
+<!-- Not named studentLookup: a template reference shadows the component property of the
+     same name, and the field would bind to the template instead of the text. -->
+<ng-template #lookupForm>
+  <form class="flex flex-wrap items-center gap-3" (ngSubmit)="findStudent()">
+    <mat-form-field
+      appearance="outline"
+      class="discussion-field w-full sm:w-64"
+      subscriptSizing="dynamic"
+    >
+      <mat-label>Username or student ID</mat-label>
+      <input autocomplete="off" matInput name="studentLookup" [(ngModel)]="studentLookup" />
+    </mat-form-field>
+    <button mat-stroked-button type="submit" [disabled]="!canFindStudent">Find student</button>
+  </form>
+</ng-template>

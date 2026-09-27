@@ -13,7 +13,7 @@ export class UnitRole extends Entity {
   unit: Unit;
   observerOnly: boolean;
   canMarkOverflowTasks: boolean;
-  mentorId: number;
+  mentorId: number | null;
   tutorNoteCount: number;
 
   public get mentor(): UnitRole {

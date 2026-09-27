@@ -1,0 +1,351 @@
+<section aria-labelledby="course-flow-title" class="course-flow">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">Your study, planned ahead</p>
+      <h1 id="course-flow-title">Course Flow</h1>
+      <p>Arrange units across study periods and save plans to your account.</p>
+    </div>
+    <button class="secondary" type="button" [disabled]="busy" (click)="startNewPlan()">
+      New plan
+    </button>
+  </header>
+
+  <p aria-live="polite" class="status" role="status">
+    {{ loading ? 'Loading course plans…' : status }}
+  </p>
+  @if (loadError) {
+    <div class="error-panel" role="alert">
+      <p>{{ loadError }}</p>
+      <button type="button" [disabled]="busy" (click)="retryLoad()">Try again</button>
+    </div>
+  }
+  @if (actionError) {
+    <div class="error-panel" role="alert">
+      <p>{{ actionError }}</p>
+      @if (conflict) {
+        <div class="button-row">
+          <button type="button" [disabled]="busy" (click)="reloadSaved()">Reload saved plan</button>
+          <button type="button" [disabled]="busy" (click)="save(true)">Save a copy</button>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading && !loadError) {
+    <div class="plan-setup">
+      <fieldset class="panel saved-plans" [disabled]="busy">
+        <legend>Your saved plans</legend>
+        @if (maps.length === 0) {
+          <p>You have no saved plans yet. Choose a course to start one.</p>
+        } @else {
+          <ul>
+            @for (map of maps; track map.id) {
+              <li>
+                <button
+                  class="plan-link"
+                  type="button"
+                  [attr.aria-current]="currentMap?.id === map.id ? 'true' : null"
+                  (click)="openMap(map.id)"
+                >
+                  {{ map.name }}
+                  @if (currentMap?.id === map.id) {
+                    <span> · current</span>
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </fieldset>
+      <fieldset class="panel course-choice" [disabled]="busy">
+        <legend>Course catalog</legend>
+        @if (courses.length === 0) {
+          <p>No course catalogs are available yet. Ask your administrator to publish a catalog.</p>
+          <button class="secondary" type="button" (click)="retryLoad()">Refresh catalogs</button>
+        } @else {
+          <label for="course-select">Course and version</label>
+          <select
+            #coursePicker="ngModel"
+            id="course-select"
+            [disabled]="currentMap !== null"
+            [ngModel]="selectedCourse?.id ?? ''"
+            (ngModelChange)="selectCourseFromInput($event, coursePicker)"
+          >
+            <option value="">Choose a course</option>
+            @for (course of courses; track course.id) {
+              <option [value]="course.id">
+                {{ course.code }} — {{ course.name }} ({{ course.version }})
+              </option>
+            }
+          </select>
+          <p class="hint">
+            Each plan uses one catalog version. Start a new plan to choose another course.
+          </p>
+        }
+      </fieldset>
+    </div>
+
+    @if (selectedCourse; as course) {
+      <fieldset class="panel plan-details" [disabled]="busy">
+        <legend>Plan details</legend>
+        <div class="name-field">
+          <label for="plan-name">Plan name</label>
+          <input
+            id="plan-name"
+            maxlength="200"
+            name="planName"
+            required
+            type="text"
+            [(ngModel)]="name"
+            (ngModelChange)="nameChanged()"
+          />
+        </div>
+        <div class="button-row">
+          <button
+            class="primary"
+            type="button"
+            [disabled]="(!dirty && currentMap !== null) || conflict"
+            (click)="save()"
+          >
+            {{ saving ? 'Saving…' : 'Save plan' }}
+          </button>
+          @if (currentMap) {
+            <button class="danger" type="button" (click)="deletePlan()">
+              {{ deleting ? 'Deleting…' : 'Delete saved plan' }}
+            </button>
+          }
+          <span class="save-state">{{ dirty ? 'Unsaved changes' : 'Saved to your account' }}</span>
+        </div>
+      </fieldset>
+
+      <section aria-labelledby="checks-title" class="panel planning-checks">
+        <h2 id="checks-title">Planning checks</h2>
+        <p>
+          {{ plannedRequired }} of {{ requiredCount }} required units · {{ plannedElectives }} of
+          {{ course.elective_count }} electives planned
+        </p>
+        <p class="hint">
+          These checks use the configured catalog. They do not confirm graduation eligibility. Plans
+          with issues can still be saved as drafts.
+        </p>
+        @if (issues.length === 0) {
+          <p class="check-success">Your plan satisfies the configured planning rules.</p>
+        } @else {
+          <details>
+            <summary>
+              {{ issues.length }} planning {{ issues.length === 1 ? 'issue' : 'issues' }} to review
+            </summary>
+            <ul>
+              @for (issue of issues; track $index) {
+                <li>{{ issue.message }}</li>
+              }
+            </ul>
+          </details>
+        }
+      </section>
+
+      <fieldset class="panel placement-controls" [disabled]="busy">
+        <legend>Place or move a unit</legend>
+        <p class="hint" id="placement-help">
+          Use these controls or drag a unit into a slot. Choose an empty slot for an unplanned unit.
+          Two planned units can swap slots.
+        </p>
+        <div class="placement-fields">
+          <div>
+            <label for="placement-unit">Unit</label>
+            <select
+              aria-describedby="placement-help"
+              id="placement-unit"
+              [(ngModel)]="unitSelection"
+            >
+              <option value="">Choose a unit</option>
+              @for (unit of course.units; track unit.code) {
+                <option [value]="unit.code">
+                  {{ unit.code }} — {{ unit.name }} ({{ unit.required ? 'required' : 'elective'
+                  }}{{ isPlanned(unit.code) ? ', planned' : '' }})
+                </option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="placement-destination">Destination</label>
+            <select id="placement-destination" [(ngModel)]="destinationSelection">
+              <option value="">Choose a slot</option>
+              @for (destination of destinations; track destination.value) {
+                <option [value]="destination.value">{{ destination.label }}</option>
+              }
+            </select>
+          </div>
+          <button
+            type="button"
+            [disabled]="!unitSelection || !destinationSelection"
+            (click)="placeSelectedUnit()"
+          >
+            Place or move unit
+          </button>
+          <button
+            class="secondary"
+            type="button"
+            [disabled]="!isPlanned(unitSelection)"
+            (click)="removeUnit(unitSelection)"
+          >
+            Remove selected unit
+          </button>
+        </div>
+      </fieldset>
+
+      <div cdkDropListGroup class="planner-grid">
+        <aside aria-label="Available course units" class="panel catalog">
+          <h2>Available units</h2>
+          <p class="hint">Removing a planned unit returns it here.</p>
+          <h3>Required units</h3>
+          <div
+            cdkDropList
+            class="catalog-list"
+            id="required-units"
+            [cdkDropListData]="catalogTarget"
+            [cdkDropListSortingDisabled]="true"
+            (cdkDropListDropped)="drop($event)"
+          >
+            @for (unit of availableRequired; track unit.code) {
+              <article cdkDrag class="unit-card" [cdkDragData]="unit.code" [cdkDragDisabled]="busy">
+                <h4>{{ unit.code }}</h4>
+                <p>{{ unit.name }}</p>
+                <p class="unit-rules">
+                  Offered: {{ unit.offered_trimesters.join(', ') }}<br />Prerequisites:
+                  {{ unit.prerequisites.length ? unit.prerequisites.join(', ') : 'None' }}
+                </p>
+              </article>
+            } @empty {
+              <p class="hint">All required units are in your plan.</p>
+            }
+          </div>
+          <h3>Elective units</h3>
+          <div
+            cdkDropList
+            class="catalog-list"
+            id="elective-units"
+            [cdkDropListData]="catalogTarget"
+            [cdkDropListSortingDisabled]="true"
+            (cdkDropListDropped)="drop($event)"
+          >
+            @for (unit of availableElectives; track unit.code) {
+              <article cdkDrag class="unit-card" [cdkDragData]="unit.code" [cdkDragDisabled]="busy">
+                <h4>{{ unit.code }}</h4>
+                <p>{{ unit.name }}</p>
+                <p class="unit-rules">
+                  Offered: {{ unit.offered_trimesters.join(', ') }}<br />Prerequisites:
+                  {{ unit.prerequisites.length ? unit.prerequisites.join(', ') : 'None' }}
+                </p>
+              </article>
+            } @empty {
+              <p class="hint">No unplanned electives in this catalog.</p>
+            }
+          </div>
+        </aside>
+
+        <section aria-labelledby="study-periods-title" class="study-periods">
+          <h2 id="study-periods-title">Study periods</h2>
+          <form (ngSubmit)="addPeriod()">
+            <fieldset class="panel add-period" [disabled]="busy">
+              <legend>Add a study period</legend>
+              <div>
+                <label for="period-year">Year</label
+                ><input
+                  id="period-year"
+                  max="2200"
+                  min="2000"
+                  name="periodYear"
+                  required
+                  type="number"
+                  [(ngModel)]="periodYear"
+                />
+              </div>
+              <div>
+                <label for="period-trimester">Trimester</label
+                ><select id="period-trimester" name="periodTrimester" [(ngModel)]="periodTrimester">
+                  <option [ngValue]="1">1</option>
+                  <option [ngValue]="2">2</option>
+                  <option [ngValue]="3">3</option>
+                </select>
+              </div>
+              <button type="submit" [disabled]="periods.length >= 60">Add period</button>
+            </fieldset>
+          </form>
+          @for (year of years; track year) {
+            <section [attr.aria-label]="'Year ' + year">
+              <h3 class="year-heading">{{ year }}</h3>
+              @for (period of periodsInYear(year); track period.trimester) {
+                <section
+                  class="panel study-period"
+                  [attr.aria-label]="year + ', trimester ' + period.trimester"
+                >
+                  <div class="period-heading">
+                    <h4>Trimester {{ period.trimester }}</h4>
+                    <button
+                      class="secondary"
+                      type="button"
+                      [attr.aria-label]="'Remove ' + year + ', trimester ' + period.trimester"
+                      [disabled]="busy || periods.length === 1"
+                      (click)="removePeriod(period)"
+                    >
+                      Remove period
+                    </button>
+                  </div>
+                  <div class="slots">
+                    @for (position of positions; track position) {
+                      <div
+                        cdkDropList
+                        class="slot"
+                        [attr.aria-label]="
+                          year + ', trimester ' + period.trimester + ', slot ' + position
+                        "
+                        [cdkDropListData]="slotTarget(period, position)"
+                        [cdkDropListSortingDisabled]="true"
+                        [id]="'slot-' + year + '-' + period.trimester + '-' + position"
+                        (cdkDropListDropped)="drop($event)"
+                      >
+                        <span class="slot-label">Slot {{ position }}</span>
+                        @if (slotAt(period, position); as slot) {
+                          @if (unitByCode(slot.unit_code); as unit) {
+                            <article
+                              cdkDrag
+                              class="unit-card planned-unit"
+                              [cdkDragData]="unit.code"
+                              [cdkDragDisabled]="busy"
+                            >
+                              <h5>{{ unit.code }}</h5>
+                              <p>{{ unit.name }}</p>
+                              <p class="unit-rules">
+                                {{ unit.required ? 'Required' : 'Elective' }} · Offered:
+                                {{ unit.offered_trimesters.join(', ') }}<br />Prerequisites:
+                                {{
+                                  unit.prerequisites.length ? unit.prerequisites.join(', ') : 'None'
+                                }}
+                              </p>
+                              <button
+                                class="secondary"
+                                type="button"
+                                [attr.aria-label]="'Remove ' + unit.code + ' from plan'"
+                                [disabled]="busy"
+                                (click)="removeUnit(unit.code)"
+                              >
+                                Remove
+                              </button>
+                            </article>
+                          }
+                        } @else {
+                          <span class="empty-slot">Empty</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </section>
+              }
+            </section>
+          }
+        </section>
+      </div>
+    }
+  }
+</section>

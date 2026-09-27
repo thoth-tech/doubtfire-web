@@ -1,175 +1,284 @@
-<div class="sticky top-0 z-10 w-full bg-white pb-2" id="task-def-head">
-  <h3>Details for {{ taskDefinition.abbreviation }} - {{ taskDefinition.name }}</h3>
-  <mat-divider></mat-divider>
-</div>
-
-<div class="flex flex-col items-start gap-2.5 md:flex-row">
-  <aside class="sticky top-0 z-[9] w-full self-start md:top-12 md:w-[240px] md:shrink-0">
-    <div class="flex flex-col gap-0.5 overflow-x-hidden overflow-y-auto rounded-xl bg-white p-1">
-      @for (section of visibleSections; track section.id) {
-        <button
-          class="w-full cursor-pointer rounded-lg border-0 bg-transparent px-2 py-3 text-left whitespace-nowrap transition-colors"
-          type="button"
-          [ngClass]="{
-            'font-semibold': activeSectionId === section.id,
-            'text-gray-700 hover:bg-gray-100': activeSectionId !== section.id,
-          }"
-          [style.backgroundColor]="activeSectionId === section.id ? '#e7e7ff' : null"
-          [style.color]="
-            activeSectionId === section.id ? 'var(--mat-theme-primary, #3939ff)' : null
-          "
-          (click)="scrollToSection(section.id)"
-        >
-          {{ section.label }}
-        </button>
-      }
-    </div>
-  </aside>
-
-  <div #sectionScrollContainer class="w-full flex-1 pr-0.5 pb-28 md:pb-40">
-    <section
-      #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="task-details"
+<div class="flex flex-col gap-4">
+  <!-- One bar for the whole task: which task is open, whether it has unsaved
+       changes, and the only Save. The page-coloured strip above it hides the
+       sections as they scroll up behind it. -->
+  <div #editorHeader class="sticky top-0 z-10 -mt-4 bg-ot-page pt-4">
+    <div
+      class="rounded-ot-lg border border-ot-divider bg-ot-surface px-4 py-3 shadow-(--ot-elevation-1) sm:px-5"
     >
-      <h3>Task Details</h3>
-      <p class="pb-1 font-normal text-gray-500">Name the task and set target grade</p>
-      <f-task-definition-general [taskDefinition]="taskDefinition"></f-task-definition-general>
-    </section>
-    <mat-divider class="my-[25px]"></mat-divider>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
+        <div class="flex min-w-0 flex-1 basis-64 items-center gap-3">
+          <f-task-badge [taskDef]="taskDefinition"></f-task-badge>
+          <div class="min-w-0">
+            <h3
+              class="m-0 truncate text-lg leading-snug font-semibold text-ot-text"
+              [title]="taskDefinition.name || ''"
+            >
+              {{ taskDefinition.name || 'Untitled task' }}
+            </h3>
+            <p class="m-0 flex items-center gap-1.5 text-sm text-ot-muted" role="status">
+              @if (hasChanges && !saving) {
+                <span aria-hidden="true" class="size-2 shrink-0 rounded-full bg-ot-warning"></span>
+              }
+              {{ statusLabel }}
+            </p>
+          </div>
+        </div>
 
-    <section
-      #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="task-learning-outcomes"
-    >
-      <h3>Task Learning Outcomes</h3>
-      <p class="pb-1 font-normal text-gray-500">Add learning outcomes for this task</p>
-      <f-learning-outcome-editor [context]="taskDefinition"></f-learning-outcome-editor>
-    </section>
-    <mat-divider class="my-[25px]"></mat-divider>
+        <div class="flex flex-wrap items-center gap-2">
+          @if (hasChanges) {
+            <button mat-button type="button" [disabled]="saving" (click)="discardChanges.emit()">
+              {{ taskDefinition.isNew ? 'Discard' : 'Discard changes' }}
+            </button>
+          }
+          <button
+            color="primary"
+            mat-flat-button
+            type="button"
+            [disabled]="saving"
+            (click)="save()"
+          >
+            <mat-icon aria-hidden="true">save</mat-icon>
+            Save task
+          </button>
+          <button
+            aria-label="More actions for this task"
+            class="text-ot-muted"
+            mat-icon-button
+            type="button"
+            [matMenuTriggerFor]="taskMenu"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #taskMenu="matMenu" xPosition="before">
+            <button mat-menu-item type="button" (click)="deleteTask.emit()">
+              <mat-icon aria-hidden="true" class="text-ot-error">delete</mat-icon>
+              <span>{{ taskDefinition.isNew ? 'Discard new task' : 'Delete task' }}</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
 
-    <section
-      #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="inbox"
-    >
-      <h3>Inbox</h3>
-      <p class="pb-1 font-normal text-gray-500">
-        Who assesses {{ unit.hasGroupwork() ? 'and submits ' : '' }}this task?
-      </p>
-      <f-task-definition-who [taskDefinition]="taskDefinition"></f-task-definition-who>
-    </section>
-    <mat-divider class="my-[25px]"></mat-divider>
-
-    <section
-      #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="due-dates"
-    >
-      <h3>Due Dates</h3>
-      <p class="pb-1 font-normal text-gray-500">When is the task due?</p>
-      <f-task-definition-dates [taskDefinition]="taskDefinition"></f-task-definition-dates>
-    </section>
-    <mat-divider class="my-[25px]"></mat-divider>
-
-    <section
-      #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="upload-requirements"
-    >
-      <h3>Upload Requirements</h3>
-      <p class="pb-1 font-normal text-gray-500">What do students need to upload?</p>
-      <f-task-definition-upload [taskDefinition]="taskDefinition"></f-task-definition-upload>
-    </section>
-    <mat-divider class="my-[25px]"></mat-divider>
-
-    <section
-      #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="task-resources"
-    >
-      <h3>Task Resources</h3>
-      <p class="pb-1 font-normal text-gray-500">Upload task descriptions and resources</p>
-      <f-task-definition-resources [taskDefinition]="taskDefinition"></f-task-definition-resources>
-    </section>
-    <mat-divider class="my-[25px]"></mat-divider>
-
-    <section
-      #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="prerequisite-tasks"
-    >
-      <h3>Prerequisite Tasks</h3>
-      <p class="pb-1 font-normal text-gray-500">
-        Select which tasks need to be submitted before
-        <span class="font-bold">{{ taskDefinition.abbreviation }} {{ taskDefinition.name }}</span>
-        can be submitted
-      </p>
-      <f-task-definition-prerequisites [staffView]="true" [taskDefinition]="taskDefinition">
-      </f-task-definition-prerequisites>
-    </section>
-    <mat-divider class="my-[25px]"></mat-divider>
-
-    <section
-      #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="discussion-prompts"
-    >
-      <h3>Discussion Prompts</h3>
-      <p class="pb-1 font-normal text-gray-500">
-        Discussion prompts for tutors to use when discussing student tasks in class
-      </p>
-      <f-task-definition-discussion-prompts [staffView]="true" [taskDefinition]="taskDefinition">
-      </f-task-definition-discussion-prompts>
-    </section>
-    <mat-divider class="my-[25px]"></mat-divider>
-
-    @if (overseerEnabled) {
-      <section
-        #sectionElement
-        class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-        data-section-id="task-assessment-automation"
+      <nav
+        #sectionNav
+        aria-label="Sections of this task"
+        class="-mx-1 mt-3 hidden gap-1.5 overflow-x-auto px-1 pb-0.5 sm:flex"
       >
-        <h3>Task Assessment Automation</h3>
-        <p class="pb-1 font-normal text-gray-500">Configure automated assessment</p>
-        <f-task-definition-overseer [taskDefinition]="taskDefinition"></f-task-definition-overseer>
-      </section>
-      <mat-divider class="my-[25px]"></mat-divider>
-    }
+        @for (section of visibleSections; track section.id) {
+          <button
+            class="shrink-0 rounded-ot-pill px-3 py-1.5 text-sm font-medium whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ot-focus"
+            type="button"
+            [attr.aria-current]="activeSectionId === section.id ? 'location' : null"
+            [attr.data-section-link]="section.id"
+            [ngClass]="
+              activeSectionId === section.id
+                ? 'bg-ot-selected text-ot-link'
+                : 'text-ot-muted hover:bg-ot-hover hover:text-ot-text'
+            "
+            (click)="scrollToSection(section.id)"
+          >
+            {{ section.label }}
+          </button>
+        }
+      </nav>
+    </div>
+  </div>
 
-    <section
-      #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="scorm-test"
-    >
-      <h3>SCORM Test</h3>
-      <p class="pb-1 font-normal text-gray-500">
-        Upload the corresponding SCORM 2004 test (e.g. Numbas)
+  <section
+    #sectionElement
+    aria-labelledby="task-section-task-details"
+    class="task-section"
+    data-section-id="task-details"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-task-details">
+        {{ sectionLabel('task-details') }}
+      </h4>
+      <p class="task-section__hint">The name, code, grade and weight students see.</p>
+    </header>
+    <f-task-definition-general [taskDefinition]="taskDefinition"></f-task-definition-general>
+  </section>
+
+  <section
+    #sectionElement
+    aria-labelledby="task-section-task-learning-outcomes"
+    class="task-section"
+    data-section-id="task-learning-outcomes"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-task-learning-outcomes">
+        {{ sectionLabel('task-learning-outcomes') }}
+      </h4>
+      <p class="task-section__hint">How well this task shows each learning outcome of the unit.</p>
+    </header>
+    <f-learning-outcome-editor [context]="taskDefinition"></f-learning-outcome-editor>
+  </section>
+
+  <section
+    #sectionElement
+    aria-labelledby="task-section-inbox"
+    class="task-section"
+    data-section-id="inbox"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-inbox">{{ sectionLabel('inbox') }}</h4>
+      <p class="task-section__hint">
+        @if (unit.hasGroupwork()) {
+          Who submits this task, and which tutors give feedback on it.
+        } @else {
+          Which tutors give feedback on this task.
+        }
       </p>
-      <f-task-definition-scorm [taskDefinition]="taskDefinition"></f-task-definition-scorm>
-    </section>
-    <mat-divider class="my-[25px]"></mat-divider>
+    </header>
+    <f-task-definition-who [taskDefinition]="taskDefinition"></f-task-definition-who>
+  </section>
 
+  <section
+    #sectionElement
+    aria-labelledby="task-section-due-dates"
+    class="task-section"
+    data-section-id="due-dates"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-due-dates">
+        {{ sectionLabel('due-dates') }}
+      </h4>
+      <p class="task-section__hint">
+        When students should start, when they should finish, and the last day for feedback.
+      </p>
+    </header>
+    <f-task-definition-dates [taskDefinition]="taskDefinition"></f-task-definition-dates>
+  </section>
+
+  <section
+    #sectionElement
+    aria-labelledby="task-section-upload-requirements"
+    class="task-section"
+    data-section-id="upload-requirements"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-upload-requirements">
+        {{ sectionLabel('upload-requirements') }}
+      </h4>
+      <p class="task-section__hint">The files students upload when they submit this task.</p>
+    </header>
+    <f-task-definition-upload [taskDefinition]="taskDefinition"></f-task-definition-upload>
+  </section>
+
+  <section
+    #sectionElement
+    aria-labelledby="task-section-task-resources"
+    class="task-section"
+    data-section-id="task-resources"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-task-resources">
+        {{ sectionLabel('task-resources') }}
+      </h4>
+      <p class="task-section__hint">
+        The task sheet and any starter files students download. These save as soon as they upload.
+      </p>
+    </header>
+    <f-task-definition-resources [taskDefinition]="taskDefinition"></f-task-definition-resources>
+  </section>
+
+  <section
+    #sectionElement
+    aria-labelledby="task-section-prerequisite-tasks"
+    class="task-section"
+    data-section-id="prerequisite-tasks"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-prerequisite-tasks">
+        {{ sectionLabel('prerequisite-tasks') }}
+      </h4>
+      <p class="task-section__hint">
+        Tasks students must get to a set status before they can submit
+        <span class="font-semibold text-ot-text">{{ taskDefinition.abbreviation }}</span
+        >. These save straight away.
+      </p>
+    </header>
+    <f-task-definition-prerequisites [staffView]="true" [taskDefinition]="taskDefinition">
+    </f-task-definition-prerequisites>
+  </section>
+
+  <section
+    #sectionElement
+    aria-labelledby="task-section-discussion-prompts"
+    class="task-section"
+    data-section-id="discussion-prompts"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-discussion-prompts">
+        {{ sectionLabel('discussion-prompts') }}
+      </h4>
+      <p class="task-section__hint">
+        Questions tutors can ask when they discuss this task with a student in class.
+      </p>
+    </header>
+    <f-task-definition-discussion-prompts [staffView]="true" [taskDefinition]="taskDefinition">
+    </f-task-definition-discussion-prompts>
+  </section>
+
+  @if (overseerEnabled) {
     <section
       #sectionElement
-      class="mb-0 scroll-mt-28 rounded-xl bg-white p-2.5"
-      data-section-id="optional-settings"
+      aria-labelledby="task-section-task-assessment-automation"
+      class="task-section"
+      data-section-id="task-assessment-automation"
+      tabindex="-1"
     >
-      <h3>Optional Settings</h3>
-      <p class="pb-1 font-normal text-gray-500">Apply other options</p>
-      <f-task-definition-options [taskDefinition]="taskDefinition"></f-task-definition-options>
+      <header class="task-section__header">
+        <h4 class="task-section__title" id="task-section-task-assessment-automation">
+          {{ sectionLabel('task-assessment-automation') }}
+        </h4>
+        <p class="task-section__hint">
+          Run Overseer scripts on each submission and report the results to the student.
+        </p>
+      </header>
+      <f-task-definition-overseer [taskDefinition]="taskDefinition"></f-task-definition-overseer>
     </section>
+  }
 
-    <!-- 725px is enough space to ensure the last section ("Optional Settings") can be scrolled to the top of the browser -->
-    <!-- This value may need to change as we add or modify task-definition-editor components -->
-    <div aria-hidden="true" class="h-[725px]"></div>
-  </div>
-</div>
-<div class="fixed right-[50px] bottom-[50px] z-50">
-  <div>
-    <button color="primary" mat-fab (click)="save()">
-      <mat-icon>save</mat-icon>
-    </button>
-  </div>
+  <section
+    #sectionElement
+    aria-labelledby="task-section-scorm-test"
+    class="task-section"
+    data-section-id="scorm-test"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-scorm-test">
+        {{ sectionLabel('scorm-test') }}
+      </h4>
+      <p class="task-section__hint">
+        A SCORM 2004 test students take as part of this task, for example one made in Numbas.
+      </p>
+    </header>
+    <f-task-definition-scorm [taskDefinition]="taskDefinition"></f-task-definition-scorm>
+  </section>
+
+  <section
+    #sectionElement
+    aria-labelledby="task-section-optional-settings"
+    class="task-section"
+    data-section-id="optional-settings"
+    tabindex="-1"
+  >
+    <header class="task-section__header">
+      <h4 class="task-section__title" id="task-section-optional-settings">
+        {{ sectionLabel('optional-settings') }}
+      </h4>
+      <p class="task-section__hint">Extra rules for how this task is marked.</p>
+    </header>
+    <f-task-definition-options [taskDefinition]="taskDefinition"></f-task-definition-options>
+  </section>
 </div>

@@ -195,7 +195,7 @@ export class Unit extends Entity {
   }
 
   public findStudent(id: number): Project {
-    return this.students.find((s) => s.id === id);
+    return this.studentCache.get(id);
   }
 
   public studentEnrolled(id: number): boolean {
@@ -426,9 +426,6 @@ export class Unit extends Entity {
     AppInjector.get(UnitService)
       .fetch(this.id)
       .subscribe({
-        next: (unit) => {
-          console.log(unit.teachingPeriod?.name);
-        },
         error: (message) => alerts.error(message, 6000),
       });
   }
@@ -561,9 +558,15 @@ export class Unit extends Entity {
       );
   }
 
-  public refreshStudents(includeWithdrawnStudents: boolean = false) {
+  public refreshStudents(includeWithdrawnStudents: boolean = false): void {
     const projectService: ProjectService = AppInjector.get(ProjectService);
-    projectService.loadStudents(this, includeWithdrawnStudents, true);
+    // The load is a cold observable. Without a subscriber the request never went out,
+    // so an enrolment change did not show until the page was reloaded.
+    projectService.loadStudents(this, includeWithdrawnStudents, true).subscribe({
+      error: (message) => {
+        AppInjector.get(AlertService).error(`Could not refresh the students: ${message}`, 6000);
+      },
+    });
   }
 
   public findProjectForUsername(username: string): Project {

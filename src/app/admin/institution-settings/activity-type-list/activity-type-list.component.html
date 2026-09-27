@@ -7,30 +7,18 @@
   </div>
   @if (loadingActivities) {
     <div aria-busy="true" aria-label="Loading activities" class="overflow-hidden">
-      <div class="flex h-14 items-center gap-6 border-b border-gray-300 px-4">
-        @for (width of ['30%', '22%', '4%']; track $index) {
-          <ngx-skeleton-loader
-            [theme]="{width: width, height: '12px', 'border-radius': '999px', margin: '0'}"
-          ></ngx-skeleton-loader>
-        }
-      </div>
-
-      @for (row of skeletonRows; track row) {
-        <div class="flex h-[72px] items-center gap-6 border-b border-y-gray-300 px-4">
-          <ngx-skeleton-loader
-            class="w-[50%]"
-            [theme]="{width: '35%', height: '12px', 'border-radius': '999px', margin: '0'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            class="w-[50%]"
-            [theme]="{width: '35%', height: '12px', 'border-radius': '999px', margin: '0'}"
-          ></ngx-skeleton-loader>
-          <ngx-skeleton-loader
-            appearance="circle"
-            [theme]="{width: '28px', height: '28px', margin: '0'}"
-          ></ngx-skeleton-loader>
-        </div>
-      }
+      <f-skeleton-loader
+        rowHeight="56px"
+        shape="table-row"
+        [columns]="3"
+        [count]="1"
+      ></f-skeleton-loader>
+      <f-skeleton-loader
+        rowHeight="72px"
+        shape="table-row"
+        [columns]="3"
+        [count]="3"
+      ></f-skeleton-loader>
     </div>
   }
 
@@ -125,7 +113,7 @@
       </td>
       <td *matFooterCellDef mat-footer-cell>
         <div class="edit-actions right">
-          <button mat-icon-button (click)="submit()">
+          <button aria-label="Add activity type" mat-icon-button (click)="submit()">
             <mat-icon>add</mat-icon>
           </button>
         </div>
@@ -134,6 +122,15 @@
 
     <tr *matHeaderRowDef="columns" mat-header-row></tr>
     <tr *matRowDef="let row; columns: columns" mat-row></tr>
+    <tr *matNoDataRow class="mat-row">
+      <td class="mat-cell !border-b-0" [attr.colspan]="columns.length">
+        <f-empty-state
+          hint="Add an activity using the row below."
+          icon="assignment"
+          message="No activities yet"
+        ></f-empty-state>
+      </td>
+    </tr>
     <tr *matFooterRowDef="columns" mat-footer-row [hidden]="selected"></tr>
   </table>
 </div>

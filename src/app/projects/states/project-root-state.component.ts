@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Observable, Subscription, of} from 'rxjs';
+import {Observable, Subscription, filter, map, shareReplay} from 'rxjs';
 import {Project} from 'src/app/api/models/doubtfire-model';
 
 interface ProjectRouteChild {
@@ -25,8 +24,11 @@ export class ProjectRootStateComponent implements OnDestroy {
   private taskListWidthSub?: Subscription;
 
   constructor(private activatedRoute: ActivatedRoute) {
-    const project = this.activatedRoute.snapshot.data.project as Project;
-    this.project$ = this.project$ ?? (project ? of(project) : undefined);
+    this.project$ = this.activatedRoute.data.pipe(
+      map((data) => data.project as Project),
+      filter((project): project is Project => !!project),
+      shareReplay({bufferSize: 1, refCount: true}),
+    );
   }
 
   onActivate(component: ProjectRouteChild): void {

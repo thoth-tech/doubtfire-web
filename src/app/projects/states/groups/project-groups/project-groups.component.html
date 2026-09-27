@@ -1,12 +1,33 @@
-<div class="mx-auto max-w-[90vw]">
-  @if (unit.hasGroupwork()) {
+<f-page-container>
+  @if (demoGroupHook) {
+    <aside class="demo-group-note" data-testid="demo-group-hook" role="note">
+      <mat-icon aria-hidden="true">science</mat-icon>
+      <span>
+        <strong>Demo group:</strong> {{ demoGroupHook.name }} is synthetic walkthrough data. It does
+        not change student groups.
+      </span>
+    </aside>
+  }
+
+  @if (hasConfiguredGroupWork && (hasPublishedGroups || studentsCanCreateGroups)) {
     <f-group-set-manager [project]="project" [selectedGroupSet]="selectedGroupSet" [unit]="unit">
     </f-group-set-manager>
+  } @else if (hasConfiguredGroupWork) {
+    <section class="group-work-state" data-state="configured-empty" role="status">
+      <mat-icon aria-hidden="true">group_off</mat-icon>
+      <h1>No groups are available yet</h1>
+      <p>
+        Group work is configured for {{ unit.code }}, but no groups have been published in
+        {{ selectedGroupSet?.name || 'the current group set' }}.
+      </p>
+      <p>If you expected a group, contact your unit teaching team.</p>
+    </section>
   } @else {
-    <div class="mx-auto flex max-w-4xl flex-col items-center justify-center">
-      <mat-icon>groups</mat-icon>
-      <h1>No Group Work</h1>
-      <p class="p-1 text-center text-gray-500">There is no group work enabled for this unit.</p>
-    </div>
+    <section class="group-work-state" data-state="not-configured" role="status">
+      <mat-icon aria-hidden="true">groups</mat-icon>
+      <h1>Group work is not configured</h1>
+      <p>This unit has not provided a group set or any groups.</p>
+      <p>If you expected group work for {{ unit.code }}, contact your unit teaching team.</p>
+    </section>
   }
-</div>
+</f-page-container>

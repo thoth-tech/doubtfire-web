@@ -1,0 +1,55 @@
+<div
+  aria-hidden="true"
+  class="flex flex-col"
+  [class.gap-3]="shape !== 'table-row' && shape !== 'list-row'"
+  [style.height]="theme['height'] === '100%' ? '100%' : null"
+>
+  @for (placeholder of placeholders; track placeholder) {
+    @if (shape === 'table-row') {
+      <div
+        class="flex items-center gap-6 border-b border-[color:var(--ot-color-divider)] px-4"
+        [style.height]="rowHeight"
+      >
+        @for (column of tableColumns; track column) {
+          <ngx-skeleton-loader
+            class="min-w-0 flex-1"
+            [theme]="{height: '12px', width: '100%', margin: '0'}"
+          ></ngx-skeleton-loader>
+        }
+      </div>
+    } @else if (shape === 'list-row') {
+      <div
+        class="flex items-center gap-2.5 px-1.5"
+        [class.justify-center]="compact"
+        [style.height]="rowHeight"
+      >
+        <ngx-skeleton-loader
+          appearance="circle"
+          class="shrink-0"
+          [theme]="{height: '30px', width: '30px', margin: '0'}"
+        ></ngx-skeleton-loader>
+        @if (!compact) {
+          <div class="min-w-0 flex-1">
+            <ngx-skeleton-loader
+              [theme]="{height: '10px', width: '78%', margin: '6px 0'}"
+            ></ngx-skeleton-loader>
+            <ngx-skeleton-loader
+              [theme]="{height: '10px', width: '56%', margin: '6px 0'}"
+            ></ngx-skeleton-loader>
+          </div>
+          <ngx-skeleton-loader
+            appearance="circle"
+            class="shrink-0"
+            [theme]="{height: '32px', width: '32px', margin: '0'}"
+          ></ngx-skeleton-loader>
+        }
+      </div>
+    } @else {
+      <ngx-skeleton-loader
+        class="block"
+        [style.height]="theme['height'] === '100%' ? '100%' : null"
+        [theme]="placeholderTheme"
+      ></ngx-skeleton-loader>
+    }
+  }
+</div>

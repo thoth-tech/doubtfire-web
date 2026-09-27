@@ -1,108 +1,207 @@
 @if (project && unit) {
-  <div class="mx-auto flex w-full max-w-screen-xl flex-col gap-3">
-    <div>
-      <h2>Tutorials</h2>
-      <p class="max-w-5xl">
-        View available tutorials and manage your enrolment. Note that availability is subject to
-        capacity. If you are unable to enrol in a tutorial, please contact your unit coordinator.
-      </p>
+  <f-page-container>
+    <div class="flex w-full flex-col gap-3">
+      <div>
+        <h2>Tutorials</h2>
+        <p class="max-w-5xl">
+          View available tutorials and manage your enrolment. Note that availability is subject to
+          capacity. If you are unable to enrol in a tutorial, please contact your unit coordinator.
+        </p>
+      </div>
+
+      @if (filteredTutorials.length === 0) {
+        <section class="tutorial-empty" role="status">
+          <mat-icon aria-hidden="true">event_busy</mat-icon>
+          <h3>No tutorials available</h3>
+          <p>No tutorials are available for your campus or current enrolment.</p>
+        </section>
+      }
+
+      <section aria-label="Available tutorials" class="tutorial-card-list">
+        @for (tutorial of filteredTutorials; track tutorial.id) {
+          <mat-card
+            appearance="outlined"
+            class="tutorial-card"
+            [attr.aria-label]="'Tutorial ' + tutorial.abbreviation"
+          >
+            <mat-card-header>
+              <mat-card-title>{{ tutorialValue(tutorial.abbreviation) }}</mat-card-title>
+              <mat-card-subtitle>{{ tutorialStreamLabel(tutorial) }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <dl class="tutorial-card__details">
+                <div>
+                  <dt>Campus</dt>
+                  <dd>{{ tutorialCampusLabel(tutorial) }}</dd>
+                </div>
+                <div>
+                  <dt>Day</dt>
+                  <dd>{{ tutorialValue(tutorial.meetingDay) }}</dd>
+                </div>
+                <div>
+                  <dt>Time</dt>
+                  <dd>{{ shortTime(tutorial.meetingTime) }}</dd>
+                </div>
+                <div>
+                  <dt>Room</dt>
+                  <dd>{{ tutorialValue(tutorial.meetingLocation) }}</dd>
+                </div>
+                <div class="tutorial-card__tutor">
+                  <dt>Tutor</dt>
+                  <dd>{{ tutorialValue(tutorial.tutorName) }}</dd>
+                </div>
+              </dl>
+            </mat-card-content>
+
+            <mat-card-actions class="tutorial-card__actions">
+              @if (project.isEnrolledIn(tutorial)) {
+                @if (unit.allowStudentChangeTutorial) {
+                  <button
+                    mat-raised-button
+                    type="button"
+                    [attr.aria-label]="'Withdraw from ' + tutorial.abbreviation"
+                    (click)="switchToTutorial(tutorial)"
+                  >
+                    Withdraw
+                  </button>
+                } @else {
+                  <span class="tutorial-card__enrolled" role="status">Enrolled</span>
+                }
+              } @else if (unit.allowStudentChangeTutorial) {
+                <button
+                  color="primary"
+                  mat-raised-button
+                  type="button"
+                  [attr.aria-label]="
+                    (tutorial.hasCapacity() ? 'Enrol in ' : 'No places available in ') +
+                    tutorial.abbreviation
+                  "
+                  [disabled]="!tutorial.hasCapacity()"
+                  (click)="switchToTutorial(tutorial)"
+                >
+                  {{ tutorial.hasCapacity() ? 'Enrol' : 'Full' }}
+                </button>
+              } @else {
+                <span class="tutorial-card__managed">Enrolment is managed by the unit team</span>
+              }
+            </mat-card-actions>
+          </mat-card>
+        }
+      </section>
+
+      <div
+        aria-label="Available tutorials"
+        class="tutorial-table-container"
+        role="region"
+        tabindex="0"
+      >
+        <table
+          class="tutorial-table"
+          mat-table
+          matSort
+          matSortActive="stream"
+          matSortDirection="asc"
+          matSortDisableClear
+          [dataSource]="dataSource"
+          (matSortChange)="sortTableData($event)"
+        >
+          <ng-container matColumnDef="stream" sticky>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Stream</th>
+            <td *matCellDef="let tutorial" mat-cell>
+              @if (unit.tutorialStreamsCache.size > 0) {
+                <div>{{ tutorial.tutorialStream?.name || 'All' }}</div>
+              } @else {
+                <div>N/A</div>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="campus" sticky>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Campus</th>
+            <td *matCellDef="let tutorial" mat-cell>
+              {{ tutorial.campus?.name || 'All' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="code" sticky>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Code</th>
+            <td *matCellDef="let tutorial" mat-cell>
+              {{ tutorial.abbreviation }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="day" sticky>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Day</th>
+            <td *matCellDef="let tutorial" mat-cell>
+              {{ tutorial.meetingDay }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="time" sticky>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Time</th>
+            <td *matCellDef="let tutorial" mat-cell>
+              {{ shortTime(tutorial.meetingTime) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="room" sticky>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Room</th>
+            <td *matCellDef="let tutorial" mat-cell>
+              {{ tutorial.meetingLocation }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="tutor" sticky>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Tutor</th>
+            <td *matCellDef="let tutorial" mat-cell>
+              {{ tutorial.tutorName }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions" sticky>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Actions</th>
+            <td *matCellDef="let tutorial" mat-cell>
+              @if (project.isEnrolledIn(tutorial)) {
+                @if (unit.allowStudentChangeTutorial) {
+                  <button mat-raised-button (click)="switchToTutorial(tutorial)">Withdraw</button>
+                } @else {
+                  <div
+                    class="text-ot-success"
+                    matTooltip="You can not manually change tutorials for this unit"
+                    matTooltipPosition="above"
+                    matTooltipShowDelay="1000"
+                  >
+                    Enrolled
+                  </div>
+                }
+              } @else if (unit.allowStudentChangeTutorial) {
+                <button
+                  color="primary"
+                  mat-raised-button
+                  [disabled]="!tutorial.hasCapacity()"
+                  (click)="switchToTutorial(tutorial)"
+                >
+                  Enrol
+                </button>
+              } @else {
+                <div></div>
+                <!-- <div>N/A</div> -->
+              }
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+          <tr *matNoDataRow class="mat-row">
+            <td class="mat-cell !border-b-0" [attr.colspan]="displayedColumns.length">
+              <f-empty-state
+                hint="There are no tutorials to enrol in yet. Check back later or contact your unit coordinator."
+                icon="event_busy"
+                message="No tutorials available"
+              ></f-empty-state>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
-    <table
-      mat-table
-      matSort
-      matSortActive="stream"
-      matSortDirection="asc"
-      matSortDisableClear
-      [dataSource]="dataSource"
-      (matSortChange)="sortTableData($event)"
-    >
-      <ng-container matColumnDef="stream" sticky>
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Stream</th>
-        <td *matCellDef="let tutorial" mat-cell>
-          @if (unit.tutorialStreamsCache.size > 0) {
-            <div>{{ tutorial.tutorialStream?.name || 'All' }}</div>
-          } @else {
-            <div>N/A</div>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="campus" sticky>
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Campus</th>
-        <td *matCellDef="let tutorial" mat-cell>
-          {{ tutorial.campus?.name || 'All' }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="code" sticky>
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Code</th>
-        <td *matCellDef="let tutorial" mat-cell>
-          {{ tutorial.abbreviation }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="day" sticky>
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Day</th>
-        <td *matCellDef="let tutorial" mat-cell>
-          {{ tutorial.meetingDay }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="time" sticky>
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Time</th>
-        <td *matCellDef="let tutorial" mat-cell>
-          {{ shortTime(tutorial.meetingTime) }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="room" sticky>
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Room</th>
-        <td *matCellDef="let tutorial" mat-cell>
-          {{ tutorial.meetingLocation }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="tutor" sticky>
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Tutor</th>
-        <td *matCellDef="let tutorial" mat-cell>
-          {{ tutorial.tutorName }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="actions" sticky>
-        <th *matHeaderCellDef mat-header-cell mat-sort-header>Actions</th>
-        <td *matCellDef="let tutorial" mat-cell>
-          @if (project.isEnrolledIn(tutorial)) {
-            @if (unit.allowStudentChangeTutorial) {
-              <button mat-raised-button (click)="project.switchToTutorial(tutorial)">
-                Withdraw
-              </button>
-            } @else {
-              <div
-                class="text-green-600"
-                matTooltip="You can not manually change tutorials for this unit"
-                matTooltipPosition="above"
-                matTooltipShowDelay="1000"
-              >
-                Enrolled
-              </div>
-            }
-          } @else if (unit.allowStudentChangeTutorial) {
-            <button
-              color="primary"
-              mat-raised-button
-              [disabled]="!tutorial.hasCapacity()"
-              (click)="project.switchToTutorial(tutorial)"
-            >
-              Enrol
-            </button>
-          } @else {
-            <div></div>
-            <!-- <div>N/A</div> -->
-          }
-        </td>
-      </ng-container>
-      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-      <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
-    </table>
-  </div>
+  </f-page-container>
 }

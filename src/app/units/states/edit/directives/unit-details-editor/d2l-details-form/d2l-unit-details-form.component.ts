@@ -1,5 +1,5 @@
 //
-// Modal to show Doubtfire version info
+// Dialog to link a unit to its D2L course for grade transfer
 //
 import {ChangeDetectionStrategy, Component, Inject, Injectable, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
@@ -75,13 +75,12 @@ export class D2lUnitDetailsFormComponent implements OnInit {
     if (action) {
       action.subscribe({
         next: () => {
-          this.alertService.success('D2l details saved successfully');
+          this.alertService.success('D2L details saved.');
           // Close the dialog
           this.dialogRef.close();
         },
         error: (err) => {
-          this.alertService.error(`Failed to save unit ${err}`);
-          console.error(err);
+          this.alertService.error(`Could not save the D2L details. ${err}`);
         },
       });
     } else {
@@ -94,22 +93,21 @@ export class D2lUnitDetailsFormComponent implements OnInit {
       .delete({unitId: this.data.id, id: this.d2lDataMapping.id})
       .subscribe({
         next: () => {
-          this.alertService.success('D2l details deleted successfully');
+          this.alertService.success('D2L details removed.');
           this.data.d2lMapping = undefined;
           this.dialogRef.close();
         },
         error: (err) => {
-          this.alertService.error(`Failed to delete D2L details: ${err}`);
-          console.error(err);
+          this.alertService.error(`Could not remove the D2L details. ${err}`);
         },
       });
   }
 }
 
 /**
- * The about doubtfire modal service - used to create and show the modal
+ * Opens the D2L details dialog for a unit.
  */
-// eslint-disable-next-line max-classes-per-file
+
 @Injectable()
 export class D2lUnitDetailsModal {
   constructor(public dialog: MatDialog) {}

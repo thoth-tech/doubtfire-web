@@ -24,6 +24,11 @@ import {Engagement} from './engagement';
 import {StaffNote} from './staff-note';
 import {TaskOutcomeAlignment} from './task-outcome-alignment';
 
+export interface ProjectBurndownSeries {
+  key: string;
+  values: [timestamp: number, remaining: number][];
+}
+
 export class Project extends Entity {
   public id: number;
   public unit: Unit;
@@ -52,7 +57,7 @@ export class Project extends Entity {
   }[];
   public orderScale: number;
 
-  public burndownChartData: {key: string; values: number[]}[];
+  public burndownChartData: ProjectBurndownSeries[];
   public readonly taskCache: EntityCache<Task> = new EntityCache<Task>();
   public readonly staffNoteCache: EntityCache<StaffNote> = new EntityCache<StaffNote>();
   public readonly engagementCache: EntityCache<Engagement> = new EntityCache<Engagement>();
@@ -240,6 +245,7 @@ export class Project extends Entity {
     const alerts = AppInjector.get(AlertService);
     const projectService: ProjectService = AppInjector.get(ProjectService);
     const oldGrade: number = this.grade || 0;
+    const oldRationale = this.gradeRationale;
     this.grade = score;
     this.gradeRationale = rationale;
 
@@ -257,7 +263,9 @@ export class Project extends Entity {
           alerts.success('Grade updated.');
         },
         error: (message) => {
+          // Put back both halves of the old grade, so the rationale shown matches it.
           this.grade = oldGrade;
+          this.gradeRationale = oldRationale;
           alerts.error(`Grade was not updated: ${message}`);
         },
       });
@@ -359,8 +367,9 @@ export class Project extends Entity {
     }
   }
 
-  public isEnrolledIn(tutorial: Tutorial): boolean {
-    return this.tutorials.some((t) => t.id === tutorial.id);
+  public isEnrolledIn(tutorial: Tutorial | undefined): boolean {
+    // A group can be left without a tutorial, and no one is enrolled in no tutorial.
+    return !!tutorial && this.tutorials.some((t) => t.id === tutorial.id);
   }
 
   public updateUnitEnrolment(): void {
@@ -398,15 +407,15 @@ export class Project extends Entity {
   }
 
   public refreshBurndownChartData(): void {
-    const result: {key: string; values: number[]}[] = [];
+    const result: ProjectBurndownSeries[] = [];
 
     // Setup the dictionaries to contain the keys and values
     // key = series name
     // values = array of [ x, y ] values
-    const projectedResults = {key: 'Projected', values: []};
-    const targetTaskResults = {key: 'Target', values: []};
-    const doneTaskResults = {key: 'To Submit', values: []};
-    const completeTaskResults = {key: 'To Complete', values: []};
+    const projectedResults: ProjectBurndownSeries = {key: 'Projected', values: []};
+    const targetTaskResults: ProjectBurndownSeries = {key: 'Target', values: []};
+    const doneTaskResults: ProjectBurndownSeries = {key: 'To Submit', values: []};
+    const completeTaskResults: ProjectBurndownSeries = {key: 'To Complete', values: []};
 
     result.push(targetTaskResults);
     result.push(projectedResults);
@@ -496,7 +505,7 @@ export class Project extends Entity {
     dates.forEach((date) => {
       // get the target values - those from the task definitions
       // amount remaining is the sum of all tasks due after the date
-      const targetVal = [
+      const targetVal: ProjectBurndownSeries['values'][number] = [
         date.getTime(),
         (targetTasks
           .filter((taskDef) => taskDef.targetDate >= date)
@@ -505,7 +514,7 @@ export class Project extends Entity {
       ];
 
       // get the done values - those done up to today, or the end of the unit
-      const doneVal = [
+      const doneVal: ProjectBurndownSeries['values'][number] = [
         date.getTime(),
         (total -
           doneTasks
@@ -516,7 +525,7 @@ export class Project extends Entity {
       ];
 
       // get the completed values - those signed off
-      const completeVal = [
+      const completeVal: ProjectBurndownSeries['values'][number] = [
         date.getTime(),
         (total -
           completedTasks
@@ -527,7 +536,10 @@ export class Project extends Entity {
       ];
 
       // projected value is based on amount done
-      const projectedVal = [date.getTime(), projectedRemaining / total];
+      const projectedVal: ProjectBurndownSeries['values'][number] = [
+        date.getTime(),
+        projectedRemaining / total,
+      ];
 
       // add one week's worth of completion data
       projectedRemaining -= completionRate;

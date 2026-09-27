@@ -1,32 +1,83 @@
-<div fxLayout="row" fxLayoutAlign="space-evenly center">
-  @if (comment.assessed) {
-    <div fxLayout="column" fxLayoutAlign="space-around center">
-      <hr class="hr-text" [attr.data-content]="message" />
-      <p class="fade-text"><strong> reason:</strong> {{ comment.text }}</p>
+<article
+  aria-label="Extension request"
+  class="ext-card"
+  [class.ext-card--decided]="comment.assessed"
+>
+  <header class="ext-card__header">
+    <mat-icon aria-hidden="true" class="ext-card__icon">{{
+      comment.automated ? 'smart_toy' : 'event'
+    }}</mat-icon>
+    <div class="ext-card__heading">
+      <div class="ext-card__title-row">
+        <span class="ext-card__title">{{
+          comment.automated ? 'Extended automatically' : 'Extension request'
+        }}</span>
+        <span class="ext-chip"
+          >{{ comment.weeksRequested }} {{ comment.weeksRequested === 1 ? 'week' : 'weeks' }}</span
+        >
+      </div>
+      <!-- An automated extension is stored against the tutor, because a comment
+           needs an author. Naming them here would credit a person with something
+           OnTrack did on its own. -->
+      <span class="ext-card__meta">
+        @if (comment.automated) {
+          <span class="ext-card__by-system">By {{ externalName | async }}</span>
+        } @else {
+          {{ comment.author?.name }}
+        }
+        @if (comment.createdAt) {
+          · {{ comment.createdAt | date: 'd MMM y' }}
+        }
+      </span>
     </div>
-  }
+  </header>
 
-  @if (!comment.assessed) {
-    <div fxLayout="column" fxLayoutAlign="space-around center">
-      <hr class="hr-fade" />
-      <p>
-        {{ message }} <br />
-        <strong> reason:</strong> {{ comment.text }}
-      </p>
-      @if (isNotStudent) {
-        <div fxLayout="row" fxLayoutAlign="space-evenly center">
-          <button
-            color="primary"
-            mat-flat-button
-            style="background-color: #43a047"
-            (click)="grantExtension()"
-          >
-            Grant
-          </button>
-          <button color="warn" mat-flat-button (click)="denyExtension()">Deny</button>
-        </div>
+  <blockquote class="ext-card__reason">
+    <span class="ext-card__label">{{ comment.automated ? 'Why' : 'Reason' }}</span>
+    <!-- Extension reasons carry markdown: the automated ones bold their own
+         prefix, and a person writing one uses the same composer as a comment. -->
+    <div class="markdown-to-html" [innerHTML]="comment.text | marked"></div>
+  </blockquote>
+
+  @if (comment.assessed) {
+    <div class="ext-card__footer">
+      <span
+        class="ext-chip"
+        [class.ext-chip--error]="!comment.granted"
+        [class.ext-chip--success]="comment.granted"
+      >
+        <mat-icon aria-hidden="true">{{ comment.granted ? 'check_circle' : 'cancel' }}</mat-icon>
+        {{ comment.granted ? 'Granted' : 'Denied' }}
+      </span>
+      @if (comment.extensionResponse) {
+        <span class="ext-card__meta">{{ comment.extensionResponse }}</span>
       }
-      <hr class="hr-fade" />
+    </div>
+  } @else if (isNotStudent) {
+    <div class="ext-card__footer ext-card__actions">
+      <button
+        class="ext-btn ext-btn--deny"
+        color="warn"
+        mat-stroked-button
+        type="button"
+        [disabled]="busy"
+        (click)="denyExtension()"
+      >
+        Deny
+      </button>
+      <button
+        class="ext-btn ext-btn--grant"
+        mat-flat-button
+        type="button"
+        [disabled]="busy"
+        (click)="grantExtension()"
+      >
+        Grant
+      </button>
+    </div>
+  } @else {
+    <div class="ext-card__footer">
+      <span class="ext-chip">Awaiting decision</span>
     </div>
   }
-</div>
+</article>

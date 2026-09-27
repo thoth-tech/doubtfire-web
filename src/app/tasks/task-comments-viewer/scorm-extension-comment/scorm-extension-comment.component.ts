@@ -20,7 +20,7 @@ export class ScormExtensionCommentComponent {
   }
 
   get message() {
-    const studentName = this.comment.author.name;
+    const studentName = this.comment.author.displayName;
     if (this.comment.assessed && this.comment.granted) {
       return 'Extra attempt granted.';
     } else if (this.comment.assessed && !this.comment.granted) {

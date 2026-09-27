@@ -1,0 +1,86 @@
+:host {
+  // The panel floats over the page, so it takes the raised surface.
+  --tutorial-surface: var(--ot-color-surface-raised);
+  --tutorial-text: var(--ot-color-text);
+}
+.onboarding-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 20%);
+  z-index: 1099;
+}
+.onboarding-panel {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1101;
+  width: min(28rem, calc(100vw - 2rem));
+  box-sizing: border-box;
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  border: 2px solid var(--tutorial-text);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  color: var(--tutorial-text);
+  background: var(--tutorial-surface);
+  box-shadow: 0 4px 20px var(--ot-scrim);
+  font-size: 1rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  p {
+    margin-block: 0.75rem;
+  }
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+  :focus-visible {
+    outline: 3px solid currentcolor;
+    outline-offset: 3px;
+  }
+}
+.onboarding-panel--top {
+  top: 1rem;
+  bottom: auto;
+}
+.onboarding-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.onboarding-position {
+  font-weight: 600;
+}
+.onboarding-fallback {
+  border-inline-start: 3px solid currentcolor;
+  padding-inline-start: 0.75rem;
+}
+.onboarding-highlight {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1098;
+  border: 3px dashed var(--tutorial-text);
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow: 0 0 0 3px var(--tutorial-surface);
+}
+@media (max-width: 600px) {
+  .onboarding-panel {
+    right: 0.5rem;
+    bottom: 0.5rem;
+    width: calc(100vw - 1rem);
+    max-height: 55dvh;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :host,
+  :host * {
+    scroll-behavior: auto;
+    animation: none;
+    transition: none;
+  }
+}

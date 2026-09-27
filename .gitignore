@@ -5,6 +5,7 @@
 .DS_Store
 build/
 dist/
+coverage/
 bin/
 node_modules/
 vendor/
@@ -13,6 +14,7 @@ vendor/
 tmp.scss
 .tscache
 a.env
+.env
 dist/
 .angulardoc.json
 .nx

@@ -1,23 +1,36 @@
 <div class="flex w-full flex-col gap-3 p-3">
-  @for (prompt of discussionPrompts; track prompt) {
-    <mat-card appearance="outlined">
-      <mat-card-content class="flex items-center justify-evenly gap-3">
-        <div
-          class="flex max-h-5 w-20 items-center justify-center rounded-full bg-gray-200 p-3"
-          matTooltipPosition="above"
-          [matTooltip]="prompt.taskDefinition.name"
-        >
-          {{ prompt.taskDefinition.abbreviation }}
-        </div>
-        <div class="w-full">
-          {{ prompt.content }}
-        </div>
-        <div class="w-20 text-center">
-          {{ prompt.priorityLabel }}
-        </div>
-      </mat-card-content>
-    </mat-card>
-  } @empty {
-    <div class="mt-10 size-full text-center text-gray-400">No discussion prompts for this task</div>
+  @if (loadingPrompts) {
+    <div role="status">
+      <span class="sr-only">Loading discussion prompts...</span>
+      <f-skeleton-loader shape="row" [count]="3"></f-skeleton-loader>
+    </div>
+  } @else if (promptsLoadFailed) {
+    <p role="alert">Unable to load discussion prompts. Please try again later.</p>
+  } @else {
+    @for (prompt of discussionPrompts; track prompt) {
+      <mat-card appearance="outlined">
+        <mat-card-content class="flex items-center justify-evenly gap-3">
+          <div
+            class="flex max-h-5 w-20 items-center justify-center rounded-full bg-ot-divider p-3 text-ot-text"
+            matTooltipPosition="above"
+            [matTooltip]="prompt.taskDefinition.name"
+          >
+            {{ prompt.taskDefinition.abbreviation }}
+          </div>
+          <div class="w-full">
+            {{ prompt.content }}
+          </div>
+          <div class="w-20 text-center">
+            {{ prompt.priorityLabel }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @empty {
+      <f-empty-state
+        heading="No discussion prompts"
+        icon="forum"
+        message="There are no discussion prompts for this student yet."
+      ></f-empty-state>
+    }
   }
 </div>

@@ -4,6 +4,20 @@
 
 export const environment = {
   production: false,
+
+  // Runs the service worker outside a production build. Push notifications
+  // cannot arrive without it, because the service worker is the thing that
+  // receives them.
+  //
+  // Turn this off if the worker gets in your way. It caches, so a stale bundle
+  // after a rebuild is the usual symptom, and clearing it is a manual step.
+  // See docs/service-worker.md.
+  enableServiceWorker: true,
+
+  // Makes the local-only demo controls available. The mode itself still starts
+  // off and is stored only for the current browser tab.
+  enableDemoTools: true,
+
   sentryDsn: '',
   sentryRelease: '',
   sentryDist: '',

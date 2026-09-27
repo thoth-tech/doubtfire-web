@@ -3,14 +3,24 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
 } from '@angular/core';
+import {take} from 'rxjs/operators';
+import {
+  PeerProgressUnitSummaryViewModel,
+  resolvePeerProgressUnitSummaryState,
+} from 'src/app/api/models/peer-progress-unit-summary-state';
 import {Project} from 'src/app/api/models/project';
+import {PeerProgressIndicatorService} from 'src/app/api/services/peer-progress-indicator.service';
 import {ProjectService} from 'src/app/api/services/project.service';
 import {UserService} from 'src/app/api/services/user.service';
 import {AlertService} from 'src/app/common/services/alert.service';
 import {GradeService} from 'src/app/common/services/grade.service';
+import {calculateCompletionPercentage} from 'src/app/common/services/ppi-progress-calculation.service';
+import {DemoModeStore} from 'src/app/demo/demo-mode.store';
 
 @Component({
   selector: 'f-progress-dashboard',
@@ -19,7 +29,7 @@ import {GradeService} from 'src/app/common/services/grade.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class ProgressDashboardComponent implements OnInit {
+export class ProgressDashboardComponent implements OnChanges, OnInit {
   @Input() project: Project;
   @Input() showSubmittedGrade?: boolean = false;
   @Output() doUpdateTargetGrade: EventEmitter<void> = new EventEmitter();
@@ -32,20 +42,44 @@ export class ProgressDashboardComponent implements OnInit {
     completed: 0,
     remaining: 0,
   };
+  isUpdatingTargetGrade = false;
+
+  peerProgressView: PeerProgressUnitSummaryViewModel = resolvePeerProgressUnitSummaryState(
+    true,
+    null,
+    null,
+  );
 
   constructor(
     private gradeService: GradeService,
+    private peerProgressService: PeerProgressIndicatorService,
     private projectService: ProjectService,
     private alertService: AlertService,
     private userService: UserService,
+    readonly demoMode: DemoModeStore,
   ) {}
 
   ngOnInit(): void {
+    this.refreshProjectSummary();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('project' in changes && !changes.project.firstChange) {
+      this.refreshProjectSummary();
+    }
+  }
+
+  private refreshProjectSummary(): void {
+    if (!this.project?.unit) {
+      return;
+    }
+
     this.grades.values = this.gradeService.gradeValuesFor(this.project.unit);
     this.grades.names = Object.fromEntries(
       this.project.unit.gradeDefinitions.map((definition) => [definition.value, definition.label]),
     );
     this.updateTaskCompletionValues();
+    this.loadPeerProgressUnitSummary();
     this.project?.refreshBurndownChartData();
   }
 
@@ -56,27 +90,104 @@ export class ProgressDashboardComponent implements OnInit {
     return !!role && role !== 'Student' && this.project?.student?.id !== currentUser?.id;
   }
 
+  public get showDemoPeerProgress(): boolean {
+    return this.demoMode.enabled && !this.viewingOtherStudentProject;
+  }
+
+  public get targetGradeName(): string {
+    return this.grades.names[this.project?.targetGrade] ?? 'your target grade';
+  }
+
+  /**
+   * Counted on every render, not cached, because the dashboard route resolves tasks
+   * progressively and a cached count would stay at zero after they arrive.
+   */
+  public get targetProgressText(): string {
+    const tasks = this.project?.activeTasks?.() ?? [];
+    if (tasks.length === 0) {
+      return 'This sets which tasks you need to do.';
+    }
+
+    const completed = tasks.filter((task) => task.status === 'complete').length;
+    return `${completed} of ${tasks.length} tasks complete for ${this.targetGradeName}`;
+  }
+
   updateTargetGrade(newGrade: number): void {
+    if (
+      this.viewingOtherStudentProject ||
+      this.isUpdatingTargetGrade ||
+      newGrade === undefined ||
+      newGrade === null ||
+      newGrade === this.project.targetGrade
+    ) {
+      return;
+    }
+
+    const previousTargetGrade = this.project.targetGrade;
     this.project.targetGrade = newGrade;
-    this.projectService.update(this.project).subscribe(
-      (project) => {
+    this.isUpdatingTargetGrade = true;
+
+    this.projectService.update(this.project).subscribe({
+      next: (project) => {
+        this.isUpdatingTargetGrade = false;
         project.refreshBurndownChartData();
         this.updateTaskCompletionValues();
+        this.loadPeerProgressUnitSummary();
         this.doUpdateTargetGrade.emit();
         this.alertService.success('Updated target grade successfully', 2000);
       },
-      (error) => {
+      error: (error) => {
+        this.isUpdatingTargetGrade = false;
+        this.project.targetGrade = previousTargetGrade;
+        this.updateTaskCompletionValues();
+        this.loadPeerProgressUnitSummary();
+        this.doUpdateTargetGrade.emit();
         console.error('Error updating target grade:', error);
         this.alertService.error('Failed to update target grade', 4000);
       },
+    });
+  }
+
+  private loadPeerProgressUnitSummary(): void {
+    if (!this.showDemoPeerProgress) {
+      return;
+    }
+
+    const availableTasks = this.numberOfTasks.completed + this.numberOfTasks.remaining;
+
+    const studentPercentage = calculateCompletionPercentage(
+      this.numberOfTasks.completed,
+      availableTasks,
     );
+
+    this.peerProgressView = resolvePeerProgressUnitSummaryState(true, null, null);
+
+    // Demo-only unit summaries consume the guarded Batch 09 contract. A live
+    // authorised unit-level API remains future work.
+    this.peerProgressService
+      .getScenarioUnitSummary(
+        this.project.id,
+        this.project.unit.id,
+        this.project.targetGrade,
+        studentPercentage,
+      )
+      .pipe(take(1))
+      .subscribe({
+        next: (data) => {
+          this.peerProgressView = resolvePeerProgressUnitSummaryState(false, null, data);
+        },
+        error: (error) => {
+          this.peerProgressView = resolvePeerProgressUnitSummaryState(false, error, null);
+        },
+      });
   }
 
   private updateTaskCompletionValues(): void {
-    const completedTasks = this.project.numberTasks('complete');
+    const activeTasks = this.project.activeTasks();
+    const completedTasks = activeTasks.filter((task) => task.status === 'complete').length;
     this.numberOfTasks = {
       completed: completedTasks,
-      remaining: this.project.activeTasks().length - completedTasks,
+      remaining: activeTasks.length - completedTasks,
     };
   }
 }

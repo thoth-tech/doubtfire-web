@@ -119,9 +119,8 @@ export class NewTeachingPeriodDialogComponent {
     this.newOrSelectedTeachingPeriod
       .addBreak(this.tempBreak.startDate, this.tempBreak.numberOfWeeks)
       .subscribe({
-        next: (teachingPeriodBreak) => {
+        next: () => {
           this.alertService.success('Break added');
-          console.log(teachingPeriodBreak);
         },
         error: (response) => {
           this.alertService.error(`Error adding break. ${response}`);
@@ -131,8 +130,8 @@ export class NewTeachingPeriodDialogComponent {
 
   deleteBreak(teachingPeriod: TeachingPeriod, teachingBreak: TeachingPeriodBreak): void {
     teachingPeriod.removeBreak(teachingBreak.id).subscribe({
-      next: (teachingPeriodBreak) => {
-        console.log(teachingPeriodBreak);
+      next: () => {
+        this.alertService.success('Break removed', 2000);
       },
       error: (response) => {
         this.alertService.error(`Error deleting break. ${response}`);

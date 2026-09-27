@@ -41,8 +41,10 @@ export class ScormExtensionModalComponent {
 
   private scrollCommentsDown(): void {
     setTimeout(() => {
-      const objDiv = document.querySelector('div.comments-body');
-      // let wrappedResult = angular.element(objDiv);
+      const objDiv = document.querySelector<HTMLElement>('div.comments-body');
+      if (!objDiv) {
+        return;
+      }
       objDiv.scrollTop = objDiv.scrollHeight;
     }, 50);
   }

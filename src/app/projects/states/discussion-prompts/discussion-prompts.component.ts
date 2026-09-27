@@ -27,7 +27,8 @@ export class DiscussionPromptsComponent implements OnInit {
   @Input() project: Project;
   @Input() taskDefinition: TaskDefinition;
 
-  loadingStaffNotes: boolean = true;
+  loadingPrompts = true;
+  promptsLoadFailed = false;
 
   noteText: string = '';
 
@@ -47,13 +48,15 @@ export class DiscussionPromptsComponent implements OnInit {
     private confirmationModalService: ConfirmationModalService,
   ) {}
   ngOnInit(): void {
-    console.log('task def?', this.taskDefinition);
-    this.loadingStaffNotes = true;
-    this.discussionPromptService
-      .loadDiscussionPromptsForPoject(this.project)
-      .subscribe((prompts) => {
-        console.log(prompts);
+    this.discussionPromptService.loadDiscussionPromptsForPoject(this.project).subscribe({
+      next: (prompts) => {
         this.discussionPrompts = prompts;
-      });
+        this.loadingPrompts = false;
+      },
+      error: () => {
+        this.promptsLoadFailed = true;
+        this.loadingPrompts = false;
+      },
+    });
   }
 }

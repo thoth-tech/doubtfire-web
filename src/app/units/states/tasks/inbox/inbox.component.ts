@@ -1,19 +1,19 @@
 import {HotkeysHelpComponent, HotkeysService} from '@ngneat/hotkeys';
-import {MediaObserver} from 'ng-flex-layout';
-import {CdkDragEnd, CdkDragMove, CdkDragStart} from '@angular/cdk/drag-drop';
 import {BreakpointObserver} from '@angular/cdk/layout';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   Input,
+  NgZone,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
-import {Observable, Subject, auditTime, merge, of, takeUntil, tap, withLatestFrom} from 'rxjs';
+import {Observable, Subject, takeUntil} from 'rxjs';
 import {Tutorial} from 'src/app/api/models/doubtfire-model';
 import {Task} from 'src/app/api/models/task';
 import {TaskDefinition} from 'src/app/api/models/task-definition';
@@ -57,18 +57,24 @@ export class InboxComponent implements OnInit, OnDestroy {
     taskDefinitionIdSelected: number | TaskDefinition;
   }>;
   @Input() showSearchOptions: boolean;
-  @ViewChild('inboxpanel') inboxPanel: ElementRef;
-  @ViewChild('commentspanel') commentspanel: ElementRef;
+
+  /** The desktop layout and the phone one each carry this ref, so it moves at the breakpoint. */
+  @ViewChild('inboxpanel', {read: ElementRef})
+  set inboxPanel(panel: ElementRef<HTMLElement> | undefined) {
+    const element = panel?.nativeElement ?? null;
+    if (element === this.measuredPanel) {
+      return;
+    }
+    this.measuredPanel = element;
+    this.observeInboxWidth();
+  }
 
   @Input() viewType: 'inbox' | 'explorer' | 'moderation' | 'overflow';
 
-  subs$: Observable<unknown>;
-
-  private inboxStartSize$: Subject<number> = new Subject();
-  private dragMove$: Subject<{event: CdkDragMove; div: HTMLDivElement}> = new Subject();
-  private dragMoveAudited$;
   private readonly destroy$: Subject<void> = new Subject();
   private readonly commentsBreakpoint = '(max-width: 999.98px)';
+  /** The legacy `xs` breakpoint retained for the mobile inbox. */
+  private readonly mobileBreakpoint = '(max-width: 599.98px)';
 
   // protected filters;
   // protected showSearchOptions;
@@ -76,15 +82,35 @@ export class InboxComponent implements OnInit, OnDestroy {
   public taskSelected = false;
   public isCommentsNarrow = false;
   public commentsCollapsed = false;
+  /** The panel shown full screen, and the one shown when the panels stack. */
+  public fullscreenPanel: string | null = null;
+  public activePanel: string | null = 'list';
 
   visiblePdfUrl: string;
 
-  get narrowTaskInbox(): boolean {
-    return this.inboxPanel?.nativeElement.getBoundingClientRect().width < 150;
-  }
+  /**
+   * The task list panel is down to its rail, so the rows show as icons only. A
+   * ResizeObserver pushes this. Read as a getter it measured the panel on every check,
+   * and the list it feeds is what changes that measurement, so the check and the dev-mode
+   * pass that verifies it could get different answers.
+   */
+  public narrowTaskInbox = false;
+
+  /** Below this the list has no room for a row's text beside its avatar. */
+  private readonly narrowInboxWidth = 150;
+  private measuredPanel: HTMLElement | null = null;
+  private inboxResizeObserver: ResizeObserver | null = null;
 
   get isMobileView(): boolean {
-    return this.mediaObserver.isActive('xs');
+    return this.breakpointObserver.isMatched(this.mobileBreakpoint);
+  }
+
+  /** The narrowest each desktop panel goes; see the project dashboard for why. */
+  public readonly panelMinWidths = {list: 280, task: 420, comments: 320} as const;
+
+  /** Explorer, moderation and the inbox each remember their own panels. */
+  get panelPage(): string {
+    return `task-${this.viewType || 'inbox'}`;
   }
 
   get commentsPanelCollapsed(): boolean {
@@ -94,13 +120,14 @@ export class InboxComponent implements OnInit, OnDestroy {
   constructor(
     private hotkeys: HotkeysService,
     private selectedTask: SelectedTaskService,
-    public mediaObserver: MediaObserver,
     public fileDownloader: FileDownloaderService,
     private router: Router,
     public dialog: MatDialog,
     private userService: UserService,
     private constants: DoubtfireConstants,
     private breakpointObserver: BreakpointObserver,
+    private changeDetector: ChangeDetectorRef,
+    private zone: NgZone,
   ) {
     this.selectedTask.currentPdfUrl$.subscribe((url) => {
       this.visiblePdfUrl = url;
@@ -108,6 +135,10 @@ export class InboxComponent implements OnInit, OnDestroy {
 
     this.selectedTask.selectedTask$.subscribe((task) => {
       this.taskSelected = task != null;
+      this.activePanel = task ? 'task' : 'list';
+      if (!task) {
+        this.fullscreenPanel = null;
+      }
     });
   }
 
@@ -174,39 +205,12 @@ export class InboxComponent implements OnInit, OnDestroy {
         });
     }
 
-    this.dragMoveAudited$ = this.dragMove$.pipe(
-      withLatestFrom(this.inboxStartSize$),
-      auditTime(30),
-      tap(([moveEvent, startSize]) => {
-        window.dispatchEvent(new Event('resize'));
-
-        let newWidth: number;
-        let width: number;
-        if (moveEvent.div.id === 'inboxpanel') {
-          newWidth = startSize + moveEvent.event.distance.x;
-
-          // if width is belo 250, snap to 50px
-          if (newWidth < 250 && newWidth > 100) {
-            width = 250;
-          } else if (newWidth < 150) {
-            width = 50;
-          } else {
-            width = Math.min(newWidth, 500);
-          }
-        } else {
-          newWidth = startSize - moveEvent.event.distance.x;
-          width = Math.min(Math.max(newWidth, 250), 500);
-        }
-        moveEvent.div.style.width = `${width}px`;
-        moveEvent.event.source.reset();
-      }),
-    );
-    this.subs$ = merge(this.dragMoveAudited$, of(true));
     window.dispatchEvent(new Event('resize'));
   }
 
   ngOnDestroy(): void {
-    document.body.classList.remove('split-pane-resizing');
+    this.inboxResizeObserver?.disconnect();
+    this.inboxResizeObserver = null;
     this.destroy$.next();
     this.destroy$.complete();
     this.hotkeys.removeShortcuts('control.shift.d');
@@ -215,27 +219,34 @@ export class InboxComponent implements OnInit, OnDestroy {
     this.hotkeys.removeShortcuts('shift.?');
   }
 
+  private observeInboxWidth(): void {
+    this.inboxResizeObserver?.disconnect();
+    this.inboxResizeObserver = null;
+    if (!this.measuredPanel || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+    // Observing delivers a first entry by itself, so nothing here has to measure the
+    // panel, and the callback runs after layout rather than inside a check.
+    this.inboxResizeObserver = new ResizeObserver((entries) => {
+      const width = entries[entries.length - 1]?.contentRect.width;
+      if (typeof width === 'number') {
+        this.zone.run(() => this.setNarrowTaskInbox(width < this.narrowInboxWidth));
+      }
+    });
+    this.inboxResizeObserver.observe(this.measuredPanel);
+  }
+
+  private setNarrowTaskInbox(narrow: boolean): void {
+    if (this.narrowTaskInbox === narrow) {
+      return;
+    }
+    this.narrowTaskInbox = narrow;
+    this.changeDetector.markForCheck();
+  }
+
   public toggleCommentsPanel(): void {
     this.commentsCollapsed = !this.commentsCollapsed;
     window.dispatchEvent(new Event('resize'));
-  }
-
-  startedDragging(event: CdkDragStart, div: HTMLDivElement) {
-    document.body.classList.add('split-pane-resizing');
-    event.source.element.nativeElement.classList.add('hovering');
-    const w = div.getBoundingClientRect().width;
-    this.inboxStartSize$.next(w);
-  }
-
-  dragging(event: CdkDragMove, div: HTMLDivElement) {
-    this.dragMove$.next({event, div});
-    event.source.reset();
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  stoppedDragging(event: CdkDragEnd, _div: HTMLDivElement) {
-    document.body.classList.remove('split-pane-resizing');
-    event.source.element.nativeElement.classList.remove('hovering');
   }
 
   goToStudent(): void {

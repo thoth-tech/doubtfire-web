@@ -1,8 +1,18 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
-import {Task, TaskComment, TaskCommentService} from 'src/app/api/models/doubtfire-model';
-import {AlertService} from 'src/app/common/services/alert.service';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import {Task} from 'src/app/api/models/doubtfire-model';
+import {AppLifecycleService} from 'src/app/common/services/app-lifecycle.service';
+import {AudioPlaybackCoordinatorService} from 'src/app/common/services/audio-playback-coordinator.service';
 import {MediaRecorderService} from 'src/app/common/services/recorder-service';
-import {BaseAudioRecorderComponent} from '../base-audio-recorder';
+import {BaseAudioRecorderComponent, RecordingEvent} from '../base-audio-recorder';
 
 @Component({
   selector: 'audio-comment-recorder',
@@ -11,20 +21,27 @@ import {BaseAudioRecorderComponent} from '../base-audio-recorder';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class AudioCommentRecorderComponent extends BaseAudioRecorderComponent implements OnInit {
+export class AudioCommentRecorderComponent
+  extends BaseAudioRecorderComponent
+  implements AfterViewInit
+{
   @Input() task: Task;
+  @Output() recordingReady: EventEmitter<Blob> = new EventEmitter();
+  @ViewChild('audioRecorderVisualiser') canvasRef: ElementRef<HTMLCanvasElement>;
+  @ViewChild('audioRecorderPlayer') audioRef: ElementRef<HTMLAudioElement>;
   canvas: HTMLCanvasElement;
   canvasCtx: CanvasRenderingContext2D;
   isSending: boolean = false;
 
   constructor(
     private mediaRecorderService: MediaRecorderService,
-    private alerts: AlertService,
-    private ts: TaskCommentService,
+    playbackCoordinator: AudioPlaybackCoordinatorService,
+    appLifecycle: AppLifecycleService,
   ) {
-    super(mediaRecorderService);
+    super(mediaRecorderService, playbackCoordinator, appLifecycle);
   }
-  ngOnInit() {
+
+  ngAfterViewInit(): void {
     if (this.canRecord) {
       this.init();
     }
@@ -32,37 +49,21 @@ export class AudioCommentRecorderComponent extends BaseAudioRecorderComponent im
 
   init(): void {
     super.init();
-    this.canvas = document.getElementById('audio-recorder-visualiser') as HTMLCanvasElement;
-    this.audio = document.getElementById('audioPlayer') as HTMLAudioElement;
+    this.canvas = this.canvasRef.nativeElement;
+    this.attachAudio(this.audioRef.nativeElement);
     this.canvasCtx = this.canvas.getContext('2d');
   }
 
-  sendRecording(): void {
-    this.isSending = true;
-    if (this.blob && this.blob.size > 0) {
-      this.ts.addComment(this.task, this.blob, 'audio').subscribe({
-        next: (_comment: TaskComment) => {
-          this.isSending = false;
-          this.scrollCommentsDown();
-        },
-        error: (failure: {data: {error: string}}) => {
-          this.alerts.error(
-            `Failed to post audio. ${failure.data != null ? failure.data.error : undefined}`,
-          );
-          this.isSending = false;
-        },
-      });
-
-      this.blob = {} as Blob;
-      this.recordingAvailable = false;
+  override onNewRecording(event: RecordingEvent): void {
+    super.onNewRecording(event);
+    if (this.recordingAvailable && this.blob.size > 0) {
+      this.recordingReady.emit(this.blob);
     }
   }
 
-  private scrollCommentsDown(): void {
-    setTimeout(() => {
-      const objDiv = document.querySelector('div.comments-body');
-      // let wrappedResult = angular.element(objDiv);
-      objDiv.scrollTop = objDiv.scrollHeight;
-    }, 50);
+  sendRecording(): void {
+    if (this.recordingAvailable && this.blob.size > 0) {
+      this.recordingReady.emit(this.blob);
+    }
   }
 }

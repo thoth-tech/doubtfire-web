@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+.connection-note {
+  font-size: 0.9rem;
+}
+
+.install-status:empty {
+  margin: 0;
+}
+
+.browser-instructions {
+  margin-block: 1rem;
+
+  details {
+    border-block-start: 1px solid var(--ot-color-border);
+    padding-block: 0.75rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding-block: 0.25rem;
+  }
+
+  summary:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  ol {
+    padding-inline-start: 1.5rem;
+  }
+
+  li + li {
+    margin-block-start: 0.5rem;
+  }
+}
+
+.installation-help {
+  font-size: 0.9rem;
+}

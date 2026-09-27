@@ -1,47 +1,67 @@
 @if (project) {
-  <div class="mx-auto flex max-w-[90vw] flex-col">
-    <h2>
-      Task Planner
-      @if (viewingOtherStudentProject) {
-        for {{ project.student.name }}
-      }
-    </h2>
-    <p>
-      @if (unit.allowFlexibleDates) {
-        View and adjust the due dates for your tasks. Remember to leave time to get and respond to
-        feedback.
-      } @else {
-        View the task deadlines for your project, so you can organise your work and ensure you meet
-        all submission requirements on time.
-      }
-    </p>
-    <p>
-      Click on a task in the timeline to see how it connects to other tasks. This will show you
-      which tasks must be completed before it, and which tasks depend on it being completed first.
-    </p>
-    <div class="flex w-full justify-center">
-      <mat-form-field appearance="outline" class="w-full max-w-3xl">
-        <mat-label>Target Grade</mat-label>
-        <mat-select
-          class="w-full"
-          [(ngModel)]="selectedTargetGrade"
-          (selectionChange)="onTargetGradeChange($event)"
-        >
-          @for (grade of gradeValues; track grade) {
-            <mat-option [value]="grade">{{ gradeString(grade) }}</mat-option>
+  <f-page-container>
+    <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-2 pb-5">
+      <div class="min-w-0">
+        <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">
+          Task Planner
+          @if (viewingOtherStudentProject && project.student?.displayName; as studentName) {
+            <span class="font-normal text-ot-muted">for {{ studentName }}</span>
           }
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <p>
-      Subscribe to your unit calendar to be reminded about your due dates.
-      <button color="primary" mat-stroked-button type="button" (click)="openCalendar()">
-        Open calendar
-      </button>
-    </p>
-  </div>
+        </h1>
+        <p class="m-0 mt-1.5 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+          @if (unit.allowFlexibleDates) {
+            Drag the bars to plan your own dates. Leave time to get feedback and to act on it.
+          } @else {
+            See when each task starts and is due, so you can plan your work and submit on time.
+          }
+        </p>
+        <p class="m-0 mt-1.5 text-sm text-ot-muted">
+          Select a task to see its prerequisites and dependent tasks. Larger screens also show these
+          connections on the timeline.
+        </p>
+      </div>
 
-  <div class="mx-auto w-full max-w-[95vw]" [style.height.px]="(planner?.items.length + 2) * 43">
-    <f-task-planner [project]="project" [targetGrade]="selectedTargetGrade"></f-task-planner>
-  </div>
+      <section aria-label="Task planner controls" class="flex flex-wrap items-center gap-3">
+        <mat-form-field
+          appearance="outline"
+          class="plan-grade-field w-44"
+          subscriptSizing="dynamic"
+        >
+          <mat-label>Target grade</mat-label>
+          <mat-select
+            aria-label="Target grade"
+            [disabled]="viewingOtherStudentProject"
+            [(ngModel)]="selectedTargetGrade"
+            (selectionChange)="onTargetGradeChange($event)"
+          >
+            @for (grade of gradeValues; track grade) {
+              <mat-option [value]="grade">{{ gradeString(grade) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button
+          class="h-12"
+          mat-stroked-button
+          matTooltip="Add your due dates to your own calendar app"
+          type="button"
+          (click)="openCalendar()"
+        >
+          <mat-icon aria-hidden="true">calendar_month</mat-icon>
+          Subscribe to calendar
+        </button>
+      </section>
+    </header>
+  </f-page-container>
+
+  <f-page-container [fullWidth]="true">
+    <!-- Contain the desktop timeline while allowing the phone task cards to grow naturally. -->
+    <section
+      aria-label="Task timeline"
+      class="plan-card relative isolate mb-6 overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+    >
+      <div class="task-planner-surface">
+        <f-task-planner [project]="project" [targetGrade]="selectedTargetGrade"></f-task-planner>
+      </div>
+    </section>
+  </f-page-container>
 }

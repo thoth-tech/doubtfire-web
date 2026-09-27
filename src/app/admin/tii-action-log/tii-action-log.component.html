@@ -27,44 +27,44 @@
         {{ action.description }}
       </td>
     </ng-container>
-    <ng-container matColumnDef="lastRun" sticky>
+    <ng-container matColumnDef="lastRun">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>Last Run</th>
       <td *matCellDef="let action" mat-cell>
         {{ action.lastRun ? (action.lastRun | date: 'd LLL y') : '' }}
       </td>
     </ng-container>
-    <ng-container matColumnDef="retries" sticky>
+    <ng-container matColumnDef="retries">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>Retries</th>
       <td *matCellDef="let action" mat-cell>
         {{ action.retries }}
       </td>
     </ng-container>
-    <ng-container matColumnDef="retry" sticky>
+    <ng-container matColumnDef="retry">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>Retry?</th>
       <td *matCellDef="let action" mat-cell>
         {{ action.retry }}
       </td>
     </ng-container>
-    <ng-container matColumnDef="errorCode" sticky>
+    <ng-container matColumnDef="errorCode">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>Error Code</th>
       <td *matCellDef="let action" mat-cell>
         {{ action.errorCode }}
       </td>
     </ng-container>
-    <ng-container matColumnDef="complete" sticky>
+    <ng-container matColumnDef="complete">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>Complete?</th>
       <td *matCellDef="let action" mat-cell>
         {{ action.complete }}
       </td>
     </ng-container>
-    <ng-container matColumnDef="errorMessage" sticky>
+    <ng-container matColumnDef="errorMessage">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>Error Message</th>
       <td *matCellDef="let action" mat-cell>
         {{ action.errorMessage }}
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="tiiActionTools" sticky>
+    <ng-container matColumnDef="tiiActionTools" stickyEnd>
       <th *matHeaderCellDef mat-header-cell></th>
       <td *matCellDef="let action" mat-cell>
         @if (!(action.complete || action.retry)) {
@@ -84,7 +84,18 @@
     <tr
       *matRowDef="let row; columns: columns"
       mat-row
-      [style.background]="selectedTaskDefinition === row ? 'lightblue' : ''"
+      [style.background]="selectedTaskDefinition === row ? 'var(--ot-color-selected)' : ''"
     ></tr>
+    <tr *matNoDataRow class="mat-row">
+      <td class="mat-cell !border-b-0" [attr.colspan]="columns.length">
+        <f-empty-state
+          hint="Actions will appear here once they run."
+          icon="receipt_long"
+          message="No Turnitin actions"
+        ></f-empty-state>
+      </td>
+    </tr>
   </table>
+
+  <mat-paginator class="mat-elevation-z0" [pageSizeOptions]="[10, 25, 50, 100]"></mat-paginator>
 </div>

@@ -1,12 +1,18 @@
-import {Routes} from '@angular/router';
+import {Routes, UrlMatcher} from '@angular/router';
 import {EditProfileComponent} from './account/edit-profile/edit-profile.component';
+import {VerifyAdditionalEmailComponent} from './account/verify-additional-email/verify-additional-email.component';
 import {InstitutionSettingsComponent} from './admin/institution-settings/institution-settings.component';
 import {FUnitsComponent} from './admin/states/units/units.component';
 import {FUsersComponent} from './admin/states/users/users.component';
 import {roleWhitelistGuard} from './common/guards/role-whitelist.guard';
+import {NotificationsPageComponent} from './common/notifications-page/notifications-page.component';
 import {ScormPlayerComponent} from './common/scorm-player/scorm-player.component';
 import {SubmissionFilesDownloadComponent} from './common/submission-files-download/submission-files-download.component';
 import {SuccessCloseComponent} from './common/success-close/success-close.component';
+import {courseFlowDirtyGuard} from './courseflow/coursemap/course-flow-dirty.guard';
+import {CrossDashboardComponent} from './dashboard/f-cross-dashboard.component';
+import {DemoControlsComponent} from './demo/demo-controls/demo-controls.component';
+import {demoToolsGuard} from './demo/demo-tools.guard';
 import {TimeoutComponent} from './errors/states/timeout/timeout.component';
 import {UnauthorisedComponent} from './errors/states/unauthorised/unauthorised.component';
 import {AcceptEulaComponent} from './eula/accept-eula/accept-eula.component';
@@ -35,6 +41,24 @@ import {UnitRootStateComponent} from './units/unit-root-state.component';
 import {resolveUnit} from './units/unit.resolver';
 import {WelcomeComponent} from './welcome/welcome.component';
 
+export const projectDashboardTaskMatcher: UrlMatcher = (segments) => {
+  if (segments.length < 2 || segments.length > 3 || segments[0].path !== 'dashboard') {
+    return null;
+  }
+
+  if (segments.length === 3 && segments[2].path !== 'feedback') {
+    return null;
+  }
+
+  return {
+    consumed: segments,
+    posParams: {
+      taskAbbreviation: segments[1],
+      ...(segments[2] ? {mobilePane: segments[2]} : {}),
+    },
+  };
+};
+
 export const routes: Routes = [
   {path: '', pathMatch: 'full', redirectTo: 'home'},
   {path: 'home', component: HomeComponent},
@@ -44,9 +68,64 @@ export const routes: Routes = [
   {path: 'timeout', component: TimeoutComponent},
   {path: 'success-close', component: SuccessCloseComponent},
   {path: 'edit_profile', component: EditProfileComponent},
+  {path: 'verify_additional_email', component: VerifyAdditionalEmailComponent},
+  {path: 'notifications', component: NotificationsPageComponent},
+  ...['coursemap', 'coursemap/:courseMapId'].map((path) => ({
+    path,
+    loadComponent: () =>
+      import('./courseflow/coursemap/coursemap.component').then((m) => m.CoursemapComponent),
+    canActivate: [roleWhitelistGuard],
+    canDeactivate: [courseFlowDirtyGuard],
+    data: {
+      pageTitle: 'Course Flow',
+      roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
+    },
+  })),
+  {
+    path: 'unit-hub',
+    loadComponent: () => import('./unit-hub/unit-hub.component').then((m) => m.UnitHubComponent),
+    canActivate: [roleWhitelistGuard],
+    data: {
+      pageTitle: 'Unit Hub',
+      roleWhitelist: ['Student', 'Tutor', 'Convenor', 'Admin', 'Auditor'],
+    },
+  },
+  {
+    path: 'theme-demo',
+    loadComponent: () =>
+      import('./common/theme/theme-demo.component').then((m) => m.ThemeDemoComponent),
+    data: {pageTitle: 'Theme foundation'},
+  },
+  {
+    path: 'motion-demo',
+    loadComponent: () =>
+      import('./common/celebrate/motion-demo/motion-demo.component').then(
+        (m) => m.MotionDemoComponent,
+      ),
+    canActivate: [demoToolsGuard],
+    data: {pageTitle: 'Motion'},
+  },
+  {
+    path: 'submit-motion',
+    loadComponent: () =>
+      import('./common/celebrate/motion-demo/submit-motion.component').then(
+        (m) => m.SubmitMotionComponent,
+      ),
+    canActivate: [demoToolsGuard],
+    data: {pageTitle: 'Submitting'},
+  },
+  {
+    path: 'demo-controls',
+    component: DemoControlsComponent,
+    canActivate: [demoToolsGuard],
+    data: {pageTitle: 'Demo controls'},
+  },
   {path: 'eula', component: AcceptEulaComponent},
   {path: 'lti', component: LtiDashboardComponent},
   {path: 'lti/link', component: LtiUnitLinkComponent},
+  // Deliberately open: this is an empty iframe onto the bundled JPlag viewer at /JPlag/. It
+  // makes no api call and shows nothing until staff hand it a blob url that only exists in
+  // their own tab, so there is nothing here to guard. Listed in DELIBERATELY_OPEN_PATHS.
   {path: 'jplag-report-viewer', component: JplagReportViewerComponent},
   {
     path: 'projects/:projectId/task_def_id/:taskDefId/scorm-player/normal',
@@ -67,8 +146,20 @@ export const routes: Routes = [
     path: 'projects/:projectId/task_def_id/:taskDefId/submission_files/download',
     component: SubmissionFilesDownloadComponent,
   },
-  {path: 'view-all-units', component: FUnitsComponent, data: {mode: 'tutor'}},
+  {
+    path: 'view-all-units',
+    component: FUnitsComponent,
+    canActivate: [roleWhitelistGuard],
+    data: {mode: 'tutor', roleWhitelist: ['Tutor', 'Convenor', 'Admin', 'Auditor']},
+  },
+  // Deliberately open: 'student' mode lists the signed in user's own enrolled units.
   {path: 'view-all-projects', component: FUnitsComponent, data: {mode: 'student'}},
+  {
+    path: 'dashboard',
+    component: CrossDashboardComponent,
+    canActivate: [roleWhitelistGuard],
+    data: {roleWhitelist: ['Student'], pageTitle: 'Dashboard'},
+  },
   {
     path: 'admin/units',
     component: FUnitsComponent,
@@ -99,10 +190,18 @@ export const routes: Routes = [
     canActivate: [roleWhitelistGuard],
     data: {task: 'Discussion', roleWhitelist: ['Admin', 'Auditor', 'Tutor']},
   },
+  // Top level, so the guard checks the SYSTEM role here, not a unit role. Convenor is in the
+  // list because this url is open to system convenors today and guarding it must not take that
+  // away. It is a wider list than 'tutor-discussion' above, which this change does not touch.
   {
     path: 'tutor-attendance',
     component: TutorDiscussionComponent,
-    data: {attendance: true, task: 'Check-in'},
+    canActivate: [roleWhitelistGuard],
+    data: {
+      attendance: true,
+      task: 'Check-in',
+      roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor'],
+    },
   },
   {
     path: 'units',
@@ -116,29 +215,66 @@ export const routes: Routes = [
         },
         children: [
           {path: '', pathMatch: 'full', redirectTo: 'tasks/inbox'},
-          {path: 'analytics', component: UnitAnalyticsComponent, data: {task: 'Unit Analytics'}},
-          {path: 'students/groups', component: UnitGroupsComponent, data: {task: 'Student Groups'}},
+          {
+            path: 'analytics',
+            component: UnitAnalyticsComponent,
+            canActivate: [roleWhitelistGuard],
+            data: {
+              task: 'Unit Analytics',
+              roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor'],
+            },
+          },
+          {
+            path: 'students/groups',
+            component: UnitGroupsComponent,
+            canActivate: [roleWhitelistGuard],
+            data: {
+              task: 'Student Groups',
+              roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor'],
+            },
+          },
           {
             path: 'students/portfolios',
             component: PortfoliosComponent,
-            data: {task: 'Student Portfolios'},
+            canActivate: [roleWhitelistGuard],
+            data: {
+              task: 'Student Portfolios',
+              roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor'],
+            },
           },
           {
             path: 'students/portfolios/:projectId',
             component: PortfoliosComponent,
-            data: {task: 'Student Portfolios'},
+            canActivate: [roleWhitelistGuard],
+            data: {
+              task: 'Student Portfolios',
+              roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor'],
+            },
           },
           {
             path: 'students/portfolios/:projectId/:tab',
             component: PortfoliosComponent,
-            data: {task: 'Student Portfolios'},
+            canActivate: [roleWhitelistGuard],
+            data: {
+              task: 'Student Portfolios',
+              roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor'],
+            },
           },
           {
             path: 'students/portfolios/:projectId/:tab/:taskAbbreviation',
             component: PortfoliosComponent,
-            data: {task: 'Student Portfolios'},
+            canActivate: [roleWhitelistGuard],
+            data: {
+              task: 'Student Portfolios',
+              roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor'],
+            },
           },
-          {path: 'students', component: StudentsListComponent, data: {task: 'Student List'}},
+          {
+            path: 'students',
+            component: StudentsListComponent,
+            canActivate: [roleWhitelistGuard],
+            data: {task: 'Student List', roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor']},
+          },
           {
             path: 'admin',
             component: UnitAdminStateComponent,
@@ -151,12 +287,31 @@ export const routes: Routes = [
             canActivate: [roleWhitelistGuard],
             data: {task: 'Unit Administration', roleWhitelist: ['Convenor', 'Admin', 'Auditor']},
           },
-          {path: 'rollover', component: RolloverComponent, data: {task: 'Unit Rollover'}},
-          {path: 'discussion', component: TutorDiscussionComponent, data: {task: 'Discussion'}},
+          {
+            path: 'rollover',
+            component: RolloverComponent,
+            canActivate: [roleWhitelistGuard],
+            data: {task: 'Unit Rollover', roleWhitelist: ['Convenor', 'Admin', 'Auditor']},
+          },
+          // Convenor is in both lists because the staff menu offers Discussion and Check-in to
+          // every unit role, and the header QR button routes non students straight to
+          // 'discussion'. Do not narrow these to the 'tutor-discussion' list at the top level:
+          // that one is matched against the system role, this one against the unit role.
+          {
+            path: 'discussion',
+            component: TutorDiscussionComponent,
+            canActivate: [roleWhitelistGuard],
+            data: {task: 'Discussion', roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor']},
+          },
           {
             path: 'check-in',
             component: TutorDiscussionComponent,
-            data: {attendance: true, task: 'Check-in'},
+            canActivate: [roleWhitelistGuard],
+            data: {
+              attendance: true,
+              task: 'Check-in',
+              roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor'],
+            },
           },
           {
             path: 'tasks',
@@ -166,6 +321,7 @@ export const routes: Routes = [
             canActivate: [roleWhitelistGuard],
           },
           {
+            // The guard on this parent runs for every inbox child below it.
             path: 'tasks',
             canActivate: [roleWhitelistGuard],
             data: {roleWhitelist: ['Convenor', 'Admin', 'Auditor', 'Tutor']},
@@ -214,10 +370,15 @@ export const routes: Routes = [
               },
             ],
           },
+          // Deliberately the same list as the 'tasks' viewer above, which is narrower than the
+          // inbox children. This is the whole unit task list, not one tutor's queue. A deep link
+          // meant for a tutor belongs on 'tasks/inbox/:studentId/:taskDefAbbr', which does
+          // whitelist Tutor.
           {
             path: 'tasks/:taskAbbreviation',
             component: TaskViewerStateComponent,
-            data: {task: 'Task Lists'},
+            canActivate: [roleWhitelistGuard],
+            data: {task: 'Task Lists', roleWhitelist: ['Convenor', 'Admin', 'Auditor']},
           },
         ],
       },
@@ -241,7 +402,7 @@ export const routes: Routes = [
             data: {task: 'Dashboard'},
           },
           {
-            path: 'dashboard/:taskAbbreviation',
+            matcher: projectDashboardTaskMatcher,
             component: ProjectDashboardComponent,
             data: {task: 'Dashboard'},
           },

@@ -1,71 +1,91 @@
-@if (editor.setPreviewLoading) {
-  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-}
-
-<div class="border-b border-gray-200 px-6 py-5">
-  <div class="mb-4 flex items-center justify-between gap-4">
-    <div>
-      <div class="font-medium">Schedules</div>
-      <div class="text-black/60">Build one-off or recurring schedules for this set.</div>
-    </div>
-    <!-- <button mat-flat-button color="primary" (click)="addSchedule(set)">
-                  <mat-icon>add</mat-icon>
-                  New schedule
-                </button> -->
+<div class="border-b border-ot-divider px-5 py-4">
+  <div class="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+    <p class="m-0 text-sm font-semibold text-ot-text">
+      Schedules
+      <span class="font-normal text-ot-muted">({{ (set.schedules || []).length }})</span>
+    </p>
+    <p class="m-0 text-sm text-ot-muted">When this set runs on its own, once or on repeat.</p>
   </div>
 
-  @if ((set.schedules || []).length) {
-    <div class="grid gap-3">
+  @if (editor.setPreviewLoading && !(set.schedules || []).length) {
+    <mat-progress-bar aria-label="Loading schedules" mode="indeterminate"></mat-progress-bar>
+  } @else if ((set.schedules || []).length) {
+    <ul class="m-0 flex list-none flex-col gap-3 p-0">
       @for (schedule of set.schedules || []; track editor.scheduleTrackId(schedule)) {
-        <div class="rounded border border-gray-200 bg-gray-50 p-4">
-          <div class="mb-3 flex items-start justify-between gap-4">
-            <div>
-              <div class="font-medium">{{ schedule.name || 'Untitled schedule' }}</div>
-              <div class="text-black/60">{{ editor.scheduleSummary(schedule) }}</div>
+        <li class="rounded-ot-md border border-ot-divider p-4 text-ot-text">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0 flex-1 basis-56">
+              <p class="m-0 flex flex-wrap items-center gap-2 font-medium">
+                <span class="min-w-0 truncate">{{ schedule.name || 'Untitled schedule' }}</span>
+                <span
+                  class="inline-flex shrink-0 items-center gap-1 rounded-ot-pill border px-2 py-0.5 text-xs font-medium"
+                  [ngClass]="
+                    schedule.active
+                      ? 'border-ot-success/40 text-ot-success'
+                      : 'border-ot-border text-ot-muted'
+                  "
+                >
+                  <span
+                    aria-hidden="true"
+                    class="size-1.5 rounded-full"
+                    [ngClass]="schedule.active ? 'bg-ot-success' : 'bg-ot-border'"
+                  ></span>
+                  {{ schedule.active ? 'Active' : 'Paused' }}
+                </span>
+              </p>
+              <p class="m-0 mt-0.5 text-sm text-ot-muted">{{ editor.scheduleSummary(schedule) }}</p>
             </div>
 
-            <div class="flex items-center gap-2">
-              <span
-                class="rounded-full px-3 py-1 font-medium"
-                [ngClass]="
-                  schedule.active ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'
-                "
+            <div class="flex shrink-0 items-center">
+              <button
+                class="text-ot-muted"
+                mat-icon-button
+                matTooltip="Edit"
+                type="button"
+                [attr.aria-label]="'Edit schedule ' + (schedule.name || '')"
+                (click)="editor.editSchedule(set, schedule)"
               >
-                {{ schedule.active ? 'Active' : 'Inactive' }}
-              </span>
-              <button mat-icon-button (click)="editor.editSchedule(set, schedule)">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button color="warn" mat-icon-button (click)="editor.deleteSchedule(set, schedule)">
+              <button
+                class="text-ot-muted"
+                mat-icon-button
+                matTooltip="Delete"
+                type="button"
+                [attr.aria-label]="'Delete schedule ' + (schedule.name || '')"
+                (click)="editor.deleteSchedule(set, schedule)"
+              >
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
           </div>
 
-          <div class="grid gap-3 md:grid-cols-4">
-            <div>
-              <div class="tracking-wide text-black/40 uppercase">Anchor</div>
-              <div class="">{{ editor.scheduleAnchorSummary(schedule) }}</div>
+          <dl class="m-0 mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm md:grid-cols-4">
+            <div class="min-w-0">
+              <dt class="text-xs text-ot-muted">Starts</dt>
+              <dd class="m-0">{{ editor.scheduleAnchorSummary(schedule) }}</dd>
             </div>
-            <div>
-              <div class="tracking-wide text-black/40 uppercase">Time</div>
-              <div class="">{{ editor.scheduleTimeSummary(schedule) }}</div>
+            <div class="min-w-0">
+              <dt class="text-xs text-ot-muted">Time</dt>
+              <dd class="m-0">{{ editor.scheduleTimeSummary(schedule) }}</dd>
             </div>
-            <div>
-              <div class="tracking-wide text-black/40 uppercase">Next Run</div>
-              <div class="">{{ editor.scheduleNextRunSummary(schedule) }}</div>
+            <div class="min-w-0">
+              <dt class="text-xs text-ot-muted">Next run</dt>
+              <dd class="m-0">{{ editor.scheduleNextRunSummary(schedule) }}</dd>
             </div>
-            <div>
-              <div class="tracking-wide text-black/40 uppercase">Last Run</div>
-              <div class="">{{ editor.scheduleLastRunSummary(schedule) }}</div>
+            <div class="min-w-0">
+              <dt class="text-xs text-ot-muted">Last run</dt>
+              <dd class="m-0">{{ editor.scheduleLastRunSummary(schedule) }}</dd>
             </div>
-          </div>
-        </div>
+          </dl>
+        </li>
       }
-    </div>
+    </ul>
   } @else {
-    <div class="rounded border border-dashed border-gray-300 bg-white px-4 py-6 text-black/60">
-      No schedules yet. Add one to run this set on a fixed date or on a repeating cadence.
-    </div>
+    <f-empty-state
+      hint="Add one to run this set on a set day, once or on repeat. You can also run it by hand with Run set."
+      icon="event_available"
+      message="No schedules yet"
+    ></f-empty-state>
   }
 </div>

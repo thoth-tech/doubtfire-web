@@ -1,10 +1,22 @@
-<a (click)="openCommentsModal()">
-  @if (comment.commentType === 'image' && resourceUrl) {
-    <img alt="Image attachment preview" height="100%" width="100%" [src]="resourceUrl | safe" />
-  }
-  @if (comment.commentType === 'pdf') {
-    <div class="flex cursor-pointer items-center gap-1 text-formatif-blue hover:text-blue-800">
-      <mat-icon class="">picture_as_pdf</mat-icon> view pdf
-    </div>
-  }
-</a>
+@if (comment.commentType === 'image') {
+  <button
+    class="image-attachment"
+    type="button"
+    [attr.aria-label]="isLoadingImage ? 'Loading image attachment' : 'Preview image attachment'"
+    [disabled]="isLoadingImage || !resourceUrl"
+    (click)="openCommentsModal()"
+  >
+    @if (resourceUrl) {
+      <img alt="Image attachment preview" [src]="resourceUrl | safe" />
+    } @else {
+      <mat-icon aria-hidden="true">image</mat-icon>
+      <span>Loading image…</span>
+    }
+  </button>
+} @else if (comment.commentType === 'pdf') {
+  <sent-attachment-card
+    action="preview"
+    [comment]="comment"
+    (activate)="openCommentsModal()"
+  ></sent-attachment-card>
+}

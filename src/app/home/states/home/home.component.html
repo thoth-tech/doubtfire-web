@@ -1,146 +1,318 @@
-<div class="w-full px-12" id="home">
-  <div class="text-center" [hidden]="!notEnrolled">
-    <h1>You are not enrolled in {{ externalName.value }}.</h1>
-    <p class="mat-lead">Contact your unit convenor or tutor to enrol you in a subject.</p>
-  </div>
+<f-page-container id="home">
+  <!-- Unit Hub gathers every unit's announcements, HelpHubs and classes, so it sits above
+       the unit cards for everyone, including someone with no units yet. -->
+  <a
+    class="home-hub-entry mt-2 mb-5 flex min-h-11 items-center gap-4 rounded-ot-lg border border-ot-divider bg-ot-surface px-4 py-3 text-ot-text no-underline shadow-(--ot-elevation-1) hover:bg-ot-hover sm:px-5"
+    routerLink="/unit-hub"
+  >
+    <span
+      aria-hidden="true"
+      class="flex size-10 shrink-0 items-center justify-center rounded-full bg-ot-link/12 text-ot-link"
+    >
+      <mat-icon class="!leading-none">campaign</mat-icon>
+    </span>
+    <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+      <strong class="text-base leading-snug font-semibold">Unit Hub</strong>
+      <span class="text-sm text-ot-muted">
+        Your unit announcements, HelpHubs and upcoming classes, together.
+      </span>
+    </span>
+    <mat-icon aria-hidden="true" class="shrink-0 text-ot-muted">arrow_forward</mat-icon>
+  </a>
 
-  @if (!notEnrolled && projects?.length === 0 && unitRoles?.length === 0) {
-    <div class="text-center">
-      <h1 class="mat-headline-5">You are not enrolled in any {{ externalName.value }} units.</h1>
-      <p class="mat-lead">Contact your unit convenor or tutor to enrol you in a subject.</p>
-    </div>
-  }
-  <div [hidden]="unitRoles?.length === 0">
-    <h2>Units you teach</h2>
-    <div style="height: 185px" [hidden]="!loadingUnitRoles">
-      <mat-spinner color="accent" diameter="40"></mat-spinner>
-    </div>
-    <div class="flex flex-row flex-wrap items-center" [hidden]="loadingUnitRoles">
-      @for (unitRole of unitRoles | isActiveUnitRole; track unitRole) {
-        <div>
-          @if (!unitRole.unit.teachingPeriod || unitRole.unit.teachingPeriod?.active) {
-            <div
-              class="removeStyle"
-              [routerLink]="[
-                '/units',
-                $safeNavigationMigration(unitRole.unit?.id),
-                'tasks',
-                'inbox',
-              ]"
-            >
-              <mat-card class="unit-card">
-                <mat-card-header>
-                  <mat-card-title class="f-card-title">{{ unitRole.unit?.name }}</mat-card-title>
-                  <mat-card-subtitle>{{ unitRole.unit?.code }}</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <mat-divider></mat-divider>
-                </mat-card-content>
-                <mat-card-actions>
-                  <f-chip>
-                    {{ unitRole.unit.teachingPeriod?.name || showDate(unitRole.unit.startDate) }}
-                  </f-chip>
-                  <f-chip>
-                    {{ unitRole.role }}
-                  </f-chip>
-                </mat-card-actions>
-                <mat-card-footer
-                  matTooltip="{{
-                    unitRole.unit.teachingPeriodProgress
-                  }}% through the teaching period."
-                >
-                  <mat-progress-bar
-                    class="unit-progress-slider"
-                    mode="determinate"
-                    [value]="unitRole.unit.teachingPeriodProgress"
-                  ></mat-progress-bar>
-                </mat-card-footer>
-              </mat-card>
-            </div>
+  @if (loading) {
+    <div class="pt-2 pb-8" role="status">
+      <span class="sr-only">Loading your units...</span>
+      <div aria-hidden="true" class="flex flex-col gap-5 motion-safe:animate-pulse">
+        <div class="flex flex-col gap-2">
+          <div class="h-7 w-48 rounded-ot-xs bg-ot-divider"></div>
+          <div class="h-4 w-64 max-w-full rounded-ot-xs bg-ot-divider"></div>
+        </div>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          @for (placeholder of [1, 2, 3]; track placeholder) {
+            <div class="h-56 rounded-ot-lg border border-ot-divider bg-ot-surface"></div>
           }
         </div>
+      </div>
+    </div>
+  } @else if (hasNoUnits) {
+    <section
+      class="mx-auto mt-6 flex max-w-xl flex-col items-center rounded-ot-lg border border-ot-divider bg-ot-surface px-6 pb-6 shadow-(--ot-elevation-1)"
+    >
+      <f-empty-state
+        hint="Ask your unit convenor or tutor to add you to a unit."
+        icon="school"
+        [message]="'You are not enrolled in any ' + externalName.value + ' units'"
+      ></f-empty-state>
+      @if (currentUser.role === 'Student') {
+        <a mat-stroked-button routerLink="/view-all-projects">See your previous units</a>
       }
-      <mat-card
-        appearance="outlined"
-        class="unit-card"
-        [hidden]="$safeNavigationMigration((unitRoles | isActiveUnitRole)?.length) > 0"
-      >
-        <mat-card-content>
-          <p>You do not teach any active units</p>
-        </mat-card-content></mat-card
-      >
-
-      <a routerLink="/view-all-units">
-        <button
-          aria-label="view all units"
-          color="primary"
-          extended
-          mat-fab
-          matTooltip="View previous units"
-          matTooltipPosition="above"
-        >
-          <mat-icon class="items-center" style="color: white; padding-right: 1px">history</mat-icon
-          >View all
-        </button>
-      </a>
-    </div>
-  </div>
-  <div [hidden]="notEnrolled">
-    @if (unitRoles.length && projects?.length) {
-      <mat-divider class="my-5"></mat-divider>
-    }
-    <div class="my-2.5" [hidden]="projects?.length === 0">
-      <h2>Enrolled units</h2>
-      <div style="height: 185px" [hidden]="!loadingProjects">
-        <mat-spinner color="accent" diameter="40"></mat-spinner>
-      </div>
-
-      <div class="flex flex-row flex-wrap items-center" [hidden]="loadingProjects">
-        @for (project of projects; track project) {
-          <div>
-            @if (project.unit.isActive) {
-              <div class="removeStyle" [routerLink]="['/projects', project.id, 'dashboard']">
-                <mat-card class="unit-card">
-                  <mat-card-header>
-                    <mat-card-title class="f-card-title">{{ project.unit.name }}</mat-card-title>
-                    <mat-card-subtitle>{{ project.unit.code }}</mat-card-subtitle>
-                  </mat-card-header>
-                  <mat-card-content>
-                    <mat-divider></mat-divider>
-                  </mat-card-content>
-                  <mat-card-actions>
-                    <f-chip>
-                      {{ project.unit.teachingPeriod?.name || showDate(project.unit.startDate) }}
-                    </f-chip>
-                  </mat-card-actions>
-                  <mat-card-footer
-                    matTooltip="{{
-                      project.unit.teachingPeriodProgress
-                    }}% through the teaching period."
-                  >
-                    <mat-progress-bar
-                      mode="determinate"
-                      [value]="project.unit.teachingPeriodProgress"
-                    ></mat-progress-bar>
-                  </mat-card-footer>
-                </mat-card>
-              </div>
+    </section>
+  } @else {
+    @if (isStaff) {
+      @let summary = staffSummary;
+      <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-2 pb-5">
+        <div class="min-w-0">
+          <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">
+            Units you teach
+          </h1>
+          <p class="m-0 mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ot-muted">
+            <span>{{ summary.activeLabel }}</span>
+            @if (summary.previousCount > 0) {
+              <span aria-hidden="true">·</span>
+              <span>{{ summary.previousCount }} previous</span>
             }
-          </div>
-        }
-        <a routerLink="/view-all-projects">
-          <button
-            aria-label="view all projects"
-            color="primary"
-            extended
-            mat-fab
-            matTooltip="View previous units"
-            matTooltipPosition="above"
-          >
-            <mat-icon style="color: white">history</mat-icon> View all
-          </button>
+            @if (summary.unreadNotes > 0) {
+              <span aria-hidden="true">·</span>
+              <span class="inline-flex items-center gap-1 font-medium text-ot-text">
+                <mat-icon aria-hidden="true" class="!size-4 !text-base !leading-none">
+                  feedback
+                </mat-icon>
+                {{ unreadNotesLabel(summary.unreadNotes) }}
+              </span>
+            }
+          </p>
+        </div>
+        <a mat-stroked-button routerLink="/view-all-units">
+          <mat-icon aria-hidden="true">history</mat-icon>
+          All units you teach
         </a>
-      </div>
-    </div>
-  </div>
-</div>
+      </header>
+
+      @if (staffUnits.length > 0) {
+        <ul
+          aria-label="Active units you teach"
+          class="m-0 grid list-none grid-cols-1 gap-4 p-0 pb-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          @for (card of staffUnits; track card.unitRole.id) {
+            <li class="min-w-0">
+              <section
+                class="flex h-full flex-col overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+                [attr.aria-labelledby]="'staff-unit-' + card.unitRole.id"
+                [style.--unit-accent]="card.accent"
+              >
+                <!-- The unit's own colour band: identity only, like the student My units
+                     cards. White text on every accent clears 4.5:1 in both themes. -->
+                <div class="flex min-w-0 flex-col gap-1 bg-(--unit-accent) px-4 py-3.5 sm:px-5">
+                  <div class="flex min-w-0 items-center justify-between gap-2">
+                    <h2
+                      class="m-0 min-w-0 text-lg leading-tight font-semibold"
+                      [id]="'staff-unit-' + card.unitRole.id"
+                    >
+                      <a
+                        class="block truncate rounded-ot-xs text-(--ot-unit-on) no-underline underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ot-unit-on)"
+                        [attr.aria-label]="card.code + ', ' + card.name + ' - ' + card.role"
+                        [routerLink]="['/units', card.unitId, 'tasks', 'inbox']"
+                      >
+                        {{ card.code }}
+                      </a>
+                    </h2>
+                    <span
+                      class="shrink-0 rounded-ot-pill border border-(--ot-unit-on)/60 px-2 py-0.5 text-xs font-medium text-(--ot-unit-on)"
+                    >
+                      {{ card.role }}
+                    </span>
+                  </div>
+                  <p class="m-0 truncate text-sm text-(--ot-unit-on)" [title]="card.name">
+                    {{ card.name }}
+                  </p>
+                </div>
+
+                <div class="flex flex-1 flex-col gap-3 px-4 pt-3.5 pb-4 sm:px-5">
+                  <p class="m-0 text-sm text-ot-muted">{{ card.periodLabel }}</p>
+                  <div>
+                    <div class="flex items-baseline justify-between gap-3 text-sm">
+                      <span class="font-medium text-ot-text">{{ card.progressLabel }}</span>
+                      <span class="text-ot-muted tabular-nums">{{ card.progress }}% through</span>
+                    </div>
+                    <div
+                      aria-valuemax="100"
+                      aria-valuemin="0"
+                      class="mt-2 h-2 overflow-hidden rounded-ot-pill bg-(--ot-meter-track)"
+                      role="progressbar"
+                      [attr.aria-label]="'Teaching period progress for ' + card.name"
+                      [attr.aria-valuenow]="card.progress"
+                      [attr.aria-valuetext]="card.progressValueText"
+                    >
+                      <span
+                        class="block h-full rounded-ot-pill bg-ot-primary"
+                        [style.width.%]="card.progress"
+                      ></span>
+                    </div>
+                  </div>
+                  @if (card.unitRole.tutorNoteCount > 0) {
+                    <p class="m-0 flex items-center gap-1.5 text-sm text-ot-text">
+                      <mat-icon
+                        aria-hidden="true"
+                        class="!size-4 !text-base !leading-none text-ot-muted"
+                      >
+                        feedback
+                      </mat-icon>
+                      {{ unreadNotesLabel(card.unitRole.tutorNoteCount) }}
+                    </p>
+                  }
+                </div>
+
+                <footer
+                  class="flex flex-wrap items-center gap-2 border-t border-ot-divider px-4 py-3 sm:px-5"
+                >
+                  <a
+                    color="primary"
+                    mat-flat-button
+                    [routerLink]="['/units', card.unitId, 'tasks', 'inbox']"
+                  >
+                    <mat-icon aria-hidden="true">inbox</mat-icon>
+                    Open inbox<span class="sr-only"> for {{ card.code }}</span>
+                  </a>
+                  <a mat-button [routerLink]="['/units', card.unitId, 'students']">
+                    Students<span class="sr-only"> in {{ card.code }}</span>
+                  </a>
+                </footer>
+              </section>
+            </li>
+          }
+        </ul>
+      } @else {
+        <section
+          class="mb-6 flex flex-col items-center rounded-ot-lg border border-ot-divider bg-ot-surface px-6 pb-6 shadow-(--ot-elevation-1)"
+        >
+          <f-empty-state
+            hint="Units from earlier teaching periods are listed under all units you teach."
+            icon="event_busy"
+            message="You are not teaching any active units"
+          ></f-empty-state>
+          <a mat-stroked-button routerLink="/view-all-units">All units you teach</a>
+        </section>
+      }
+    }
+
+    @if (projects.length > 0) {
+      <!-- The units the user studies, in the same cards as the units staff teach. -->
+      <header
+        class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pb-5"
+        [ngClass]="isStaff ? 'pt-4' : 'pt-2'"
+      >
+        <div class="min-w-0">
+          @if (isStaff) {
+            <h2 class="m-0 text-xl leading-tight font-semibold tracking-tight text-ot-text">
+              Units you study
+            </h2>
+          } @else {
+            <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">
+              My units
+            </h1>
+          }
+          <p class="m-0 mt-1.5 text-sm text-ot-muted">{{ studySummary }}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <a mat-stroked-button routerLink="/dashboard">
+            <mat-icon aria-hidden="true">dashboard</mat-icon>
+            All current tasks
+          </a>
+          <a mat-stroked-button routerLink="/view-all-projects">
+            <mat-icon aria-hidden="true">history</mat-icon>
+            Previous units
+          </a>
+        </div>
+      </header>
+
+      @if (studyUnits.length > 0) {
+        <ul
+          aria-label="Active units you study"
+          class="m-0 grid list-none grid-cols-1 gap-4 p-0 pb-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          @for (card of studyUnits; track card.projectId) {
+            <li class="min-w-0">
+              <section
+                class="flex h-full flex-col overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+                [attr.aria-labelledby]="'study-unit-' + card.projectId"
+                [style.--unit-accent]="card.accent"
+              >
+                <div class="flex min-w-0 flex-col gap-1 bg-(--unit-accent) px-4 py-3.5 sm:px-5">
+                  <div class="flex min-w-0 items-center justify-between gap-2">
+                    <!-- Under "My units" (h1) for a student, under "Units you study" (h2)
+                         for staff, so the title's level follows the page's outline. -->
+                    <h3
+                      class="m-0 min-w-0 text-lg leading-tight font-semibold"
+                      [attr.aria-level]="isStaff ? 3 : 2"
+                      [id]="'study-unit-' + card.projectId"
+                    >
+                      <a
+                        class="block truncate rounded-ot-xs text-(--ot-unit-on) no-underline underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ot-unit-on)"
+                        [attr.aria-label]="card.code + ', ' + card.name"
+                        [routerLink]="['/projects', card.projectId, 'dashboard']"
+                      >
+                        {{ card.code }}
+                      </a>
+                    </h3>
+                    @if (card.target) {
+                      <span
+                        class="shrink-0 rounded-ot-pill border border-(--ot-unit-on)/60 px-2 py-0.5 text-xs font-medium text-(--ot-unit-on)"
+                      >
+                        Target {{ card.target }}
+                      </span>
+                    }
+                  </div>
+                  <p class="m-0 truncate text-sm text-(--ot-unit-on)" [title]="card.name">
+                    {{ card.name }}
+                  </p>
+                </div>
+
+                <div class="flex flex-1 flex-col gap-3 px-4 pt-3.5 pb-4 sm:px-5">
+                  <p class="m-0 text-sm text-ot-muted">{{ card.periodLabel }}</p>
+                  <div>
+                    <div class="flex items-baseline justify-between gap-3 text-sm">
+                      <span class="font-medium text-ot-text">{{ card.progressLabel }}</span>
+                      <span class="text-ot-muted tabular-nums">{{ card.progress }}% through</span>
+                    </div>
+                    <div
+                      aria-valuemax="100"
+                      aria-valuemin="0"
+                      class="mt-2 h-2 overflow-hidden rounded-ot-pill bg-(--ot-meter-track)"
+                      role="progressbar"
+                      [attr.aria-label]="'Teaching period progress for ' + card.name"
+                      [attr.aria-valuenow]="card.progress"
+                      [attr.aria-valuetext]="card.progressValueText"
+                    >
+                      <span
+                        class="block h-full rounded-ot-pill bg-ot-primary"
+                        [style.width.%]="card.progress"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+
+                <footer
+                  class="flex flex-wrap items-center gap-2 border-t border-ot-divider px-4 py-3 sm:px-5"
+                >
+                  <a
+                    color="primary"
+                    mat-flat-button
+                    [routerLink]="['/projects', card.projectId, 'dashboard']"
+                  >
+                    <mat-icon aria-hidden="true">assignment</mat-icon>
+                    Open tasks<span class="sr-only"> for {{ card.code }}</span>
+                  </a>
+                  <a mat-button [routerLink]="['/projects', card.projectId, 'plan']">
+                    Task Planner<span class="sr-only"> for {{ card.code }}</span>
+                  </a>
+                </footer>
+              </section>
+            </li>
+          }
+        </ul>
+      } @else {
+        <section
+          class="mb-6 flex flex-col items-center rounded-ot-lg border border-ot-divider bg-ot-surface px-6 pb-6 shadow-(--ot-elevation-1)"
+        >
+          <f-empty-state
+            hint="Units from earlier teaching periods are listed under previous units."
+            icon="event_busy"
+            message="You are not studying any active units"
+          ></f-empty-state>
+          <a mat-stroked-button routerLink="/view-all-projects">Previous units</a>
+        </section>
+      }
+    }
+  }
+</f-page-container>

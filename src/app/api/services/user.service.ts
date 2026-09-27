@@ -4,6 +4,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {UnitRole, UnitService, User} from 'src/app/api/models/doubtfire-model';
 import {AppInjector} from 'src/app/app-injector';
+import {type ThemePreference} from 'src/app/common/theme/theme.service';
 import API_URL from 'src/app/config/constants/apiUrl';
 
 @Injectable()
@@ -27,18 +28,32 @@ export class UserService extends CachedEntityService<User> {
       'email',
       'username',
       'nickname',
+      'displayName',
       'systemRole',
       'receiveTaskNotifications',
       'receivePortfolioNotifications',
       'receiveFeedbackNotifications',
+      'receiveUnitHubNotifications',
+      'receiveUnitHubEmailNotifications',
+      'receiveUnitHubPushNotifications',
+      'receiveUnitHubSessionReminders',
+      'digestFrequency',
+      'displayPeerProgress',
+      'themePreference',
+      'themePreferenceUpdatedAt',
       'hasRunFirstTimeSetup',
       'pronouns',
       'acceptedTiiEula',
+      'institutionalIdentityManaged',
+      'emailEditable',
     );
 
     this._currentUser = this.anonymousUser;
 
-    this.mapping.mapAllKeysToJsonExcept('id');
+    // Theme sync has a deliberately narrow writer below. Profile updates must
+    // not replay a stale account timestamp or turn a missing preference into an
+    // accidental choice.
+    this.mapping.mapAllKeysToJsonExcept('id', 'themePreference', 'themePreferenceUpdatedAt');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
@@ -73,6 +88,13 @@ export class UserService extends CachedEntityService<User> {
 
   public getTutors(): Observable<User[]> {
     return this.query(undefined, {endpointFormat: this.tutorEndpointFormat});
+  }
+
+  public updateThemePreference(user: User, preference: ThemePreference): Observable<User> {
+    return this.update(user, {
+      entity: user,
+      body: {user: {theme_preference: preference}},
+    });
   }
 
   public adminRoleFor(unitId: number, user: User): UnitRole {

@@ -28,7 +28,6 @@ export class TaskSimilarityService extends CachedEntityService<TaskSimilarity> {
     this.mapping.addJsonKey('flagged');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public override createInstanceFrom(_json: object, constructorParams: Task): TaskSimilarity {
     return new TaskSimilarity(constructorParams);
   }

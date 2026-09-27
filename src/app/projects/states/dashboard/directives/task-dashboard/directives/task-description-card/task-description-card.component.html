@@ -1,69 +1,105 @@
 <mat-card>
-  <mat-card-header>
-    <div class="mb-2.5 flex">
-      <f-task-badge class="mr-2.5" [taskDef]="taskDef"></f-task-badge>
-      <mat-card-title>{{ taskDef?.name }}</mat-card-title>
-    </div>
+  <mat-card-header class="mb-2.5">
+    <mat-card-title>{{ taskDef?.name }}</mat-card-title>
+    <!-- The task code reads as part of the task's details line, the way the
+         dashboard rows show it, instead of a tile that vanished on the dark card. -->
+    <mat-card-subtitle class="flex flex-wrap items-center gap-x-1.5">
+      <span class="font-semibold text-ot-text tabular-nums">{{ taskDef?.abbreviation }}</span>
+      <span aria-hidden="true">·</span>
+      <span>{{ grades.names[taskDef?.targetGrade] }} task</span>
+    </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     <div
       class="markdown-to-pdf"
       [innerHTML]="$safeNavigationMigration(taskDef?.description) | marked"
     ></div>
-    @if (task) {
-      <f-task-date-slider [task]="task" />
-    }
-    <ul>
-      <li>{{ grades.names[taskDef?.targetGrade] }} Task</li>
 
-      @if (unit?.allowFlexibleDates ?? taskDef?.unit?.allowFlexibleDates) {
-        <li>I'm planning to <b>start</b> this task by {{ startDate() | date: 'EEE d MMM' }}.</li>
-        <li [hidden]="!task?.extensions || task?.extensions <= 0">
-          The due date has been <b>extended</b> by {{ task?.extensions }} week{{
-            task?.extensions > 1 ? 's' : ''
-          }}.
-        </li>
-        <li>I'm aiming to <b>submit</b> this task by {{ dueDate() | date: 'EEE d MMM' }}.</li>
-        <li>
-          To receive <b>feedback</b>, I must submit this task by
-          {{ feedbackDate() | date: 'EEE d MMM' }}.
-        </li>
-      } @else {
-        <li>
-          Start Date &mdash; I'm aiming to <b>start</b> this task by
-          {{ startDate() | date: 'EEE d MMM' }}.
-        </li>
-        <li [hidden]="!task?.extensions || task?.extensions <= 0">
-          Extension &mdash; The due date has been extended by
-          {{ task?.extensions }} week{{ task?.extensions > 1 ? 's' : '' }}.
-        </li>
-        <li>
-          Due Date &mdash; I'm aiming to <b>submit</b> this task by
-          {{ dueDate() | date: 'EEE d MMM' }}.
-        </li>
-      }
-    </ul>
+    <!-- The task's dates as a short timeline: a filled dot for a date that has passed,
+         a ringed dot and a "when" line for the next one, and a line between dates that
+         fills in as the time between them runs out. -->
+    @let dates = keyDates;
+    @if (dates.length) {
+      <ol aria-label="Key dates" class="task-dates">
+        @for (step of dates; track step.key) {
+          <li
+            class="task-dates__step"
+            [class.task-dates__step--next]="step.next"
+            [class.task-dates__step--passed]="step.passed"
+            [style.--task-dates-progress]="step.progress"
+          >
+            <span aria-hidden="true" class="task-dates__dot"></span>
+            <span class="task-dates__label">{{ step.label }}</span>
+            <span class="task-dates__date">{{ step.date | date: 'EEE d MMM' }}</span>
+            @if (step.when) {
+              <span class="task-dates__when">{{ step.when }}</span>
+            }
+            @if (step.note) {
+              <span class="task-dates__note">{{ step.note }}</span>
+            }
+            @if (step.warning) {
+              <span class="task-dates__warning">
+                <mat-icon aria-hidden="true">warning</mat-icon>
+                {{ step.warning }}
+              </span>
+            }
+          </li>
+        }
+      </ol>
+    }
+    @if (task?.effectiveDeadlineDate) {
+      <p class="effective-deadline mt-3 text-sm text-ot-text">
+        <strong
+          >Effective submission date: {{ task.effectiveDeadlineDate | date: 'fullDate' }}.</strong
+        >
+        {{ task.effectiveDeadlineExplanation }}
+        @if (task.effectiveDeadlineReason !== 'flexible_date') {
+          The deadline is the end of this day anywhere on earth.
+        }
+      </p>
+    }
   </mat-card-content>
-  <mat-card-actions
-    class="space-x-1"
-    [hidden]="!(taskDef?.hasTaskSheet || taskDef?.hasTaskResources)"
-  >
-    <!-- <button mat-stroked-button [hidden]="!taskDef?.hasTaskSheet" (click)="viewTaskSheet()">
-      <mat-icon style="width: 20px; height: 20px; font-size: 20px" aria-label="View icon"
-        >description</mat-icon
-      >
-      Task Sheet
-    </button> -->
-    <button mat-stroked-button [hidden]="!taskDef?.hasTaskSheet" (click)="downloadTaskSheet()">
-      <mat-icon aria-label="Download icon" style="width: 20px; height: 20px; font-size: 20px"
-        >download</mat-icon
-      >
-      Task Sheet
-    </button>
-    <button mat-stroked-button [hidden]="!taskDef?.hasTaskResources" (click)="downloadResources()">
-      <mat-icon aria-label="Download icon" inline style="width: 20px; height: 20px; font-size: 20px"
-        >download</mat-icon
-      ><span>Resources</span>
-    </button>
-  </mat-card-actions>
+
+  @let calendarUrl = googleCalendarUrl;
+  @let canEditPlan = allowsFlexibleDates && !!task?.project;
+  @if (taskDef?.hasTaskSheet || taskDef?.hasTaskResources || calendarUrl || canEditPlan) {
+    <mat-card-actions class="task-actions">
+      @if (taskDef?.hasTaskSheet) {
+        <button mat-stroked-button type="button" (click)="downloadTaskSheet()">
+          <mat-icon aria-hidden="true">download</mat-icon>
+          Task sheet
+        </button>
+      }
+      @if (taskDef?.hasTaskResources) {
+        <button mat-stroked-button type="button" (click)="downloadResources()">
+          <mat-icon aria-hidden="true">folder_zip</mat-icon>
+          Resources
+        </button>
+      }
+      @if (calendarUrl) {
+        <a
+          aria-label="Add to Google Calendar, opens in a new tab"
+          class="add-to-google-calendar-link"
+          mat-stroked-button
+          rel="noopener noreferrer"
+          target="_blank"
+          [href]="calendarUrl"
+          (keydown)="handleCalendarLinkKeydown($event)"
+        >
+          <mat-icon aria-hidden="true">event</mat-icon>
+          Add to Google Calendar
+        </a>
+      }
+      @if (canEditPlan) {
+        <a
+          mat-stroked-button
+          [queryParams]="{taskDef: taskDef?.id}"
+          [routerLink]="['/projects', task.project.id, 'plan']"
+        >
+          <mat-icon aria-hidden="true">edit_calendar</mat-icon>
+          Edit in Task Planner
+        </a>
+      }
+    </mat-card-actions>
+  }
 </mat-card>

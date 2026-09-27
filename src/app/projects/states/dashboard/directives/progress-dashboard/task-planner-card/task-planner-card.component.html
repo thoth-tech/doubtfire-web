@@ -1,28 +1,91 @@
-<mat-card appearance="outlined">
-  <mat-card-header>
-    <mat-card-title>Plan Your Tasks</mat-card-title>
-    <mat-card-subtitle class="mb-2.5">
-      <p>
-        The Task Planner shows a timeline of your tasks, their due dates, and prerequisite
-        relationships. Use it to plan when to start and submit tasks, ensuring prerequisites are
-        completed early so you have time for feedback.
-      </p>
-      @if (unit.allowFlexibleDates) {
-        <p>
-          You can set your own start and target dates. Be mindful of each task’s
-          <strong>Feedback Deadline</strong> — submissions after this date will not be checked. Aim
-          to finish at least one week before the deadline, especially if you are targeting a higher
-          grade.
-        </p>
-      }
-    </mat-card-subtitle>
-  </mat-card-header>
-  <mat-card-content>
-    <button mat-stroked-button [routerLink]="['/projects', project.id, 'plan']">
-      <mat-icon aria-label="Launch icon" style="width: 20px; height: 20px; font-size: 20px">
-        launch
-      </mat-icon>
-      View Task Planner
-    </button>
+<mat-card appearance="outlined" class="task-planner-card">
+  <mat-card-content class="flex flex-col gap-2 pt-4">
+    <div class="task-planner-row flex flex-wrap items-start gap-x-4 gap-y-3">
+      <!-- The dashboard projects its grade fields here, so the target grade keeps its own
+           save logic and staff guard in progress-dashboard.component. -->
+      <ng-content></ng-content>
+
+      <div class="task-planner-actions flex min-h-14 grow basis-88 flex-wrap items-center gap-2">
+        <a
+          class="min-h-11 grow @lg:grow-0"
+          mat-stroked-button
+          [routerLink]="['/projects', project.id, 'plan']"
+        >
+          <mat-icon aria-hidden="true">calendar_month</mat-icon>
+          View Task Planner
+        </a>
+
+        <button
+          aria-haspopup="dialog"
+          class="download-ics-link min-h-11 grow @lg:grow-0"
+          mat-stroked-button
+          type="button"
+          [disabled]="!hasDownloadableTasks"
+          (click)="openDownloadDialog()"
+        >
+          <mat-icon aria-hidden="true">download</mat-icon>
+          Download calendar
+          <mat-icon aria-hidden="true" iconPositionEnd>arrow_drop_down</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    @if (showTips) {
+      <details class="task-planner-tips">
+        <summary class="min-h-11 cursor-pointer py-3 text-sm font-medium text-ot-text">
+          New here? How this page works
+        </summary>
+        <dl class="grid max-w-3xl gap-3 pb-2 text-sm leading-6">
+          <div>
+            <dt class="font-semibold text-ot-text">Target grade</dt>
+            <dd class="text-ot-muted">
+              This is the grade you want to get. {{ lowestGradeLabel }} tasks are for everyone. Each
+              higher grade adds more tasks. This page only counts the tasks you need for your target
+              grade.
+            </dd>
+          </div>
+          <div>
+            <dt class="font-semibold text-ot-text">Target date and feedback deadline</dt>
+            <dd class="text-ot-muted">
+              The target date is the day to aim to submit a task. The feedback deadline is the last
+              day to submit it and still get feedback from your tutor.
+              @if (unit?.allowFlexibleDates) {
+                In this unit you can change your own target dates in the Task Planner.
+              }
+            </dd>
+          </div>
+          <div>
+            <dt class="font-semibold text-ot-text">Submit early</dt>
+            <dd class="text-ot-muted">
+              Your tutor may ask you to fix something and submit again. Try to submit at least one
+              week before the feedback deadline, so you have time to do this.
+            </dd>
+          </div>
+          <div>
+            <dt class="font-semibold text-ot-text">Task Planner</dt>
+            <dd class="text-ot-muted">
+              It shows the tasks for your target grade on a timeline. Turn on "Show tasks beyond
+              target grade" to see the rest. Click a task to see which tasks you must finish before
+              it.
+            </dd>
+          </div>
+          <div>
+            <dt class="font-semibold text-ot-text">Download calendar</dt>
+            <dd class="text-ot-muted">
+              Pick a grade to save the target dates of its tasks as a calendar file. Open the file
+              with a calendar app, like Outlook or Apple Calendar. If your dates change, download it
+              again.
+            </dd>
+          </div>
+          <div>
+            <dt class="font-semibold text-ot-text">The two charts</dt>
+            <dd class="text-ot-muted">
+              Progress Burndown shows how much work you have left. Task Statuses shows how many of
+              your tasks are at each step.
+            </dd>
+          </div>
+        </dl>
+      </details>
+    }
   </mat-card-content>
 </mat-card>

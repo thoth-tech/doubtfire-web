@@ -1,0 +1,105 @@
+<h2 mat-dialog-title>{{ pwaInstall.isInstalled() ? 'OnTrack app' : 'Install OnTrack' }}</h2>
+
+<mat-dialog-content>
+  @if (pwaInstall.isInstalled()) {
+    <p>OnTrack is installed or running in its app window.</p>
+    <p>Open OnTrack from your device’s app launcher, Start menu, Dock, or home screen.</p>
+  } @else {
+    <p>Keep OnTrack in its own window and open it straight from your desktop or home screen.</p>
+    @if (!pwaInstall.canInstall() && !pwaInstall.isInstalling()) {
+      <p>
+        Choose your browser below for installation instructions. You can also keep using this tab.
+      </p>
+    }
+  }
+
+  <p class="connection-note">
+    You still need an internet connection to sign in, load coursework, and submit work.
+  </p>
+
+  <p aria-live="polite" class="install-status" role="status">{{ pwaInstall.installMessage() }}</p>
+
+  @if (!pwaInstall.isInstalled()) {
+    <div class="browser-instructions">
+      <details>
+        <summary>Chrome on Windows, macOS or Linux</summary>
+        <ol>
+          <li>Open OnTrack in a regular Chrome window.</li>
+          <li>
+            Select the install icon in the address bar, or open the browser menu and choose
+            <strong>Cast, save and share → Install page as app</strong>.
+          </li>
+          <li>Confirm installation, then open OnTrack from your app launcher.</li>
+        </ol>
+      </details>
+
+      <details>
+        <summary>Microsoft Edge</summary>
+        <ol>
+          <li>Open OnTrack in a regular Edge window.</li>
+          <li>
+            Select the install icon in the address bar, or choose
+            <strong>Settings and more → More tools → Apps → Install this site as an app</strong>.
+          </li>
+          <li>Confirm installation. You can find OnTrack in Edge’s Apps page.</li>
+        </ol>
+        <p>If Edge on Linux does not offer installation, use Chrome or continue in your browser.</p>
+      </details>
+
+      <details>
+        <summary>Safari on macOS</summary>
+        <ol>
+          <li>Open OnTrack in Safari on macOS Sonoma 14 or later.</li>
+          <li>Choose <strong>File → Add to Dock</strong> from the menu bar.</li>
+          <li>Choose <strong>Add</strong>, then open OnTrack from the Dock.</li>
+        </ol>
+        <p>You may need to sign in again in the new app window.</p>
+      </details>
+
+      <details>
+        <summary>Firefox and other desktop browsers</summary>
+        <p>
+          On Windows, Firefox 143 or later offers a web apps button in the address bar to add a site
+          to your taskbar. Firefox installed from the Microsoft Store needs version 150 or later.
+        </p>
+        <p>
+          If your browser has no install option, including Firefox on macOS or Linux, keep using
+          OnTrack in this tab or open it in Chrome. On a supported Mac, you can also use Safari’s
+          <strong>Add to Dock</strong>.
+        </p>
+      </details>
+
+      <details>
+        <summary>iPhone, iPad or Android</summary>
+        <p>
+          <strong>iPhone and iPad:</strong> Open OnTrack in Safari, tap <strong>Share</strong>, then
+          <strong>Add to Home Screen</strong> and confirm.
+        </p>
+        <p>
+          <strong>Android:</strong> Open OnTrack in Chrome, open its menu, then choose
+          <strong>Install app</strong> or <strong>Add to Home screen</strong> and confirm.
+        </p>
+      </details>
+    </div>
+    <p class="installation-help">
+      Missing an install option? Check whether OnTrack is already in your app launcher. Try a
+      regular browsing window; private browsing and your organisation’s browser settings can limit
+      installation.
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close type="button">Close</button>
+  @if (!pwaInstall.isInstalled() && (pwaInstall.canInstall() || pwaInstall.isInstalling())) {
+    <button
+      color="primary"
+      mat-flat-button
+      type="button"
+      [disabled]="pwaInstall.isInstalling()"
+      (click)="install()"
+    >
+      {{ pwaInstall.isInstalling() ? 'Installing…' : 'Install OnTrack' }}
+    </button>
+  }
+</mat-dialog-actions>

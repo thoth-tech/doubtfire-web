@@ -19,7 +19,7 @@ import {
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {MatChipInputEvent} from '@angular/material/chips';
 import {MatPaginator} from '@angular/material/paginator';
-import {MatSort, Sort} from '@angular/material/sort';
+import {MatSort} from '@angular/material/sort';
 import {MatTable, MatTableDataSource} from '@angular/material/table';
 import {Subscription} from 'rxjs';
 import {
@@ -41,6 +41,15 @@ import {
 import {CsvUploadModalService} from '../modals/csv-upload-modal/csv-upload-modal.service';
 import {NestedCsvDownloadModalService} from './nested-csv-download-modal/nested-csv-download-modal.service';
 
+interface OutcomeSnapshot {
+  abbreviation: string;
+  shortDescription: string;
+  fullOutcomeDescription: string;
+  linkedOutcomeIds: number[];
+}
+
+let nextEditorId = 0;
+
 @Component({
   selector: 'f-learning-outcome-editor',
   templateUrl: 'learning-outcome-editor.component.html',
@@ -54,6 +63,9 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
   @ViewChild(MatSort, {static: false}) outcomeSort: MatSort;
   @ViewChild(MatPaginator, {static: false}) outcomePaginator: MatPaginator;
 
+  /** Keeps the field ids apart when more than one editor is on the page. */
+  public readonly idPrefix = `learning-outcome-editor-${nextEditorId++}`;
+
   public outcomeSource: MatTableDataSource<LearningOutcome> = new MatTableDataSource([]);
   public outcomeColumns: string[] = [
     'abbreviation',
@@ -65,10 +77,21 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
   public selectedOutcome: LearningOutcome;
   public abbreviationPrefix: 'TLO' | 'ULO' | 'GLO';
 
-  public allOutcomes: LearningOutcome[] = [];
+  /**
+   * The outcomes this one can be connected to. They come from two caches that each
+   * report every change in full, so each is kept on its own and the two are joined,
+   * rather than appended to one list, which filled the suggestions with repeats.
+   */
+  private readonly institutionOutcomes = signal<LearningOutcome[]>([]);
+  private readonly unitOutcomes = signal<LearningOutcome[]>([]);
+  public readonly allOutcomes = computed(() => [
+    ...this.institutionOutcomes(),
+    ...this.unitOutcomes(),
+  ]);
   public selectedConnectedOutcomes = signal([]);
 
   private subscriptions: Subscription[] = [];
+  private snapshot: OutcomeSnapshot | null = null;
 
   constructor(
     private alerts: AlertService,
@@ -83,18 +106,18 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
   ) {
     this.outcomeSource.filterPredicate = (data: LearningOutcome, filter: string) => {
       const filterValue = filter.trim().toLowerCase();
-      return (
-        data.abbreviation.toLowerCase().includes(filterValue) ||
-        data.shortDescription.toLowerCase().includes(filterValue) ||
-        data.fullOutcomeDescription.toLowerCase().includes(filterValue)
+      return [data.abbreviation, data.shortDescription, data.fullOutcomeDescription].some((text) =>
+        (text ?? '').toLowerCase().includes(filterValue),
       );
     };
+    this.outcomeSource.sortingDataAccessor = (data: LearningOutcome, column: string) =>
+      (data[column] ?? '').toString().toLowerCase();
 
     effect(() => {
       const linkedOutcomes = this.selectedConnectedOutcomes().map((outcome) => outcome.id);
       if (
         this.selectedOutcome &&
-        !this.sameIds(linkedOutcomes, this.selectedOutcome.linkedOutcomeIds)
+        !this.sameIds(linkedOutcomes, this.selectedOutcome.linkedOutcomeIds ?? [])
       ) {
         this.selectedOutcome.linkedOutcomeIds = linkedOutcomes;
       }
@@ -122,6 +145,8 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
 
   private subscribeToLearningOutcomes(): void {
     this.setAbbreviationPrefix();
+    this.institutionOutcomes.set([]);
+    this.unitOutcomes.set([]);
 
     if (!this.context) {
       this.subscriptions.push(
@@ -141,27 +166,38 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
 
     this.subscriptions.push(
       this.learningOutcomeService.cache.values.subscribe((outcomes) => {
-        const glos = outcomes.filter((outcome) => outcome.contextType === null);
-        this.allOutcomes = [...this.allOutcomes, ...glos];
+        this.institutionOutcomes.set(outcomes.filter((outcome) => outcome.contextType === null));
       }),
     );
 
     if (this.context instanceof TaskDefinition) {
       this.subscriptions.push(
         this.context.unit.learningOutcomesCache.values.subscribe((learningOutcomes) => {
-          this.allOutcomes = [...this.allOutcomes, ...learningOutcomes];
+          this.unitOutcomes.set(learningOutcomes);
         }),
       );
     }
   }
 
-  ngOnChanges(_changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     this.setAbbreviationPrefix();
-    this.selectedOutcome = null;
+    this.closeEditor();
+
+    // The task editor keeps this editor on screen and swaps the task under it. Without
+    // following the new task, the table kept listing the outcomes of the one before.
+    if (changes.context && !changes.context.firstChange) {
+      this.unsubscribeAll();
+      this.subscribeToLearningOutcomes();
+    }
   }
 
   ngOnDestroy(): void {
+    this.unsubscribeAll();
+  }
+
+  private unsubscribeAll(): void {
     this.subscriptions.forEach((s) => s.unsubscribe());
+    this.subscriptions = [];
   }
 
   setAbbreviationPrefix(): void {
@@ -176,30 +212,33 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
 
   public saveLearningOutcome(learningOutcome: LearningOutcome) {
     if (
-      !learningOutcome.abbreviation.trim() ||
-      !learningOutcome.shortDescription.trim() ||
-      !learningOutcome.fullOutcomeDescription.trim()
+      !learningOutcome.abbreviation?.trim() ||
+      !learningOutcome.shortDescription?.trim() ||
+      !learningOutcome.fullOutcomeDescription?.trim()
     ) {
-      this.alerts.error('Failed to save learning outcome. Fill in required fields.');
+      this.alerts.error('Fill in the code, the short description and the full outcome first.');
       return;
     }
     learningOutcome.save().subscribe({
       next: () => {
-        this.alerts.success('Outcome saved');
+        this.alerts.success(`${learningOutcome.abbreviation} saved`);
         learningOutcome.setOriginalSaveData(this.learningOutcomeService.mapping);
-        this.selectLearningOutcome(this.selectedOutcome);
+        // Saving from a row leaves whatever else is open alone.
+        if (this.selectedOutcome === learningOutcome) {
+          this.closeEditor();
+        }
       },
-      error: () => this.alerts.error('Failed to save learning outcome. Please try again.'),
+      error: () => this.alerts.error('Could not save the learning outcome. Please try again.'),
     });
   }
 
   public selectLearningOutcome(learningOutcome: LearningOutcome) {
     if (this.selectedOutcome === learningOutcome) {
-      this.selectedOutcome = null;
-      this.selectedConnectedOutcomes.update((_selectedConnectedOutcomes) => []);
+      this.closeEditor();
     } else {
       this.selectedOutcome = learningOutcome;
-      this.selectedConnectedOutcomes.update(() => this.getLinkedOutcomes(learningOutcome));
+      this.snapshot = this.snapshotOf(learningOutcome);
+      this.selectedConnectedOutcomes.set(this.getLinkedOutcomes(learningOutcome));
       if (!this.selectedOutcome.context) {
         this.selectedOutcome.context = this.context;
       }
@@ -210,38 +249,41 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
     }
   }
 
-  public sortOutcomeData(sort: Sort) {
-    const data = this.outcomeSource.data;
-
-    if (!sort.active || sort.direction === '') {
-      this.outcomeSource.data = data;
-      return;
+  /**
+   * Put the open outcome back as it was when it was opened, and close it. A new outcome
+   * that was never saved is simply dropped.
+   */
+  public cancelEdit(): void {
+    if (this.selectedOutcome && this.snapshot) {
+      Object.assign(this.selectedOutcome, this.snapshot);
     }
-
-    this.outcomeSource.data = data.sort((a, b) => {
-      const isAsc = sort.direction === 'asc';
-      switch (sort.active) {
-        case 'abbreviation':
-          return this.compare(a.abbreviation, b.abbreviation, isAsc);
-        case 'shortDescription':
-          return this.compare(a.shortDescription, b.shortDescription, isAsc);
-        case 'fullOutcomeDescription':
-          return this.compare(a.fullOutcomeDescription, b.fullOutcomeDescription, isAsc);
-        default:
-          return 0;
-      }
-    });
+    this.closeEditor();
   }
 
-  public compare(a: number | string, b: number | string, isAsc: boolean): number {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+  private closeEditor(): void {
+    this.selectedOutcome = null;
+    this.snapshot = null;
+    this.selectedConnectedOutcomes.set([]);
+  }
+
+  private snapshotOf(outcome: LearningOutcome): OutcomeSnapshot {
+    return {
+      abbreviation: outcome.abbreviation,
+      shortDescription: outcome.shortDescription,
+      fullOutcomeDescription: outcome.fullOutcomeDescription,
+      linkedOutcomeIds: [...(outcome.linkedOutcomeIds ?? [])],
+    };
   }
 
   applyFilter(filterValue: string) {
-    this.outcomeSource.filter = filterValue;
+    this.outcomeSource.filter = filterValue.trim().toLowerCase();
     if (this.outcomeSource.paginator) {
       this.outcomeSource.paginator.firstPage();
     }
+  }
+
+  public get filtering(): boolean {
+    return !!this.outcomeSource.filter;
   }
 
   public learningOutcomeHasChanges(learningOutcome: LearningOutcome): boolean {
@@ -250,19 +292,22 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
 
   public deleteLearningOutcome(learningOutcome: LearningOutcome) {
     this.confirmationModal.show(
-      'Delete learning outcome',
-      'Are you sure you want to delete this outcome? This action is final.',
+      `Delete ${learningOutcome.abbreviation}?`,
+      'The outcome and its links to tasks go for good. This cannot be undone.',
       () => {
         learningOutcome.delete().subscribe({
           next: () => {
-            this.alerts.success('Learning outcome deleted');
+            this.alerts.success(`${learningOutcome.abbreviation} deleted`);
             if (this.selectedOutcome === learningOutcome) {
-              this.selectLearningOutcome(this.selectedOutcome);
+              this.closeEditor();
             }
           },
-          error: () => this.alerts.error('Failed to delete learning outcome. Please try again.'),
+          error: () =>
+            this.alerts.error('Could not delete the learning outcome. Please try again.'),
         });
       },
+      undefined,
+      'Delete',
     );
   }
 
@@ -270,6 +315,9 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
     let url: string;
 
     if (type === 'Learning Outcomes') {
+      if (!this.context) {
+        return;
+      }
       url = this.context.getOutcomeBatchUploadUrl();
     } else {
       if (this.context) {
@@ -279,9 +327,10 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
       }
     }
 
+    const what = type === 'Learning Outcomes' ? 'learning outcomes' : 'feedback comments';
     this.csvUploadModal.show(
-      `Upload ${type} as CSV`,
-      'Test message',
+      `Upload ${what}`,
+      `Upload a CSV of ${what}. Download the current list first to see the columns it needs.`,
       {file: {name: `${type} CSV Data`, type: 'csv'}},
       url,
       (response: CsvResult) => {
@@ -311,6 +360,9 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
     let url: string;
 
     if (type === 'Learning Outcomes') {
+      if (!this.context) {
+        return;
+      }
       url = this.context.getOutcomeBatchUploadUrl();
     } else {
       if (this.context) {
@@ -350,16 +402,17 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
     learningOutcome.abbreviation = this.abbreviationPrefix + String(this.getNextOutcomeNumber());
     learningOutcome.shortDescription = '';
     learningOutcome.fullOutcomeDescription = '';
-    this.selectedConnectedOutcomes.update((_selectedConnectedOutcomes) => []);
+    this.selectedConnectedOutcomes.set([]);
 
     this.selectedOutcome = learningOutcome;
+    this.snapshot = null;
   }
 
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   readonly typedConnectedOutcome = model('');
   readonly filteredOutcomes = computed(() => {
     const currentOutcome = this.typedConnectedOutcome().toLowerCase();
-    return this.allOutcomes.filter((outcome) => {
+    return this.allOutcomes().filter((outcome) => {
       const abbreviation = outcome.abbreviation?.toLowerCase();
       return (
         !this.selectedConnectedOutcomes().includes(outcome) &&
@@ -374,7 +427,7 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
     const value = (event.value || '').trim();
 
     if (value) {
-      const outcome = this.allOutcomes.find(
+      const outcome = this.allOutcomes().find(
         (o) => o.abbreviation?.toLowerCase() === value.toLowerCase(),
       );
       if (outcome && !this.selectedConnectedOutcomes().includes(outcome)) {
@@ -399,9 +452,7 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
   }
 
   select(event: MatAutocompleteSelectedEvent): void {
-    const outcome = this.allOutcomes.find(
-      (o) => o.abbreviation === event.option.viewValue.split(' - ')[0],
-    );
+    const outcome = this.allOutcomes().find((o) => o.abbreviation === event.option.value);
 
     if (outcome && !this.selectedConnectedOutcomes().includes(outcome)) {
       this.selectedConnectedOutcomes.update((selectedConnectedOutcomes) => [
@@ -415,16 +466,25 @@ export class LearningOutcomeEditorComponent implements OnChanges, OnInit, AfterV
   }
 
   getLinkedOutcomes(learningOutcome: LearningOutcome): LearningOutcome[] {
-    return this.allOutcomes.filter((outcome) =>
-      learningOutcome.linkedOutcomeIds.includes(outcome.id),
-    );
+    const linked = learningOutcome.linkedOutcomeIds ?? [];
+    return this.allOutcomes().filter((outcome) => linked.includes(outcome.id));
   }
 
+  /**
+   * The number for a new outcome's code: one more than the highest already used with
+   * this prefix. It used to read the last row of the table, which gave "ULONaN" when
+   * that row's code did not end in a number, or a repeat once the table was sorted.
+   */
   getNextOutcomeNumber(): number {
-    if (this.outcomeSource.data && this.outcomeSource.data.length > 0) {
-      let abbr = this.outcomeSource.data[this.outcomeSource.data.length - 1].abbreviation;
-      abbr = abbr.replace(this.abbreviationPrefix, '');
-      return Number(abbr) + 1;
+    const numbers = (this.outcomeSource.data ?? [])
+      .map((outcome) => outcome.abbreviation ?? '')
+      .filter((abbreviation) => abbreviation.startsWith(this.abbreviationPrefix))
+      .map((abbreviation) => abbreviation.slice(this.abbreviationPrefix.length))
+      .filter((suffix) => /^\d+$/.test(suffix))
+      .map((suffix) => Number(suffix));
+
+    if (numbers.length > 0) {
+      return Math.max(...numbers) + 1;
     }
     return 1;
   }

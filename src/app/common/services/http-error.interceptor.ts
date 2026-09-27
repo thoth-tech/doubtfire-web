@@ -11,6 +11,7 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, Subject, throwError} from 'rxjs';
 import {catchError, filter, finalize, switchMap, take} from 'rxjs/operators';
 import {AuthenticationService, UserService} from 'src/app/api/models/doubtfire-model';
+import {PRESERVE_HTTP_ERROR_RESPONSE} from './http-error-context';
 
 @Injectable()
 export class HttpErrorInterceptor implements HttpInterceptor {
@@ -44,11 +45,12 @@ export class HttpErrorInterceptor implements HttpInterceptor {
 
     return request$.pipe(
       catchError((error: HttpErrorResponse) => {
+        // Session restoration needs the status to distinguish expiry from an
+        // offline or unavailable server. Other callers still receive messages.
+        if (this.isAccessTokenRequest(request)) {
+          return throwError(() => error);
+        }
         if (this.isAuthError(error)) {
-          if (this.isAccessTokenRequest(request)) {
-            return throwError(() => this.extractErrorMessage(error));
-          }
-
           if (!this.refreshTokenInProgress) {
             console.log('Refreshing access token');
             this.refreshTokenInProgress = true;
@@ -66,7 +68,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
                 if (!(err instanceof HttpErrorResponse)) {
                   return throwError(() => err);
                 }
-                return throwError(() => this.extractErrorMessage(err));
+                return throwError(() => this.errorForRequest(request, err));
               }),
               finalize(() => (this.refreshTokenInProgress = false)),
             );
@@ -76,13 +78,13 @@ export class HttpErrorInterceptor implements HttpInterceptor {
               take(1),
               switchMap(() => next.handle(this.injectToken(request))),
               catchError((err: HttpErrorResponse) => {
-                return throwError(() => this.extractErrorMessage(err));
+                return throwError(() => this.errorForRequest(request, err));
               }),
             );
           }
         }
 
-        return throwError(() => this.extractErrorMessage(error));
+        return throwError(() => this.errorForRequest(request, error));
       }),
     );
   }
@@ -107,6 +109,12 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     return request.url.endsWith('/auth/access-token');
   }
 
+  private errorForRequest(request: HttpRequest<any>, error: HttpErrorResponse) {
+    // Keep reporting and legacy message handling while retaining structured errors for opt-in callers.
+    const message = this.extractErrorMessage(error);
+    return request.context.get(PRESERVE_HTTP_ERROR_RESPONSE) ? error : message;
+  }
+
   private extractErrorMessage(error: HttpErrorResponse) {
     let errorMessage: string;
     let logMessage: string = '';
@@ -116,18 +124,27 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     } else if (error.error instanceof ProgressEvent) {
       errorMessage = error.statusText;
     } else {
-      // server-side error
-      if (error.error.error) {
-        errorMessage = error.error.error;
-      } else if (error.error instanceof Blob) {
+      // Server-side error. error.error is null whenever the response body was
+      // empty, which is every 502 from a proxy and every 500 that returns
+      // nothing, so the property read has to come after the checks rather than
+      // before them. The blob check moves up for the same reason: it only worked
+      // where it was because a Blob happens to have no error property.
+      const body: unknown = error.error;
+      if (body instanceof Blob) {
         errorMessage = error.statusText;
+      } else if (typeof body === 'string') {
+        errorMessage = body;
       } else {
-        errorMessage = error.error;
+        // An unparseable body arrives as {error: SyntaxError, text: '<html>'},
+        // so the nested value has to be a string before it is used as one.
+        const nested = (body as {error?: unknown})?.error;
+        errorMessage =
+          typeof nested === 'string' ? nested : error.statusText || 'Something went wrong';
       }
       logMessage = `Error Code: ${error.status}`;
     }
 
-    this.throwError(`${logMessage}: ${errorMessage}`, error.status);
+    this.reportError(`${logMessage}: ${errorMessage}`, error.status);
 
     console.error(`${logMessage}: ${errorMessage}`);
     return errorMessage;
@@ -142,20 +159,14 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     });
   }
 
-  throwError(message: string, statusCode: number) {
-    Sentry.diagnoseSdkConnectivity().then(() => {
-      Sentry.startSpan(
-        {
-          name: `Error ${statusCode}`,
-          op: 'http.client_error',
-          attributes: {
-            'http.response.status_code': statusCode,
-          },
-        },
-        () => {
-          throw new HttpRequestError(message, statusCode);
-        },
-      );
+  // Reports the failure rather than throwing at Sentry. The old version threw
+  // inside a startSpan callback, which rethrows, inside a then() with no catch,
+  // so every failed request in the app left an unhandled promise rejection that
+  // nothing in the observable chain could see. Named reportError because rxjs
+  // throwError is imported into this same file.
+  private reportError(message: string, statusCode: number) {
+    Sentry.captureException(new HttpRequestError(message, statusCode), {
+      tags: {'http.response.status_code': statusCode},
     });
   }
 }

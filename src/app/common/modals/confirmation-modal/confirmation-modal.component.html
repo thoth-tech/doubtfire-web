@@ -14,9 +14,9 @@
 </mat-dialog-content>
 <mat-dialog-actions>
   <div class="flex w-full justify-center gap-2">
-    <button color="warn" mat-button (click)="cancelAction()">{{ cancelText }}</button>
+    <button mat-stroked-button (click)="cancelAction()">{{ cancelText }}</button>
     <button color="primary" mat-raised-button (click)="confirmAction()">
-      <mat-icon inline>check</mat-icon>
+      <mat-icon>check</mat-icon>
       {{ confirmText }}
     </button>
   </div>

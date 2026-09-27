@@ -2,6 +2,7 @@
   @if (unit) {
     <f-unit-code
       #menuState="matMenuTrigger"
+      data-onboarding-target="unit-selector"
       matTooltip="{{ unit?.name }}"
       [isDropdown]="true"
       [matMenuTriggerFor]="menu"
@@ -13,7 +14,12 @@
     </f-unit-code>
   }
   @if (!unit) {
-    <button #menuState="matMenuTrigger" mat-button [matMenuTriggerFor]="menu">
+    <button
+      #menuState="matMenuTrigger"
+      data-onboarding-target="unit-selector"
+      mat-button
+      [matMenuTriggerFor]="menu"
+    >
       <span class="flex items-center">
         <span>Select Unit</span>
         <mat-icon>{{ menuState.menuOpen ? 'arrow_drop_up' : 'arrow_drop_down' }} </mat-icon>
@@ -23,7 +29,7 @@
 </div>
 
 <mat-menu #menu="matMenu" class="unit-dropdown-menu">
-  @if (media.isActive('xs')) {
+  @if (isExtraSmall) {
     <button mat-menu-item routerLink="/home">
       <mat-icon
         aria-label="Home Icon"
@@ -35,16 +41,17 @@
       <span class="flex-grow"></span>
     </button>
   }
-  @if (media.isActive('xs')) {
+  @if (isExtraSmall) {
     <mat-divider></mat-divider>
   }
 
   <h2 class="my-2 ml-3.5" mat-subheader [hidden]="unitRoles?.length === 0">Units you teach</h2>
   @for (unitRole of unitRoles; track unitRole) {
     @if (!unitRole.unit.teachingPeriod || unitRole.unit.teachingPeriod?.active) {
-      <div
+      <button
         class="w-full"
         mat-menu-item
+        type="button"
         [routerLink]="['/units', unitRole.unit.id, 'tasks', 'inbox']"
       >
         <div class="flex w-full items-center">
@@ -52,7 +59,7 @@
           <div class="grow"></div>
           <f-unit-code [unit_code]="unitRole.unit.code" [width]="80"></f-unit-code>
         </div>
-      </div>
+      </button>
     }
   }
 

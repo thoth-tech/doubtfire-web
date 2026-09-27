@@ -18,6 +18,14 @@ export class TimeoutComponent implements OnInit, OnDestroy {
     }, 5000);
   }
 
+  signInAgain(): void {
+    if (this.timeoutHandle) {
+      clearTimeout(this.timeoutHandle);
+      this.timeoutHandle = null;
+    }
+    this.authenticationService.signOut(false);
+  }
+
   ngOnDestroy(): void {
     if (this.timeoutHandle) {
       clearTimeout(this.timeoutHandle);

@@ -1,6 +1,15 @@
 import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, first, of, tap} from 'rxjs';
+import {
+  Observable,
+  Subject,
+  distinctUntilChanged,
+  first,
+  of,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import {
   ProjectService,
   TaskDefinition,
@@ -82,6 +91,8 @@ export class UnitTaskInboxStateComponent implements OnInit, OnDestroy {
     taskDefMode: false,
   };
 
+  private readonly destroy$: Subject<void> = new Subject();
+
   constructor(
     private taskService: TaskService,
     private globalStateService: GlobalStateService,
@@ -106,22 +117,31 @@ export class UnitTaskInboxStateComponent implements OnInit, OnDestroy {
       this.unit$ = of(routeUnit);
     }
 
-    this.unit$.pipe(first()).subscribe((routeUnit) => {
-      this.loadUnit(routeUnit.id)
-        .pipe(first())
-        .subscribe((unit) => this.loadInboxData(unit));
-    });
+    // switchMap so a slow request for the unit we just left is cancelled rather than
+    // landing late and putting that unit back on screen.
+    this.unit$
+      .pipe(
+        distinctUntilChanged((a, b) => a?.id === b?.id),
+        tap(() => {
+          this.studentsLoaded = false;
+        }),
+        switchMap((currentUnit) => this.loadUnit(currentUnit.id).pipe(first())),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((unit) => this.loadInboxData(unit));
 
-    this.route.paramMap.subscribe(() => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.setTaskKeyFromRoute();
     });
 
-    this.route.queryParamMap.subscribe(() => {
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.setTaskKeyFromRoute();
     });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.globalStateService.setNotInboxState();
     this.clearSelectedTask();
   }
@@ -203,14 +223,15 @@ export class UnitTaskInboxStateComponent implements OnInit, OnDestroy {
       this.globalStateService.setView(ViewType.UNIT, unit);
     }
 
-    this.filters = {
-      ...this.filters,
-      ...this.getFilterOverrides(unit),
-    };
+    // Filter objects contain tutorials and role ids from one unit. Reusing the
+    // previous object after a route change can leave the new unit filtered by a
+    // tutorial that does not exist there, making a successfully loaded inbox
+    // appear empty. Start from the new route's overrides for each unit instead.
+    this.filters = {...this.getFilterOverrides(unit)};
 
     this.projectService
       .loadStudents(unit)
-      .pipe(first())
+      .pipe(first(), takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.studentsLoaded = true;

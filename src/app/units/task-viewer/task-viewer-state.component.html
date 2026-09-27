@@ -1,58 +1,80 @@
-@if (unit$ | async; as unit) {
-  <div>
-    <!-- Wide Window Display -->
-    <div fxFill fxHide fxLayout="column" fxShow.gt-sm>
-      <div fxFill fxLayoutAlign="center stretch">
-        <!-- Panel 1 -->
-        <div #tasklistpanel class="vertical-panel min-w-12" id="tasklistpanel">
-          <f-unit-task-list
-            [mode]="'all-tasks'"
-            [selectedTaskDefinition$]="selectedTaskDefinition$"
-            [taskDefinitions]="unit.taskDefinitions"
-          ></f-unit-task-list>
-        </div>
-        <div class="vertical-spacer"></div>
-        <!-- Panel 2 -->
-        <div class="vertical-panel size-full">
-          @if (selectedTaskDefinition$ | async; as selectedTaskDef) {
-            <div class="flex h-full flex-col">
-              <div class="shrink">
-                <f-task-details-view
-                  [taskDef]="selectedTaskDef"
-                  [unit]="unit"
-                ></f-task-details-view>
-              </div>
-              <f-task-sheet-view class="h-full" [taskDef]="selectedTaskDef"> </f-task-sheet-view>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-    <!-- Narrow Window / Mobile Display -->
-    <div #mobile fxFill fxHide fxLayout="row" fxShow.lt-md>
-      <div class="vertical-panel mobile" [hidden]="selectedTaskDefinition$ | async">
-        <f-unit-task-list
-          [mode]="'all-tasks'"
-          [selectedTaskDefinition$]="selectedTaskDefinition$"
-          [taskDefinitions]="unit.taskDefinitions"
-        ></f-unit-task-list>
-      </div>
-      <div fxFill fxLayout="column" fxLayoutAlign="space-between stretch" [hidden]="!taskSelected">
-        <div class="flex items-center">
+@if (loading) {
+  <div aria-busy="true" aria-label="Loading tasks" class="flex h-full gap-3 p-3" role="status">
+    <ngx-skeleton-loader
+      class="block size-full lg:w-[400px] lg:shrink-0"
+      [theme]="{height: '100%', width: '100%', 'border-radius': '12px', margin: '0'}"
+    ></ngx-skeleton-loader>
+    <ngx-skeleton-loader
+      class="hidden h-full flex-1 lg:block"
+      [theme]="{height: '100%', width: '100%', 'border-radius': '12px', margin: '0'}"
+    ></ngx-skeleton-loader>
+  </div>
+} @else if (loadFailed || !unit) {
+  <div class="flex flex-col items-center px-4">
+    <f-empty-state
+      hint="Check your connection, then try again."
+      icon="cloud_off"
+      message="The unit's tasks did not load"
+    ></f-empty-state>
+    <button mat-stroked-button type="button" (click)="retryLoad()">Try again</button>
+  </div>
+} @else {
+  <!-- One list for every width. On a wide screen the list and the task sit side by
+       side; on a narrow one the list gives way to the task until "Back" is pressed.
+       Display is switched through ngClass because Tailwind's utilities are important
+       and layered, so neither [hidden] nor a plain class can beat "flex". -->
+  <div class="flex h-full min-h-0 gap-3 p-3">
+    <section
+      aria-label="Tasks"
+      class="min-h-0 w-full flex-col overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1) lg:w-[400px] lg:shrink-0"
+      [ngClass]="activeTaskDef ? 'hidden lg:flex' : 'flex'"
+    >
+      <f-unit-task-list
+        class="block min-h-0 flex-1"
+        [mode]="'all-tasks'"
+        [selectedTaskDefinition$]="selectedTaskDefinition$"
+        [taskDefinitions]="unit.taskDefinitions"
+      ></f-unit-task-list>
+    </section>
+
+    <!-- The panel scrolls as a whole: the details keep their natural height, so their
+         buttons are never cut off, and the task sheet keeps a usable height below. -->
+    <section
+      aria-label="Selected task"
+      class="min-h-0 min-w-0 flex-1 flex-col overflow-y-auto rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+      [ngClass]="activeTaskDef ? 'flex' : 'hidden lg:flex'"
+    >
+      @if (activeTaskDef) {
+        <div class="flex shrink-0 items-center gap-1 border-b border-ot-divider p-1 lg:hidden">
           <button
-            aria-label="Back to task list"
+            aria-label="Back to the task list"
             mat-icon-button
-            matTooltip="Back to list"
+            matTooltip="Back to the task list"
+            type="button"
             (click)="clearTaskSelection()"
           >
-            <mat-icon>arrow_back_ios_new</mat-icon>
+            <mat-icon aria-hidden="true">arrow_back</mat-icon>
           </button>
+          <p class="m-0 min-w-0 truncate text-sm font-semibold text-ot-text">
+            {{ activeTaskDef.abbreviation }} {{ activeTaskDef.name }}
+          </p>
         </div>
-        <div class="vertical-panel mobile" fxFlex>
-          <f-task-details-view [taskDef]="selectedTaskDef" [unit]="unit"></f-task-details-view>
+        <f-task-details-view
+          class="block shrink-0 border-b border-ot-divider"
+          [taskDef]="activeTaskDef"
+          [unit]="unit"
+        ></f-task-details-view>
+        <f-task-sheet-view class="block min-h-[32rem] flex-1" [taskDef]="activeTaskDef">
+        </f-task-sheet-view>
+      } @else {
+        <div class="flex h-full items-center justify-center px-4">
+          <f-empty-state
+            hint="Pick a task from the list to see its details and task sheet."
+            icon="assignment"
+            message="Select a task"
+          ></f-empty-state>
         </div>
-        <f-task-sheet-view class="h-full" [taskDef]="selectedTaskDef"> </f-task-sheet-view>
-      </div>
-    </div>
+      }
+    </section>
   </div>
 }

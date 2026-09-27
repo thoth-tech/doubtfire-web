@@ -1,14 +1,40 @@
-<div class="audio-comment-container" fxLayout="row" fxLayoutAlign="start center">
-  <button class="play-button" (click)="pausePlay()">
-    <mat-icon class="play-button" id="playButton">{{
-      isPlaying ? 'pause_circle' : 'play_circle'
-    }}</mat-icon>
+<div class="audio-comment-container">
+  <button
+    class="play-button"
+    type="button"
+    [attr.aria-label]="isPlaying ? 'Pause audio message' : 'Play audio message'"
+    (click)="pausePlay()"
+  >
+    <mat-icon>{{ isPlaying ? 'pause_circle' : 'play_circle' }}</mat-icon>
   </button>
-  <mat-progress-bar
-    #progressBar
-    class="progress-bar-container"
-    id="progressBar"
-    [value]="audioProgress"
-    (click)="seek($event)"
-  ></mat-progress-bar>
+
+  <div class="waveform-and-time">
+    <div
+      #progressBar
+      aria-label="Audio playback position"
+      class="waveform"
+      role="slider"
+      tabindex="0"
+      [attr.aria-valuemax]="100"
+      [attr.aria-valuemin]="0"
+      [attr.aria-valuenow]="audioProgress | number: '1.0-0'"
+      (click)="seek($event)"
+      (keydown)="seekWithKeyboard($event)"
+    >
+      @for (peak of waveformPeaks; track $index) {
+        <span
+          class="waveform-bar"
+          [class.played]="isBarPlayed($index)"
+          [style.height.%]="20 + peak * 80"
+        ></span>
+      }
+    </div>
+    <div aria-hidden="true" class="time-row">
+      <span>{{ formatTime(audio.duration > 0 ? audio.currentTime : 0) }}</span>
+      <span>{{ formatTime(duration) }}</span>
+    </div>
+  </div>
 </div>
+@if (audioError) {
+  <p class="audio-error" role="alert">Audio unavailable</p>
+}

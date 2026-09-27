@@ -1,19 +1,20 @@
 @if (showHeader) {
   <mat-toolbar
     class="flex items-center justify-start"
+    role="banner"
     style="min-height: 85px"
     [ngClass]="{inbox: globalState.isInboxState}"
   >
-    @if (!media.isActive('xs')) {
+    @if (!isExtraSmall) {
       @if (logoSettings.hasLogo) {
         <a class="mx-3.5" [href]="logoSettings.logoLinkUrl">
           <img style="height: 32px" [alt]="externalName + 'logo'" [src]="logoSettings.logoUrl" />
         </a>
       }
 
-      <a class="pt-2.5" routerLink="/home">
+      <a aria-label="Home" class="pt-2.5" routerLink="/home">
         <mat-icon
-          aria-label="Formatif logo"
+          aria-hidden="true"
           class="formatif-icon"
           style="margin-right: 20px; margin-left: 20px"
           svgIcon="formatif-logo"
@@ -37,9 +38,13 @@
       [unitRole]="currentUnitRole"
     ></task-dropdown>
 
-    <span class="grow"></span>
+    <span class="header-spacer grow"></span>
+    @if (!isExtraSmall) {
+      <app-theme-toggle class="mx-1"></app-theme-toggle>
+    }
+    <notification-bell></notification-bell>
     @if (sidekiqJobs.length) {
-      <button mat-icon-button (click)="showSidekiqJob()">
+      <button aria-label="Background jobs" mat-icon-button (click)="showSidekiqJob()">
         <div class="z-50" matBadgeSize="small" [matBadge]="sidekiqJobs.length"></div>
         <mat-icon>cloud_sync_outline</mat-icon>
       </button>
@@ -52,17 +57,11 @@
         >
       </button>
     }
-    @if (currentUnit && !isTutorDiscussionRoute) {
-      <button mat-icon-button (click)="showMyQr()">
-        <mat-icon>qr_code_scanner</mat-icon>
-      </button>
-    }
     @if (currentUser.role === 'Admin' || currentUser.role === 'Convenor') {
       <button
         #menuState="matMenuTrigger"
-        fxShow="true"
-        fxShow.gt-md="true"
-        fxShow.lt-sm="false"
+        aria-label="Administration menu"
+        class="max-[599.98px]:hidden"
         mat-icon-button
         [matMenuTriggerFor]="menu"
       >
@@ -88,17 +87,54 @@
       }
     </mat-menu>
 
-    <button mat-button [matMenuTriggerFor]="menu2">
+    <button
+      #accountMenuButton
+      aria-label="Open account menu"
+      class="account-menu-trigger"
+      data-onboarding-target="account-menu"
+      mat-button
+      [matMenuTriggerFor]="menu2"
+    >
       <user-icon [size]="32" [user]="currentUser"></user-icon>
     </button>
     <mat-menu #menu2="matMenu">
+      @if (currentUnit && !isTutorDiscussionRoute) {
+        <button class="qr-account-menu-action" mat-menu-item (click)="showMyQr()">
+          <mat-icon aria-label="Show my QR code" matListItemIcon>qr_code_scanner</mat-icon>
+          Show my QR code
+        </button>
+      }
+      @if (demoMode.available) {
+        <button mat-menu-item routerLink="/demo-controls">
+          <mat-icon aria-label="Demo controls" matListItemIcon>science</mat-icon>
+          Demo controls
+        </button>
+      }
+      @if (studentOnboarding.available) {
+        <button mat-menu-item (click)="studentOnboarding.replay()">
+          <mat-icon aria-hidden="true" matListItemIcon>help_outline</mat-icon>
+          Tutorial and Help
+        </button>
+      }
+      <button mat-menu-item routerLink="/unit-hub">
+        <mat-icon aria-hidden="true" matListItemIcon>campaign</mat-icon>
+        Unit Hub · announcements &amp; classes
+      </button>
       <button mat-menu-item routerLink="/edit_profile">
         <mat-icon aria-label="Edit profile" matListItemIcon>person</mat-icon>
         My Profile
       </button>
-      <button mat-menu-item (click)="openCalendar()">
+      <button data-onboarding-target="calendar" mat-menu-item (click)="openCalendar()">
         <mat-icon aria-label="Edit calendar" matListItemIcon>calendar_month</mat-icon>
         Calendar
+      </button>
+      <button mat-menu-item routerLink="/coursemap">
+        <mat-icon aria-hidden="true" matListItemIcon>directions</mat-icon>
+        Course Flow
+      </button>
+      <button mat-menu-item (click)="openInstallHelp(accountMenuButton)">
+        <mat-icon aria-hidden="true" matListItemIcon>install_desktop</mat-icon>
+        {{ pwaInstall.isInstalled() ? 'App installation' : 'Install OnTrack' }}
       </button>
       <button mat-menu-item (click)="openAboutModal()">
         <mat-icon aria-label="About" matListItemIcon>info</mat-icon>

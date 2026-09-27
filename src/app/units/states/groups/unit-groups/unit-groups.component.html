@@ -1,21 +1,50 @@
-@if (unit.hasGroupwork()) {
-  <div class="mx-auto max-w-[90vw]">
-    <f-group-set-manager [selectedGroupSet]="selectedGroupSet" [unit]="unit" [unitRole]="unitRole">
-    </f-group-set-manager>
-  </div>
-} @else {
-  <div class="mx-auto flex max-w-4xl flex-col items-center justify-center">
-    <mat-icon>groups</mat-icon>
+<f-page-container>
+  <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-2 pb-5">
+    <div class="min-w-0">
+      <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">Groups</h1>
+      <p class="m-0 mt-1.5 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+        Create groups, choose who is in each one, and lock a group once it is final.
+      </p>
+    </div>
 
-    <h1>No Groupwork Enabled</h1>
+    @if (canManageGroupSets && unit?.hasGroupwork()) {
+      <a mat-stroked-button [routerLink]="['/units', unit.id, 'admin', 'groups']">
+        <mat-icon aria-hidden="true">settings</mat-icon>
+        Manage group sets
+      </a>
+    }
+  </header>
 
-    <p class="p-1 text-center text-gray-500">
-      There is no group work enabled for this unit. Convenors should create at least one group set
-      first for groups to be created. This can be found under the groups tab in the unit
-      administration settings.
-    </p>
-    <button mat-raised-button [routerLink]="['/units', unit.id, 'admin', 'groups']">
-      Unit Administration
-    </button>
-  </div>
-}
+  @if (unit?.hasGroupwork()) {
+    <f-group-set-manager
+      class="mb-6"
+      [selectedGroupSet]="selectedGroupSet"
+      [unit]="unit"
+      [unitRole]="unitRole"
+    ></f-group-set-manager>
+  } @else if (unit) {
+    <section
+      class="mb-6 flex flex-col items-center rounded-ot-lg border border-ot-divider bg-ot-surface pb-10 shadow-(--ot-elevation-1)"
+    >
+      <f-empty-state
+        icon="groups"
+        message="Group work is not set up for this unit"
+        [hint]="
+          canManageGroupSets
+            ? 'Create a group set in unit administration. Groups are made inside a group set.'
+            : 'Groups are made inside a group set. Ask the unit convenor to create one.'
+        "
+      ></f-empty-state>
+      @if (canManageGroupSets) {
+        <a
+          class="-mt-6"
+          color="primary"
+          mat-flat-button
+          [routerLink]="['/units', unit.id, 'admin', 'groups']"
+        >
+          Set up group work
+        </a>
+      }
+    </section>
+  }
+</f-page-container>

@@ -1,0 +1,19 @@
+<div class="flex flex-col items-center justify-center gap-2 py-12 text-center text-ot-muted">
+  @if (icon) {
+    <mat-icon aria-hidden="true" class="empty-state-icon">{{ icon }}</mat-icon>
+  }
+  @if (heading) {
+    <p class="m-0 text-base font-medium">{{ heading }}</p>
+    <p class="m-0 max-w-md text-sm">{{ message }}</p>
+  } @else {
+    <p class="m-0 text-base font-medium">{{ message }}</p>
+  }
+  @if (hint) {
+    <p class="m-0 max-w-md text-sm">{{ hint }}</p>
+  }
+  @if (actionLabel) {
+    <button class="mt-2" mat-stroked-button type="button" (click)="action.emit()">
+      {{ actionLabel }}
+    </button>
+  }
+</div>

@@ -39,7 +39,6 @@ export class OverseerImageListComponent
   dataSource = new MatTableDataSource(this.overseerImages);
   loading = false;
   loadingImages = true;
-  skeletonRows = Array.from({length: 2}, (_, index) => index);
 
   public diskSpace: number | null = null;
 

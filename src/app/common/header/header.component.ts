@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import {MediaObserver} from 'ng-flex-layout';
+import {BreakpointObserver} from '@angular/cdk/layout';
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
+import {MatButton} from '@angular/material/button';
+import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
-import {Subscription, asapScheduler, observeOn} from 'rxjs';
+import {Subscription, asapScheduler, observeOn, take} from 'rxjs';
 import {
   AuthenticationService,
   Project,
@@ -14,14 +15,18 @@ import {
 import {SidekiqJobEntry, SidekiqJobService} from 'src/app/api/services/sidekiq-job.service';
 import {UserService} from 'src/app/api/services/user.service';
 import {DoubtfireConstants, LogoSettings} from 'src/app/config/constants/doubtfire-constants';
+import {DemoModeStore} from 'src/app/demo/demo-mode.store';
 import {GlobalStateService, ViewType} from 'src/app/projects/states/index/global-state.service';
 import {CheckForUpdateService} from 'src/app/sessions/service-worker-updater/check-for-update.service';
+import {StudentOnboardingService} from 'src/app/student-onboarding/student-onboarding.service';
 import {AboutDoubtfireModal} from '../modals/about-doubtfire-modal/about-doubtfire-modal.component';
 import {CalendarModalService} from '../modals/calendar-modal/calendar-modal.service';
 import {QrModalService} from '../modals/qr-modal/qr-modal.service';
 import {SidekiqJobsModalService} from '../modals/sidekiq-jobs-modal/sidekiq-jobs-modal.service';
 import {TutorNotesModalService} from '../modals/tutor-notes-modal/tutor-notes-modal.service';
 import {IsActiveUnitRole} from '../pipes/is-active-unit-role.pipe';
+import {PwaInstallDialogComponent} from '../pwa/pwa-install-dialog.component';
+import {PwaInstallService} from '../pwa/pwa-install.service';
 
 @Component({
   selector: 'app-header',
@@ -63,16 +68,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
     protected globalState: GlobalStateService,
     private userService: UserService,
     private authService: AuthenticationService,
-    protected media: MediaObserver,
+    private breakpointObserver: BreakpointObserver,
     protected doubtfireConstants: DoubtfireConstants,
     private sidekiqJobService: SidekiqJobService,
     private sidekiqJobsModalService: SidekiqJobsModalService,
     private qrModalService: QrModalService,
     private router: Router,
     private tutorNotesModal: TutorNotesModalService,
+    readonly demoMode: DemoModeStore,
+    readonly studentOnboarding: StudentOnboardingService,
+    readonly pwaInstall: PwaInstallService,
+    private dialog: MatDialog,
   ) {}
 
   public externalName: string;
+
+  protected get isExtraSmall(): boolean {
+    return this.breakpointObserver.isMatched('(max-width: 599.98px)');
+  }
 
   ngOnInit(): void {
     this.doubtfireConstants.ExternalName.subscribe((externalName) => {
@@ -83,7 +96,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         next: (shouldShow) => {
           this.showHeader = shouldShow;
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
         error: (err) => {
           console.log(`Error showing header: ${err}`);
         },
@@ -98,9 +111,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           } // might be signing out, or the data has been cleared
           this.unitRoles = unitRoles;
 
-          this.filteredUnitRoles = this.isActiveUnitRole
-            .transform(this.unitRoles)
-            .filter((role) => this.isUniqueRole(role));
+          this.filteredUnitRoles = this.uniqueUnitRoles(this.unitRoles);
         },
         error: (err) => {
           console.log(`Error fetching unit roles: ${err}`);
@@ -141,7 +152,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
             this.currentProject = null;
           }
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
         error: (err) => {
           console.log(`Error on switching view and entity: ${err}`);
         },
@@ -199,10 +210,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
-  isUniqueRole = (unit) => {
-    const units = this.unitRoles.filter((role: UnitRole) => role.unit?.id === unit.unit?.id);
-    return units.length == 1 || unit.role == 'Tutor';
-  };
+  // Keep one unit role per unit, plus every tutor role. Count the roles per
+  // unit once up front rather than rescanning unitRoles for each role, which
+  // was quadratic and reran on every unit-role cache emission (FEPERF-19).
+  uniqueUnitRoles(unitRoles: UnitRole[]): UnitRole[] {
+    const countByUnit: Map<number | undefined, number> = new Map();
+    unitRoles.forEach((role) => {
+      const id = role.unit?.id;
+      countByUnit.set(id, (countByUnit.get(id) ?? 0) + 1);
+    });
+
+    return this.isActiveUnitRole
+      .transform(unitRoles)
+      .filter((role) => countByUnit.get(role.unit?.id) === 1 || role.role === 'Tutor');
+  }
 
   updateSelectedProject(project: Project): void {
     this.currentProject = project;
@@ -234,6 +255,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   update(): void {
     this.checkForUpdateService.checkForUpdate();
+  }
+
+  openInstallHelp(trigger: MatButton): void {
+    const dialog = this.dialog.open(PwaInstallDialogComponent, {
+      width: '560px',
+      maxWidth: 'calc(100vw - 32px)',
+      autoFocus: 'first-heading',
+      restoreFocus: false,
+    });
+    // The menu item disappears while the dialog opens. Restore to the persistent
+    // account button instead of the detached menu item.
+    dialog
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(() => {
+        trigger.focus();
+      });
   }
 
   openAboutModal(): void {

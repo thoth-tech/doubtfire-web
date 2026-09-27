@@ -1,27 +1,20 @@
-<div class="flex grow items-center justify-items-start">
+<div class="flex w-full min-w-0 grow items-center justify-items-start" style="display: flex">
   <p [hidden]="canRecord">
     Audio recording <br />
     only supported in modern versions of Chrome, Firefox and Safari.
   </p>
-  <mat-spinner
-    class="send-audio-spinner"
-    [diameter]="18"
-    [hidden]="!isSending"
-    [strokeWidth]="1"
-  ></mat-spinner>
-  <div
-    class="flex w-full grow items-center justify-items-center"
-    style="display: flex"
-    [hidden]="!canRecord || isSending"
-  >
+  <div class="flex w-full min-w-0 grow items-center justify-items-center" [hidden]="!canRecord">
     <button
-      aria-label="Audio recording button"
       mat-icon-button
       style="transform: scale(1); margin-left: -15px; margin-right: 0px; display: flex"
+      [attr.aria-label]="
+        isRecording || isRequestingPermission ? 'Stop audio recording' : 'Start audio recording'
+      "
+      [matTooltip]="isRecording || isRequestingPermission ? 'Stop recording' : 'Start recording'"
       (click)="recordingToggle()"
     >
-      <mat-icon class="text-white"
-        >{{isRecording ? 'stop_circle' : 'radio_button_checked' }}
+      <mat-icon class="text-ot-on-primary"
+        >{{isRecording || isRequestingPermission ? 'stop_circle' : 'radio_button_checked' }}
       </mat-icon>
     </button>
     <button
@@ -31,26 +24,34 @@
       [hidden]="!recordingAvailable"
       (click)="playStop()"
     >
-      <mat-icon style="color: white">play_circle</mat-icon>
+      <mat-icon class="text-ot-on-primary">{{ isPlaying ? 'pause_circle' : 'play_circle' }}</mat-icon>
     </button>
-    <audio id="audioPlayer"></audio>
-    <canvas
-      class="audio-visualiser"
-      fxFlex
-      id="audio-recorder-visualiser"
-      style="width: 100%"
-    ></canvas>
-
-    <div id="button-wrapper">
-      <button
-        aria-label="Send audio recording"
-        mat-icon-button
-        style="transform: scale(1); margin-left: -15px; margin-right: 0px; display: flex"
-        [disabled]="!recordingAvailable"
-        (click)="sendRecording()"
-      >
-        <mat-icon style="color: white">send</mat-icon>
-      </button>
+    <audio #audioRecorderPlayer></audio>
+    <div class="min-w-0 flex-1">
+      <canvas
+        #audioRecorderVisualiser
+        aria-label="Recorded audio playback position"
+        class="audio-visualiser w-full"
+        height="22"
+        id="audio-recorder-visualiser"
+        role="slider"
+        tabindex="0"
+        width="100%"
+        [attr.aria-valuemax]="100"
+        [attr.aria-valuemin]="0"
+        [attr.aria-valuenow]="playbackProgress | number: '1.0-0'"
+        (click)="seekPreview($event)"
+        (keydown)="seekPreviewWithKeyboard($event)"
+      ></canvas>
     </div>
+
+    @if (recordingAvailable) {
+    <span class="sr-only" role="status"
+      >Audio staged. Use the composer Send button to post it.</span
+    >
+    }
   </div>
 </div>
+@if (recordingError) {
+<p class="audio-recorder-error" role="alert">{{ recordingError }}</p>
+}

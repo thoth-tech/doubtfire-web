@@ -72,13 +72,26 @@ export class UserIconComponent implements AfterViewInit, OnChanges {
 
   constructor(private userService: UserService) {}
 
-  private async backgroundUrl(): Promise<string> {
-    const hash = await this.sha256(this.email?.trim().toLowerCase() ?? '');
-    return `https://www.gravatar.com/avatar/${hash}.png?default=blank&size=${this.size * 4}`;
+  /**
+   * The Gravatar photo behind the initials, or null when it cannot be worked out.
+   * crypto.subtle only exists on https or localhost, so opening OnTrack by a LAN
+   * address threw here and the avatar never drew at all. Without a hash the
+   * initials still show.
+   */
+  private async backgroundUrl(): Promise<string | null> {
+    try {
+      const hash = await this.sha256(this.email?.trim().toLowerCase() ?? '');
+      return `https://www.gravatar.com/avatar/${hash}.png?default=blank&size=${this.size * 4}`;
+    } catch {
+      return null;
+    }
   }
 
   private async sha256(value: string): Promise<string> {
     const bytes = new TextEncoder().encode(value);
+    if (!globalThis.crypto?.subtle) {
+      throw new Error('SubtleCrypto is unavailable outside a secure context');
+    }
     const digest = await crypto.subtle.digest('SHA-256', bytes);
     return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join(
       '',
@@ -239,13 +252,15 @@ export class UserIconComponent implements AfterViewInit, OnChanges {
       .attr('fill', 'white')
       .text((d) => d.text);
 
-    svg
-      .append('image')
-      .attr('xlink:href', backgroundUrl)
-      .attr('width', this.size)
-      .attr('height', this.size)
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('clip-path', `url(#image-clip-${id})`);
+    if (backgroundUrl) {
+      svg
+        .append('image')
+        .attr('xlink:href', backgroundUrl)
+        .attr('width', this.size)
+        .attr('height', this.size)
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('clip-path', `url(#image-clip-${id})`);
+    }
   }
 }

@@ -1,7 +1,8 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
-import {Observable, ReplaySubject, take} from 'rxjs';
+import {Observable, ReplaySubject, Subscription, take} from 'rxjs';
 import {UserService} from 'src/app/api/models/doubtfire-model';
+import {AuthenticationService} from 'src/app/api/services/authentication.service';
 import {TiiService} from 'src/app/api/services/tii.service';
 import {AlertService} from 'src/app/common/services/alert.service';
 import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
@@ -13,21 +14,27 @@ import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class AcceptEulaComponent {
+export class AcceptEulaComponent implements OnDestroy {
   public toolName: Observable<string>;
   public eulaHtml: string;
 
   public iframeDoc$: ReplaySubject<Document> = new ReplaySubject(1);
 
+  private authenticationSubscription: Subscription;
+
   constructor(
     private constants: DoubtfireConstants,
+    private authenticationService: AuthenticationService,
     private tiiService: TiiService,
     private userService: UserService,
     private alertService: AlertService,
     private router: Router,
   ) {
-    this.constants.IsTiiEnabled.subscribe((enabled) => {
-      if (enabled) {
+    // Auth completion now includes the protected settings request. Do not react
+    // to IsTiiEnabled's pre-authentication false default: on a cold /eula load
+    // that used to redirect before a remembered session could be restored.
+    this.authenticationSubscription = this.authenticationService.afterAuthCall((authenticated) => {
+      if (authenticated && this.constants.IsTiiEnabled.value) {
         this.getEulaHtml();
       } else {
         this.router.navigateByUrl('/home');
@@ -37,7 +44,11 @@ export class AcceptEulaComponent {
     this.toolName = constants.ExternalName;
   }
 
-  public getEulaHtml() {
+  public ngOnDestroy(): void {
+    this.authenticationSubscription.unsubscribe();
+  }
+
+  public getEulaHtml(): void {
     this.tiiService.getTiiEula().subscribe((eulaHtml) => {
       this.eulaHtml = eulaHtml;
       this.updateHtmlEulaInIFrame();

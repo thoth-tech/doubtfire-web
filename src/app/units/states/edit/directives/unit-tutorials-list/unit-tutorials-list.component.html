@@ -1,278 +1,360 @@
-<div>
-  <div class="header">
+<section
+  class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+  [attr.aria-labelledby]="headingId"
+>
+  <header class="flex flex-wrap items-center gap-3 border-b border-ot-divider px-4 py-3 sm:px-5">
     @if (stream) {
-      <div>
-        @if (!editingStream) {
-          <div>
-            <h4>{{ stream.name }} - {{ stream.abbreviation }}</h4>
-            <button mat-icon-button (click)="setEditStream(true)">
-              <mat-icon>edit</mat-icon>
-            </button>
+      @if (!editingStream) {
+        <div class="min-w-0 flex-1">
+          <h3 class="m-0 text-base leading-snug font-semibold text-ot-text" [id]="headingId">
+            {{ stream.name }}
+          </h3>
+          <p class="m-0 mt-0.5 text-sm text-ot-muted">
+            {{ stream.abbreviation }} ·
+            {{ tutorials.length === 1 ? '1 tutorial' : tutorials.length + ' tutorials' }}
+          </p>
+        </div>
+        <button
+          mat-icon-button
+          matTooltip="Rename stream"
+          type="button"
+          [attr.aria-label]="'Rename ' + stream.name"
+          (click)="setEditStream(true)"
+        >
+          <mat-icon aria-hidden="true">edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Delete stream"
+          type="button"
+          [attr.aria-label]="'Delete ' + stream.name"
+          (click)="deleteStream()"
+        >
+          <mat-icon aria-hidden="true">delete</mat-icon>
+        </button>
+      } @else {
+        <h3 class="sr-only" [id]="headingId">Rename {{ stream.name }}</h3>
+        <div class="flex min-w-0 flex-1 flex-wrap items-end gap-3">
+          <div class="flex min-w-0 flex-col gap-1.5 sm:w-72">
+            <label
+              class="text-sm font-medium text-ot-text"
+              [for]="'stream-name-' + stream.abbreviation"
+            >
+              Stream name
+            </label>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <input
+                matInput
+                [id]="'stream-name-' + stream.abbreviation"
+                [(ngModel)]="stream.name"
+              />
+            </mat-form-field>
           </div>
-        } @else {
-          <mat-form-field appearance="outline">
-            <mat-label>Name</mat-label>
-            <input matInput [(ngModel)]="stream.name" />
-          </mat-form-field>
-          <span>-</span>
-          <mat-form-field appearance="outline">
-            <mat-label>Abbreviation</mat-label>
-            <input matInput [(ngModel)]="stream.abbreviation" />
-          </mat-form-field>
-
-          <button doStreamEdit mat-icon-button (click)="setEditStream(false)">
-            <mat-icon color="warn">cancel</mat-icon>
-          </button>
-          <button mat-icon-button (click)="saveStream()">
-            <mat-icon color="warn">save</mat-icon>
-          </button>
-          <button color="warn" mat-icon-button (click)="deleteStream()">
-            <mat-icon>delete</mat-icon>
-          </button>
-        }
-      </div>
+          <div class="flex min-w-0 flex-col gap-1.5 sm:w-40">
+            <label
+              class="text-sm font-medium text-ot-text"
+              [for]="'stream-abbreviation-' + stream.abbreviation"
+            >
+              Short name
+            </label>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <input
+                matInput
+                [id]="'stream-abbreviation-' + stream.abbreviation"
+                [(ngModel)]="stream.abbreviation"
+              />
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button mat-button type="button" (click)="setEditStream(false)">Cancel</button>
+          <button color="primary" mat-flat-button type="button" (click)="saveStream()">Save</button>
+        </div>
+      }
     } @else {
-      <h4>Tutorials without a stream</h4>
+      <div class="min-w-0 flex-1">
+        <h3 class="m-0 text-base leading-snug font-semibold text-ot-text" [id]="headingId">
+          Tutorials without a stream
+        </h3>
+        <p class="m-0 mt-0.5 text-sm text-ot-muted">
+          Older tutorials that are not in any stream. New tutorials go in a stream.
+        </p>
+      </div>
     }
-  </div>
+  </header>
 
-  <table
-    class="f-table"
-    mat-table
-    matSort
-    [dataSource]="dataSource"
-    (matSortChange)="sortTableData($event)"
-  >
-    <!-- Abbreviation Column -->
-    <ng-container matColumnDef="abbreviation" sticky [formGroup]="formData">
-      <th *matHeaderCellDef mat-header-cell mat-sort-header>Abbreviation</th>
-      <td *matCellDef="let tutorial" mat-cell>
-        @if (!editing(tutorial)) {
-          <div>
-            {{ tutorial.abbreviation }}
-          </div>
-        } @else {
-          <mat-form-field appearance="outline" class="data-entry">
-            <input formControlName="abbreviation" matInput placeholder="Abbreviation" required />
-          </mat-form-field>
-        }
-      </td>
-      <td *matFooterCellDef mat-footer-cell>
-        <mat-form-field appearance="outline" class="data-entry">
-          <input formControlName="abbreviation" matInput placeholder="Abbreviation" required />
-        </mat-form-field>
-      </td>
-    </ng-container>
-
-    <!-- Campus Column -->
-    <ng-container matColumnDef="campus" [formGroup]="formData">
-      <th *matHeaderCellDef mat-header-cell mat-sort-header>Campus</th>
-      <td *matCellDef="let tutorial" mat-cell>
-        @if (!editing(tutorial)) {
-          <div>
-            {{ tutorial.campus ? tutorial.campus.name : '' }}
-          </div>
-        } @else {
-          <mat-form-field appearance="outline" class="data-entry">
-            <mat-label>Campus</mat-label>
-            <mat-select formControlName="campus" [compareWith]="compareSelection">
-              <mat-option [value]="null">Not Specified</mat-option>
-              @for (campus of campuses; track campus) {
-                <mat-option [value]="campus">
-                  {{ campus.name }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        }
-      </td>
-      <td *matFooterCellDef mat-footer-cell>
-        <mat-form-field appearance="outline" class="data-entry">
-          <mat-label>Campus</mat-label>
-          <mat-select formControlName="campus">
-            <mat-option [value]="null">Not Specified</mat-option>
-            @for (campus of campuses; track campus) {
-              <mat-option [value]="campus">
-                {{ campus.name }}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </td>
-    </ng-container>
-
-    <!-- Location Column -->
-    <ng-container matColumnDef="location" sticky [formGroup]="formData">
-      <th *matHeaderCellDef mat-header-cell mat-sort-header>Location</th>
-      <td *matCellDef="let tutorial" mat-cell>
-        @if (!editing(tutorial)) {
-          <div>
-            {{ tutorial.meetingLocation }}
-          </div>
-        } @else {
-          <mat-form-field appearance="outline" class="data-entry">
-            <input formControlName="meetingLocation" matInput placeholder="Location" required />
-          </mat-form-field>
-        }
-      </td>
-      <td *matFooterCellDef mat-footer-cell>
-        <mat-form-field appearance="outline" class="data-entry">
-          <input formControlName="meetingLocation" matInput placeholder="Location" required />
-        </mat-form-field>
-      </td>
-    </ng-container>
-
-    <!-- Day Column -->
-    <ng-container matColumnDef="day" [formGroup]="formData">
-      <th *matHeaderCellDef mat-header-cell mat-sort-header>Day</th>
-      <td *matCellDef="let tutorial" mat-cell>
-        @if (!editing(tutorial)) {
-          <div>
-            {{ tutorial.meetingDay }}
-          </div>
-        } @else {
-          <mat-form-field appearance="outline" class="data-entry">
-            <mat-label>Day</mat-label>
-            <mat-select formControlName="meetingDay" required>
-              @for (day of days; track day) {
-                <mat-option [value]="day">
-                  {{ day }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        }
-      </td>
-      <td *matFooterCellDef mat-footer-cell>
-        <mat-form-field appearance="outline" class="data-entry">
-          <mat-label>Day</mat-label>
-          <mat-select formControlName="meetingDay" required>
-            @for (day of days; track day) {
-              <mat-option [value]="day">
-                {{ day }}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </td>
-    </ng-container>
-
-    <!-- Time Column -->
-    <ng-container matColumnDef="time" sticky [formGroup]="formData">
-      <th *matHeaderCellDef mat-header-cell mat-sort-header>Time</th>
-      <td *matCellDef="let tutorial" mat-cell>
-        @if (!editing(tutorial)) {
-          <div>
-            {{ tutorial.meetingTime }}
-          </div>
-        } @else {
-          <mat-form-field appearance="outline" class="data-entry">
+  <!-- The table scrolls sideways on its own on a narrow screen, never the page. -->
+  <div class="relative overflow-x-auto" [formGroup]="formData">
+    <table class="w-full min-w-[62rem]" mat-table matSort [dataSource]="dataSource">
+      <ng-container matColumnDef="abbreviation">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Tutorial</th>
+        <td *matCellDef="let tutorial" mat-cell>
+          @if (!editing(tutorial)) {
+            <span class="font-medium text-ot-text">{{ tutorial.abbreviation }}</span>
+          } @else {
+            <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+              <input aria-label="Tutorial code" formControlName="abbreviation" matInput required />
+            </mat-form-field>
+          }
+        </td>
+        <td *matFooterCellDef mat-footer-cell>
+          <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
             <input
-              formControlName="meetingTime"
+              aria-label="New tutorial code"
+              formControlName="abbreviation"
               matInput
-              placeholder="Time"
+              placeholder="LA1-01"
               required
-              [value]="formData.get('meetingTime').value"
             />
           </mat-form-field>
-        }
-      </td>
-      <td *matFooterCellDef mat-footer-cell>
-        <mat-form-field appearance="outline" class="data-entry">
-          <input formControlName="meetingTime" matInput placeholder="Time" required />
-        </mat-form-field>
-      </td>
-    </ng-container>
+        </td>
+      </ng-container>
 
-    <!-- Tutor Column -->
-    <ng-container matColumnDef="tutor" [formGroup]="formData">
-      <th *matHeaderCellDef mat-header-cell mat-sort-header>Tutor</th>
-      <td *matCellDef="let tutorial" mat-cell>
-        @if (!editing(tutorial)) {
-          <div>
-            {{ tutorial.tutor?.name }}
-          </div>
-        } @else {
-          <mat-form-field appearance="outline" class="data-entry">
-            <mat-label>Tutor</mat-label>
-            <mat-select formControlName="tutor" required [compareWith]="compareSelection">
-              @for (tutor of unit.staffUsers; track tutor) {
-                <mat-option [value]="tutor">
-                  {{ tutor.name }}
-                </mat-option>
+      <ng-container matColumnDef="campus">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Campus</th>
+        <td *matCellDef="let tutorial" mat-cell>
+          @if (!editing(tutorial)) {
+            {{ tutorial.campus?.name }}
+          } @else {
+            <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+              <mat-select
+                aria-label="Campus"
+                formControlName="campus"
+                [compareWith]="compareSelection"
+              >
+                <mat-option [value]="null">Any campus</mat-option>
+                @for (campus of campuses; track campus.id) {
+                  <mat-option [value]="campus">{{ campus.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+        </td>
+        <td *matFooterCellDef mat-footer-cell>
+          <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+            <mat-select aria-label="New tutorial campus" formControlName="campus">
+              <mat-option [value]="null">Any campus</mat-option>
+              @for (campus of campuses; track campus.id) {
+                <mat-option [value]="campus">{{ campus.name }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
-        }
-      </td>
-      <td *matFooterCellDef mat-footer-cell>
-        <mat-form-field appearance="outline" class="data-entry">
-          <mat-label>Tutor</mat-label>
-          <mat-select formControlName="tutor" required>
-            @for (tutor of unit.staffUsers; track tutor) {
-              <mat-option [value]="tutor">
-                {{ tutor.name }}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </td>
-    </ng-container>
+        </td>
+      </ng-container>
 
-    <!-- Capacity Column -->
-    <ng-container matColumnDef="capacity" sticky [formGroup]="formData">
-      <th *matHeaderCellDef mat-header-cell mat-sort-header>Capacity</th>
-      <td *matCellDef="let tutorial" mat-cell>
-        @if (!editing(tutorial)) {
-          <div>{{ tutorial.numStudents }} / {{ tutorial.capacity }}</div>
-        } @else {
-          <mat-form-field appearance="outline" class="data-entry">
-            <input formControlName="capacity" matInput placeholder="Capacity" required />
+      <ng-container matColumnDef="location">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Location</th>
+        <td *matCellDef="let tutorial" mat-cell>
+          @if (!editing(tutorial)) {
+            {{ tutorial.meetingLocation }}
+          } @else {
+            <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+              <input aria-label="Location" formControlName="meetingLocation" matInput required />
+            </mat-form-field>
+          }
+        </td>
+        <td *matFooterCellDef mat-footer-cell>
+          <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+            <input
+              aria-label="New tutorial location"
+              formControlName="meetingLocation"
+              matInput
+              required
+            />
           </mat-form-field>
-        }
-      </td>
-      <td *matFooterCellDef mat-footer-cell>
-        <mat-form-field appearance="outline" class="data-entry">
-          <input formControlName="capacity" matInput placeholder="Capacity" required />
-        </mat-form-field>
-      </td>
-    </ng-container>
+        </td>
+      </ng-container>
 
-    <!-- Options Column -->
-    <ng-container matColumnDef="options" stickyEnd>
-      <th *matHeaderCellDef mat-header-cell></th>
-      <td *matCellDef="let tutorial" mat-cell>
-        @if (!editing(tutorial)) {
-          <div class="right mr-3">
-            <button mat-icon-button (click)="flagEdit(tutorial)">
-              <mat-icon>edit</mat-icon>
+      <ng-container matColumnDef="day">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Day</th>
+        <td *matCellDef="let tutorial" mat-cell>
+          @if (!editing(tutorial)) {
+            {{ tutorial.meetingDay }}
+          } @else {
+            <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+              <mat-select aria-label="Day" formControlName="meetingDay" required>
+                @for (day of days; track day) {
+                  <mat-option [value]="day">{{ day }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+        </td>
+        <td *matFooterCellDef mat-footer-cell>
+          <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+            <mat-select aria-label="New tutorial day" formControlName="meetingDay" required>
+              @for (day of days; track day) {
+                <mat-option [value]="day">{{ day }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="time">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Time</th>
+        <td *matCellDef="let tutorial" class="tabular-nums" mat-cell>
+          @if (!editing(tutorial)) {
+            {{ tutorial.meetingTime }}
+          } @else {
+            <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+              <input aria-label="Time" formControlName="meetingTime" matInput required />
+            </mat-form-field>
+          }
+        </td>
+        <td *matFooterCellDef mat-footer-cell>
+          <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+            <input
+              aria-label="New tutorial time"
+              formControlName="meetingTime"
+              matInput
+              placeholder="14:30"
+              required
+            />
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="tutor">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Tutor</th>
+        <td *matCellDef="let tutorial" mat-cell>
+          @if (!editing(tutorial)) {
+            {{ tutorial.tutor?.name }}
+          } @else {
+            <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+              <mat-select
+                aria-label="Tutor"
+                formControlName="tutor"
+                required
+                [compareWith]="compareSelection"
+              >
+                @for (tutor of unit.staffUsers; track tutor.id) {
+                  <mat-option [value]="tutor">{{ tutor.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+        </td>
+        <td *matFooterCellDef mat-footer-cell>
+          <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+            <mat-select aria-label="New tutorial tutor" formControlName="tutor" required>
+              @for (tutor of unit.staffUsers; track tutor.id) {
+                <mat-option [value]="tutor">{{ tutor.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="capacity">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Students</th>
+        <td *matCellDef="let tutorial" class="tabular-nums" mat-cell>
+          @if (!editing(tutorial)) {
+            {{ capacityLabel(tutorial) }}
+          } @else {
+            <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+              <input
+                aria-label="Capacity"
+                formControlName="capacity"
+                matInput
+                required
+                type="number"
+              />
+            </mat-form-field>
+          }
+        </td>
+        <td *matFooterCellDef mat-footer-cell>
+          <mat-form-field appearance="outline" class="data-entry" subscriptSizing="dynamic">
+            <input
+              aria-label="New tutorial capacity"
+              formControlName="capacity"
+              matInput
+              placeholder="Capacity"
+              required
+              type="number"
+            />
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="options" stickyEnd>
+        <th *matHeaderCellDef class="bg-ot-surface" mat-header-cell>
+          <span class="sr-only">Actions</span>
+        </th>
+        <td *matCellDef="let tutorial" class="bg-ot-surface" mat-cell>
+          <div class="flex justify-end">
+            @if (!editing(tutorial)) {
+              <button
+                mat-icon-button
+                matTooltip="Edit"
+                type="button"
+                [attr.aria-label]="'Edit ' + tutorial.abbreviation"
+                [disabled]="!!selected"
+                (click)="flagEdit(tutorial)"
+              >
+                <mat-icon aria-hidden="true">edit</mat-icon>
+              </button>
+            } @else {
+              <button
+                mat-icon-button
+                matTooltip="Save"
+                type="button"
+                [attr.aria-label]="'Save ' + tutorial.abbreviation"
+                (click)="submit()"
+              >
+                <mat-icon aria-hidden="true">check</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                matTooltip="Cancel"
+                type="button"
+                [attr.aria-label]="'Stop editing ' + tutorial.abbreviation"
+                (click)="cancelEdit()"
+              >
+                <mat-icon aria-hidden="true">close</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                matTooltip="Delete"
+                type="button"
+                [attr.aria-label]="'Delete ' + tutorial.abbreviation"
+                (click)="deleteTutorial(tutorial)"
+              >
+                <mat-icon aria-hidden="true">delete</mat-icon>
+              </button>
+            }
+          </div>
+        </td>
+        <td *matFooterCellDef class="bg-ot-surface" mat-footer-cell>
+          <div class="flex justify-end">
+            <button
+              aria-label="Add tutorial"
+              color="primary"
+              mat-icon-button
+              matTooltip="Add tutorial"
+              type="button"
+              (click)="submit()"
+            >
+              <mat-icon aria-hidden="true">add</mat-icon>
             </button>
           </div>
-        } @else {
-          <div class="edit-actions right mr-3">
-            <button color="primary" mat-icon-button (click)="submit()">
-              <mat-icon>save</mat-icon>
-            </button>
-            <button color="warn" mat-icon-button (click)="cancelEdit()">
-              <mat-icon>cancel</mat-icon>
-            </button>
-            <button color="warn" mat-icon-button (click)="deleteTutorial(tutorial)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        }
-      </td>
-      <td *matFooterCellDef mat-footer-cell>
-        <div class="edit-actions right">
-          <button class="mr-3 mb-[22px]" mat-icon-button (click)="submit()">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
-      </td>
-    </ng-container>
+        </td>
+      </ng-container>
 
-    <tr *matHeaderRowDef="columns" mat-header-row></tr>
-    <tr *matRowDef="let row; columns: columns" mat-row></tr>
-    <tr *matFooterRowDef="columns" mat-footer-row [hidden]="selected"></tr>
-  </table>
-</div>
+      <tr *matHeaderRowDef="columns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: columns" mat-row></tr>
+      <tr *matNoDataRow class="mat-row">
+        <td class="mat-cell !border-b-0" [attr.colspan]="columns.length">
+          <f-empty-state
+            hint="Fill in the row below and press add to create the first one."
+            icon="event_busy"
+            message="No tutorials in this stream yet"
+          ></f-empty-state>
+        </td>
+      </tr>
+      @if (canAddTutorials) {
+        <tr *matFooterRowDef="columns" class="add-row" mat-footer-row [hidden]="!!selected"></tr>
+      }
+    </table>
+  </div>
+</section>

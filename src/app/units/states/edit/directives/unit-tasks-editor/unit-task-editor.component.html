@@ -1,114 +1,121 @@
-<div class="flex flex-grow flex-col gap-5 gap-y-0">
-  <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-    <div>
-      <h3>Task List</h3>
-      <p>Plan the list of tasks for students to complete.</p>
+<div class="flex flex-col gap-5 pb-8">
+  <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-2">
+    <div class="min-w-0">
+      <h2 class="m-0 text-lg leading-snug font-semibold text-ot-text">Tasks</h2>
+      <p class="m-0 mt-1 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+        {{ taskCountLabel }}. Pick a task to change its details, dates, files and rules.
+      </p>
     </div>
-    <div class="flex flex-wrap items-center gap-3 md:justify-end">
-      <div class="flex items-center">
-        <label>Definitions CSV</label>
-        <div class="flex items-center">
-          <button mat-icon-button (click)="unit.downloadTaskDefinitionsCsv()">
-            <mat-icon>download</mat-icon>
-          </button>
-          <button mat-icon-button (click)="uploadTaskDefinitionsCsv()">
-            <mat-icon>upload_file</mat-icon>
-          </button>
-        </div>
-      </div>
-      <div class="flex items-center">
-        <label>Resources as Zip</label>
-        <div class="flex items-center">
-          <button mat-icon-button (click)="unit.downloadAllTaskResourcesZip()">
-            <mat-icon>download</mat-icon>
-          </button>
-          <button mat-icon-button (click)="uploadTaskResourcesZip()">
-            <mat-icon>upload_file</mat-icon>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="my-2 flex w-full items-center justify-end gap-2">
-    @if (unit.allowFlexibleDates) {
-      <button mat-raised-button (click)="manageDueDates = !manageDueDates">Manage Due Dates</button>
-    }
-    <button color="primary" mat-raised-button (click)="createTaskDefinition()">Add Task</button>
-  </div>
 
-  @if (unit.allowFlexibleDates) {
-    @if (manageDueDates) {
-      <br />
-      <mat-divider class="my-3"></mat-divider>
-      <br />
-      <div>
-        <h3>Manage Target Dates</h3>
-        <p>Modify or add target dates for each target grade</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <button mat-stroked-button type="button" [matMenuTriggerFor]="transferMenu">
+        <mat-icon aria-hidden="true">import_export</mat-icon>
+        Import and export
+      </button>
+      <mat-menu #transferMenu="matMenu">
+        <button mat-menu-item type="button" (click)="unit.downloadTaskDefinitionsCsv()">
+          <mat-icon aria-hidden="true">download</mat-icon>
+          <span>Download task list (CSV)</span>
+        </button>
+        <button mat-menu-item type="button" (click)="uploadTaskDefinitionsCsv()">
+          <mat-icon aria-hidden="true">upload_file</mat-icon>
+          <span>Upload task list (CSV)</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item type="button" (click)="unit.downloadAllTaskResourcesZip()">
+          <mat-icon aria-hidden="true">download</mat-icon>
+          <span>Download task sheets and resources (ZIP)</span>
+        </button>
+        <button mat-menu-item type="button" (click)="uploadTaskResourcesZip()">
+          <mat-icon aria-hidden="true">upload_file</mat-icon>
+          <span>Upload task sheets and resources (ZIP)</span>
+        </button>
+      </mat-menu>
+
+      @if (unit.allowFlexibleDates) {
+        <button
+          mat-stroked-button
+          type="button"
+          [attr.aria-expanded]="manageDueDates"
+          (click)="manageDueDates = !manageDueDates"
+        >
+          <mat-icon aria-hidden="true">event</mat-icon>
+          Dates by grade
+        </button>
+      }
+
+      <button color="primary" mat-flat-button type="button" (click)="createTaskDefinition()">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        Add task
+      </button>
+    </div>
+  </header>
+
+  @if (unit.allowFlexibleDates && manageDueDates) {
+    <section
+      aria-labelledby="grade-dates-title"
+      class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+    >
+      <div
+        class="flex flex-wrap items-start justify-between gap-3 border-b border-ot-divider px-5 py-4"
+      >
+        <div class="min-w-0">
+          <h3 class="m-0 text-base font-semibold text-ot-text" id="grade-dates-title">
+            Dates by grade
+          </h3>
+          <p class="m-0 mt-1 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+            Give students aiming for each grade their own start and target dates. A date in grey
+            italics is the task's own date, used until you pick another. Each change saves straight
+            away.
+          </p>
+        </div>
+        <button mat-button type="button" (click)="manageDueDates = false">Close</button>
       </div>
-      <div class="mt-3.5">
-        <table class="mat-elevation-z0 w-full" mat-table [dataSource]="taskDefinitionSource">
+
+      <!-- The table is as wide as its grades need and scrolls inside the card. -->
+      <div class="relative overflow-x-auto">
+        <table class="w-full min-w-max" mat-table [dataSource]="taskDefinitionSource">
           <ng-container matColumnDef="taskDefinition">
             <th *matHeaderCellDef mat-header-cell>Task</th>
-            <td *matCellDef="let td" class="w-fit whitespace-nowrap" mat-cell>
-              {{ td.abbreviation }} {{ td.name }}
+            <td *matCellDef="let td" class="max-w-64" mat-cell>
+              <span class="font-semibold text-ot-text tabular-nums">{{ td.abbreviation }}</span>
+              <span class="block truncate text-sm text-ot-muted" [title]="td.name">
+                {{ td.name }}
+              </span>
             </td>
           </ng-container>
 
           @for (grade of gradeColumns; track grade.value) {
             <ng-container [matColumnDef]="gradeColumnId(grade)">
-              <th *matHeaderCellDef class="w-[160px] text-center" mat-header-cell>
-                <div class="flex w-full justify-center">
-                  <f-grade-icon [grade]="grade.value" [unit]="unit"></f-grade-icon>
-                </div>
-              </th>
-              <td *matCellDef="let td" mat-cell>
-                <div class="flex flex-col gap-1">
-                  <mat-form-field
-                    appearance="outline"
-                    class="flex w-[250px] items-center justify-center pt-[22px]"
-                    [ngClass]="{
-                      'date-error': isStartAfterTarget(td, grade),
-                    }"
-                  >
-                    <mat-label> Start Date </mat-label>
+              <th *matHeaderCellDef mat-header-cell>{{ grade.label }}</th>
+              <td *matCellDef="let td" class="py-2" mat-cell>
+                <div class="flex flex-col gap-2 py-1">
+                  <mat-form-field appearance="outline" class="w-44" subscriptSizing="dynamic">
+                    <mat-label>Start</mat-label>
                     <input
                       matInput
-                      placeholder="Select date"
+                      [errorStateMatcher]="dateOrderMatcher(td, grade)"
                       [matDatepicker]="dpStart"
-                      [ngClass]="{
-                        'fallback-date': isFallbackStartDate(td, grade),
-                      }"
+                      [ngClass]="{'text-ot-muted italic': isFallbackStartDate(td, grade)}"
                       [ngModel]="getGradeStartDate(td, grade)"
-                      (ngModelChange)="setGradeStartDate(td, grade, $event)"
+                      (dateChange)="setGradeStartDate(td, grade, $event.value)"
                     />
-                    <mat-datepicker-toggle matSuffix [for]="dpStart"></mat-datepicker-toggle>
+                    <mat-datepicker-toggle matIconSuffix [for]="dpStart"></mat-datepicker-toggle>
                     <mat-datepicker #dpStart></mat-datepicker>
                   </mat-form-field>
-                  <mat-form-field
-                    appearance="outline"
-                    class="flex w-[250px] items-center justify-center"
-                    [ngClass]="{
-                      'date-error': isStartAfterTarget(td, grade),
-                    }"
-                  >
-                    <mat-label> Target Date </mat-label>
+                  <mat-form-field appearance="outline" class="w-44" subscriptSizing="dynamic">
+                    <mat-label>Target</mat-label>
                     <input
                       matInput
-                      placeholder="Select date"
+                      [errorStateMatcher]="dateOrderMatcher(td, grade)"
                       [matDatepicker]="dpTarget"
-                      [ngClass]="{
-                        'fallback-date': isFallbackTargetDate(td, grade),
-                      }"
+                      [ngClass]="{'text-ot-muted italic': isFallbackTargetDate(td, grade)}"
                       [ngModel]="getGradeDueDate(td, grade)"
-                      (ngModelChange)="setGradeDueDate(td, grade, $event)"
+                      (dateChange)="setGradeDueDate(td, grade, $event.value)"
                     />
-                    @if (isStartAfterTarget(td, grade)) {
-                      <mat-hint class="text-red-500">
-                        Target date must be after start date
-                      </mat-hint>
-                    }
-                    <mat-datepicker-toggle matSuffix [for]="dpTarget"></mat-datepicker-toggle>
+                    <mat-datepicker-toggle matIconSuffix [for]="dpTarget"></mat-datepicker-toggle>
                     <mat-datepicker #dpTarget></mat-datepicker>
+                    <mat-error>Target is before start</mat-error>
                   </mat-form-field>
                 </div>
               </td>
@@ -117,147 +124,173 @@
 
           <tr *matHeaderRowDef="dueDateColumns" mat-header-row></tr>
           <tr *matRowDef="let row; columns: dueDateColumns" mat-row></tr>
+          <tr *matNoDataRow class="mat-row">
+            <td class="mat-cell !border-b-0" [attr.colspan]="dueDateColumns.length">
+              <f-empty-state
+                hint="Add a task to set its dates for each grade."
+                icon="event_busy"
+                message="No tasks to show"
+              ></f-empty-state>
+            </td>
+          </tr>
         </table>
       </div>
-    }
+    </section>
   }
 
-  <div class="flex flex-col items-start gap-2.5 md:flex-row">
+  <div class="flex flex-col gap-5 md:flex-row md:items-start">
     <aside
-      class="self-start md:sticky md:top-2.5 md:shrink-0"
-      [ngClass]="{
-        'w-full md:w-[420px]': !isTaskListCollapsed,
-        'w-full md:w-[92px]': isTaskListCollapsed,
-      }"
+      aria-label="Task list"
+      class="flex w-full shrink-0 flex-col overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1) md:sticky md:top-4 md:max-h-[calc(100dvh-2rem)]"
+      [ngClass]="isTaskListCollapsed ? 'md:w-20' : 'md:w-80'"
     >
-      <div class="overflow-hidden rounded-2xl bg-white md:flex md:h-[calc(100vh-2rem)] md:flex-col">
-        <div
-          class="text-left text-[15px]"
-          [ngClass]="{
-            'px-0.5': !isTaskListCollapsed,
-            'px-0': isTaskListCollapsed,
-          }"
+      <div
+        class="flex items-center gap-1 border-b border-ot-divider p-2"
+        [ngClass]="{'md:justify-center': isTaskListCollapsed}"
+      >
+        <button
+          class="hidden text-ot-muted md:inline-flex"
+          mat-icon-button
+          type="button"
+          [attr.aria-expanded]="!isTaskListCollapsed"
+          [attr.aria-label]="isTaskListCollapsed ? 'Expand task list' : 'Collapse task list'"
+          (click)="toggleTaskListCollapsed()"
         >
-          <div class="flex items-center" [ngClass]="{'justify-center': isTaskListCollapsed}">
-            <button
-              class="flex flex-none items-center"
-              mat-icon-button
-              [attr.aria-label]="isTaskListCollapsed ? 'Expand task list' : 'Collapse task list'"
-              (click)="toggleTaskListCollapsed()"
-            >
-              <mat-icon class="flex items-center">
-                {{ isTaskListCollapsed ? 'chevron_right' : 'chevron_left' }}
-              </mat-icon>
-            </button>
-            @if (!isTaskListCollapsed) {
-              <button
-                aria-label="Search Icon"
-                class="flex flex-none items-center"
-                disabled
-                mat-icon-button
-              >
-                <mat-icon class="flex items-center">search</mat-icon>
-              </button>
-              <div class="grow pr-1">
-                <input
-                  autocomplete="off"
-                  class="w-full border-0 bg-transparent outline-none"
-                  placeholder="Search Tasks"
-                  spellcheck="false"
-                  type="text"
-                  [(ngModel)]="filter"
-                  (ngModelChange)="applyFilter($event)"
-                />
-              </div>
-            }
-          </div>
-        </div>
-
-        <div class="h-[560px] overflow-auto md:h-auto md:flex-1">
-          <mat-selection-list [multiple]="false">
-            @if ((taskDefinitionSource?.filteredData ?? []).length === 0) {
-              <div class="text-muted p-2 text-center">No task definitions to display</div>
-            }
-            @for (
-              taskDefinition of taskDefinitionSource?.filteredData ?? [];
-              track taskDefinition
-            ) {
-              <mat-list-item class="clearfix h-[60px] p-0" [disableRipple]="true">
-                <div
-                  class="flex h-[60px] w-full cursor-pointer items-center rounded-[6px] hover:bg-gray-50"
-                  matTooltipPosition="above"
-                  [matTooltip]="taskDefinition.name"
-                  [matTooltipDisabled]="!isTaskListCollapsed"
-                  [matTooltipShowDelay]="250"
-                  [ngClass]="{
-                    'bg-[#e7e7ff]': isSelectedTaskDefinition(taskDefinition),
-                  }"
-                  (click)="selectTaskDefinition(taskDefinition)"
-                >
-                  <div class="flex w-full items-center px-[6px]">
-                    <div
-                      class="flex w-full items-center"
-                      [ngClass]="{'justify-center': isTaskListCollapsed}"
-                    >
-                      <f-task-badge
-                        [highlight]="isSelectedTaskDefinition(taskDefinition)"
-                        [taskDef]="taskDefinition"
-                      ></f-task-badge>
-
-                      @if (!isTaskListCollapsed) {
-                        <div class="ml-2.5 min-w-0 flex-1 flex-col">
-                          <h4 class="mt-[8px] mb-[-2px] line-clamp-1 text-[15px]">
-                            {{ taskDefinition.name }}
-                          </h4>
-                          <div class="mb-0 text-[12px]">
-                            {{ gradeNames[taskDefinition.targetGrade] }} Task
-                          </div>
-                        </div>
-
-                        <div
-                          class="flex items-center gap-0.5 pr-0.5"
-                          (click)="$event.stopPropagation()"
-                        >
-                          @if (taskDefinitionHasChanges(taskDefinition)) {
-                            <button
-                              aria-label="save task definition"
-                              color="primary"
-                              mat-icon-button
-                              (click)="saveTaskDefinition(taskDefinition)"
-                            >
-                              <mat-icon>save</mat-icon>
-                            </button>
-                          }
-                          <button
-                            aria-label="delete task definition"
-                            color="warn"
-                            mat-icon-button
-                            (click)="deleteTaskDefinition(taskDefinition)"
-                          >
-                            <mat-icon>delete</mat-icon>
-                          </button>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                </div>
-              </mat-list-item>
-            }
-          </mat-selection-list>
+          <mat-icon>{{ isTaskListCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+        </button>
+        <div class="relative min-w-0 grow" [ngClass]="{'md:hidden': isTaskListCollapsed}">
+          <mat-icon
+            aria-hidden="true"
+            class="pointer-events-none absolute top-1/2 left-2.5 !size-5 -translate-y-1/2 !text-xl !leading-none text-ot-muted"
+          >
+            search
+          </mat-icon>
+          <input
+            aria-label="Search tasks"
+            autocomplete="off"
+            class="h-10 w-full min-w-0 rounded-ot-sm border border-ot-border bg-ot-surface pr-3 pl-9 text-sm text-ot-text placeholder:text-ot-muted placeholder:opacity-100 focus-visible:border-ot-focus focus-visible:outline-1 focus-visible:outline-ot-focus"
+            placeholder="Search tasks"
+            spellcheck="false"
+            type="search"
+            [(ngModel)]="filter"
+            (ngModelChange)="applyFilter($event)"
+          />
         </div>
       </div>
+
+      <ul class="m-0 min-h-0 flex-1 list-none overflow-y-auto p-1.5 max-md:max-h-80">
+        @if (selectedTaskDefinition?.isNew) {
+          <!-- A new task is not in the unit until it is saved, so it is listed here
+               on its own while it is open. -->
+          <li
+            aria-current="true"
+            class="flex min-w-0 items-center gap-3 rounded-ot-md bg-ot-selected p-2 text-ot-text"
+          >
+            <f-task-badge [highlight]="true" [taskDef]="selectedTaskDefinition"></f-task-badge>
+            <span class="min-w-0 flex-1" [ngClass]="{'md:hidden': isTaskListCollapsed}">
+              <span class="block truncate text-sm font-medium">
+                {{ selectedTaskDefinition.name || 'Untitled task' }}
+              </span>
+              <span class="block text-xs text-ot-muted">New, not saved yet</span>
+            </span>
+          </li>
+        }
+
+        @for (taskDefinition of taskDefinitionSource.filteredData; track taskDefinition) {
+          <li>
+            <button
+              class="flex w-full min-w-0 items-center gap-3 rounded-ot-md p-2 text-left text-ot-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ot-focus"
+              matTooltipPosition="right"
+              type="button"
+              [attr.aria-current]="isSelectedTaskDefinition(taskDefinition) ? 'true' : null"
+              [attr.aria-label]="
+                isTaskListCollapsed ? taskDefinition.abbreviation + ' ' + taskDefinition.name : null
+              "
+              [matTooltip]="taskDefinition.name"
+              [matTooltipDisabled]="!isTaskListCollapsed"
+              [matTooltipShowDelay]="250"
+              [ngClass]="
+                isSelectedTaskDefinition(taskDefinition) ? 'bg-ot-selected' : 'hover:bg-ot-hover'
+              "
+              (click)="selectTaskDefinition(taskDefinition)"
+            >
+              <f-task-badge
+                [highlight]="isSelectedTaskDefinition(taskDefinition)"
+                [taskDef]="taskDefinition"
+              ></f-task-badge>
+              <span class="min-w-0 flex-1" [ngClass]="{'md:hidden': isTaskListCollapsed}">
+                <span class="block truncate text-sm font-medium">{{ taskDefinition.name }}</span>
+                <span class="block truncate text-xs text-ot-muted">
+                  {{ gradeLabel(taskDefinition) }}
+                  @if (taskDefinition.targetDate) {
+                    <span aria-hidden="true">·</span>
+                    Target {{ taskDefinition.targetDate | date: 'd MMM' }}
+                  }
+                </span>
+              </span>
+              @if (
+                isSelectedTaskDefinition(taskDefinition) && taskDefinitionHasChanges(taskDefinition)
+              ) {
+                <span
+                  aria-hidden="true"
+                  class="size-2 shrink-0 rounded-full bg-ot-warning"
+                  [ngClass]="{'md:hidden': isTaskListCollapsed}"
+                ></span>
+                <span class="sr-only">Unsaved changes</span>
+              }
+            </button>
+          </li>
+        } @empty {
+          @if (!selectedTaskDefinition?.isNew) {
+            <li [ngClass]="{'md:hidden': isTaskListCollapsed}">
+              @if (filter) {
+                <f-empty-state
+                  hint="Try a task code such as 1.1P, or part of a name."
+                  icon="search_off"
+                  message="No tasks match your search"
+                ></f-empty-state>
+                <div class="flex justify-center pb-6">
+                  <button mat-stroked-button type="button" (click)="filter = ''; applyFilter('')">
+                    Clear search
+                  </button>
+                </div>
+              } @else {
+                <f-empty-state
+                  hint="Add a task, or upload a task list from Import and export."
+                  icon="assignment"
+                  message="No tasks yet"
+                ></f-empty-state>
+              }
+            </li>
+          }
+        }
+      </ul>
     </aside>
 
-    <div class="w-full min-w-0 flex-1">
+    <div #editorColumn class="w-full min-w-0 flex-1 scroll-mt-4">
       @if (selectedTaskDefinition) {
         <f-task-definition-editor
+          [hasChanges]="selectedTaskDefinitionHasChanges"
+          [saving]="savingTaskDefinition"
           [taskDefinition]="selectedTaskDefinition"
           [unit]="unit"
+          (deleteTask)="deleteTaskDefinition(selectedTaskDefinition)"
+          (discardChanges)="discardTaskDefinitionChanges()"
+          (saveTask)="saveTaskDefinition(selectedTaskDefinition)"
         ></f-task-definition-editor>
       } @else {
-        <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-gray-600">
-          <h4>Select a task definition</h4>
-          <p>Pick a task from the left list to edit its details.</p>
+        <div class="rounded-ot-lg border border-dashed border-ot-border bg-ot-surface px-6 pb-8">
+          <f-empty-state
+            hint="Pick a task from the list to change it, or add a new one."
+            icon="edit_note"
+            message="No task open"
+          ></f-empty-state>
+          <div class="flex justify-center">
+            <button color="primary" mat-flat-button type="button" (click)="createTaskDefinition()">
+              <mat-icon aria-hidden="true">add</mat-icon>
+              Add task
+            </button>
+          </div>
         </div>
       }
     </div>

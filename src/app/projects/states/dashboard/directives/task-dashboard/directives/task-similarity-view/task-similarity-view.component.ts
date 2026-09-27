@@ -4,10 +4,13 @@ import {
   Component,
   Input,
   OnChanges,
+  QueryList,
   SimpleChanges,
   ViewChild,
+  ViewChildren,
 } from '@angular/core';
-import {MatAccordion} from '@angular/material/expansion';
+import {MatExpansionPanelHeader} from '@angular/material/expansion';
+import {Subscription} from 'rxjs';
 import {Task} from 'src/app/api/models/task';
 import {TaskSimilarity} from 'src/app/api/models/task-similarity';
 import {TaskSimilarityService} from 'src/app/api/services/task-similarity.service';
@@ -20,15 +23,22 @@ import {SelectedTaskService} from '../../../../selected-task.service';
   selector: 'f-task-similarity-view',
   templateUrl: './task-similarity-view.component.html',
   styleUrls: ['./task-similarity-view.component.scss'],
+  // The tab owns its scroll: the header stays put and only the list moves.
+  host: {class: 'flex h-full min-h-0 flex-col'},
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class TaskSimilarityViewComponent implements OnChanges {
   @Input() task: Task;
-  @ViewChild(MatAccordion) accordion: MatAccordion;
   @ViewChild('jplagViewer') jplagViewer!: JplagReportViewerComponent;
+  @ViewChildren(MatExpansionPanelHeader) panelHeaders?: QueryList<MatExpansionPanelHeader>;
   panelOpenState = false;
   jplagOpenState = false;
+  loading = false;
+  /** The last fetch failed, so the tab offers a retry instead of saying there are none. */
+  loadError = false;
+
+  private similaritiesSub?: Subscription;
 
   constructor(
     private taskSimilarityService: TaskSimilarityService,
@@ -40,11 +50,55 @@ export class TaskSimilarityViewComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.task && changes.task.currentValue && this.task?.id) {
       this.jplagOpenState = false;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      this.task?.fetchSimilarities().subscribe((_) => {
-        console.log('similarities fetched');
-      });
+      this.loadSimilarities();
     }
+  }
+
+  loadSimilarities(): void {
+    // A task change can start a fetch before the last one returns, so drop the older one.
+    this.similaritiesSub?.unsubscribe();
+    this.loading = true;
+    this.loadError = false;
+
+    this.similaritiesSub = this.task.fetchSimilarities().subscribe({
+      next: () => {
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.loadError = true;
+      },
+      complete: () => {
+        this.loading = false;
+      },
+    });
+  }
+
+  /** Collapse all is only worth showing while there is something open to collapse. */
+  hasOpenPanel(similarities: readonly TaskSimilarity[]): boolean {
+    return similarities.some((similarity) => similarity.parts?.some((part) => part.panelOpenState));
+  }
+
+  // The panels bind their expanded state to the part, so clearing it closes them.
+  collapseAll(): void {
+    for (const similarity of this.task?.similarityCache.currentValues ?? []) {
+      for (const part of similarity.parts ?? []) {
+        part.panelOpenState = false;
+      }
+    }
+    this.focusFirstPanel();
+  }
+
+  closeJplagReport(): void {
+    this.jplagOpenState = false;
+    this.focusFirstPanel();
+  }
+
+  // Collapse all and Back to summary both leave the page once used, which would drop
+  // keyboard focus to the page body. Hand it to the first similarity instead, once the
+  // list has rendered.
+  private focusFirstPanel(): void {
+    setTimeout(() => this.panelHeaders?.first?.focus());
   }
 
   toggleFlag(e: Event, similarity: TaskSimilarity) {
