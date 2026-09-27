@@ -1,5 +1,5 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, Input} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
 import {ProjectService, User} from 'src/app/api/models/doubtfire-model';
 import {Unit} from 'src/app/api/models/unit';
 import {AuthenticationService} from 'src/app/api/services/authentication.service';
@@ -18,10 +18,9 @@ import {AlertService} from 'src/app/common/services/alert.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class LtiDashboardComponent implements AfterViewInit {
+export class LtiDashboardComponent implements OnInit {
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
     private ltiService: LtiService,
     private userService: UserService,
     private authenticationService: AuthenticationService,
@@ -41,20 +40,20 @@ export class LtiDashboardComponent implements AfterViewInit {
   unauthorised: boolean = false;
 
   loadingState: 'creatingUser' | 'enrollingUser' | 'fetchingUnit';
-  isLoading: boolean;
+  // Starts true, so the page opens on its loading state rather than a blank one.
+  isLoading: boolean = true;
 
   isSyncingGrades: boolean;
   isSyncingEnrolments: boolean;
 
-  ngAfterViewInit(): void {
-    this.ltik = this.ltik ?? this.route.snapshot.queryParamMap.get('ltik');
+  // In ngOnInit rather than ngAfterViewInit: nothing here needs the view, and state set
+  // after the view was checked threw ExpressionChangedAfterItHasBeenChecked in dev builds.
+  ngOnInit(): void {
+    this.ltik = this.ltik ?? this.userService.currentUser.ltik;
 
     // Scroll to the bottom of the page in case the header is visible
     // Ensures our action buttons are centered
     setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 100);
-
-    this.isLoading = true;
-    // TODO: add a spinner or loading indicator until final loading state is complete
 
     this.authenticationService.afterAuthCall(() => {
       this.userService.currentUser.ltik = this.ltik;
@@ -100,19 +99,23 @@ export class LtiDashboardComponent implements AfterViewInit {
     });
   }
 
+  /** Convenors and admins can link, unlink and sync. Everyone else can only launch. */
+  get canManageLink(): boolean {
+    return this.currentUser?.systemRole === 'Convenor' || this.currentUser?.systemRole === 'Admin';
+  }
+
   goToLinkUnit(): void {
-    this.router.navigate(['/lti/link'], {queryParams: {ltik: this.ltik}});
+    this.router.navigateByUrl('/lti/link');
   }
 
   removeLink(): void {
     this.ltiService.removeUnitLink().subscribe({
-      next: (link) => {
+      next: () => {
         this.linkedUnit = null;
-        console.log(link);
       },
       error: (error) => {
-        console.error(error);
-        this.alertsService.error(error.error, 6000);
+        // Errors reach here as the message itself, so error.error was always undefined.
+        this.alertsService.error(`Failed to unlink the unit: ${error?.error ?? error}`, 6000);
       },
     });
   }
@@ -203,16 +206,17 @@ export class LtiDashboardComponent implements AfterViewInit {
             this.alertsService.success('Successfully synced grades from OnTrack', 5000);
             this.csvResultModalService.show('Grade sync', result);
           },
-          error: (error) => {
-            console.log(error);
-            this.alertsService.error(`Failed to retrieve grade`);
-            this.isSyncingGrades = true;
+          error: () => {
+            this.alertsService.error(`Failed to sync grades`);
+            // This was set back to true, which left both sync buttons disabled and
+            // spinning after any failed grade sync until the page was reloaded.
+            this.isSyncingGrades = false;
           },
         });
       },
     );
   }
   public launchApplication(): void {
-    window.open('http://localhost:4200/home', '_blank');
+    window.open('/home', '_blank');
   }
 }

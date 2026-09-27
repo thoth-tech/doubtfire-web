@@ -1,4 +1,3 @@
-version: '3'
 services:
   doubtfire-api:
     container_name: web-doubtfire-api
@@ -21,15 +20,17 @@ services:
       DF_SECRET_KEY_ATTR: test-secret-key-test-secret-key!
       DF_SECRET_KEY_DEVISE: test-secret-key-test-secret-key!
 
-      # Authentication method - can set to AAF or ldap
-      DF_AUTH_METHOD: database
-      DF_AAF_ISSUER_URL: https://rapid.test.aaf.edu.au
-      DF_AAF_AUDIENCE_URL: http://localhost:4200
-      DF_AAF_CALLBACK_URL: http://localhost:4200/api/auth/jwt
-      DF_AAF_IDENTITY_PROVIDER_URL: https://signon-uat.deakin.edu.au/idp/shibboleth
-      DF_AAF_UNIQUE_URL: https://rapid.test.aaf.edu.au/jwt/authnrequest/research/Ag4EJJhjf0zXHqlKvKZEbg
-      DF_AAF_AUTH_SIGNOUT_URL: https://sync-uat.deakin.edu.au/auth/logout
-      DF_SECRET_KEY_AAF: v4~LMFLzzwRGZdju\5QBa@FiHIN9
+      # Database authentication is the safe local default. Optional AAF
+      # development values must come from an ignored .env file; never commit an
+      # institution credential or registration URL here.
+      DF_AUTH_METHOD: ${DF_AUTH_METHOD:-database}
+      DF_AAF_ISSUER_URL: ${DF_AAF_ISSUER_URL:-}
+      DF_AAF_AUDIENCE_URL: ${DF_AAF_AUDIENCE_URL:-http://localhost:4200}
+      DF_AAF_CALLBACK_URL: ${DF_AAF_CALLBACK_URL:-http://localhost:4200/api/auth/jwt}
+      DF_AAF_IDENTITY_PROVIDER_URL: ${DF_AAF_IDENTITY_PROVIDER_URL:-}
+      DF_AAF_UNIQUE_URL: ${DF_AAF_UNIQUE_URL:-}
+      DF_AAF_AUTH_SIGNOUT_URL: ${DF_AAF_AUTH_SIGNOUT_URL:-}
+      DF_SECRET_KEY_AAF: ${DF_SECRET_KEY_AAF:-}
 
       # Database settings - for development env
       DF_DEV_DB_ADAPTER: mysql2

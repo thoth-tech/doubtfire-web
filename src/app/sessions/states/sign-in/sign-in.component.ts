@@ -1,24 +1,14 @@
 import {HttpClient} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 import {AuthenticationService} from 'src/app/api/services/authentication.service';
 import {UserService} from 'src/app/api/services/user.service';
 import {AlertService} from 'src/app/common/services/alert.service';
 import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
 import {GlobalStateService} from 'src/app/projects/states/index/global-state.service';
-
-// Add fallback to check url for query parameters
-type IParams = Record<string, string>;
-
-const paramReducer = (params: IParams, pair: string): IParams => {
-  const [key, value] = `${pair}=`.split('=').map(decodeURIComponent);
-
-  return key.length > 0 ? {...params, [key]: value} : params;
-};
-
-const getUrlParams = (search: string): IParams =>
-  `${search}?`.split('?')[1].split('&').reduce<IParams>(paramReducer, {});
+import {consumeAuthCallback} from 'src/app/security/auth-callback';
+import {AuthReturnUrlService} from 'src/app/security/auth-return-url.service';
 
 type signInData =
   | {
@@ -56,6 +46,8 @@ export class SignInComponent implements OnInit {
 
   public redirectingSSO: boolean = false;
 
+  private postSignInNavigationStarted = false;
+
   // Get query params from the resolve in the router state
   @Input() username: string;
   @Input() authToken: string;
@@ -67,29 +59,25 @@ export class SignInComponent implements OnInit {
     public authService: AuthenticationService,
     private userService: UserService,
     private router: Router,
-    private route: ActivatedRoute,
     private constants: DoubtfireConstants,
     private http: HttpClient,
     private globalState: GlobalStateService,
     private alerts: AlertService,
+    private authReturnUrl: AuthReturnUrlService,
   ) {}
 
   ngOnInit(): void {
+    const callback = consumeAuthCallback();
+    this.username = callback?.username ?? this.username;
+    this.authToken = callback?.authToken ?? this.authToken;
+    this.ltiToken = callback?.ltiToken ?? this.ltiToken;
+    this.ltik = callback?.ltik ?? this.ltik;
+    this.isLtiLogin = callback?.isLtiLogin ?? this.isLtiLogin;
+
     this.authService.afterAuthCall((result) => {
       if (result) {
-        const params = getUrlParams(document.location.href);
         this.isLoading = false;
-
-        if (params.isLtiLogin && params.ltik) {
-          this.globalState.hideHeader();
-          this.userService.currentUser.ltik = params.ltik;
-          return this.router.navigate(['/lti'], {queryParams: {ltik: params.ltik}});
-        } else if (this.userService.currentUser.hasRunFirstTimeSetup === false) {
-          return this.router.navigateByUrl('/welcome');
-        } else {
-          this.globalState.goHome();
-          return this.router.navigateByUrl('/home');
-        }
+        return this.actionSignInSuccess();
       }
       this.isLoading = true;
     });
@@ -113,18 +101,6 @@ export class SignInComponent implements OnInit {
     this.globalState.hideHeader();
     this.api = this.constants.API_URL;
     this.externalName = this.constants.ExternalName;
-
-    const queryParams = this.route.snapshot.queryParams;
-    const params = getUrlParams(document.location.href);
-    if (!this.username) {
-      this.username = queryParams.username || params.username;
-      this.authToken = queryParams.authToken || params.authToken;
-    }
-
-    this.ltiToken = queryParams.ltiToken || params.ltiToken || undefined;
-    this.ltik = queryParams.ltik || params.ltik || undefined;
-    this.isLtiLogin =
-      (queryParams.isLtiLogin || params.isLtiLogin)?.toLowerCase() === 'true' ? true : false;
 
     // wait 2 seconds with rxjs
     const wait = new Promise((resolve) => setTimeout(resolve, 3000));
@@ -212,9 +188,30 @@ export class SignInComponent implements OnInit {
    * Perform the actions needed when the user successfully signs in.
    */
   private actionSignInSuccess(): void {
-    this.router.navigateByUrl(
-      this.userService.currentUser.hasRunFirstTimeSetup === false ? '/welcome' : '/home',
-    );
+    // Authentication completion is observed both by afterAuthCall and by the
+    // direct sign-in subscription. Only the first observer should navigate;
+    // otherwise the second one can replace a restored deep link with /home.
+    if (this.postSignInNavigationStarted) {
+      return;
+    }
+    this.postSignInNavigationStarted = true;
+
+    if (this.isLtiLogin && this.ltik) {
+      this.authReturnUrl.clear();
+      this.globalState.hideHeader();
+      this.userService.currentUser.ltik = this.ltik;
+      void this.router.navigateByUrl('/lti');
+      return;
+    }
+
+    if (this.userService.currentUser.hasRunFirstTimeSetup === false) {
+      this.authReturnUrl.clear();
+      void this.router.navigateByUrl('/welcome');
+      return;
+    }
+
+    this.globalState.goHome();
+    void this.router.navigateByUrl(this.authReturnUrl.consume() ?? '/home');
   }
 
   /**
@@ -251,14 +248,7 @@ export class SignInComponent implements OnInit {
     this.signingIn = true;
 
     this.authService.signIn(signInCredentials).subscribe({
-      next: () => {
-        if (this.isLtiLogin) {
-          const params = getUrlParams(document.location.href);
-          this.router.navigate(['/lti'], {queryParams: {ltik: params.ltik}});
-        } else {
-          this.actionSignInSuccess();
-        }
-      },
+      next: () => this.actionSignInSuccess(),
       error: (err) => {
         this.signingIn = false;
         this.formData.password = '';
