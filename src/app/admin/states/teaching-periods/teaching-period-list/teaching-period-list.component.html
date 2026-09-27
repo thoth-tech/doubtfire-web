@@ -65,6 +65,15 @@
 
     <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
     <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+    <tr *matNoDataRow class="mat-row">
+      <td class="mat-cell !border-b-0" [attr.colspan]="displayedColumns.length">
+        <f-empty-state
+          hint="Add one with the button above."
+          icon="event_busy"
+          message="No teaching periods yet"
+        ></f-empty-state>
+      </td>
+    </tr>
   </table>
   <mat-paginator
     aria-label="Select page of teaching periods"

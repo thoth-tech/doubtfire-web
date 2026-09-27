@@ -1,0 +1,25 @@
+// Expansion panels drawn as separate cards on a tab (the staff task tabs) rather than
+// as one stacked Material sheet. The M2 dark theme paints panels a warm grey with a
+// drop shadow, so the panel chrome reads the theme tokens instead. Put the mixin on
+// the panel element: the custom properties inherit into its header and any nested
+// panels. Give the header px-4 in the template to line up with the body below.
+@mixin token-expansion-panel {
+  --mat-expansion-container-background-color: var(--ot-color-surface);
+  --mat-expansion-container-text-color: var(--ot-color-text);
+  --mat-expansion-container-elevation-shadow: none;
+  --mat-expansion-header-text-color: var(--ot-color-text);
+  --mat-expansion-header-description-color: var(--ot-color-text-muted);
+  --mat-expansion-header-indicator-color: var(--ot-color-text-muted);
+  --mat-expansion-header-hover-state-layer-color: var(--ot-color-hover);
+  --mat-expansion-header-focus-state-layer-color: var(--ot-color-hover);
+  --mat-expansion-header-disabled-state-text-color: var(--ot-color-text-muted);
+  // The header lines wrap on a phone, so let the header grow instead of clipping it.
+  --mat-expansion-header-collapsed-state-height: auto;
+  --mat-expansion-header-expanded-state-height: auto;
+
+  // Material pads the body 24px. The body sits in the panel's own view, which is why
+  // this needs ::ng-deep.
+  ::ng-deep .mat-expansion-panel-body {
+    padding: 0 16px 16px;
+  }
+}

@@ -1,138 +1,110 @@
-@use 'sass:map';
-@use '@angular/material' as mat;
+// This page used to switch view encapsulation off, so every rule below leaked into the
+// whole app once it had been opened: user icons everywhere gained a margin, and every
+// selection list lost its checkbox spacing. The rules are scoped to the page now, and
+// only reach into the scanner's own markup and the Material list through ::ng-deep.
 
-// $my-palette: mat.define-palette(mat.$indigo-palette);
-@use 'theme' as *;
-@use 'styles/mixins/task-list' as *;
-@use 'styles/mixins/scrollable' as *;
-
-// $my-palette: mat.define-palette($md-formatif);
-
-:host {
-  --background-gray: rgba(0, 0, 0, 0.04);
-  padding-right: 8px;
-  border-right-color: rgba(0, 0, 0, 0.1);
-  border-right-style: solid;
-  border-right-width: 1px;
+// Fields sit at 48px so they line up with the buttons beside them.
+.discussion-field {
+  --mat-form-field-container-height: 48px;
+  --mat-form-field-container-vertical-padding: 12px;
 }
 
-:host ::ng-deep div.mat-expansion-panel-body {
-  padding-right: 0 !important;
+.discussion-icon-tile {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--ot-radius-circle);
+  background: color-mix(in srgb, var(--ot-color-primary) 12%, var(--ot-color-surface));
+  color: var(--ot-color-primary);
 }
 
-user-icon {
-  margin-right: 10px;
-}
+// Calm notes inside a card, in the tone of what they report.
+@mixin callout($tone) {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--ot-color-#{$tone}) 35%, var(--ot-color-divider));
+  border-radius: var(--ot-radius-md);
+  background: color-mix(in srgb, var(--ot-color-#{$tone}) 8%, var(--ot-color-surface));
+  color: var(--ot-color-text);
 
-.mat-mdc-list-item {
-  border: none;
-}
-
-.mat-mdc-list-item .notification {
-  height: 8px;
-  width: 8px;
-  margin-right: 8px;
-
-  border-radius: 50%;
-  display: inline-block;
-
-  background-color: transparent;
-
-  &.active {
-    // background-color: mat.get-color-from-palette($my-palette, 500);
-    background-color: #3939ff;
-  }
-
-  &.active.similarities {
-    background-color: #f44336;
+  > .mat-icon {
+    flex: none;
+    color: var(--ot-color-#{$tone});
   }
 }
 
-.mat-mdc-list-item .item-content {
-  height: 60px;
-  border-radius: 20px;
+.discussion-callout--error {
+  @include callout(error);
 }
 
-.mat-mdc-list-item .item-content:hover {
-  cursor: pointer;
+.discussion-callout--warning {
+  @include callout(warning);
 }
 
-// .tasks-viewport.list-group-item-text-extended {
-//   margin-top: 0.5em;
-//   line-height: 1.3;
-
-//   p {
-//     margin-bottom: 0;
-//     padding: 0;
-//     color: gray;
-//   }
-// }
-
-.mdc-list-item__start.mat-mdc-list-option-checkbox-before {
-  margin-right: 0 !important;
-  padding: 0 !important;
+// The camera view. The scanner draws a video sized in pixels to this element, plus a
+// shaded frame around the area it reads.
+.qr-viewfinder {
+  min-height: 12rem;
 }
 
-.medium-icon-button {
-  width: 75px !important;
-  height: 75px !important;
+:host ::ng-deep #qr-reader {
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  // The scanner's own "Scanner paused" strip, which it shows while a student loads. The
+  // page shows its own status over the camera instead.
+  > div:not([id]) {
+    display: none !important;
+  }
 }
 
-// Hide auto-injected QR scanner elements that are not needed in the UI
-// We only hide this if we found a "back camera" on user's device
-.qr-reader-hide-bloat #qr-reader__header_message,
-.qr-reader-hide-bloat #qr-reader__dashboard_section,
-.qr-reader-hide-bloat #qr-reader__dashboard_section_csr,
-.qr-reader-hide-bloat #qr-reader > div:not([id]):not([class]),
-.qr-reader-hide-bloat #qr-reader__scan_region > div:not([id]):not([class]),
-.qr-reader-hide-bloat #html5-qrcode-button-camera-stop,
-.qr-reader-hide-bloat #html5-qrcode-button-camera-start {
-  display: none !important;
+// Task rows grow to fit two lines of text, and keep the checkbox level with them.
+.discussion-task-list {
+  --mat-list-list-item-one-line-container-height: auto;
+  padding-block: 0.25rem;
 }
 
-#qr-reader img,
-#html5-qrcode-anchor-scan-type-change {
-  display: none !important;
+.discussion-task {
+  min-height: 4rem;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--ot-color-divider);
+
+  &:last-child {
+    border-bottom: 0;
+  }
 }
 
-#html5-qrcode-button-camera-stop,
-#html5-qrcode-button-camera-start {
-  width: 100%;
-  max-width: 1000px;
-  height: 45px;
-  padding: 0.25rem 0.625rem;
-  margin-top: 15px;
-  border-radius: 0.25rem;
-  box-shadow:
-    0 1px 3px 0 rgb(0 0 0 / 10%),
-    0 1px 2px -1px rgb(0 0 0 / 10%);
-  font-weight: 500;
-  color: white;
-  text-transform: uppercase;
-  background-color: #2563eb;
+:host ::ng-deep .discussion-task .mdc-list-item__start {
+  align-self: center;
+  margin-top: 0;
 }
 
-#html5-qrcode-button-camera-stop:hover,
-#html5-qrcode-button-camera-start:hover,
-#html5-qrcode-button-camera-permission:hover {
-  background-color: #1d4ed8;
+// Complete is the action most taken here, so it carries the complete status colour.
+// Material's own disabled colours still apply, because they have their own variables.
+.discussion-complete {
+  --mat-button-filled-container-color: var(--ot-status-complete);
+  --mat-button-filled-label-text-color: var(--ot-status-complete-on);
+  --mat-button-filled-state-layer-color: var(--ot-status-complete-on);
 }
 
-#html5-qrcode-button-camera-permission {
-  width: 100%;
-  max-width: 250px;
-  height: 60px;
-  padding: 0.25rem 0.625rem;
-  border-radius: 0.25rem;
-  box-shadow:
-    0 1px 3px 0 rgb(0 0 0 / 10%),
-    0 1px 2px -1px rgb(0 0 0 / 10%);
-  font-weight: 500;
-  color: white;
-  text-transform: uppercase;
-  background-color: #2563eb;
+// The comments, notes and prompts need a bounded height so each scrolls on its own.
+.discussion-side {
+  height: min(70vh, 40rem);
+  min-height: 24rem;
 }
 
-.comment-user-icon-wrapper.ng-star-inserted {
-  width: auto !important;
+@media (min-width: 1024px) {
+  .discussion-side {
+    position: sticky;
+    top: 1rem;
+    height: calc(100dvh - 10rem);
+    min-height: 30rem;
+  }
 }

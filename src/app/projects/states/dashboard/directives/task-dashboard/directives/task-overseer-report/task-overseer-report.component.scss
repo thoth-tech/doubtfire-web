@@ -1,0 +1,6 @@
+@use 'styles/mixins/token-expansion-panel' as *;
+
+// Each submission, and each Overseer step inside one, is its own card on the tab.
+.history-panel {
+  @include token-expansion-panel;
+}

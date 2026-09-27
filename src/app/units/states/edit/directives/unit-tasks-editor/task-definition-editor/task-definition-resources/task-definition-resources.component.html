@@ -1,43 +1,89 @@
-<div class="flex flex-row gap-2.5">
-  <div class="flex basis-1/2 flex-col">
-    <f-file-drop
-      accept="application/pdf"
-      mode="event"
-      [desiredFileName]="'Task ' + taskDefinition.abbreviation + ' pdf'"
-      (filesDropped)="uploadTaskSheet($event)"
-    />
-    @if (taskDefinition.hasTaskSheet) {
-      <div class="flex flex-row gap-2.5 pt-2.5">
-        <button class="me-4 flex-grow" color="warn" mat-flat-button (click)="removeTaskSheet()">
-          Delete Task Sheet
-        </button>
-        <button class="ms-4 flex-grow" color="accent" mat-flat-button (click)="downloadTaskSheet()">
-          Download Task Sheet
-        </button>
-      </div>
-    }
-  </div>
-  <div class="flex basis-1/2 flex-col">
-    <f-file-drop
-      accept="application/zip,application/x-zip-compressed"
-      mode="event"
-      [desiredFileName]="'Task ' + taskDefinition.abbreviation + ' zip'"
-      (filesDropped)="uploadTaskResources($event)"
-    />
-    @if (taskDefinition.hasTaskResources) {
-      <div class="flex flex-row gap-2.5 pt-2.5">
-        <button class="me-4 flex-grow" color="warn" mat-flat-button (click)="removeTaskResources()">
-          Delete Task Zip
-        </button>
-        <button
-          class="ms-4 flex-grow"
-          color="accent"
-          mat-flat-button
-          (click)="downloadTaskResources()"
+@if (taskDefinition.isNew) {
+  <!-- Uploads go to the task's own address on the server, which only exists once
+       the task is saved. -->
+  <p
+    class="m-0 rounded-ot-md border border-dashed border-ot-border px-4 py-3 text-sm text-ot-muted"
+  >
+    Save the task first. Then you can upload its task sheet and resources.
+  </p>
+} @else {
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div class="flex min-w-0 flex-col gap-3 rounded-ot-md border border-ot-divider p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="m-0 text-sm font-semibold text-ot-text">Task sheet</p>
+          <p class="m-0 mt-0.5 text-sm text-ot-muted">A PDF of the instructions</p>
+        </div>
+        <span
+          class="inline-flex shrink-0 items-center gap-1 text-sm"
+          [ngClass]="taskDefinition.hasTaskSheet ? 'text-ot-success' : 'text-ot-muted'"
         >
-          Download Task Zip
-        </button>
+          <mat-icon aria-hidden="true" class="!size-4 !text-base !leading-none">
+            {{ taskDefinition.hasTaskSheet ? 'check_circle' : 'radio_button_unchecked' }}
+          </mat-icon>
+          {{ taskDefinition.hasTaskSheet ? 'Uploaded' : 'None yet' }}
+        </span>
       </div>
-    }
+      <!-- The shared drop zone is as wide as its message and the chosen file
+           name, so on a phone it scrolls here instead of widening the card. -->
+      <div class="-m-0.5 min-w-0 overflow-x-auto p-0.5">
+        <f-file-drop
+          mode="event"
+          [accept]="pdfAccept"
+          [desiredFileName]="'a PDF'"
+          (filesDropped)="uploadTaskSheet($event)"
+        />
+      </div>
+      @if (taskDefinition.hasTaskSheet) {
+        <div class="flex flex-wrap gap-2">
+          <button mat-stroked-button type="button" (click)="downloadTaskSheet()">
+            <mat-icon aria-hidden="true">download</mat-icon>
+            Download
+          </button>
+          <button class="text-ot-error" mat-button type="button" (click)="removeTaskSheet()">
+            <mat-icon aria-hidden="true">delete</mat-icon>
+            Delete
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-3 rounded-ot-md border border-ot-divider p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="m-0 text-sm font-semibold text-ot-text">Resources</p>
+          <p class="m-0 mt-0.5 text-sm text-ot-muted">A ZIP of starter files and extras</p>
+        </div>
+        <span
+          class="inline-flex shrink-0 items-center gap-1 text-sm"
+          [ngClass]="taskDefinition.hasTaskResources ? 'text-ot-success' : 'text-ot-muted'"
+        >
+          <mat-icon aria-hidden="true" class="!size-4 !text-base !leading-none">
+            {{ taskDefinition.hasTaskResources ? 'check_circle' : 'radio_button_unchecked' }}
+          </mat-icon>
+          {{ taskDefinition.hasTaskResources ? 'Uploaded' : 'None yet' }}
+        </span>
+      </div>
+      <div class="-m-0.5 min-w-0 overflow-x-auto p-0.5">
+        <f-file-drop
+          mode="event"
+          [accept]="zipAccept"
+          [desiredFileName]="'a ZIP'"
+          (filesDropped)="uploadTaskResources($event)"
+        />
+      </div>
+      @if (taskDefinition.hasTaskResources) {
+        <div class="flex flex-wrap gap-2">
+          <button mat-stroked-button type="button" (click)="downloadTaskResources()">
+            <mat-icon aria-hidden="true">download</mat-icon>
+            Download
+          </button>
+          <button class="text-ot-error" mat-button type="button" (click)="removeTaskResources()">
+            <mat-icon aria-hidden="true">delete</mat-icon>
+            Delete
+          </button>
+        </div>
+      }
+    </div>
   </div>
-</div>
+}

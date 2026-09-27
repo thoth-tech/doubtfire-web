@@ -1,7 +1,7 @@
 @if (isPassed) {
   <mat-card appearance="outlined" [hidden]="!task.scormEnabled">
     @if (this.task.latestCompletedTestAttempt.scoreScaled === 1) {
-      <mat-card-header class="bg-green-600 text-white">
+      <mat-card-header class="bg-(--ot-status-complete) text-(--ot-status-complete-on)">
         <mat-card-title class="mb-2.5 flex items-center"
           ><mat-icon class="font-extrabold">check</mat-icon>
           <span class="ml-2.5">Knowledge Check Passed Without Mistakes</span></mat-card-title
@@ -9,21 +9,21 @@
       </mat-card-header>
     }
     @if (this.task.latestCompletedTestAttempt.scoreScaled !== 1) {
-      <mat-card-header class="bg-green-500 text-white">
+      <mat-card-header class="bg-(--ot-status-complete) text-(--ot-status-complete-on)">
         <mat-card-title class="mb-2.5 flex items-center"
           ><mat-icon class="font-extrabold">check</mat-icon>
           <span class="ml-2.5">Knowledge Check Passed</span></mat-card-title
         >
       </mat-card-header>
     }
-    <mat-card-content class="bg-green-50">
+    <mat-card-content class="bg-ot-raised">
       <p class="pt-1 pb-0.5">
         You have successfully completed this knowledge check. You can now proceed to submitting task
         files.
       </p>
     </mat-card-content>
     <mat-card-actions
-      class="space-x-1 bg-green-50 px-3"
+      class="space-x-1 bg-ot-raised px-3"
       [hidden]="!user.isStaff && !task.definition.scormAllowReview"
     >
       <button mat-stroked-button (click)="reviewLatestCompletedAttempt()">
@@ -35,7 +35,7 @@
 @if (!isPassed) {
   <mat-card appearance="outlined" [hidden]="!task.scormEnabled">
     @if (isPassed === false) {
-      <mat-card-header class="bg-red-600 text-white">
+      <mat-card-header class="bg-ot-error text-(--ot-color-on-error)">
         <mat-card-title class="mb-2.5 flex items-center"
           ><mat-icon class="font-extrabold">close</mat-icon>
           <span class="ml-2.5">Knowledge Check Unsuccessful</span></mat-card-title

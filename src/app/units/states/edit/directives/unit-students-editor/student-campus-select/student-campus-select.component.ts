@@ -33,6 +33,15 @@ export class StudentCampusSelectComponent implements OnChanges, OnInit {
     });
   }
 
+  // The student's campus and the listed campuses can be different copies of the same
+  // campus, so they are matched by id.
+  compareCampus(left: Campus | null, right: Campus | null): boolean {
+    if (!left || !right) {
+      return left === right;
+    }
+    return left.id === right.id;
+  }
+
   campusChange(event: MatSelectChange) {
     if (this.update) {
       this.student.switchToCampus(event.value).subscribe({

@@ -1,4 +1,5 @@
 <table
+  class="contribution-table min-w-full"
   mat-table
   matSort
   matSortActive="name"
@@ -8,44 +9,68 @@
   (matSortChange)="sortTableData($event)"
 >
   <ng-container matColumnDef="name" sticky>
-    <th *matHeaderCellDef mat-header-cell mat-sort-header>Team Member</th>
+    <th *matHeaderCellDef mat-header-cell mat-sort-header>Team member</th>
     <td *matCellDef="let member" mat-cell>
       {{ member.project.student.name }}
     </td>
   </ng-container>
 
   <ng-container matColumnDef="target-grade" sticky>
-    <th *matHeaderCellDef mat-header-cell mat-sort-header>Target Grade</th>
+    <th *matHeaderCellDef mat-header-cell mat-sort-header>Target grade</th>
     <td *matCellDef="let member" mat-cell>
-      <f-grade-icon [grade]="member.project.targetGrade" [unit]="project.unit"></f-grade-icon>
+      <f-grade-icon
+        class="inline-block text-xs"
+        [grade]="member.project.targetGrade"
+        [unit]="project.unit"
+      ></f-grade-icon>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="contribution" sticky>
     <th *matHeaderCellDef mat-header-cell mat-sort-header>Contribution</th>
     <td *matCellDef="let member" mat-cell>
-      @for (i of [].constructor(numStars); track $index) {
-        <mat-icon
-          class="cursor-pointer px-0.5 align-middle text-2xl"
-          [matTooltip]="member.percent + '% effort'"
-          [ngClass]="{
-            'text-amber-400':
-              member.overStar !== null
-                ? $index + 1 <= member.overStar
-                : $index + 1 <= member.rating,
-            'text-gray-300':
-              member.overStar !== null ? $index + 1 > member.overStar : $index + 1 > member.rating,
-          }"
-          (click)="selectRating(member, $index + 1)"
-          (mouseenter)="hoveringOver(member, $index + 1)"
+      <div class="flex items-center gap-2">
+        <!-- Buttons, so the rating can be set from the keyboard as well as the mouse. -->
+        <div
+          class="flex items-center"
+          role="group"
+          [attr.aria-label]="'Effort rating for ' + member.project.student.name"
           (mouseleave)="hoveringOver(member, null)"
         >
-          person
-        </mat-icon>
-      }
+          @for (star of stars; track star) {
+            <button
+              class="flex size-8 items-center justify-center rounded-ot-circle focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ot-focus"
+              type="button"
+              [attr.aria-label]="star + ' of ' + numStars"
+              [attr.aria-pressed]="member.rating === star"
+              [ngClass]="
+                (member.overStar ?? member.rating) >= star ? 'text-ot-primary' : 'text-ot-muted'
+              "
+              (blur)="hoveringOver(member, null)"
+              (click)="selectRating(member, star)"
+              (focus)="hoveringOver(member, star)"
+              (mouseenter)="hoveringOver(member, star)"
+            >
+              <mat-icon aria-hidden="true">person</mat-icon>
+            </button>
+          }
+        </div>
+        <span class="w-11 text-right text-sm text-ot-muted tabular-nums">
+          {{ percentFor(member) }}%
+        </span>
+      </div>
     </td>
   </ng-container>
 
   <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
   <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+  <tr *matNoDataRow class="mat-row">
+    <td class="mat-cell !border-b-0" [attr.colspan]="displayedColumns.length">
+      <f-empty-state
+        hint="Contributions appear once the group has members."
+        icon="group_off"
+        message="No team members"
+      ></f-empty-state>
+    </td>
+  </tr>
 </table>

@@ -1,36 +1,37 @@
-<h2 mat-dialog-title>Upload Batch Feedback Zip &mdash; {{ taskLabel }}</h2>
+<h2 mat-dialog-title>Upload batch feedback</h2>
 
-<mat-dialog-content class="flex flex-col gap-2.5">
-  <div class="flex items-start gap-2">
-    <mat-icon class="mt-px">fact_check</mat-icon>
-    <div>
-      <p class="m-0">
-        Prepare a batch feedback zip for <span>{{ taskLabel }}</span
-        >.
-      </p>
-      <p class="m-0">
-        Include a <code>marks.csv</code> file and a folder for each student using their username.
-      </p>
+<mat-dialog-content class="flex flex-col gap-4 text-ot-text">
+  <p class="m-0 text-ot-muted">For {{ taskLabel }}</p>
+
+  <div class="flex items-start gap-3">
+    <mat-icon aria-hidden="true" class="mt-0.5 shrink-0 text-ot-muted">fact_check</mat-icon>
+    <div class="flex flex-col gap-1">
+      <p class="m-0">Prepare one zip file that holds:</p>
+      <ul class="m-0 list-disc pl-5">
+        <li>a <code>marks.csv</code> file</li>
+        <li>
+          a folder for each student, named with their username, holding a PDF with the same name,
+          like <code>username/username.pdf</code>
+        </li>
+      </ul>
     </div>
   </div>
 
-  <div>
-    <p class="m-0">Each username folder should contain a PDF named after the student username.</p>
-    <p class="m-0">We expect files to follow the pattern <code>username/username.pdf</code>.</p>
-  </div>
-
-  <div>
-    <p class="m-0">marks.csv Columns</p>
-    <p class="m-0">
-      <code>Student Username</code> | <code>Student ID</code> | <code>Status</code> |
-      <code>Comment</code>
-    </p>
+  <div class="flex items-start gap-3">
+    <mat-icon aria-hidden="true" class="mt-0.5 shrink-0 text-ot-muted">table_view</mat-icon>
+    <div class="flex flex-col gap-1">
+      <p class="m-0">marks.csv needs these columns:</p>
+      <p class="m-0">
+        <code>Student Username</code>, <code>Student ID</code>, <code>Status</code> and
+        <code>Comment</code>
+      </p>
+    </div>
   </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()">Cancel</button>
   <button color="primary" mat-flat-button type="button" (click)="continueToUpload()">
-    Upload Zip
+    Choose zip file
   </button>
-  <button mat-button type="button" (click)="close()">Close</button>
 </mat-dialog-actions>

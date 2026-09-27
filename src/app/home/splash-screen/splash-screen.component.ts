@@ -1,8 +1,6 @@
-import {AnimationOptions} from 'ngx-lottie';
-import {ChangeDetectionStrategy, Component, ContentChild, OnInit, TemplateRef} from '@angular/core';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {Observable} from 'rxjs';
-import {GlobalStateService} from 'src/app/projects/states/index/global-state.service';
-import {LoadingService} from './LoadingService.service';
+import {GlobalStateService, StartupState} from 'src/app/projects/states/index/global-state.service';
 
 @Component({
   selector: 'splash-screen',
@@ -11,34 +9,18 @@ import {LoadingService} from './LoadingService.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class SplashScreenComponent implements OnInit {
-  constructor(
-    private globalState: GlobalStateService,
-    private loadingService: LoadingService,
-  ) {
-    this.loading$ = this.loadingService.loading$;
+export class SplashScreenComponent {
+  readonly startupState$: Observable<StartupState>;
+
+  constructor(private globalState: GlobalStateService) {
+    this.startupState$ = this.globalState.startupStateSubject.asObservable();
   }
 
-  loading$: Observable<boolean>;
+  retry(): void {
+    this.globalState.retryStartup();
+  }
 
-  @ContentChild('loading')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  customLoadingIndicator: TemplateRef<any> | null = null;
-
-  options: AnimationOptions = {
-    loop: true,
-    autoplay: true,
-    path: '../../../assets/images/formatif-isolated-lottie.json',
-  };
-
-  public ngOnInit(): void {
-    this.globalState.isLoadingSubject.subscribe((isLoading) => {
-      if (isLoading) {
-        this.loadingService.loadingOn();
-      }
-      if (!isLoading) {
-        this.loadingService.loadingOff();
-      }
-    });
+  continueToSignIn(): void {
+    this.globalState.continueToSignIn();
   }
 }

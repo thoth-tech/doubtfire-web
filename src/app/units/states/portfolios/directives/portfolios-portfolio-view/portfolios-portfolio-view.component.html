@@ -1,14 +1,39 @@
-<div class="p-3">
-  <h2>Review portfolio of {{ project.student.name }}</h2>
-  <p>View or download portfolio for assessment.</p>
-
-  @if (project.portfolioAvailable) {
-    <f-pdf-viewer class="flex h-screen w-full flex-grow" [pdfUrl]="project.portfolioUrl()">
-    </f-pdf-viewer>
-  } @else {
-    <div class="mt-12 flex w-full flex-col items-center justify-center gap-3 p-6">
-      <mat-icon>menu_book</mat-icon>
-      <h3 class="text-2xl">No Portfolio Submitted</h3>
-    </div>
-  }
-</div>
+@if (project?.portfolioAvailable) {
+  <!-- A fixed height gives the viewer something to fill: it sizes itself to its
+       container and would otherwise collapse. The card scrolls sideways rather than
+       clipping, because on a phone the viewer's toolbar is wider than the screen. -->
+  <section
+    aria-label="Portfolio"
+    class="overflow-x-auto rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+  >
+    <f-pdf-viewer
+      class="block h-[80vh] min-h-[28rem] w-full"
+      [pdfUrl]="project.portfolioUrl()"
+    ></f-pdf-viewer>
+  </section>
+} @else {
+  <section
+    class="flex flex-col items-center rounded-ot-lg border border-ot-divider bg-ot-surface px-4 pb-10 shadow-(--ot-elevation-1)"
+  >
+    @if (project?.compilePortfolio) {
+      <f-empty-state
+        icon="hourglass_top"
+        message="The portfolio is being created"
+        [hint]="
+          (project.student?.name ?? 'The student') +
+          ' has asked for their portfolio to be created. It shows here once it is ready.'
+        "
+      ></f-empty-state>
+    } @else {
+      <f-empty-state
+        icon="menu_book"
+        message="No portfolio submitted yet"
+        [hint]="
+          (project?.student?.name ?? 'This student') +
+          ' has not submitted a portfolio. You can still check their progress on each task.'
+        "
+      ></f-empty-state>
+    }
+    <button mat-stroked-button type="button" (click)="showProgress.emit()">Check progress</button>
+  </section>
+}

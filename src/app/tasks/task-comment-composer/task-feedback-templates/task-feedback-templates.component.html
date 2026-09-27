@@ -1,5 +1,5 @@
 <mat-card
-  class="flex h-[423px] w-[338px] flex-col rounded-lg border border-gray-300 bg-white shadow-none"
+  class="flex h-[423px] w-[338px] flex-col rounded-lg border border-ot-border bg-ot-surface shadow-none"
 >
   <mat-tab-group class="category-tab-group" (selectedTabChange)="scrollToSection($event)">
     @for (category of categories; track category) {
@@ -149,7 +149,7 @@
     </div>
   </div>
 
-  <div class="flex items-center border-t border-gray-300 p-3">
+  <div class="flex items-center border-t border-ot-divider p-3">
     <mat-icon class="mr-2 flex-shrink-0 text-2xl">{{
       hoveredTemplate?.type === 'group' ? 'folder' : 'description'
     }}</mat-icon>
@@ -157,7 +157,7 @@
       <p class="mb-0 text-xs font-semibold">
         {{ hoveredTemplate?.chipText || 'Select a feedback chip' }}
       </p>
-      <p class="mb-0 text-xs text-gray-500">
+      <p class="mb-0 text-xs text-ot-muted">
         {{ hoveredTemplate?.description || 'This will populate the comment area with feedback.' }}
       </p>
     </div>

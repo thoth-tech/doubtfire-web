@@ -1,22 +1,28 @@
-<h3 mat-dialog-title>Bulk Import Staff</h3>
+<h2 mat-dialog-title>Add staff by email</h2>
 
-<div mat-dialog-content>
-  <p>Paste one staff email per line to add them to this unit as tutors.</p>
+<mat-dialog-content>
+  <p class="m-0 mb-4 text-sm leading-relaxed text-ot-muted">
+    Paste one email address per line. Each person joins the unit as a tutor, and needs a tutor or
+    convenor account first.
+  </p>
 
-  <mat-form-field appearance="outline" class="w-full">
-    <mat-label>Staff emails</mat-label>
-    <textarea
-      matInput
-      placeholder="tutor@example.edu.au&#10;convenor@example.edu.au"
-      rows="10"
-      [(ngModel)]="emailList"
-    ></textarea>
-  </mat-form-field>
-</div>
+  <div class="flex flex-col gap-1.5">
+    <label class="text-sm font-medium text-ot-text" for="bulk-staff-emails">Email addresses</label>
+    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+      <textarea id="bulk-staff-emails" matInput rows="10" [(ngModel)]="emailList"></textarea>
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
 
-<div align="end" mat-dialog-actions>
-  <button color="warn" mat-stroked-button (click)="cancel()">Cancel</button>
-  <button color="primary" mat-flat-button [disabled]="!emailList.trim()" (click)="submit()">
-    Import staff
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">Cancel</button>
+  <button
+    color="primary"
+    mat-flat-button
+    type="button"
+    [disabled]="!emailList.trim()"
+    (click)="submit()"
+  >
+    Add staff
   </button>
-</div>
+</mat-dialog-actions>

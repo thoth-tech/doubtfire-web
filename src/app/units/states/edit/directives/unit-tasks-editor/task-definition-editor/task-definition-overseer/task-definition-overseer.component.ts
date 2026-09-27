@@ -6,12 +6,14 @@ import {
   Component,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
   ViewChild,
+  effect,
 } from '@angular/core';
 import {MatSelectChange} from '@angular/material/select';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {
   OverseerImage,
   OverseerImageService,
@@ -27,9 +29,12 @@ import {Unit} from 'src/app/api/models/unit';
 import {OverseerStepService} from 'src/app/api/services/overseer-step.service';
 import {TaskDefinitionService} from 'src/app/api/services/task-definition.service';
 import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {ConfirmationModalService} from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
 import {TaskAssessmentModalService} from 'src/app/common/modals/task-assessment-modal/task-assessment-modal.service';
 import {AlertService} from 'src/app/common/services/alert.service';
 import {TaskSubmissionService} from 'src/app/common/services/task-submission.service';
+import {ThemeService} from 'src/app/common/theme/theme.service';
+import {ZIP_ACCEPT, isZipFile} from '../task-file-types';
 import {OverseerScriptEditorModalService} from './overseer-script-editor-modal/overseer-script-editor-modal.service';
 
 @Component({
@@ -39,12 +44,14 @@ import {OverseerScriptEditorModalService} from './overseer-script-editor-modal/o
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
+export class TaskDefinitionOverseerComponent implements OnChanges, OnInit, OnDestroy {
   @Input() taskDefinition: TaskDefinition;
 
   @ViewChild('editor') editorComponent;
 
   public currentUserTask: Task;
+
+  public readonly zipAccept = ZIP_ACCEPT;
 
   editorOptions = {
     theme: 'vs',
@@ -63,6 +70,8 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
   public overseerResourcesArchive: Blob | File | null = null;
   public images: Observable<OverseerImage[]>;
 
+  private stepsSub?: Subscription;
+
   constructor(
     private http: HttpClient,
     private alerts: AlertService,
@@ -75,7 +84,18 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
     private overseerScriptEditorModal: OverseerScriptEditorModalService,
     private overseerStepService: OverseerStepService,
     private taskService: TaskService,
-  ) {}
+    private confirmationModal: ConfirmationModalService,
+    themeService: ThemeService,
+  ) {
+    // The script editor was always the light theme, a white box on the dark page.
+    // It follows the app theme now, and changes with it.
+    effect(() => {
+      const theme = themeService.isDark() ? 'vs-dark' : 'vs';
+      if (this.editorOptions.theme !== theme) {
+        this.editorOptions = {...this.editorOptions, theme};
+      }
+    });
+  }
 
   public get statusKeys() {
     return this.taskService.statusKeys;
@@ -140,7 +160,21 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
   ngOnInit(): void {
     this.images = this.overseerImageService.query();
 
-    this.taskDefinition.overseerStepsCache.values.subscribe((steps) => {
+    // ngOnChanges has already subscribed when the task came in as an input.
+    if (!this.stepsSub && this.taskDefinition) {
+      this.watchSteps();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stepsSub?.unsubscribe();
+  }
+
+  // One subscription at a time. Each task change used to add another, so the
+  // step list was rebuilt by every task opened since the page loaded.
+  private watchSteps() {
+    this.stepsSub?.unsubscribe();
+    this.stepsSub = this.taskDefinition.overseerStepsCache.values.subscribe((steps) => {
       this.overseerSteps = [...steps];
     });
   }
@@ -164,7 +198,7 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
     // TODO: open endpoint to update sort orders in a single request
     for (let i = 0; i < this.overseerSteps.length; i++) {
       const step = this.taskDefinition.overseerStepsCache.get(this.overseerSteps[i].id);
-      if (step.sortOrder === i) {
+      if (!step || step.sortOrder === i) {
         // Ignore if no change
         continue;
       }
@@ -198,8 +232,21 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
       this.selectedOverseerStep = null;
       return;
     }
-    this.selectedOverseerStep?.delete();
-    this.selectedOverseerStep = null;
+
+    const step = this.selectedOverseerStep;
+    if (!step) {
+      return;
+    }
+    this.confirmationModal.show(
+      'Delete step',
+      `Delete the step ${step.name || 'Untitled step'}? It will no longer run on submissions.`,
+      () => {
+        step.delete();
+        if (this.selectedOverseerStep === step) {
+          this.selectedOverseerStep = null;
+        }
+      },
+    );
   }
 
   saveStep() {
@@ -224,7 +271,6 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
             this.newOverseerStep = null;
           },
           error: (error) => {
-            console.error(error);
             this.alerts.error(error, 3000);
           },
         });
@@ -246,7 +292,6 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
             this.alerts.success('Saved overseer step', 3000);
           },
           error: (error) => {
-            console.error(error);
             this.alerts.error(error, 3000);
           },
         });
@@ -270,15 +315,20 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
   }
 
   public ngOnChanges(changes: SimpleChanges) {
-    const proj = this.unit.findProjectForUsername(this.currentUser.username);
+    if (changes['taskDefinition']) {
+      // A test task made for the last task definition must not carry over, or a
+      // test submission here would go to that task.
+      this.currentUserTask = undefined;
+    }
+    const proj = this.unit?.findProjectForUsername(this.currentUser?.username);
     if (proj) {
       this.currentUserTask = proj.findTaskForDefinition(this.taskDefinition.id);
       this.hasAnySubmissions();
     }
     if (changes['taskDefinition']) {
-      this.taskDefinition.overseerStepsCache.values.subscribe((steps) => {
-        this.overseerSteps = [...steps];
-      });
+      this.watchSteps();
+      this.selectedOverseerStep = null;
+      this.newOverseerStep = null;
       this.showOverseerResourcesEditor = false;
       this.isLoadingOverseerResourcesArchive = false;
       this.overseerResourcesArchive = null;
@@ -319,14 +369,20 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
   }
 
   public removeOverseerResources() {
-    this.taskDefinition.deleteOverseerResources().subscribe({
-      next: () => {
-        this.alerts.success('Deleted Overseer Resources', 2000);
-        this.taskDefinition.hasTaskAssessmentResources = false;
-        this.showOverseerResourcesEditor = false;
-        this.overseerResourcesArchive = null;
-      },
-    });
+    this.confirmationModal.show(
+      'Delete Overseer resources',
+      'Steps that use these files will fail until you upload new ones.',
+      () =>
+        this.taskDefinition.deleteOverseerResources().subscribe({
+          next: () => {
+            this.alerts.success('Deleted Overseer Resources', 2000);
+            this.taskDefinition.hasTaskAssessmentResources = false;
+            this.showOverseerResourcesEditor = false;
+            this.overseerResourcesArchive = null;
+          },
+          error: (message) => this.alerts.error(message, 6000),
+        }),
+    );
   }
 
   public downloadOverseerResources() {
@@ -337,9 +393,7 @@ export class TaskDefinitionOverseerComponent implements OnChanges, OnInit {
   }
 
   public uploadOverseerResources(files: ArrayLike<File>) {
-    const validFiles = Array.from(files as ArrayLike<File>).filter(
-      (f) => f.type === 'application/zip' || f.type === 'application/x-zip-compressed',
-    );
+    const validFiles = Array.from(files as ArrayLike<File>).filter(isZipFile);
     if (validFiles.length > 0) {
       const file = validFiles[0];
       this.taskDefinitionService.uploadOverseerResources(this.taskDefinition, file).subscribe({

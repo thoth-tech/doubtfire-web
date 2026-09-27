@@ -16,8 +16,7 @@ export class FTaskBadgeComponent {
   lineHeight = 12;
 
   get abbreviation(): string {
-    // return the first 3 characters of the task abbreviation
-    return this.taskDef?.abbreviation.substring(0, 4);
+    return this.taskDef?.abbreviation ?? '';
   }
 
   calculateFontSize(length: number): string {

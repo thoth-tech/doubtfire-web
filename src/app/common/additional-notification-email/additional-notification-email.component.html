@@ -1,0 +1,85 @@
+<section aria-labelledby="additional-email-title" class="additional-email">
+  <div class="additional-email__heading">
+    <div>
+      <h2 id="additional-email-title">
+        <mat-icon aria-hidden="true">alternate_email</mat-icon>Additional notification email
+      </h2>
+      <p>
+        Your institutional address remains the primary destination. A separate copy is sent here
+        only after you verify ownership.
+      </p>
+    </div>
+    @if (state.status !== 'none') {
+      <span
+        class="additional-email__status"
+        [class.additional-email__status--verified]="state.status === 'verified'"
+      >
+        {{ state.status === 'verified' ? 'Verified' : 'Verification pending' }}
+      </span>
+    }
+  </div>
+
+  @if (loading) {
+    <p aria-live="polite">Loading additional email settings…</p>
+  } @else {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Additional notification email</mat-label>
+      <input
+        #additionalEmail="ngModel"
+        autocomplete="email"
+        inputmode="email"
+        matInput
+        maxlength="254"
+        name="additional_notification_email"
+        type="email"
+        [disabled]="busy"
+        [ngModelOptions]="{standalone: true}"
+        [(ngModel)]="draftEmail"
+        (keydown.enter)="requestVerificationOnEnter($event, additionalEmail.invalid)"
+      />
+      <mat-hint>Must be different from your institutional address.</mat-hint>
+      @if (additionalEmail.invalid) {
+        <mat-error>Enter a valid email address.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="additional-email__actions">
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="busy || additionalEmail.invalid || !changed || !draftEmail.trim()"
+        (click)="requestVerification()"
+      >
+        <mat-icon>send</mat-icon>
+        {{ busy ? 'Working…' : requestLabel }}
+      </button>
+
+      @if (state.status === 'pending') {
+        <button mat-stroked-button type="button" [disabled]="busy" (click)="resend()">
+          <mat-icon>refresh</mat-icon>
+          Resend verification
+        </button>
+      }
+
+      @if (state.status !== 'none') {
+        <button mat-stroked-button type="button" [disabled]="busy" (click)="remove()">
+          <mat-icon>delete_outline</mat-icon>
+          Remove
+        </button>
+      }
+    </div>
+  }
+
+  @if (state.status === 'pending') {
+    <p class="additional-email__help">
+      Check {{ state.email }}. Notification copies remain off until the new link is verified.
+    </p>
+  } @else if (state.status === 'verified') {
+    <p class="additional-email__help">
+      Category choices below apply to both destinations. Removing this address stops future copies.
+    </p>
+  }
+
+  <p aria-live="polite" class="additional-email__message">{{ message }}</p>
+  <p aria-live="assertive" class="additional-email__error">{{ errorMessage }}</p>
+</section>

@@ -1,46 +1,77 @@
-<h2 mat-dialog-title>Request Feedback Review</h2>
-<mat-dialog-content>
-  <p>
-    If you believe the feedback or marking on this task does not accurately reflect your work, you
-    may request a review. This allows another tutor to reassess the feedback and determine whether
-    it should be confirmed or revised.
+<h2 class="review-dialog-title" mat-dialog-title>Request a feedback review</h2>
+<mat-dialog-content class="feedback-review-content">
+  @if (task.definition) {
+    <div class="review-context">
+      <span class="review-chip">{{ task.definition.abbreviation }}</span>
+      <span class="review-context__name">{{ task.definition.name }}</span>
+    </div>
+  }
+
+  <p class="review-description">
+    Another tutor will reassess the feedback on this task and confirm or revise it.
   </p>
 
-  <p>
-    You have
-    <b>
-      {{ task.project.escalationAttemptsRemaining }} review request{{
-        task.project.escalationAttemptsRemaining !== 1 ? 's' : ''
-      }}
-    </b>
-    remaining for this unit. If the original feedback is revised as a result of this review, the
-    request will not be counted against your remaining total.
-  </p>
+  <div class="review-callout">
+    <mat-icon aria-hidden="true">info</mat-icon>
+    <div class="review-callout__text">
+      <p>
+        You have
+        <b>
+          {{ task.project.escalationAttemptsRemaining }} review request{{
+            task.project.escalationAttemptsRemaining !== 1 ? 's' : ''
+          }}
+        </b>
+        left for this unit. If the feedback is revised, this one won't count.
+      </p>
+      <p>Review decisions are final once resolved.</p>
+    </div>
+  </div>
 
-  <mat-form-field appearance="outline" class="mt-2.5 w-full">
-    <mat-label>Reason for review request</mat-label>
+  <mat-form-field appearance="outline" class="review-field w-full">
+    <mat-label>Why should it be reviewed?</mat-label>
     <textarea
+      aria-label="Reason for feedback review"
+      cdkAutosizeMaxRows="8"
+      cdkAutosizeMinRows="3"
+      cdkTextareaAutosize
       matInput
       maxlength="1000"
-      placeholder="Briefly explain why you believe this feedback should be reviewed. Refer to specific criteria if relevant."
-      rows="4"
+      placeholder="e.g. My report covers the test cases the feedback says are missing (section 3)"
+      required
       [(ngModel)]="reviewComment"
     ></textarea>
-    <div class="flex justify-end">
-      <mat-hint> {{ reviewComment?.length || 0 }}/1000 </mat-hint>
-    </div>
-  </mat-form-field>
-  <p class="opacity-70">Review decisions are final once resolved.</p>
-
-  <mat-dialog-actions class="flex justify-between">
-    <button mat-raised-button (click)="dismissModal()">Cancel</button>
-    <button
-      color="primary"
-      mat-raised-button
-      [disabled]="!reviewComment || submitting"
-      (click)="submit()"
+    <mat-hint
+      align="end"
+      class="review-counter"
+      [class.review-counter--limit]="commentCounterState === 'limit'"
+      [class.review-counter--warn]="commentCounterState === 'warn'"
+      >{{ commentLength }} / {{ commentMaxLength }}</mat-hint
     >
-      Submit
-    </button>
-  </mat-dialog-actions>
+    <mat-error>Enter a reason for the review</mat-error>
+  </mat-form-field>
+
+  @if (errorMessage) {
+    <p class="feedback-review-error" role="alert">{{ errorMessage }}</p>
+  }
 </mat-dialog-content>
+
+<mat-dialog-actions align="end" class="feedback-review-actions">
+  <button mat-stroked-button type="button" [disabled]="submitting" (click)="dismissModal()">
+    Cancel
+  </button>
+  <button
+    class="review-submit"
+    color="primary"
+    mat-flat-button
+    type="button"
+    [disabled]="!reviewComment.trim() || submitting"
+    (click)="submit()"
+  >
+    @if (submitting) {
+      <mat-spinner class="review-submit__spinner" diameter="18"></mat-spinner>
+    } @else {
+      <mat-icon aria-hidden="true">rate_review</mat-icon>
+    }
+    {{ submitting ? 'Sending…' : 'Submit review request' }}
+  </button>
+</mat-dialog-actions>

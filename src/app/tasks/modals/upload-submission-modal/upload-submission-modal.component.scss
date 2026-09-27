@@ -1,0 +1,600 @@
+// Submit task dialog: standard title, content and actions with 24px padding and no
+// nested elevated cards. Colours come only from --ot-* tokens.
+
+// --- Header ---
+
+.submission-dialog-header {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 24px 12px;
+}
+
+:host .submission-dialog-title {
+  margin: 0;
+  padding: 0;
+  color: var(--ot-color-text);
+  font-size: 1.25rem;
+  font-weight: 650;
+  line-height: 1.35;
+
+  // Material draws a spacer before the title; the header padding does that job.
+  &::before {
+    display: none;
+  }
+}
+
+.submission-task-line {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  color: var(--ot-color-text);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.submission-task-chip {
+  flex-shrink: 0;
+  padding: 1px 8px;
+  border: 1px solid color-mix(in srgb, var(--ot-color-link) 35%, transparent);
+  border-radius: var(--ot-radius-pill);
+  background: color-mix(in srgb, var(--ot-color-link) 10%, transparent);
+  color: var(--ot-color-text);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.submission-task-name {
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.submission-task-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ot-color-text-muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.submission-task-due--past {
+  color: var(--ot-urgency-overdue);
+}
+
+// --- Content ---
+
+:host .submission-dialog-content {
+  max-height: min(72dvh, 48rem);
+  min-width: 0;
+  padding: 4px 24px 24px;
+  overscroll-behavior: contain;
+}
+
+.submission-dialog-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--ot-color-text);
+}
+
+// "Submit as" sits on its own row: a label, then a compact themed picker.
+.submission-type-row {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding-top: 4px;
+}
+
+.submission-type-label {
+  color: var(--ot-color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.submission-type-select {
+  display: flex;
+  box-sizing: border-box;
+  width: min(100%, 18rem);
+  height: 44px;
+  align-items: center;
+  padding: 0 12px 0 8px;
+  border: 1px solid var(--ot-color-control-border);
+  border-radius: var(--ot-radius-md);
+  background-color: var(--ot-color-surface);
+  color: var(--ot-color-text);
+  font-size: 0.9rem;
+
+  --mat-select-enabled-trigger-text-color: var(--ot-color-text);
+  --mat-select-placeholder-text-color: var(--ot-color-text-muted);
+  --mat-select-disabled-trigger-text-color: var(--ot-color-disabled-text);
+  --mat-select-enabled-arrow-color: var(--ot-color-text-muted);
+  --mat-select-focused-arrow-color: var(--ot-color-link);
+
+  &:focus-visible,
+  &.mat-mdc-select-focused {
+    outline: none;
+    border-color: var(--ot-color-focus);
+    box-shadow: 0 0 0 1px var(--ot-color-focus);
+  }
+
+  &.mat-mdc-select-disabled {
+    border-color: color-mix(in srgb, var(--ot-color-border) 50%, transparent);
+    background-color: transparent;
+  }
+}
+
+.submission-type-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.submission-type-option__glyph {
+  flex: none;
+  width: 24px;
+  height: 20px;
+  color: var(--ot-color-link);
+  font-size: 20px;
+}
+
+// status-icon is a 36px circle by default, sized by an important size-9 utility in the
+// utilities layer, which no component rule can outrank. Scaling the spacing unit on the
+// icon's host turns that same utility into a 24px circle in the picker and its menu.
+.submission-type-option__icon {
+  --spacing: calc(24px / 9);
+  display: inline-flex;
+  flex: none;
+
+  ::ng-deep .status-chip mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+}
+
+::ng-deep .submission-type-panel {
+  --mat-select-panel-background-color: var(--ot-color-surface-raised);
+  --mat-option-label-text-color: var(--ot-color-text);
+  --mat-option-hover-state-layer-color: var(--ot-color-hover);
+  --mat-option-selected-state-layer-color: var(--ot-color-selected);
+  --mat-option-selected-state-label-text-color: var(--ot-color-text);
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-md) !important;
+}
+
+// --- Steps ---
+
+.submission-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.submission-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ot-color-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
+
+  // a thin connector between steps
+  & + &::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    margin-inline: 4px 2px;
+    background: color-mix(in srgb, var(--ot-color-border) 60%, transparent);
+  }
+}
+
+.submission-step__marker {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--ot-color-border) 70%, transparent);
+  border-radius: var(--ot-radius-circle);
+  font-size: 0.75rem;
+  font-weight: 650;
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+}
+
+.submission-step--current {
+  color: var(--ot-color-text);
+  font-weight: 600;
+
+  .submission-step__marker {
+    border-color: var(--ot-color-primary);
+    background: var(--ot-color-primary);
+    color: var(--ot-color-on-primary);
+  }
+}
+
+.submission-step--done .submission-step__marker {
+  border-color: color-mix(in srgb, var(--ot-color-link) 45%, transparent);
+  background: color-mix(in srgb, var(--ot-color-link) 12%, transparent);
+  color: var(--ot-color-link);
+}
+
+// --- Sections ---
+
+.submission-section {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.submission-section__heading {
+  margin: 0 0 2px;
+  color: var(--ot-color-text);
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.submission-section__lead {
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.submission-declaration {
+  padding-top: 16px;
+  border-top: 1px solid var(--ot-color-divider);
+}
+
+// --- Actions ---
+
+:host .submission-dialog-actions {
+  display: flex;
+  min-height: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--ot-color-divider);
+
+  button {
+    min-height: 44px;
+    margin: 0;
+  }
+}
+
+.submission-dialog-actions__forward {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.submission-continue-hint {
+  color: var(--ot-color-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  text-align: right;
+}
+
+// The cancel discards the selection, so it keeps an error-toned label on the outline.
+:host .cancel-action:not(:disabled) {
+  --mat-button-outlined-label-text-color: color-mix(
+    in srgb,
+    var(--ot-color-error) 85%,
+    var(--ot-color-text)
+  );
+  // Against the decorative border this outline is 2.21:1 on the dialog surface
+  // in dark, under the 3:1 WCAG asks of a control edge. The control token takes
+  // it to 3.50:1 and leaves light mode exactly where it was.
+  --mat-button-outlined-outline-color: color-mix(
+    in srgb,
+    var(--ot-color-error) 40%,
+    var(--ot-color-control-border)
+  );
+  background-color: transparent;
+}
+
+:host .cancel-action:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--ot-color-error) 7%, transparent);
+}
+
+// --- Phones: the dialog fills the screen ---
+
+@media (max-width: 599.98px) {
+  ::ng-deep .cdk-overlay-pane.responsive-submission-dialog {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh;
+    max-height: 100dvh !important;
+
+    .mat-mdc-dialog-surface {
+      border-radius: 0;
+    }
+  }
+
+  .submission-dialog-header {
+    padding: 16px 16px 8px;
+  }
+
+  :host .submission-dialog-content {
+    max-height: none;
+    flex: 1 1 auto;
+    padding: 4px 16px 16px;
+  }
+
+  .submission-type-select {
+    width: 100%;
+  }
+
+  :host .submission-dialog-actions {
+    padding: 12px 16px;
+  }
+
+  .submission-dialog-actions__forward {
+    width: 100%;
+
+    button {
+      flex: 1 1 0;
+    }
+  }
+
+  .submission-continue-hint {
+    width: 100%;
+    text-align: left;
+  }
+
+  .cancel-action {
+    order: 2;
+    width: 100%;
+  }
+}
+
+// --- The submit panel ---
+// One panel from pressing Submit to the confirmation, and every part below is
+// the same element the whole way through. The handover is the "collapse" shape
+// from /submit-motion: the bar draws in to nothing, the circle takes the hit and
+// answers it, and the mark draws out of the circle. Bar and mark read as one
+// object rather than two things trading places.
+
+$flow-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+$flow-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+.submit-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 360px;
+  padding: 40px 0;
+  text-align: center;
+}
+
+// Holds the confirmation's full height from the very first frame, so the circle
+// growing inside it never pushes the words below it down.
+.submit-flow__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 112px;
+}
+
+.submit-flow__ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--ot-radius-circle, 999px);
+  background: color-mix(in srgb, var(--ot-color-primary) 14%, transparent);
+  color: var(--ot-color-primary);
+  transition:
+    width 380ms $flow-ease-in-out,
+    height 380ms $flow-ease-in-out,
+    background-color 300ms ease,
+    color 300ms ease;
+}
+
+.submit-flow__glyph {
+  width: 28px;
+  height: 28px;
+  font-size: 28px;
+  transition: opacity 180ms ease;
+}
+
+.submit-flow__title {
+  margin: 14px 0 0;
+  color: var(--ot-color-text);
+  font-size: 1.05rem;
+  font-weight: 620;
+  line-height: 1.3;
+}
+
+.submit-flow__detail {
+  max-width: 36ch;
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.submit-flow__title,
+.submit-flow__detail,
+.submit-flow__action {
+  transition:
+    opacity 180ms ease,
+    transform 200ms $flow-ease-out;
+}
+
+.submit-flow__track {
+  position: relative;
+  overflow: hidden;
+  width: min(360px, 100%);
+  height: 8px;
+  margin-block-start: 14px;
+  border-radius: 999px;
+  background: var(--ot-color-surface-raised);
+  // Narrows into the middle first, then folds its own height away. It never just
+  // disappears: something vanishing is what reads as a new screen.
+  transition:
+    width 300ms $flow-ease-in-out,
+    height 200ms $flow-ease-out 260ms,
+    margin 200ms $flow-ease-out 260ms,
+    opacity 160ms ease 280ms;
+}
+
+.submit-flow__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ot-color-primary);
+  // Clipped rather than sized, so each progress event stays on the compositor.
+  clip-path: inset(0 calc(100% - var(--flow-progress, 0%)) 0 0);
+  transition:
+    clip-path 260ms $flow-ease-out,
+    background-color 300ms ease;
+}
+
+.submit-flow__action {
+  margin-block-start: 18px;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+// The bytes are away. This lands before the confirmation is worked out, so the
+// wait on the server is part of the sequence instead of dead time.
+.submit-flow--done {
+  .submit-flow__ring {
+    background: color-mix(in srgb, var(--ot-color-success) 16%, transparent);
+    color: var(--ot-color-success);
+  }
+
+  .submit-flow__fill {
+    background: var(--ot-color-success);
+  }
+}
+
+// The handover itself.
+.submit-flow--swapping {
+  .submit-flow__track {
+    width: 0;
+  }
+
+  .submit-flow__ring {
+    animation: submit-flow-absorb 320ms $flow-ease-out 240ms both;
+  }
+
+  .submit-flow__glyph,
+  .submit-flow__title,
+  .submit-flow__detail,
+  .submit-flow__action {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.submit-flow--celebrating {
+  .submit-flow__ring {
+    width: 104px;
+    height: 104px;
+    background: transparent;
+  }
+
+  .submit-flow__track {
+    width: 0;
+    height: 0;
+    margin-block-start: 0;
+    opacity: 0;
+  }
+
+  .submit-flow__title {
+    max-width: 20ch;
+    margin-block-start: 20px;
+    font-size: clamp(1.5rem, 4.5vw, 2rem);
+    font-weight: 680;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    animation: submit-flow-in 300ms $flow-ease-out 160ms both;
+  }
+
+  .submit-flow__detail {
+    animation: submit-flow-in 300ms $flow-ease-out 240ms both;
+  }
+
+  .submit-flow__action {
+    animation: submit-flow-in 300ms $flow-ease-out 340ms both;
+  }
+}
+
+@keyframes submit-flow-absorb {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.07);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes submit-flow-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submit-flow :is(.submit-flow__ring, .submit-flow__glyph, .submit-flow__title),
+  .submit-flow :is(.submit-flow__detail, .submit-flow__track, .submit-flow__fill),
+  .submit-flow__action {
+    transition: none;
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

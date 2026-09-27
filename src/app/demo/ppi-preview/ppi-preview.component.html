@@ -1,0 +1,140 @@
+<section aria-labelledby="ppi-preview-title" class="ppi-preview">
+  <header>
+    <mat-icon aria-hidden="true">groups</mat-icon>
+    <div>
+      <h2 id="ppi-preview-title">Peer Progress Indicator preview</h2>
+      <p>Synthetic demo-only values. Selecting a state never changes a profile or live data.</p>
+    </div>
+  </header>
+
+  <div aria-label="Choose a peer progress preview state" class="ppi-preview__choices">
+    @for (option of options; track option.kind) {
+      <button
+        mat-stroked-button
+        type="button"
+        [attr.aria-pressed]="selectedKind === option.kind"
+        [attr.data-testid]="'ppi-preview-' + option.kind"
+        (click)="select(option.kind)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <p aria-live="polite" class="ppi-preview__explanation" role="status">
+    {{ selected.explanation }}
+  </p>
+
+  <article aria-live="polite" class="ppi-preview__card">
+    <header class="ppi-preview__card-header">
+      <div class="ppi-preview__identity">
+        <span aria-hidden="true" class="ppi-preview__avatar"><mat-icon>groups</mat-icon></span>
+        <span>
+          <strong>Peer Progress Indicator</strong>
+          <small>Anonymous peers at your target grade</small>
+        </span>
+      </div>
+
+      @if (!data.isSuppressed) {
+        <button
+          aria-controls="ppi-preview-advanced"
+          aria-label="Advanced peer status breakdown"
+          class="ppi-preview__switch"
+          role="switch"
+          type="button"
+          [attr.aria-checked]="advanced"
+          [attr.aria-expanded]="advanced"
+          (click)="setAdvanced(!advanced)"
+        >
+          <span aria-hidden="true"><i></i></span>
+          Advanced
+        </button>
+      }
+    </header>
+
+    @if (data.isSuppressed) {
+      <div class="ppi-preview__privacy" role="status">
+        <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+        <span>
+          <strong>Progress is hidden to protect privacy</strong>
+          {{ data.unavailableMessage }}
+        </span>
+      </div>
+    } @else {
+      <div class="ppi-preview__summary">
+        <p aria-label="Peer completion progress at your target grade">
+          <strong>{{ summaryPercentage }}%</strong>
+          <span>of peers have completed this task</span>
+        </p>
+        <div>
+          <span
+            class="ppi-preview__track"
+            role="progressbar"
+            [attr.aria-label]="summaryPercentage + '% of peers have completed this task'"
+            [attr.aria-valuemax]="100"
+            [attr.aria-valuemin]="0"
+            [attr.aria-valuenow]="summaryPercentage"
+          >
+            <i [style.width]="summaryWidth"></i>
+          </span>
+          <small>{{ summaryPercentage }}% <span>Peer cohort</span></small>
+        </div>
+      </div>
+
+      @if (advanced) {
+        <section class="ppi-preview__advanced" id="ppi-preview-advanced">
+          <dl>
+            <div>
+              <dt>Completed</dt>
+              <dd>{{ data.completedPercentage }}%</dd>
+            </div>
+            <div>
+              <dt>Submitted</dt>
+              <dd>{{ data.submittedPercentage }}%</dd>
+            </div>
+          </dl>
+
+          <div>
+            <h3>Task status breakdown</h3>
+            <p>Independently privacy-rounded; values may not total 100%.</p>
+          </div>
+
+          @if (!data.distributionAvailable) {
+            <div class="ppi-preview__privacy" role="note">
+              <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+              <span>
+                <strong>Detailed breakdown protected</strong>
+                Overall percentages are safe to show, but status detail remains hidden.
+              </span>
+            </div>
+          } @else {
+            @if (distributionTotal !== 100) {
+              <p class="ppi-preview__rounding" role="note">
+                Privacy-rounded statuses total {{ distributionTotal }}%. Each row keeps its own
+                0&ndash;100% scale.
+              </p>
+            }
+
+            <ul aria-label="Peer task status percentages" class="ppi-preview__statuses">
+              @for (segment of segments; track segment.status) {
+                <li [attr.data-status]="segment.status">
+                  <span>
+                    <i aria-hidden="true" [style.background-color]="segment.color"></i>
+                    {{ segment.label }}
+                  </span>
+                  <span aria-hidden="true" class="ppi-preview__status-track">
+                    <i
+                      [style.background-color]="segment.color"
+                      [style.width.%]="segment.percentage"
+                    ></i>
+                  </span>
+                  <strong>{{ segment.percentage }}%</strong>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    }
+  </article>
+</section>

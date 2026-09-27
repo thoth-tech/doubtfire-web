@@ -1,0 +1,106 @@
+.task-connections-dialog {
+  display: flex;
+  max-height: min(90dvh, 54rem);
+  flex-direction: column;
+}
+
+.task-connections-dialog__header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 0;
+}
+
+.task-connections-dialog__header h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.task-connections-dialog__eyebrow {
+  margin: 0 0 0.25rem;
+  color: var(--ot-color-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.task-connections-dialog__content {
+  min-height: 0;
+  flex: 1 1 auto;
+  padding-top: 1rem !important;
+}
+
+.task-connections-dialog__content h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.task-connections-dialog__actions {
+  flex: 0 0 auto;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.dependent-tasks__cards {
+  display: none;
+}
+
+@media (max-width: 639.98px) {
+  .task-connections-dialog {
+    max-height: calc(100dvh - 2rem);
+  }
+
+  .task-connections-dialog__header {
+    align-items: flex-start;
+    padding: 1rem 1rem 0;
+  }
+
+  .task-connections-dialog__content {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .dependent-tasks__table {
+    display: none;
+  }
+
+  .dependent-tasks__cards {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .dependent-tasks__cards article {
+    padding: 0.75rem;
+    border: 1px solid var(--ot-color-divider);
+    border-radius: 0.5rem;
+  }
+
+  .dependent-tasks__cards h4 {
+    margin: 0 0 0.625rem;
+    overflow-wrap: anywhere;
+    font-size: 0.9375rem;
+    font-weight: 650;
+  }
+
+  .dependent-tasks__cards dl {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .dependent-tasks__cards dt {
+    color: var(--ot-color-text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .dependent-tasks__cards dd {
+    margin: 0.25rem 0 0;
+    font-size: 0.8125rem;
+  }
+
+  .task-connections-dialog__actions button {
+    min-height: 44px;
+  }
+}

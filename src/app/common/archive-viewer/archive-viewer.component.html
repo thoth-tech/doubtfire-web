@@ -1,21 +1,21 @@
 <div class="flex size-full min-h-0 max-w-full min-w-0 flex-col">
   @if (isLoading) {
-    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-slate-600">
+    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-ot-muted">
       <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
       <span>Loading archive...</span>
     </div>
   } @else if (errorMessage) {
-    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-red-700">
+    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-ot-error">
       <mat-icon class="size-5">error_outline</mat-icon>
       <span>{{ errorMessage }}</span>
     </div>
   } @else if (!archiveFile) {
-    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-slate-600">
+    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-ot-muted">
       <mat-icon class="size-5">folder_zip</mat-icon>
       <span>Select an archive to preview.</span>
     </div>
   } @else if (!hasFiles) {
-    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-slate-600">
+    <div class="flex min-h-80 flex-1 flex-col items-center justify-center gap-2 text-ot-muted">
       <mat-icon class="size-5">folder_off</mat-icon>
       <span>No files to display.</span>
     </div>
@@ -38,9 +38,9 @@
     }
 
     @if (navigationMode === 'tree') {
-      <div class="flex min-h-0 w-full flex-1 border-t border-slate-200">
+      <div class="flex min-h-0 w-full flex-1 border-t border-ot-divider">
         <aside
-          class="w-44 max-w-[45%] min-w-52 shrink-0 overflow-y-auto border-r border-slate-200 bg-slate-50/60 py-1"
+          class="w-44 max-w-[45%] min-w-52 shrink-0 overflow-y-auto border-r border-ot-divider bg-ot-raised py-1"
         >
           <ng-container
             [ngTemplateOutlet]="treeNodesTemplate"
@@ -53,7 +53,7 @@
       </div>
     } @else {
       <div
-        class="sticky top-0 z-10 w-full max-w-full min-w-0 shrink-0 overflow-x-auto overflow-y-hidden bg-white px-0.5 pb-0.5"
+        class="sticky top-0 z-10 w-full max-w-full min-w-0 shrink-0 overflow-x-auto overflow-y-hidden bg-ot-surface px-0.5 pb-0.5"
       >
         <div class="inline-block min-w-full">
           <mat-button-toggle-group
@@ -81,7 +81,7 @@
       @if (showPreview) {
         @if (file.isLoading || !file.isLoaded) {
           <div
-            class="flex min-h-[350px] w-full flex-1 items-center justify-center gap-2 text-slate-600"
+            class="flex min-h-[350px] w-full flex-1 items-center justify-center gap-2 text-ot-muted"
           >
             <mat-spinner [diameter]="42"></mat-spinner>
             <span>Loading {{ file.name }}...</span>
@@ -123,7 +123,7 @@
           </div>
         } @else {
           <div
-            class="flex min-h-[350px] flex-1 items-center justify-center gap-2.5 px-2.5 text-slate-600"
+            class="flex min-h-[350px] flex-1 items-center justify-center gap-2.5 px-2.5 text-ot-muted"
           >
             <mat-icon class="size-6">insert_drive_file</mat-icon>
             <div>
@@ -144,11 +144,11 @@
   @for (node of nodes; track trackTreeNode($index, node)) {
     @if (node.isDirectory) {
       <div
-        class="flex items-center gap-0.5 py-0.5 pr-1 text-slate-600"
+        class="flex items-center gap-0.5 py-0.5 pr-1 text-ot-muted"
         [style.paddingLeft.px]="8 + depth * 14"
         [title]="node.path"
       >
-        <mat-icon class="small-icon text-slate-500">folder</mat-icon>
+        <mat-icon class="small-icon text-ot-muted">folder</mat-icon>
         <span class="truncate">{{ node.name }}</span>
       </div>
       <ng-container
@@ -157,17 +157,16 @@
       ></ng-container>
     } @else {
       <button
-        class="flex w-full items-center gap-0.5 py-0.5 pr-1 text-left hover:bg-slate-200/70"
+        class="flex w-full items-center gap-0.5 py-0.5 pr-1 text-left text-ot-text hover:bg-ot-hover"
         type="button"
         [ngClass]="{
-          'bg-slate-200/80 text-slate-900': selectedTab === node.fileIndex,
-          'text-slate-700': selectedTab !== node.fileIndex,
+          'bg-ot-selected': selectedTab === node.fileIndex,
         }"
         [style.paddingLeft.px]="8 + depth * 14"
         [title]="node.path"
         (click)="selectTreeNode(node)"
       >
-        <mat-icon class="small-icon text-slate-500">description</mat-icon>
+        <mat-icon class="small-icon text-ot-muted">description</mat-icon>
         <span class="truncate">{{ treeNodeLabel(node) }}</span>
       </button>
     }
@@ -176,7 +175,7 @@
 
 <ng-template #filePathLabel let-path>
   <div
-    class="shrink-0 truncate overflow-hidden px-2.5 py-1 whitespace-nowrap text-slate-700"
+    class="shrink-0 truncate overflow-hidden px-2.5 py-1 whitespace-nowrap text-ot-text"
     [title]="path"
   >
     {{ path }}

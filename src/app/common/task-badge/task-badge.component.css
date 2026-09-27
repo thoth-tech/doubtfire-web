@@ -1,15 +1,19 @@
 :host {
   display: flex;
   position: relative;
+  /* The tile shows the whole code, so it must not be squeezed by the title beside it. */
+  flex-shrink: 0;
 }
 
+/* Theme tokens, so the tile flips with the theme instead of staying light grey. */
 .task-badge {
-  color: #111827;
+  background-color: var(--ot-color-divider);
+  color: var(--ot-color-text);
 }
 
 .task-badge.task-badge-highlight {
-  background-color: var(--mat-theme-primary, #3939ff) !important;
-  color: #ffffff;
+  background-color: var(--ot-color-primary) !important;
+  color: var(--ot-color-on-primary);
 }
 
 .mat-icon {

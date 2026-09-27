@@ -1,6 +1,8 @@
+// The tabs sit centred through the label container's auto margins, not
+// justify-content: centring an overflowing row pushed the first tabs off the left
+// edge where the scroll could not reach them.
 :host ::ng-deep .inbox-dashboard-tabs {
   .mat-mdc-tab-header {
-    justify-content: center;
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
@@ -17,4 +19,12 @@
   .mat-mdc-tab-labels {
     width: max-content;
   }
+}
+
+// Full screen, the reading tabs (notes, history, details) keep a comfortable line length
+// in the middle of the page. The PDF viewers keep the whole width.
+.dashboard-reading-measure {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
 }

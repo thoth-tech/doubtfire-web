@@ -83,7 +83,7 @@ export class TaskPrerequisite extends Entity {
       .pipe(
         tap({
           next: () => {
-            AppInjector.get(AlertService).error('Successfully deleted prerequisite', 4000);
+            AppInjector.get(AlertService).success('Prerequisite removed', 4000);
             this.taskDefinition.taskPrerequisitesCache.delete(this.id);
           },
           error: (error) => {

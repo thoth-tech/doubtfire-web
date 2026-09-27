@@ -1,0 +1,5 @@
+// The tab strip draws its own rule under the tabs. Point it at the divider token so
+// it matches the cards below it in both themes.
+.portfolio-student-tabs {
+  --mat-tab-divider-color: var(--ot-color-divider);
+}

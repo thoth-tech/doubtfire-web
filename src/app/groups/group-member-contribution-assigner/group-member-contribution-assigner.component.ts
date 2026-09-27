@@ -4,12 +4,14 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
 } from '@angular/core';
 import {Sort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
+import {Subscription} from 'rxjs';
 import {GroupSet} from 'src/app/api/models/doubtfire-model';
 import {Group, MemberContribution} from 'src/app/api/models/groups/group';
 import {Project} from 'src/app/api/models/project';
@@ -22,7 +24,7 @@ import {Task} from 'src/app/api/models/task';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class GroupMemberContributionAssignerComponent implements OnInit, OnChanges {
+export class GroupMemberContributionAssignerComponent implements OnInit, OnChanges, OnDestroy {
   @Input() isTestSubmission: boolean;
 
   @Input() task: Task;
@@ -36,6 +38,7 @@ export class GroupMemberContributionAssignerComponent implements OnInit, OnChang
 
   numStars = 5;
   initialStars = 3;
+  readonly stars = Array.from({length: this.numStars}, (_, index) => index + 1);
 
   percentages = {
     danger: 0,
@@ -47,20 +50,31 @@ export class GroupMemberContributionAssignerComponent implements OnInit, OnChang
   displayedColumns = ['name', 'target-grade', 'contribution'];
   dataSource: MatTableDataSource<MemberContribution> = new MatTableDataSource([]);
 
+  private membersSub?: Subscription;
+
   ngOnInit(): void {
     this.initializeGroupData();
     this.loadMembers();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['task'] || changes['project']) {
+    // ngOnInit covers the first binding; loading here as well sent the request twice.
+    const taskChanged = changes['task'] && !changes['task'].firstChange;
+    const projectChanged = changes['project'] && !changes['project'].firstChange;
+    if (taskChanged || projectChanged) {
       this.initializeGroupData();
       this.loadMembers();
     }
   }
 
+  ngOnDestroy(): void {
+    this.membersSub?.unsubscribe();
+  }
+
   private initializeGroupData(): void {
     this.selectedGroupSet = this.task?.definition?.groupSet;
+    // Start clean, so a test submission does not keep the group of an earlier task.
+    this.selectedGroup = undefined;
     // Check if this is an overseer test submission
     if (!this.isTestSubmission) {
       const group = this.project?.getGroupForTask(this.task);
@@ -72,23 +86,19 @@ export class GroupMemberContributionAssignerComponent implements OnInit, OnChang
   }
 
   private loadMembers(): void {
-    if (!this.selectedGroup && this.selectedGroupSet?.groups?.length > 0) {
-      console.error(`Could not find project's group`);
-      this.team.memberContributions = [];
-      return;
-    }
+    this.membersSub?.unsubscribe();
+
     if (this.selectedGroup && this.selectedGroupSet) {
-      this.selectedGroup.getMembers().subscribe({
+      this.membersSub = this.selectedGroup.getMembers().subscribe({
         next: (members) => {
-          this.team.memberContributions = members.map((member) => {
-            const result: MemberContribution = {
-              project: member,
-              rating: this.initialStars,
-              percent: 0,
-              overStar: null,
-            };
-            result.percent = this.memberPercentage(result, this.initialStars);
-            return result;
+          this.team.memberContributions = members.map((member) => ({
+            project: member,
+            rating: this.initialStars,
+            percent: 0,
+            overStar: null,
+          }));
+          this.team.memberContributions.forEach((contribution) => {
+            contribution.percent = this.percentFor(contribution);
           });
 
           // Update percentages based on member count
@@ -101,17 +111,27 @@ export class GroupMemberContributionAssignerComponent implements OnInit, OnChang
         },
       });
     } else {
+      // No group to rate, which is expected for a test submission. This used to log
+      // a console error on every one of them.
       this.team.memberContributions = [];
       this.teamChange.emit(this.team);
+      this.dataSource.data = [];
     }
   }
 
-  private memberPercentage(contrib: MemberContribution, rating: number): number {
-    return +(
-      100 *
-      (rating /
-        this.selectedGroup.contributionSum(this.team.memberContributions, contrib.project, rating))
-    ).toFixed();
+  /**
+   * A member's share of the team's effort, using the rating under the pointer while
+   * the member is being rated. Worked out when shown, so every row follows a change
+   * to any one rating, and a team rated all zero shows 0% instead of NaN.
+   */
+  percentFor(contrib: MemberContribution): number {
+    const rating = contrib.overStar ?? contrib.rating;
+    const total = this.team.memberContributions.reduce(
+      (sum, current) => sum + (current === contrib ? rating : current.rating),
+      0,
+    );
+
+    return total > 0 ? Math.round((100 * rating) / total) : 0;
   }
 
   selectRating(contrib: MemberContribution, rating: number) {
@@ -124,9 +144,11 @@ export class GroupMemberContributionAssignerComponent implements OnInit, OnChang
     }
   }
 
-  hoveringOver(contrib: MemberContribution, value: number): void {
+  hoveringOver(contrib: MemberContribution, value: number | null): void {
     contrib.overStar = value;
-    contrib.percent = this.memberPercentage(contrib, value);
+    // Leaving the stars used to work the share out from no rating at all, so it
+    // dropped to 0% until the next hover.
+    contrib.percent = this.percentFor(contrib);
   }
 
   private sortCompare(aValue: number | string, bValue: number | string, isAsc: boolean) {

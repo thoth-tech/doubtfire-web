@@ -1,0 +1,187 @@
+@use '../../../unit-hub/hub-card' as hub;
+
+@include hub.card-theme;
+
+:host {
+  display: block;
+  max-width: 100%;
+}
+
+.ext-dialog-title {
+  padding-inline: 24px;
+}
+
+.task-dialog-content {
+  display: flex;
+  max-height: calc(100dvh - 10rem);
+  flex-direction: column;
+  gap: 16px;
+  overflow: auto;
+  padding: 0 24px 8px;
+  color: var(--ot-color-text);
+}
+
+// Task abbreviation, name and current due date under the title.
+.ext-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: -4px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.ext-context__task {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.ext-context__name {
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.ext-context__due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ot-color-text-muted);
+  white-space: nowrap;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    color: var(--ot-color-link);
+  }
+}
+
+// Same chip as the extension request card in the task comments.
+.ext-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--ot-radius-pill);
+  background: color-mix(in srgb, var(--ot-color-primary) 14%, transparent);
+  color: var(--ot-color-text);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.ext-chip--task {
+  font-weight: 600;
+}
+
+.ext-callout {
+  @include hub.callout(raised);
+  @include hub.tinted-card(var(--ot-color-warning));
+  margin: 0;
+  color: var(--ot-color-text);
+
+  > mat-icon {
+    color: var(--ot-color-warning);
+  }
+}
+
+.ext-description {
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  line-height: 1.5;
+}
+
+// The hint row sits inside the field, so no extra spacing is added below it.
+.ext-field {
+  margin: 0;
+}
+
+.ext-counter {
+  color: var(--ot-color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ext-counter--warn {
+  color: var(--ot-color-warning);
+}
+
+.ext-counter--limit {
+  color: var(--ot-color-error);
+  font-weight: 600;
+}
+
+.ext-date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.ext-summary {
+  font-variant-numeric: tabular-nums;
+}
+
+.ext-date__error {
+  margin: 0;
+  color: var(--ot-color-error);
+  font-size: 0.75rem;
+}
+
+.task-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 24px;
+
+  button {
+    min-height: 44px;
+    margin: 0;
+    white-space: normal;
+  }
+}
+
+// The app paints every spinner circle in the divider colour, which vanishes on a
+// disabled button. Inside the button it follows the label colour instead.
+.ext-submit__spinner {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+
+  ::ng-deep circle {
+    stroke: currentColor !important;
+  }
+}
+
+.task-dialog-error {
+  margin: 0;
+  border-left: 4px solid var(--ot-color-error);
+  background: color-mix(in srgb, var(--ot-color-error) 10%, transparent);
+  padding: 0.75rem;
+  color: var(--ot-color-text);
+}
+
+@media (max-width: 599.98px) {
+  .task-dialog-content {
+    max-height: calc(100dvh - 11.5rem);
+    padding-inline: 16px;
+  }
+
+  .ext-dialog-title {
+    padding-inline: 16px;
+  }
+
+  .task-dialog-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding-inline: 16px;
+
+    button {
+      width: 100%;
+    }
+  }
+}

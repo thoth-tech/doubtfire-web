@@ -1,91 +1,98 @@
-<h2 mat-dialog-title>
-  {{ draft.id ? 'Edit communication schedule' : 'Add communication schedule' }}
-</h2>
+<h2 mat-dialog-title>{{ draft.id ? 'Edit schedule' : 'Add schedule' }}</h2>
 
-<mat-dialog-content class="flex max-h-[80vh] min-w-[52rem] flex-col gap-4 !overflow-visible">
-  <div class="grid grid-cols-2 gap-4">
-    <mat-form-field appearance="outline">
-      <mat-label>Name</mat-label>
-      <input matInput placeholder="Week 3 reminder" [(ngModel)]="draft.name" />
-    </mat-form-field>
+<mat-dialog-content>
+  <div class="flex flex-col gap-4 pt-1">
+    <div class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Name</mat-label>
+        <input matInput placeholder="Week 3 reminder" [(ngModel)]="draft.name" />
+      </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Timezone</mat-label>
-      <input matInput [placeholder]="timezonePlaceholder" [(ngModel)]="draft.timezone" />
-    </mat-form-field>
-  </div>
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Time zone</mat-label>
+        <input matInput [placeholder]="timezonePlaceholder" [(ngModel)]="draft.timezone" />
+        <mat-hint>For example Australia/Melbourne</mat-hint>
+      </mat-form-field>
+    </div>
 
-  <mat-slide-toggle [(ngModel)]="draft.active">Schedule active</mat-slide-toggle>
+    <div>
+      <mat-slide-toggle [(ngModel)]="draft.active">Active</mat-slide-toggle>
+      <p class="m-0 pl-12 text-sm text-ot-muted">
+        Turn this off to pause the schedule without deleting it.
+      </p>
+    </div>
 
-  <div class="grid grid-cols-4 gap-4">
-    <mat-form-field appearance="outline">
-      <mat-label>Week</mat-label>
-      <input matInput min="1" type="number" [(ngModel)]="draft.anchor_week" />
-    </mat-form-field>
+    <fieldset class="m-0 min-w-0 border-0 p-0">
+      <legend class="mb-2 p-0 text-sm font-semibold text-ot-text">First run</legend>
+      <div class="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Week</mat-label>
+          <input matInput min="1" type="number" [(ngModel)]="draft.anchor_week" />
+        </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Day</mat-label>
-      <mat-select [(ngModel)]="draft.anchor_day">
-        @for (weekday of weekdays; track weekday.value) {
-          <mat-option [value]="weekday.label">{{ weekday.label }}</mat-option>
-        }
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Day</mat-label>
+          <mat-select [(ngModel)]="draft.anchor_day">
+            @for (weekday of weekdays; track weekday.value) {
+              <mat-option [value]="weekday.label">{{ weekday.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Hour</mat-label>
+          <input matInput max="23" min="0" type="number" [(ngModel)]="draft.hour" />
+          <mat-hint>0 to 23</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Minute</mat-label>
+          <input matInput max="59" min="0" type="number" [(ngModel)]="draft.minute" />
+        </mat-form-field>
+      </div>
+    </fieldset>
+
+    <mat-form-field appearance="outline" class="w-full sm:max-w-72">
+      <mat-label>Repeat</mat-label>
+      <mat-select [(ngModel)]="draft.recurrence">
+        <mat-option value="none">Once only</mat-option>
+        <mat-option value="daily">Daily</mat-option>
+        <mat-option value="weekly">Weekly</mat-option>
+        <mat-option value="monthly">Monthly</mat-option>
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Hour</mat-label>
-      <input matInput max="23" min="0" type="number" [(ngModel)]="draft.hour" />
-    </mat-form-field>
+    @if (!isOneOff) {
+      <div class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-3">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Every</mat-label>
+          <input matInput min="1" type="number" [(ngModel)]="draft.interval" />
+          <span matTextSuffix>{{ intervalUnit }}</span>
+        </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Minute</mat-label>
-      <input matInput max="59" min="0" type="number" [(ngModel)]="draft.minute" />
-    </mat-form-field>
-  </div>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Stop after</mat-label>
+          <input matInput min="1" type="number" [(ngModel)]="draft.repeat_count" />
+          <span matTextSuffix>runs</span>
+        </mat-form-field>
 
-  <mat-form-field appearance="outline" class="max-w-72">
-    <mat-label>Repeat</mat-label>
-    <mat-select [(ngModel)]="draft.recurrence">
-      <mat-option value="none">One time only</mat-option>
-      <mat-option value="daily">Daily</mat-option>
-      <mat-option value="weekly">Weekly</mat-option>
-      <mat-option value="monthly">Monthly</mat-option>
-    </mat-select>
-  </mat-form-field>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Or stop on</mat-label>
+          <input matInput type="datetime-local" [(ngModel)]="untilDateTime" />
+        </mat-form-field>
+      </div>
+    }
 
-  @if (draft.recurrence !== 'none') {
-    <div class="grid grid-cols-3 gap-4">
-      <mat-form-field appearance="outline">
-        <mat-label>Every</mat-label>
-        <input matInput min="1" type="number" [(ngModel)]="draft.interval" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Stop after runs</mat-label>
-        <input matInput min="1" type="number" [(ngModel)]="draft.repeat_count" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Or stop on</mat-label>
-        <input matInput type="datetime-local" [(ngModel)]="untilDateTime" />
-      </mat-form-field>
+    <div class="rounded-ot-md border border-ot-divider px-4 py-3">
+      <p class="m-0 text-xs text-ot-muted">Summary</p>
+      <p class="m-0 mt-0.5 text-sm text-ot-text">{{ scheduleSummary() }}</p>
     </div>
-  }
-
-  <div>
-    <div class="mb-2">Summary</div>
-    <div>{{ scheduleSummary() }}</div>
   </div>
-
-  <!-- <div class="rounded border border-gray-200 bg-slate-950 p-4 text-xs text-slate-100">
-    <div class="mb-2 font-medium text-slate-50">IceCube payload preview</div>
-    <pre class="overflow-auto whitespace-pre-wrap">{{ iceCubePreview() }}</pre>
-  </div> -->
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="dialogRef.close()">Cancel</button>
-  <button color="primary" mat-flat-button [disabled]="!canSave()" (click)="save()">
+  <button mat-button type="button" (click)="dialogRef.close()">Cancel</button>
+  <button color="primary" mat-flat-button type="button" [disabled]="!canSave()" (click)="save()">
     Save schedule
   </button>
 </mat-dialog-actions>

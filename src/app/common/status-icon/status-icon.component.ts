@@ -11,7 +11,9 @@ import {TaskStatus, TaskStatusEnum} from 'src/app/api/models/task-status';
 export class StatusIconComponent implements OnInit {
   @Input() status?: TaskStatusEnum = 'not_started';
   @Input() showTooltip: boolean;
-  @Input() compact = false;
+  // 'large' is the 44px circle for roomier rows such as the cross-unit dashboard;
+  // dense lists keep the default 36px.
+  @Input() size: 'default' | 'large' = 'default';
 
   ngOnInit(): void {
     if (this.showTooltip == null) {

@@ -15,8 +15,14 @@ import {FeedbackAppealModalData} from './feedback-appeal-modal.service';
 export class FeedbackAppealModalComponent implements OnInit {
   task: Task;
 
-  reviewComment: string;
-  submitting: boolean;
+  reviewComment = '';
+  /** Matches the maxlength on the textarea. */
+  readonly commentMaxLength = 1000;
+  /** The counter turns to the warning colour from this many characters. */
+  readonly commentWarnLength = 900;
+  submitting = false;
+  errorMessage = '';
+  private allowClose = false;
 
   constructor(
     public dialogRef: MatDialogRef<FeedbackAppealModalComponent>,
@@ -30,30 +36,60 @@ export class FeedbackAppealModalComponent implements OnInit {
   }
 
   submit(): void {
+    const comment = this.reviewComment.trim();
+    if (!comment || this.submitting) {
+      return;
+    }
+
     this.submitting = true;
+    this.errorMessage = '';
     this.task.requestFeedbackReview().subscribe({
       next: (_response) => {
         this.alerts.success(
           `Requested feedback review for ${this.task.definition.abbreviation} ${this.task.definition.name}`,
           3000,
         );
-        setTimeout(() => {
-          // Fetch the "Feedback Review Requested" comment
-          this.taskService.notifyStatusChange(this.task);
-          setTimeout(() => {
-            this.task.addComment(this.reviewComment);
-          }, 250);
-          this.dismissModal();
-        }, 250);
+        // Fetch the "Feedback Review Requested" comment, then add only the text
+        // the student explicitly submitted.
+        this.taskService.notifyStatusChange(this.task);
+        this.task.addComment(comment);
+        this.allowClose = true;
+        this.dialogRef.close();
       },
-      error: (error) => {
-        this.alerts.error(`An error occurred: ${error}`, 3000);
+      error: () => {
+        this.errorMessage = 'The feedback review request could not be sent. Please try again.';
+        this.alerts.error(this.errorMessage, 4000);
         this.submitting = false;
       },
     });
   }
 
-  public dismissModal() {
+  public get commentLength(): number {
+    return this.reviewComment?.length ?? 0;
+  }
+
+  public get commentCounterState(): 'ok' | 'warn' | 'limit' {
+    if (this.commentLength >= this.commentMaxLength) {
+      return 'limit';
+    }
+    return this.commentLength >= this.commentWarnLength ? 'warn' : 'ok';
+  }
+
+  public get isDirty(): boolean {
+    return this.reviewComment.trim().length > 0;
+  }
+
+  public canClose(): boolean {
+    if (this.allowClose || !this.isDirty) {
+      return true;
+    }
+
+    return globalThis.confirm(
+      'Discard this feedback review request? Your entered reason will be lost.',
+    );
+  }
+
+  public dismissModal(): void {
     this.dialogRef.close();
   }
 }

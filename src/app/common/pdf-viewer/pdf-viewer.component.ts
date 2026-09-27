@@ -1,9 +1,11 @@
-import {PDFDocumentProxy, PdfViewerComponent} from 'ng2-pdf-viewer';
+import {PdfViewerComponent} from 'ng2-pdf-viewer';
+import type {PDFDocumentProxy} from 'ng2-pdf-viewer';
 import {HttpResponse} from '@angular/common/http';
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  HostListener,
   Inject,
   Input,
   OnChanges,
@@ -13,6 +15,10 @@ import {
 } from '@angular/core';
 import {FileDownloaderService} from '../file-downloader/file-downloader.service';
 import {AlertService} from '../services/alert.service';
+import {ElementFullscreen} from './element-fullscreen';
+
+export type PdfLoadState = 'empty' | 'loading' | 'ready' | 'error';
+export type PdfViewerMode = 'ontrack' | 'browser';
 
 @Component({
   selector: 'f-pdf-viewer',
@@ -21,70 +27,67 @@ import {AlertService} from '../services/alert.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class fPdfViewerComponent implements OnDestroy, OnChanges, AfterViewInit {
+export class fPdfViewerComponent implements OnDestroy, OnChanges {
   private readonly ZOOM_MIN = 0.5;
   private readonly ZOOM_MAX = 2.5;
-
   private _pdfUrl: string;
-  public pdfBlobUrl: string;
-  public useNativePdfViewer = false;
-  public pdfTotalPages?: number | undefined;
-  public pdfHasRendered: boolean = false;
+  private ownsPdfBlobUrl = false;
+  private loadGeneration = 0;
 
   @Input() pdfUrl: string;
-  @Input() startPage: number = 1;
+  @Input() filename = 'PDF attachment.pdf';
+  @Input() startPage = 1;
 
-  public pageNumber: number = 1;
+  @ViewChild(PdfViewerComponent) private pdfComponent?: PdfViewerComponent;
+  @ViewChild('pdfContainer', {static: true}) private container: ElementRef<HTMLElement>;
 
-  @ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
-  pdfSearchString: string;
-  zoomValue = 1;
-  loaded = false;
+  private readonly fullscreen = new ElementFullscreen(() => this.container?.nativeElement);
+  public readonly canFullscreen = this.fullscreen.supported;
+  public isFullscreen = false;
+
+  public pdfBlobUrl: string;
+  public pdfTotalPages?: number;
+  public pdfHasRendered = false;
+  public pageNumber = 1;
+  public pdfSearchString = '';
+  public zoomValue = 1;
+  public loadState: PdfLoadState = 'empty';
+  public errorMessage = '';
+  public previewEnabled = true;
+  public viewerMode: PdfViewerMode = 'ontrack';
 
   constructor(
     @Inject(FileDownloaderService) private fileDownloader: FileDownloaderService,
     private alerts: AlertService,
-  ) {}
-
-  ngOnDestroy(): void {
-    if (this.pdfBlobUrl) {
-      this.fileDownloader.releaseBlob(this.pdfBlobUrl);
-      this.pdfBlobUrl = null;
+  ) {
+    this.previewEnabled = localStorage.getItem('pdfPreviewEnabled') !== 'false';
+    this.viewerMode =
+      localStorage.getItem('pdfViewerMode') === 'browser' ||
+      localStorage.getItem('useNativePdfViewer') === 'true'
+        ? 'browser'
+        : 'ontrack';
+    const storedZoomValue = Number.parseFloat(localStorage.getItem('pdfViewerZoom') ?? '');
+    if (Number.isFinite(storedZoomValue)) {
+      this.zoomValue = Math.min(Math.max(storedZoomValue, this.ZOOM_MIN), this.ZOOM_MAX);
     }
-  }
-
-  ngAfterViewInit(): void {
-    this.useNativePdfViewer = localStorage.getItem('useNativePdfViewer') === 'true';
-    const storedZoomValue = parseFloat(localStorage.getItem('pdfViewerZoom')) || 1;
-    // Clamp zoom value between ZOOM_MIN and ZOOM_MAX
-    this.zoomValue = Math.min(Math.max(storedZoomValue, this.ZOOM_MIN), this.ZOOM_MAX);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.pdfUrlChanges(changes.pdfUrl.currentValue);
-  }
-
-  pdfUrlChanges(value: string): void {
-    if (this._pdfUrl !== value) {
-      // Free the memory used by the old PDF blob
-      if (this.pdfBlobUrl) {
-        this.fileDownloader.releaseBlob(this.pdfBlobUrl);
-        this.pdfBlobUrl = null;
-      }
-
-      // Get the new blob
-      this._pdfUrl = value;
-      this.loaded = false;
-      this.pdfHasRendered = false;
-      if (value?.startsWith('blob:')) {
-        this.pdfBlobUrl = value;
-      } else {
-        this.downloadBlob(value);
-      }
+    if (changes.pdfUrl) {
+      this.loadPdf(changes.pdfUrl.currentValue);
     }
   }
 
+  ngOnDestroy(): void {
+    this.fullscreen.release();
+    this.loadGeneration += 1;
+    this.releaseOwnedBlob();
+  }
+
   searchPdf(stringToSearch: string): void {
+    if (!this.pdfComponent?.eventBus || this.viewerMode !== 'ontrack') {
+      return;
+    }
     this.pdfComponent.eventBus.dispatch('find', {
       query: stringToSearch,
       type: 'again',
@@ -95,68 +98,188 @@ export class fPdfViewerComponent implements OnDestroy, OnChanges, AfterViewInit 
     });
   }
 
-  scrollToPage(pageNumber: number) {
-    if (pageNumber <= this.pdfComponent.pdfViewer.pagesCount) {
-      this.pdfComponent.pdfViewer.scrollPageIntoView({
-        pageNumber,
+  scrollToPage(pageNumber: number): void {
+    const pagesCount = this.pdfComponent?.pdfViewer?.pagesCount ?? 0;
+    if (pageNumber > 0 && pageNumber <= pagesCount) {
+      this.pdfComponent.pdfViewer.scrollPageIntoView({pageNumber});
+    }
+  }
+
+  public zoomIn(): void {
+    if (this.zoomValue < this.ZOOM_MAX) {
+      this.setZoom(this.zoomValue + 0.1);
+    }
+  }
+
+  public zoomOut(): void {
+    if (this.zoomValue > this.ZOOM_MIN) {
+      this.setZoom(this.zoomValue - 0.1);
+    }
+  }
+
+  get canZoomIn(): boolean {
+    return (
+      this.viewerMode === 'ontrack' && this.loadState === 'ready' && this.zoomValue < this.ZOOM_MAX
+    );
+  }
+
+  get canZoomOut(): boolean {
+    return (
+      this.viewerMode === 'ontrack' && this.loadState === 'ready' && this.zoomValue > this.ZOOM_MIN
+    );
+  }
+
+  get zoomPercent(): string {
+    return `${Math.round(this.zoomValue * 100)}%`;
+  }
+
+  get displayFilename(): string {
+    return this.filename?.trim() || 'PDF attachment.pdf';
+  }
+
+  get hasDownloadSource(): boolean {
+    return Boolean(this.pdfBlobUrl || this._pdfUrl);
+  }
+
+  public downloadPdf(): void {
+    if (this.pdfBlobUrl) {
+      this.fileDownloader.downloadBlobToFileWithFeedback(this.pdfBlobUrl, this.displayFilename);
+    } else if (this._pdfUrl) {
+      this.fileDownloader.downloadFileWithFeedback(this._pdfUrl, this.displayFilename, {
+        requestKey: `pdf-viewer:${this._pdfUrl}`,
       });
     }
   }
 
-  public zoomIn() {
-    if (this.zoomValue < this.ZOOM_MAX) {
-      this.zoomValue += 0.1;
-      localStorage.setItem('pdfViewerZoom', this.zoomValue.toString());
-    }
-  }
-  public zoomOut() {
-    if (this.zoomValue > this.ZOOM_MIN) {
-      this.zoomValue -= 0.1;
-      localStorage.setItem('pdfViewerZoom', this.zoomValue.toString());
-    }
-  }
-
-  public downloadPdf() {
-    this.fileDownloader.downloadBlobToFile(this.pdfBlobUrl, 'displayed-pdf.pdf');
+  /**
+   * The browser's own full screen, for the task sheet or submission in this viewer.
+   * Esc leaves it too, and fullscreenchange keeps the button in step either way.
+   */
+  public toggleFullscreen(): void {
+    const entering = !this.fullscreen.active;
+    this.fullscreen.toggle().catch((error: unknown) => {
+      if (entering) {
+        this.alerts.error(`Could not open full screen. ${error}`, 6000);
+      }
+    });
   }
 
-  public toggleNativePdfViewer() {
-    this.useNativePdfViewer = !this.useNativePdfViewer;
-    localStorage.setItem('useNativePdfViewer', this.useNativePdfViewer.toString());
-  }
-
-  private downloadBlob(downloadUrl: string): void {
-    this.fileDownloader.downloadBlob(
-      downloadUrl,
-      (url: string, _response: HttpResponse<Blob>) => {
-        this.pdfBlobUrl = url;
-      },
-      (error: unknown) => {
-        this.alerts.error(`Error downloading PDF. ${error}`, 6000);
-      },
-    );
-  }
-
-  onLoaded(event: PDFDocumentProxy) {
-    this.loaded = true;
+  @HostListener('document:fullscreenchange')
+  onFullscreenChange(): void {
+    this.isFullscreen = this.fullscreen.active;
+    // The pages are sized to the viewer's width when the window resizes, and the
+    // viewer has just changed size.
     window.dispatchEvent(new Event('resize'));
-    this.pdfTotalPages = event.numPages;
   }
 
-  onTextLayerRendered() {
+  public togglePreview(): void {
+    this.previewEnabled = !this.previewEnabled;
+    localStorage.setItem('pdfPreviewEnabled', this.previewEnabled.toString());
+    if (this.previewEnabled && this.pdfBlobUrl) {
+      this.loadState = this.viewerMode === 'browser' ? 'ready' : 'loading';
+    }
+  }
+
+  public toggleViewerMode(): void {
+    this.viewerMode = this.viewerMode === 'ontrack' ? 'browser' : 'ontrack';
+    localStorage.setItem('pdfViewerMode', this.viewerMode);
+    localStorage.removeItem('useNativePdfViewer');
+    if (this.pdfBlobUrl && this.previewEnabled) {
+      this.loadState = this.viewerMode === 'browser' ? 'ready' : 'loading';
+    }
+  }
+
+  public retry(): void {
+    this.loadPdf(this._pdfUrl, true);
+  }
+
+  onLoaded(event: PDFDocumentProxy): void {
+    this.pdfTotalPages = event.numPages;
+    if (event.numPages < 1) {
+      this.loadState = 'empty';
+      return;
+    }
+    this.loadState = 'ready';
+    this.errorMessage = '';
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  onPdfError(_error: unknown): void {
+    this.loadState = 'error';
+    this.errorMessage = `Preview could not open ${this.displayFilename}. You can retry or download the file.`;
+  }
+
+  onTextLayerRendered(): void {
     if (this.pdfHasRendered) {
       return;
     }
     this.pdfHasRendered = true;
-    setTimeout(() => {
-      if (
-        this.startPage &&
-        this.startPage > 1 &&
-        this.pdfTotalPages &&
-        this.startPage <= this.pdfTotalPages
-      ) {
-        this.pageNumber = Number(this.startPage);
+    if (this.startPage > 1 && this.pdfTotalPages && this.startPage <= this.pdfTotalPages) {
+      this.pageNumber = Number(this.startPage);
+    }
+  }
+
+  private loadPdf(value: string, force = false): void {
+    if (!force && this._pdfUrl === value) {
+      return;
+    }
+
+    const generation = ++this.loadGeneration;
+    this.releaseOwnedBlob();
+    this._pdfUrl = value;
+    this.pdfBlobUrl = null;
+    this.pdfTotalPages = undefined;
+    this.pdfHasRendered = false;
+    this.pageNumber = 1;
+    this.errorMessage = '';
+
+    if (!value?.trim()) {
+      this.loadState = 'empty';
+      return;
+    }
+
+    this.loadState = 'loading';
+    if (value.startsWith('blob:')) {
+      this.pdfBlobUrl = value;
+      this.ownsPdfBlobUrl = false;
+      if (this.previewEnabled && this.viewerMode === 'browser') {
+        this.loadState = 'ready';
       }
-    });
+      return;
+    }
+
+    this.fileDownloader.downloadBlob(
+      value,
+      (url: string, _response: HttpResponse<Blob>) => {
+        if (generation !== this.loadGeneration) {
+          this.fileDownloader.releaseBlob(url);
+          return;
+        }
+        this.pdfBlobUrl = url;
+        this.ownsPdfBlobUrl = true;
+        if (this.previewEnabled && this.viewerMode === 'browser') {
+          this.loadState = 'ready';
+        }
+      },
+      (_error: unknown) => {
+        if (generation !== this.loadGeneration) {
+          return;
+        }
+        this.loadState = 'error';
+        this.errorMessage = `Preview could not load ${this.displayFilename}. Check your connection and try again.`;
+      },
+    );
+  }
+
+  private setZoom(value: number): void {
+    this.zoomValue = Math.min(Math.max(Number(value.toFixed(1)), this.ZOOM_MIN), this.ZOOM_MAX);
+    localStorage.setItem('pdfViewerZoom', this.zoomValue.toString());
+  }
+
+  private releaseOwnedBlob(): void {
+    if (this.pdfBlobUrl && this.ownsPdfBlobUrl) {
+      this.fileDownloader.releaseBlob(this.pdfBlobUrl);
+    }
+    this.ownsPdfBlobUrl = false;
   }
 }

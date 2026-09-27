@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  color: var(--ot-color-text);
+}
+
+// Establish an inline-size container so the grid inside responds to the width of the
+// dashboard pane (which the resizable task list changes) rather than the viewport. The
+// @lg:* and @3xl:* utilities in this template and the planner card's are anonymous
+// container queries and bind to this.
+// Tailwind's own @container utility does not emit container-type in this build, so set
+// it explicitly here.
+.dashboard-frame {
+  container-type: inline-size;
+}
+
+a {
+  color: var(--ot-color-link);
+  text-underline-offset: 3px;
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 3px;
+  }
+}
+
+mat-form-field {
+  --mat-form-field-filled-container-color: var(--ot-color-surface-raised);
+  --mat-form-field-filled-disabled-container-color: var(--ot-color-disabled-surface);
+  --mat-form-field-filled-label-text-color: var(--ot-color-text-muted);
+  --mat-form-field-filled-hover-label-text-color: var(--ot-color-text);
+  --mat-form-field-filled-input-text-color: var(--ot-color-text);
+  --mat-form-field-filled-input-text-placeholder-color: var(--ot-color-text-muted);
+  --mat-form-field-filled-active-indicator-color: var(--ot-color-border);
+  --mat-form-field-filled-hover-active-indicator-color: var(--ot-color-text-muted);
+}

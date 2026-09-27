@@ -1,0 +1,39 @@
+:host {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.image-attachment {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: 0.75rem;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 3rem;
+  min-width: 3rem;
+  overflow: hidden;
+  padding: 0;
+  width: 100%;
+
+  &:focus-visible {
+    outline: 3px solid #ffcf33;
+    outline-offset: 3px;
+  }
+
+  img {
+    display: block;
+    height: auto;
+    max-height: 16rem;
+    max-width: 100%;
+    object-fit: contain;
+    width: 100%;
+  }
+}

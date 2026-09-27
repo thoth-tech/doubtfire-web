@@ -1,7 +1,7 @@
 import {CachedEntityService, MappingProcess, RequestOptions} from 'ngx-entity-service';
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, finalize, shareReplay} from 'rxjs';
 import {
   CampusService,
   Project,
@@ -60,9 +60,15 @@ export class ProjectService extends CachedEntityService<Project> {
         toEntityOp: (data: object, key: string, entity: Project) => {
           const userId = data['user_id'];
 
+          // A student can read their own user record, but the api refuses staff (403),
+          // so a tutor or convenor on a student's page never had the student. For them
+          // the student comes from the unit's student list, which staff can read.
           this.userService.get(userId).subscribe({
             next: (user) => {
               entity.student = user;
+            },
+            error: () => {
+              this.loadStudentFromUnit(entity);
             },
           });
         },
@@ -104,7 +110,9 @@ export class ProjectService extends CachedEntityService<Project> {
             },
             {
               key: 'not_started',
-              value: Math.round((values['grey_pct'] || 1) * 100),
+              // ?? not ||: a student with nothing left to start has a grey share
+              // of 0, and || turned that into a bar that was all grey.
+              value: Math.round((values['grey_pct'] ?? 1) * 100),
             },
             {
               key: 'working_on_it',
@@ -249,6 +257,46 @@ export class ProjectService extends CachedEntityService<Project> {
     } else {
       return super.query(undefined, options);
     }
+  }
+
+  // One student list request per unit while it is in flight, so opening several
+  // students of the same unit at once does not load the whole list each time.
+  private readonly studentListLoads: Map<Unit, Observable<Project[]>> = new Map();
+
+  // Reuses the unit's student list when a staff page has already loaded it (the inbox
+  // and the students list do), and otherwise loads it once.
+  private loadStudentFromUnit(project: Project): void {
+    const unit = project.unit;
+    if (!unit) {
+      return;
+    }
+
+    const known = unit.studentCache.get(project.id)?.student;
+    if (known) {
+      project.student = known;
+      return;
+    }
+
+    let studentList = this.studentListLoads.get(unit);
+    if (!studentList) {
+      studentList = this.loadStudents(unit).pipe(
+        finalize(() => this.studentListLoads.delete(unit)),
+        shareReplay({bufferSize: 1, refCount: false}),
+      );
+      this.studentListLoads.set(unit, studentList);
+    }
+
+    studentList.subscribe({
+      next: (students) => {
+        const match = students.find((candidate) => candidate.id === project.id);
+        if (match?.student) {
+          project.student = match.student;
+        }
+      },
+      error: () => {
+        // Nothing more to try. The pages leave the student's name out instead.
+      },
+    });
   }
 
   public loadProject(

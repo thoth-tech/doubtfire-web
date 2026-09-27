@@ -31,16 +31,16 @@ export class TaskDefinitionUploadComponent {
   }
 
   public addUpReq() {
-    const newLength = this.taskDefinition.uploadRequirements.length + 1;
     this.taskDefinition.uploadRequirements.push({
-      key: `file${newLength - 1}`,
+      key: '',
       type: 'code',
       name: '',
       tiiCheck: false,
       tiiPct: 30,
       submissionHistory: false,
     });
-    this.table.renderRows();
+    this.renumberKeys();
+    this.table?.renderRows();
   }
 
   public tiiEnabled(): boolean {
@@ -55,8 +55,20 @@ export class TaskDefinitionUploadComponent {
   }
 
   public removeUpReq(upreq: UploadRequirement) {
+    // By the row itself, not its key: keys could repeat, and then one click
+    // removed every row that shared it.
     this.taskDefinition.uploadRequirements = this.taskDefinition.uploadRequirements.filter(
-      (anUpReq) => anUpReq.key != upreq.key,
+      (anUpReq) => anUpReq !== upreq,
     );
+    this.renumberKeys();
+  }
+
+  // Keys were made from the list length, so removing a row and adding another
+  // gave two rows the same key. The server numbers them by position when it
+  // imports a task list (file0, file1 and on), so do the same here.
+  private renumberKeys() {
+    this.taskDefinition.uploadRequirements.forEach((requirement, index) => {
+      requirement.key = `file${index}`;
+    });
   }
 }

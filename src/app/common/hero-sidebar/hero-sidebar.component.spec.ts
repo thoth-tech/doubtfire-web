@@ -29,4 +29,10 @@ describe('HeroSidebarComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('preserves the white OnTrack logo in the desktop hero', () => {
+    const logo = fixture.nativeElement.querySelector('img') as HTMLImageElement;
+
+    expect(logo.getAttribute('src')).toBe('../../../assets/images/logo-white.svg');
+  });
 });

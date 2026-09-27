@@ -1,0 +1,8 @@
+// A CSV column name in the import instructions.
+.csv-column {
+  padding: 0.0625rem 0.375rem;
+  border-radius: var(--ot-radius-xs);
+  background: var(--ot-code-surface);
+  color: var(--ot-code-text);
+  font-size: 0.8125rem;
+}

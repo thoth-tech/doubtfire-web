@@ -3,15 +3,13 @@ import {
   Component,
   Input,
   OnChanges,
-  OnInit,
+  OnDestroy,
   SimpleChanges,
 } from '@angular/core';
-import {MatTableDataSource} from '@angular/material/table';
 import {Subscription} from 'rxjs';
 import {Group, UnitRole} from 'src/app/api/models/doubtfire-model';
 import {Project} from 'src/app/api/models/project';
 import {Unit} from 'src/app/api/models/unit';
-import {AlertService} from 'src/app/common/services/alert.service';
 
 @Component({
   selector: 'f-group-member-list',
@@ -20,7 +18,7 @@ import {AlertService} from 'src/app/common/services/alert.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class GroupMemberListComponent implements OnInit, OnChanges {
+export class GroupMemberListComponent implements OnChanges, OnDestroy {
   @Input() unit: Unit;
   @Input() unitRole: UnitRole;
   @Input() project: Project;
@@ -28,54 +26,77 @@ export class GroupMemberListComponent implements OnInit, OnChanges {
   @Input() onMembersLoaded: () => void;
 
   loading = false;
+  loadError = false;
+  members: Project[] = [];
 
-  canRemoveMembers = false;
-
-  displayedColumns: string[] = ['student_id', 'name', 'target_grade', 'actions'];
-  groupMembers: Project[] = [];
-  dataSource = new MatTableDataSource();
-
+  private membersRequest?: Subscription;
   private groupMembersSub?: Subscription;
 
-  constructor(private alertService: AlertService) {}
+  /**
+   * Worked out when asked, not once after the members load, so locking or unlocking
+   * the group while it is open changes what a student can do straight away.
+   */
+  public get canRemoveMembers(): boolean {
+    if (this.unitRole) {
+      return true;
+    }
 
-  ngOnInit() {
-    if (!this.selectedGroup) {
+    return (
+      !!this.selectedGroup?.groupSet?.allowStudentsToManageGroups && !this.selectedGroup?.locked
+    );
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['selectedGroup']) {
+      this.loadMembers();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.membersRequest?.unsubscribe();
+    this.groupMembersSub?.unsubscribe();
+  }
+
+  public loadMembers(): void {
+    // Cancel the request for the group that was open before, so a slow reply for it
+    // cannot land on top of the group now on screen.
+    this.membersRequest?.unsubscribe();
+    this.groupMembersSub?.unsubscribe();
+    this.loadError = false;
+    this.members = [];
+
+    const group = this.selectedGroup;
+    if (!group) {
+      this.loading = false;
       return;
     }
 
-    this.groupMembersSub = this.selectedGroup.projectsCache.values.subscribe((values) => {
-      this.dataSource.data = values;
+    this.loading = true;
+    this.membersRequest = group.getMembers().subscribe({
+      next: () => {
+        this.loading = false;
+        this.onMembersLoaded?.();
+
+        // The group's own cache follows adds and removals made on this page.
+        this.groupMembersSub = group.projectsCache.values.subscribe((values) => {
+          this.members = this.sortedByName(values);
+        });
+      },
+      error: () => {
+        this.loading = false;
+        this.loadError = true;
+        this.members = [];
+      },
     });
   }
 
-  public removeMember(member: Project) {
+  public removeMember(member: Project): void {
     this.selectedGroup.removeMember(member);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['selectedGroup'] && this.selectedGroup) {
-      this.loading = true;
-      this.selectedGroup.getMembers().subscribe({
-        next: (members) => {
-          this.loading = false;
-          this.onMembersLoaded?.();
-          this.canRemoveMembers =
-            !!this.unitRole ||
-            (this.selectedGroup.groupSet.allowStudentsToManageGroups && !this.selectedGroup.locked);
-
-          this.dataSource.data = members;
-
-          this.groupMembersSub?.unsubscribe();
-          this.groupMembersSub = this.selectedGroup.projectsCache.values.subscribe((values) => {
-            this.dataSource.data = values;
-          });
-        },
-        error: (error) => {
-          this.alertService.error(`Failed to fetch group members: ${error}`, 6000);
-          this.selectedGroup = null;
-        },
-      });
-    }
+  private sortedByName(projects: readonly Project[]): Project[] {
+    return [...projects].sort((a, b) =>
+      (a.student?.name ?? '').localeCompare(b.student?.name ?? ''),
+    );
   }
 }

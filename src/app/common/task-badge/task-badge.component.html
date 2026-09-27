@@ -1,8 +1,13 @@
+<!-- The tile grows to fit the whole code, so codes longer than four characters
+     stay inside it instead of spilling over the edge or being cut to four. -->
 <div
-  class="task-badge flex aspect-square w-10 items-center justify-center rounded-md bg-gray-200"
+  class="task-badge flex h-10 min-w-10 items-center justify-center rounded-ot-sm px-1.5"
   [class.task-badge-highlight]="highlight"
 >
-  <p class="m-0">
+  <p
+    class="m-0 leading-none font-semibold whitespace-nowrap tabular-nums"
+    [ngClass]="abbreviation.length > 4 ? 'text-xs' : 'text-sm'"
+  >
     {{ abbreviation }}
   </p>
 </div>

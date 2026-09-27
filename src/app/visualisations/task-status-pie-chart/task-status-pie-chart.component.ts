@@ -6,14 +6,17 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  ViewContainerRef,
+  effect,
+  inject,
 } from '@angular/core';
 import {Project, TaskStatus, Unit} from 'src/app/api/models/doubtfire-model';
 import {ChartBaseComponent} from 'src/app/common/chart-base/chart-base-component/chart-base-component.component';
+import {ThemeColorService} from 'src/app/common/theme/theme-color.service';
 
 @Component({
   selector: 'f-task-status-pie-chart',
   templateUrl: './task-status-pie-chart.component.html',
-  styleUrls: ['./task-status-pie-chart.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
@@ -26,6 +29,19 @@ export class TaskStatusPieChartComponent extends ChartBaseComponent implements O
   colors: {name: string; value: string}[];
   view: number[] = [700, 400];
   legendPosition: LegendPosition = LegendPosition.Below;
+
+  private readonly themeColor = inject(ThemeColorService);
+
+  constructor() {
+    super(inject(ViewContainerRef));
+    // Re-resolve the slice colours and re-render when the theme flips on screen.
+    effect(() => {
+      this.themeColor.resolved();
+      if (this.project) {
+        this.updateData();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.updateData();
@@ -80,8 +96,11 @@ export class TaskStatusPieChartComponent extends ChartBaseComponent implements O
           return aIndex - bIndex;
         });
 
-      this.colors = Array.from(TaskStatus.STATUS_COLORS).map(([status, color]) => {
-        return {name: TaskStatus.STATUS_LABELS.get(status), value: color};
+      this.colors = Array.from(TaskStatus.STATUS_COLORS).map(([status]) => {
+        return {
+          name: TaskStatus.STATUS_LABELS.get(status),
+          value: this.themeColor.statusGraphicColor(status),
+        };
       });
     }
   }

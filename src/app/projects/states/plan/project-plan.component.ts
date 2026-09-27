@@ -94,7 +94,7 @@ export class ProjectPlanComponent implements OnInit, OnDestroy {
 
     this.projectService.update(this.project).subscribe({
       next: () => {
-        this.alertService.success(`Succesfully updated target grade`, 2000);
+        this.alertService.success(`Successfully updated target grade`, 2000);
         this.planner.refreshItems(false);
       },
       error: (error) => {

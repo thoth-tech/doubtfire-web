@@ -1,21 +1,51 @@
-<h3 mat-dialog-title>Extension request</h3>
-<div mat-dialog-content [formGroup]="extensionData">
-  <p class="w-full">
-    Please explain why you require an extension for this task, the teaching team will assess the
-    request shortly.
+<h2 class="ext-dialog-title" mat-dialog-title>Request an extension</h2>
+<div class="task-dialog-content" mat-dialog-content [formGroup]="extensionData">
+  <div class="ext-context">
+    @if (data.task.definition) {
+      <span class="ext-context__task">
+        <span class="ext-chip ext-chip--task">{{ data.task.definition.abbreviation }}</span>
+        <span class="ext-context__name">{{ data.task.definition.name }}</span>
+      </span>
+    }
+    <span class="ext-context__due">
+      <mat-icon aria-hidden="true">event</mat-icon>
+      Due {{ formatShortDate(dueDate) }}
+    </span>
+  </div>
+
+  @if (daysPastDue > 0) {
+    <p class="ext-callout ext-callout--warning">
+      <mat-icon aria-hidden="true">warning</mat-icon>
+      <span
+        >This task is {{ daysPastDue }} {{ daysPastDue === 1 ? 'day' : 'days' }} past its due
+        date</span
+      >
+    </p>
+  }
+
+  <p class="ext-description">
+    Tell your teaching team why you need more time. They'll review your request and reply in the
+    task comments.
   </p>
 
-  <mat-form-field appearance="outline" style="width: 100%">
+  <mat-form-field appearance="outline" class="ext-field w-full">
     <mat-label>Reason</mat-label>
     <textarea
+      cdkAutosizeMaxRows="8"
+      cdkAutosizeMinRows="3"
+      cdkTextareaAutosize
       matInput
-      placeholder="Reason"
+      placeholder="e.g. I was unwell for three days and missed the lab"
       type="text"
       [errorStateMatcher]="matcher"
       [formControl]="extensionData.controls.extensionReason"
     ></textarea>
-    <mat-hint align="end"
-      >{{ extensionData.controls.extensionReason.value.length }} / {{ reasonMaxLength }}</mat-hint
+    <mat-hint
+      align="end"
+      class="ext-counter"
+      [class.ext-counter--limit]="reasonCounterState === 'limit'"
+      [class.ext-counter--warn]="reasonCounterState === 'warn'"
+      >{{ reasonLength }} / {{ reasonMaxLength }}</mat-hint
     >
     @if (extensionData.controls.extensionReason.hasError('required')) {
       <mat-error>You must enter a reason</mat-error>
@@ -28,38 +58,68 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Choose a date</mat-label>
-    <input
-      matInput
-      placeholder="Choose a date"
-      [matDatepicker]="extensionDatePicker"
-      [max]="maxDate"
-      [min]="minDate"
-      (dateInput)="addEvent('input', $event)"
-    />
-    <mat-datepicker-toggle matSuffix [for]="extensionDatePicker"></mat-datepicker-toggle>
-    <mat-datepicker #extensionDatePicker></mat-datepicker>
-  </mat-form-field>
+  <div class="ext-date">
+    <mat-form-field appearance="outline" class="ext-field w-full">
+      <mat-label>New due date</mat-label>
+      <!-- Past the final deadline there is no date left to choose, so the field
+           is closed rather than left open over an empty range. Disabling the
+           input carries the datepicker and its toggle with it. -->
+      <input
+        matInput
+        placeholder="Choose a date"
+        [disabled]="!hasDateRange"
+        [matDatepicker]="extensionDatePicker"
+        [max]="maxDate"
+        [min]="minDate"
+        (dateInput)="addEvent('input', $event)"
+      />
+      <mat-datepicker-toggle matSuffix [for]="extensionDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #extensionDatePicker></mat-datepicker>
+      @if (dateRangeText) {
+        <mat-hint>Choose a date from {{ dateRangeText }}</mat-hint>
+      } @else if (!hasDateRange) {
+        <mat-hint>The final deadline has passed, so the earliest date is requested</mat-hint>
+      } @else {
+        <!-- A range that named no dates used to leave the field with no hint. -->
+        <mat-hint>Choose a date on or after {{ formatShortDate(minDate) }}</mat-hint>
+      }
+    </mat-form-field>
+
+    @if (dateNeedsAttention) {
+      <p class="ext-date__error">{{ dateErrorText }}</p>
+    } @else if (extensionSummary) {
+      <span
+        class="ext-chip ext-summary"
+        [title]="
+          extensionDays + (extensionDays === 1 ? ' day' : ' days') + ' after the current due date'
+        "
+        >{{ extensionSummary }}</span
+      >
+    }
+  </div>
+
+  @if (errorMessage) {
+    <p class="task-dialog-error" role="alert">{{ errorMessage }}</p>
+  }
 </div>
 
-<div mat-dialog-actions style="float: right">
-  <button color="warn" mat-dialog-close mat-stroked-button>Cancel</button>
+<div align="end" class="task-dialog-actions" mat-dialog-actions>
+  <button mat-stroked-button type="button" [disabled]="submitting" (click)="requestClose()">
+    Cancel
+  </button>
   <button
+    class="ext-submit"
     color="primary"
-    mat-button
-    mat-dialog-close
-    mat-stroked-button
-    style="margin-right: 10px"
-    [disabled]="!extensionData.valid"
+    mat-flat-button
+    type="button"
+    [disabled]="!canSubmit"
     (click)="submitApplication()"
   >
-    Request extension to
-    {{
-      extensionDate.toLocaleDateString(currentLocale, {
-        month: 'long',
-        day: 'numeric',
-      })
-    }}
+    @if (submitting) {
+      <mat-spinner class="ext-submit__spinner" diameter="18"></mat-spinner>
+    } @else {
+      <mat-icon aria-hidden="true">send</mat-icon>
+    }
+    {{ submitting ? 'Sending…' : 'Request extension' }}
   </button>
 </div>

@@ -1,7 +1,17 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import {SidekiqJob} from 'src/app/api/models/sidekiq-job';
 import {Unit} from 'src/app/api/models/unit';
-import {CsvResultModalService} from 'src/app/common/modals/csv-result-modal/csv-result-modal.service';
+import {
+  CsvResult,
+  CsvResultModalService,
+} from 'src/app/common/modals/csv-result-modal/csv-result-modal.service';
 import {CsvUploadModalService} from 'src/app/common/modals/csv-upload-modal/csv-upload-modal.service';
 import {SidekiqProgressModalService} from 'src/app/common/modals/sidekiq-progress-modal/sidekiq-progress-modal.service';
 import {AlertService} from 'src/app/common/services/alert.service';
@@ -15,6 +25,11 @@ import {AlertService} from 'src/app/common/services/alert.service';
 })
 export class UploadGradesComponent implements OnInit {
   @Input() unit: Unit;
+  @Input() disabled = false;
+
+  // Fires when the tutor opens the results of a finished import, so the page can
+  // fetch the new grades.
+  @Output() imported: EventEmitter<void> = new EventEmitter();
 
   constructor(
     private sidekiqModalService: SidekiqProgressModalService,
@@ -31,10 +46,10 @@ export class UploadGradesComponent implements OnInit {
 
   public uploadGradesCSV() {
     this.csvUploadModal.show(
-      'Upload Student Grades as CSV',
-      'Import student grades',
+      'Upload grades',
+      'Use the grades CSV from the Download menu as your starting point. Each row needs unit_code, username, student_id, grade and rationale.',
       {
-        file: {name: 'Feedback Templates CSV Data', type: 'csv'},
+        file: {name: 'Grades CSV', type: 'csv'},
       },
       this.unit.gradesCSVUploadUrl,
       (response: SidekiqJob) => {
@@ -45,7 +60,8 @@ export class UploadGradesComponent implements OnInit {
 
         this.sidekiqModalService.show('Import student grades', response.id).subscribe({
           next: (job) => {
-            this.csvResultModal.show('Student grade import results', JSON.parse(job.result));
+            this.imported.emit();
+            this.showResults(job);
           },
           error: (error) => {
             console.error(error);
@@ -54,5 +70,19 @@ export class UploadGradesComponent implements OnInit {
         });
       },
     );
+  }
+
+  // The job result is JSON text written by the server. If it cannot be read, say so
+  // rather than throw from inside the subscription.
+  private showResults(job: SidekiqJob): void {
+    let results: CsvResult;
+    try {
+      results = JSON.parse(job.result);
+    } catch {
+      this.alertService.error('The grades were imported, but the results could not be shown', 6000);
+      return;
+    }
+
+    this.csvResultModal.show('Student grade import results', results);
   }
 }

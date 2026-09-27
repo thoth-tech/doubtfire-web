@@ -41,12 +41,16 @@ export class UploadSubmissionModalService {
       UploadSubmissionModalData,
       UploadSubmissionModalResult
     >(UploadSubmissionModalComponent, {
-      autoFocus: false,
-      disableClose: true,
-      position: {top: '2.5%'},
-      width: '100%',
+      autoFocus: 'dialog',
+      closeOnNavigation: true,
+      disableClose: false,
+      restoreFocus: true,
+      width: 'min(960px, calc(100vw - 24px))',
       maxWidth: '960px',
-      maxHeight: '95vh',
+      maxHeight: 'calc(100dvh - 24px)',
+      panelClass: 'responsive-submission-dialog',
+      closePredicate: (_result, _config, component) =>
+        (component as UploadSubmissionModalComponent | null)?.canClose() ?? true,
       data: {
         task,
         reuploadEvidence,

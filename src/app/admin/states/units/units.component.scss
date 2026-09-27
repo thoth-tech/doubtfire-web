@@ -1,8 +1,23 @@
-.icon_display {
-  transform: scale(2);
+// The search field runs at 48px, like the toolbar fields on the student My units page,
+// so it sits level with the summary beside it instead of towering over it.
+.units-search {
+  --mat-form-field-container-height: 48px;
+  --mat-form-field-container-vertical-padding: 12px;
 }
 
-.mat-column-unit_code {
-  max-width: 130px !important;
-  min-width: 130px !important;
+// A calm error note inside the card, in the error tone at low strength.
+.units-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--ot-color-error) 35%, var(--ot-color-divider));
+  border-radius: var(--ot-radius-md);
+  background: color-mix(in srgb, var(--ot-color-error) 8%, var(--ot-color-surface));
+  color: var(--ot-color-text);
+
+  > .mat-icon {
+    flex: none;
+    color: var(--ot-color-error);
+  }
 }

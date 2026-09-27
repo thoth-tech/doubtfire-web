@@ -1,0 +1,71 @@
+.submission-state-card {
+  min-width: 0;
+}
+
+.submission-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1rem 0.75rem;
+}
+
+.submission-state {
+  background: var(--ot-status-ready-for-feedback);
+  border: 1px solid var(--ot-status-ready-for-feedback);
+  border-radius: 999px;
+  color: var(--ot-status-ready-for-feedback-on);
+  flex: 0 0 auto;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.25rem 0.625rem;
+}
+
+.submission-state[data-state='ready'] {
+  background: var(--ot-status-complete);
+  border-color: var(--ot-status-complete);
+  color: var(--ot-status-complete-on);
+}
+
+.submission-state[data-state='failed'],
+.submission-state[data-state='timed_out'] {
+  background: var(--ot-color-error);
+  border-color: var(--ot-color-error);
+  color: var(--ot-color-on-error);
+}
+
+.status-detail {
+  color: var(--ot-color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.status-error {
+  color: var(--ot-color-error);
+}
+
+.recovery-row,
+.submission-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.submission-actions {
+  padding: 0 1rem 1rem;
+}
+
+.submission-actions button {
+  white-space: normal;
+}
+
+@media (max-width: 639.98px) {
+  .submission-actions {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .submission-actions button {
+    width: 100%;
+  }
+}

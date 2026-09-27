@@ -14,15 +14,21 @@ export class FeedbackAppealModalService {
   constructor(public dialog: MatDialog) {}
 
   public show(task: Task) {
-    const _dialogRef = this.dialog.open<FeedbackAppealModalComponent, FeedbackAppealModalData>(
+    return this.dialog.open<FeedbackAppealModalComponent, FeedbackAppealModalData>(
       FeedbackAppealModalComponent,
       {
+        autoFocus: 'dialog',
+        closeOnNavigation: true,
         data: {
           task: task,
         },
-        position: {top: '2.5%'},
-        width: '100%',
-        maxWidth: '700px',
+        maxHeight: 'calc(100dvh - 2rem)',
+        maxWidth: '560px',
+        panelClass: 'responsive-task-dialog',
+        restoreFocus: true,
+        width: 'calc(100vw - 2rem)',
+        closePredicate: (_result, _config, component) =>
+          (component as FeedbackAppealModalComponent | null)?.canClose() ?? true,
       },
     );
   }

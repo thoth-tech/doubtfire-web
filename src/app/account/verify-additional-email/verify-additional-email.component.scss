@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  padding: clamp(16px, 5vw, 48px);
+}
+
+.verification {
+  align-items: center;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: min(15vh, 96px) auto 0;
+  max-width: 36rem;
+  padding: clamp(24px, 7vw, 48px);
+  text-align: center;
+  background: var(--ot-color-surface);
+  color: var(--ot-color-text);
+
+  mat-icon {
+    color: var(--ot-color-link);
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+  }
+
+  h1,
+  p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  button {
+    margin-top: 8px;
+    min-height: 44px;
+  }
+}

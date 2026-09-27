@@ -1,0 +1,9 @@
+// The table sits inside the upload dialog's card: quiet column headings, and row
+// rules on the divider token so they read the same in light and dark. Its columns
+// are sticky, so the cells keep a solid fill in the card's own colour.
+.contribution-table {
+  --mat-table-background-color: var(--ot-color-surface-raised);
+  --mat-table-row-item-outline-color: var(--ot-color-divider);
+  --mat-table-header-headline-color: var(--ot-color-text-muted);
+  --mat-table-row-item-label-text-color: var(--ot-color-text);
+}

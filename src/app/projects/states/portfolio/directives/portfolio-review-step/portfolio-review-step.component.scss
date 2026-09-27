@@ -1,0 +1,96 @@
+@use '../../portfolio-wizard' as wizard;
+
+:host {
+  display: block;
+}
+
+.review-callout--error {
+  @include wizard.callout(error);
+}
+
+.review-callout--info {
+  @include wizard.callout(info);
+}
+
+.review-callout--success {
+  @include wizard.callout(success);
+}
+
+.review-list {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface-raised);
+  list-style: none;
+}
+
+.review-list__row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--ot-color-text);
+  font-size: 0.875rem;
+
+  & + & {
+    border-top: 1px solid var(--ot-color-divider);
+  }
+
+  .mat-icon {
+    flex: none;
+    color: var(--ot-color-text-muted);
+  }
+}
+
+.create-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--ot-color-primary) 35%, var(--ot-color-divider));
+  border-radius: var(--ot-radius-md);
+  background: color-mix(in srgb, var(--ot-color-primary) 6%, var(--ot-color-surface));
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.create-panel__icon {
+  @include wizard.icon-tile(primary);
+}
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.portfolio-step-footer button {
+  min-height: 44px;
+}
+
+@media (max-width: 639.98px) {
+  .portfolio-step-footer {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+.portfolio-review-file-name {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 639.98px) {
+  .portfolio-download-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .portfolio-download-actions button {
+    min-height: 44px;
+    white-space: normal;
+  }
+}

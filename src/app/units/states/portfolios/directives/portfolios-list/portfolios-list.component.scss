@@ -1,0 +1,21 @@
+// The table sits on the card surface in both themes. Material paints its own
+// container colour, which in dark is a warm grey band inside the slate card.
+.portfolio-table {
+  --mat-table-background-color: var(--ot-color-surface);
+  background-color: var(--ot-color-surface);
+}
+
+// The name column stays in place while the rest of the row scrolls sideways, so it
+// needs a solid fill. The row hover is mixed into that fill rather than laid over it,
+// so the cells scrolling underneath never show through.
+.portfolio-table .portfolio-sticky {
+  background-color: var(--ot-color-surface);
+}
+
+.portfolio-table .portfolio-row {
+  cursor: pointer;
+
+  &:hover .mat-mdc-cell {
+    background-color: color-mix(in srgb, var(--ot-color-text) 5%, var(--ot-color-surface));
+  }
+}

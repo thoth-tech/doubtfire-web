@@ -1,4 +1,5 @@
-$thumb-color: #969699;
+$thumb-color: var(--ot-color-border);
+$thumb-hover-color: var(--ot-color-text-muted);
 
 @mixin scrollable {
   scrollbar-track-color: transparent;
@@ -13,7 +14,7 @@ $thumb-color: #969699;
     transition: all 0.3s ease;
   }
   &::-webkit-scrollbar:hover {
-    background: #c6c7ca;
+    background: $thumb-hover-color;
   }
   &::-webkit-scrollbar-thumb {
     background: $thumb-color;

@@ -1,16 +1,10 @@
 <div>
-  <p class="rounded-md bg-amber-50 p-3 text-sm text-amber-800" [hidden]="canRecord">
+  <p class="rounded-md bg-ot-raised p-3 text-sm text-ot-warning" [hidden]="canRecord">
     Audio recording is only supported in modern versions of Chrome, Firefox and Safari.
   </p>
   <div
-    class="relative overflow-hidden rounded-lg border"
+    class="relative overflow-hidden rounded-lg border border-ot-divider bg-ot-raised"
     id="mainDIscussionVisualiser"
-    [class.bg-blue-50]="!isRecording"
-    [class.bg-gray-100]="isRecording && promptActive"
-    [class.bg-red-50]="isRecording && !promptActive"
-    [class.border-blue-100]="!isRecording"
-    [class.border-gray-200]="isRecording && promptActive"
-    [class.border-red-100]="isRecording && !promptActive"
     [hidden]="!canRecord"
   >
     <canvas
@@ -19,16 +13,16 @@
       id="mainDiscussionRecorderVisualiser"
     ></canvas>
     <div
-      class="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/50 via-transparent to-white/50"
+      class="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--ot-scrim)] via-transparent to-[var(--ot-scrim)]"
     ></div>
     <div
-      class="absolute inset-0 flex items-center justify-center text-4xl font-semibold text-blue-700"
+      class="absolute inset-0 flex items-center justify-center text-4xl font-semibold text-ot-link"
       [hidden]="!countdownText"
     >
       {{ countdownText }}
     </div>
     <div
-      class="absolute inset-0 flex items-center justify-center bg-white/70"
+      class="absolute inset-0 flex items-center justify-center bg-[var(--ot-scrim)]"
       [hidden]="!isSending"
     >
       <mat-spinner [diameter]="36" [strokeWidth]="2"></mat-spinner>

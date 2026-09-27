@@ -174,7 +174,7 @@
       </td>
       <td *matFooterCellDef mat-footer-cell>
         <div class="edit-actions right">
-          <button mat-icon-button (click)="submit()">
+          <button aria-label="Add campus" mat-icon-button (click)="submit()">
             <mat-icon>add</mat-icon>
           </button>
         </div>
@@ -183,6 +183,15 @@
 
     <tr *matHeaderRowDef="columns" mat-header-row></tr>
     <tr *matRowDef="let row; columns: columns" mat-row></tr>
+    <tr *matNoDataRow class="mat-row">
+      <td class="mat-cell !border-b-0" [attr.colspan]="columns.length">
+        <f-empty-state
+          hint="Add a campus using the row below."
+          icon="location_off"
+          message="No campuses yet"
+        ></f-empty-state>
+      </td>
+    </tr>
     <tr *matFooterRowDef="columns" mat-footer-row [hidden]="selected"></tr>
   </table>
 </div>

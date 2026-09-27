@@ -1,0 +1,117 @@
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sent-attachment-card {
+  align-items: center;
+  appearance: none;
+  border: 1px solid currentColor;
+  border-radius: 0.75rem;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 0.625rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 3.5rem;
+  max-width: min(28rem, 100%);
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  width: 100%;
+
+  &:focus-visible {
+    outline: 3px solid var(--ot-color-focus);
+    box-shadow: 0 0 0 3px var(--ot-color-surface);
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.82;
+  }
+}
+
+.sent-attachment-card--own {
+  background: var(--ot-color-primary);
+  border-color: var(--ot-color-on-primary);
+  color: var(--ot-color-on-primary);
+}
+
+.sent-attachment-card--other {
+  background: var(--ot-color-surface-raised);
+  border-color: var(--ot-color-border);
+  color: var(--ot-color-text);
+}
+
+.sent-attachment-card__file-mark {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  justify-content: center;
+  min-width: 2.5rem;
+
+  mat-icon {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+}
+
+.sent-attachment-card__type {
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  padding: 0.0625rem 0.1875rem;
+}
+
+.sent-attachment-card__details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sent-attachment-card__name {
+  font-weight: 650;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.sent-attachment-card__meta {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+.sent-attachment-card__action {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7rem;
+  font-weight: 650;
+  gap: 0.0625rem;
+  justify-content: center;
+
+  mat-icon {
+    height: 1.4rem;
+    width: 1.4rem;
+  }
+}
+
+@media (max-width: 359px), (min-resolution: 2dppx) and (max-width: 719px) {
+  .sent-attachment-card {
+    gap: 0.5rem;
+    padding-inline: 0.625rem;
+  }
+
+  .sent-attachment-card__action span {
+    max-width: 4.5rem;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+}

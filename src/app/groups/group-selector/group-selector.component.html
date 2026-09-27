@@ -1,71 +1,217 @@
-<mat-card appearance="outlined">
-  <mat-card-header>
-    <div class="flex w-full flex-col">
-      <div class="flex w-full flex-row justify-between">
-        <div class="flex items-center gap-1">
-          <mat-card-title>
-            Groups for
-            @if (!showGroupSetSelector && selectedGroup) {
-              "{{ selectedGroupSet?.name }}"
-            }
-          </mat-card-title>
-
-          @if (showGroupSetSelector) {
-            <mat-form-field appearance="outline" class="mt-[22px]">
-              <mat-select [(ngModel)]="selectedGroupSet" (ngModelChange)="selectGroupSet($event)">
-                @for (gs of unit.groupSets; track gs.id) {
-                  <mat-option [value]="gs">{{ gs.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          }
-        </div>
-        @if (unitRole || selectedGroupSet?.allowStudentsToCreateGroups) {
-          <div class="flex items-center gap-1">
-            <mat-form-field appearance="outline" class="mt-[22px]">
-              <input
-                matInput
-                placeholder="Group Name"
-                [(ngModel)]="newGroupName"
-                (ngModelChange)="onGroupNameChange()"
-              />
-            </mat-form-field>
-            <button color="primary" mat-raised-button (click)="addGroup(newGroupName)">
-              Create
-            </button>
-          </div>
+<section
+  aria-label="Groups"
+  class="flex min-w-0 flex-col overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+>
+  <div class="group-toolbar flex flex-col gap-4 border-b border-ot-divider p-4 sm:p-5">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+        <h2 class="m-0 text-lg leading-snug font-semibold text-ot-text">Groups</h2>
+        @if (canChooseGroupSet) {
+          <mat-form-field appearance="outline" class="w-56 max-w-full" subscriptSizing="dynamic">
+            <mat-label>Group set</mat-label>
+            <mat-select
+              [compareWith]="sameEntity"
+              [ngModel]="selectedGroupSet"
+              (ngModelChange)="selectGroupSet($event)"
+            >
+              @for (gs of unit.groupSets; track gs.id) {
+                <mat-option [value]="gs">{{ gs.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        } @else if (selectedGroupSet) {
+          <span class="text-sm text-ot-muted">in {{ selectedGroupSet.name }}</span>
+        }
+        @if (selectedGroupSet?.locked) {
+          <span
+            class="inline-flex items-center gap-1 rounded-ot-pill border border-ot-border px-2 py-0.5 text-xs font-medium text-ot-muted"
+          >
+            <mat-icon aria-hidden="true" class="!size-3.5 !text-sm !leading-none">lock</mat-icon>
+            Set locked
+          </span>
         }
       </div>
-      @if (unitRole) {
-        <div class="mb-[22px] flex w-full justify-center">
-          <mat-button-toggle-group
-            [ngModel]="staffTutorialFilter"
-            (change)="onTutorialFilterChange($event)"
-          >
-            <mat-button-toggle value="all">All Tutorials</mat-button-toggle>
-            <mat-button-toggle value="mine">My Tutorials</mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
+
+      @if (canCreateGroup && !creatingGroup) {
+        <button #newGroupButton mat-stroked-button type="button" (click)="openNewGroup()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          New group
+        </button>
       }
     </div>
-  </mat-card-header>
 
-  @if (selectedGroupSet && selectedGroupSet.groups.length === 0) {
-    <div class="flex size-full flex-col items-center justify-center p-2.5 text-gray-400">
-      <mat-icon class="scale-125">group_off</mat-icon>
-      <p class="p-2.5">There are no groups in this set</p>
+    @if (creatingGroup) {
+      <form
+        aria-label="New group"
+        class="flex flex-wrap items-start gap-2"
+        (ngSubmit)="addGroup(newGroupName)"
+      >
+        <mat-form-field
+          appearance="outline"
+          class="w-full min-w-0 sm:w-auto sm:max-w-80 sm:flex-1"
+          subscriptSizing="dynamic"
+        >
+          <mat-label>New group name</mat-label>
+          <input
+            #newGroupInput
+            autocomplete="off"
+            matInput
+            name="newGroupName"
+            [(ngModel)]="newGroupName"
+            (keydown.escape)="closeNewGroup(true)"
+          />
+          <mat-hint>Leave it blank to number the group for you.</mat-hint>
+        </mat-form-field>
+        <div class="flex items-center gap-2 sm:h-12">
+          <button color="primary" mat-flat-button type="submit">Create group</button>
+          <button mat-button type="button" (click)="closeNewGroup(true)">Cancel</button>
+        </div>
+      </form>
+    }
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <mat-form-field
+        appearance="outline"
+        class="w-full min-w-0 sm:max-w-72 sm:flex-1"
+        subscriptSizing="dynamic"
+      >
+        <mat-label>Search groups</mat-label>
+        <mat-icon aria-hidden="true" class="text-ot-muted" matPrefix>search</mat-icon>
+        <input
+          #groupSearchInput
+          autocomplete="off"
+          matInput
+          type="search"
+          [(ngModel)]="searchText"
+          (ngModelChange)="applyFilters()"
+        />
+      </mat-form-field>
+
+      @if (unitRole) {
+        <mat-button-toggle-group
+          aria-label="Show groups from"
+          class="w-full sm:w-auto"
+          [ngModel]="staffTutorialFilter"
+          (change)="onTutorialFilterChange($event)"
+        >
+          <mat-button-toggle class="flex-1 sm:flex-none" value="all">
+            All tutorials
+          </mat-button-toggle>
+          <mat-button-toggle class="flex-1 sm:flex-none" value="mine">
+            My tutorials
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      }
     </div>
-  } @else {
-    <table class="" mat-table [dataSource]="dataSource">
+  </div>
+
+  @if (!selectedGroupSet || groups.length === 0) {
+    <div class="flex flex-col items-center pb-10">
+      <f-empty-state
+        icon="group_off"
+        message="No groups yet"
+        [hint]="
+          canCreateGroup
+            ? 'Use New group to make the first one.'
+            : 'Groups will show here once they are made.'
+        "
+      ></f-empty-state>
+    </div>
+  } @else if (dataSource.data.length === 0) {
+    <div class="flex flex-col items-center pb-10">
+      <f-empty-state
+        hint="Nothing matches the search and tutorial filter."
+        icon="filter_list_off"
+        message="No groups match"
+      ></f-empty-state>
+      @if (hasFilters) {
+        <button
+          class="-mt-6"
+          mat-stroked-button
+          type="button"
+          (click)="clearFilters(); groupSearchInput.focus()"
+        >
+          Clear filters
+        </button>
+      }
+    </div>
+  }
+
+  @if (project) {
+    <ul aria-label="Available groups" class="student-group-cards">
+      @for (group of dataSource.data; track group.id) {
+        <li>
+          <article
+            class="student-group-card"
+            [attr.aria-label]="'Group ' + group.name"
+            [class.student-group-card--joined]="isPartOfGroup(project, group)"
+          >
+            <div class="student-group-card__heading">
+              <h3>{{ group.name || 'Unnamed group' }}</h3>
+              @if (group.locked || selectedGroupSet.locked) {
+                <mat-icon aria-label="Group is locked">lock</mat-icon>
+              }
+            </div>
+
+            <dl class="student-group-card__details">
+              <div>
+                <dt>Tutorial</dt>
+                <dd>{{ groupTutorialLabel(group) }}</dd>
+              </div>
+              <div>
+                <dt>Capacity</dt>
+                <dd>{{ groupCapacityLabel(group) }}</dd>
+              </div>
+            </dl>
+
+            <div class="student-group-card__actions">
+              @if (isPartOfGroup(project, group)) {
+                <strong class="student-group-card__joined">Joined</strong>
+                <button mat-button type="button" (click)="selectGroup(group)">View members</button>
+              } @else if (canStudentJoin(group)) {
+                <button color="primary" mat-raised-button type="button" (click)="joinGroup(group)">
+                  Join group
+                </button>
+              } @else if (!group.hasSpace()) {
+                <span>Group is full</span>
+              } @else if (group.locked || selectedGroupSet.locked) {
+                <span>Group is locked</span>
+              } @else {
+                <span>Membership is managed by the unit team</span>
+              }
+            </div>
+          </article>
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- Kept in the page while hidden: the data source is bound to this paginator once. -->
+  <div class="relative overflow-x-auto" [hidden]="dataSource.data.length === 0">
+    <table
+      class="groups-table min-w-full bg-transparent"
+      mat-table
+      [class.groups-table--student]="project"
+      [dataSource]="dataSource"
+    >
       <ng-container matColumnDef="name" [formGroup]="formData">
         <th *matHeaderCellDef mat-header-cell>Name</th>
         <td *matCellDef="let group" mat-cell>
           @if (editing(group)) {
-            <mat-form-field appearance="outline" class="mt-[22px] p-1">
-              <input formControlName="name" matInput placeholder="Name" required />
+            <mat-form-field appearance="outline" class="table-field w-44" subscriptSizing="dynamic">
+              <input aria-label="Group name" formControlName="name" matInput required />
             </mat-form-field>
+          } @else if (canSelect(group)) {
+            <button
+              class="rounded-ot-xs text-left font-medium text-ot-text underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ot-focus"
+              type="button"
+              [attr.aria-current]="group === selectedGroup ? 'true' : null"
+              (click)="$event.stopPropagation(); selectGroup(group)"
+            >
+              {{ group.name || 'Unnamed group' }}
+            </button>
           } @else {
-            {{ group.name || 'Not set' }}
+            <span class="font-medium text-ot-text">{{ group.name || 'Unnamed group' }}</span>
           }
         </td>
       </ng-container>
@@ -74,130 +220,177 @@
         <th *matHeaderCellDef mat-header-cell>Tutorial</th>
         <td *matCellDef="let group" mat-cell>
           @if (editing(group)) {
-            <mat-form-field appearance="outline" class="mt-[22px] p-1">
-              <mat-select formControlName="tutorial" placeholder="Tutorial">
-                @for (tutorial of unit.tutorials; track tutorial) {
+            <mat-form-field appearance="outline" class="table-field w-36" subscriptSizing="dynamic">
+              <mat-select
+                aria-label="Tutorial"
+                formControlName="tutorial"
+                [compareWith]="sameEntity"
+              >
+                @for (tutorial of unit.tutorials; track tutorial.id) {
                   <mat-option [value]="tutorial">{{ tutorial.abbreviation }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
           } @else {
-            {{ group.tutorial.abbreviation }}
+            <span class="whitespace-nowrap">{{ group.tutorial?.abbreviation || 'None' }}</span>
           }
         </td>
       </ng-container>
 
       <ng-container matColumnDef="capacity_adjustment" [formGroup]="formData">
-        <th *matHeaderCellDef mat-header-cell>
-          @if (unitRole) {
-            Capacity Adjustment
-          }
-        </th>
+        <th *matHeaderCellDef mat-header-cell>Capacity adjustment</th>
         <td *matCellDef="let group" mat-cell>
-          @if (unitRole) {
-            @if (editing(group)) {
-              <mat-form-field appearance="outline" class="mt-[22px] p-1">
-                <input
-                  formControlName="capacityAdjustment"
-                  matInput
-                  placeholder="Capacity Adjustment"
-                  required
-                />
-              </mat-form-field>
-            } @else {
-              {{ group.capacityAdjustment }}
-            }
+          @if (editing(group)) {
+            <mat-form-field appearance="outline" class="table-field w-24" subscriptSizing="dynamic">
+              <input
+                aria-label="Capacity adjustment"
+                formControlName="capacityAdjustment"
+                matInput
+                required
+                type="number"
+              />
+            </mat-form-field>
+          } @else {
+            <span class="tabular-nums">{{ group.capacityAdjustment ?? 0 }}</span>
           }
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="capacity">
-        <th *matHeaderCellDef mat-header-cell>Capacity</th>
+      <ng-container matColumnDef="members">
+        <th *matHeaderCellDef mat-header-cell>Members</th>
         <td *matCellDef="let group" mat-cell>
-          @if (group.hasSpace()) {
-            Available
-          } @else {
-            Full
-          }
+          <span class="inline-flex items-center gap-2 whitespace-nowrap">
+            <span class="tabular-nums">
+              {{ group.memberCount }}
+              @if (capacityFor(group) !== null) {
+                of {{ capacityFor(group) }}
+              }
+            </span>
+            @if (!group.hasSpace()) {
+              <span
+                class="rounded-ot-pill border border-ot-border px-2 py-0.5 text-xs font-medium text-ot-muted"
+              >
+                Full
+              </span>
+            }
+          </span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
         <th *matHeaderCellDef mat-header-cell>
-          @if (unitRole || (project && selectedGroupSet.allowStudentsToManageGroups)) {
-            Actions
-          }
+          <span class="sr-only">Actions</span>
         </th>
-        <td *matCellDef="let group" mat-cell>
-          @if (isPartOfGroup(project, group)) {
-            <div class="text-center font-bold text-green-500">Joined</div>
-          } @else if (project && group.hasSpace() && selectedGroupSet.allowStudentsToManageGroups) {
-            <div class="flex w-full justify-center">
-              @if (!group.locked && !selectedGroupSet.locked) {
+        <td *matCellDef="let group" class="text-right" mat-cell>
+          @if (unitRole) {
+            <div class="flex justify-end gap-1">
+              @if (editing(group)) {
                 <button
-                  mat-raised-button
-                  [disabled]="isPartOfGroup(project, group)"
-                  (click)="joinGroup(group)"
+                  mat-icon-button
+                  matTooltip="Save changes"
+                  type="button"
+                  [attr.aria-label]="'Save changes to ' + (group.name || 'this group')"
+                  (click)="saveEdit($event)"
                 >
-                  Join
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button
+                  aria-label="Cancel editing"
+                  mat-icon-button
+                  matTooltip="Cancel"
+                  type="button"
+                  (click)="cancelEditGroup($event)"
+                >
+                  <mat-icon>close</mat-icon>
                 </button>
               } @else {
-                <mat-icon>lock</mat-icon>
-              }
-            </div>
-          }
-          @if (unitRole) {
-            <div class="flex gap-1">
-              @if (editing(group)) {
-                <div class="flex gap-1">
-                  <button mat-icon-button (click)="saveEdit($event)">
-                    <mat-icon>save</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="cancelEditGroup($event)">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-              } @else {
-                <button mat-icon-button (click)="startEditGroup($event, group)">
+                <button
+                  mat-icon-button
+                  matTooltip="Edit group"
+                  type="button"
+                  [attr.aria-label]="'Edit ' + (group.name || 'this group')"
+                  (click)="startEditGroup($event, group)"
+                >
                   <mat-icon>edit</mat-icon>
                 </button>
                 <button
                   mat-icon-button
-                  [color]="group.locked ? 'warn' : 'accent'"
+                  type="button"
+                  [attr.aria-label]="
+                    (group.locked ? 'Unlock ' : 'Lock ') + (group.name || 'this group')
+                  "
+                  [matTooltip]="group.locked ? 'Unlock group' : 'Lock group'"
+                  [ngClass]="group.locked ? 'text-ot-warning' : 'text-ot-muted'"
                   (click)="toggleLocked($event, group)"
                 >
-                  @if (group.locked) {
-                    <mat-icon>lock_outline</mat-icon>
-                  } @else {
-                    <mat-icon>lock_open</mat-icon>
-                  }
+                  <mat-icon>{{ group.locked ? 'lock' : 'lock_open' }}</mat-icon>
                 </button>
-                <button color="warn" mat-icon-button (click)="deleteGroup($event, group)">
+                <button
+                  class="text-ot-error"
+                  mat-icon-button
+                  matTooltip="Delete group"
+                  type="button"
+                  [attr.aria-label]="'Delete ' + (group.name || 'this group')"
+                  (click)="deleteGroup($event, group)"
+                >
                   <mat-icon>delete</mat-icon>
                 </button>
               }
             </div>
+          } @else if (project) {
+            @if (isPartOfGroup(project, group)) {
+              <span class="font-semibold text-ot-success">Joined</span>
+            } @else if (group.hasSpace() && selectedGroupSet?.allowStudentsToManageGroups) {
+              @if (!group.locked && !selectedGroupSet.locked) {
+                <button mat-stroked-button type="button" (click)="joinGroup(group)">Join</button>
+              } @else {
+                <span class="inline-flex items-center gap-1 text-sm text-ot-muted">
+                  <mat-icon aria-hidden="true" class="!size-4 !text-base !leading-none">
+                    lock
+                  </mat-icon>
+                  Locked
+                </span>
+              }
+            }
           }
         </td>
       </ng-container>
 
       <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-      <tr *matRowDef="let row; columns: displayedColumns" mat-row (click)="selectGroup(row)"></tr>
+      <tr
+        *matRowDef="let row; columns: displayedColumns"
+        mat-row
+        [ngClass]="{
+          'bg-ot-selected': row === selectedGroup,
+          'cursor-pointer': canSelect(row) && !editing(row),
+          'hover:bg-ot-hover': canSelect(row) && row !== selectedGroup,
+        }"
+        (click)="selectGroup(row)"
+      ></tr>
     </table>
-    <mat-paginator class="mat-elevation-z0" [pageSizeOptions]="[10, 15, 20, 25]"></mat-paginator>
-  }
+  </div>
 
-  @if (
-    selectedGroupSet &&
-    selectedGroupSet.keepGroupsInSameClass &&
-    selectedGroupSet.groups.length > 0 &&
-    !unitRole
-  ) {
-    <p>
-      Can't see the group you need to join? Groups shown are limited to those in your allocated
-      tutorials. Use the
-      <a [routerLink]="['/projects', project.id, 'tutorials']">Tutorial List</a> to check and update
-      your tutorial enrolment if needed.
+  <mat-paginator
+    class="groups-paginator border-t border-ot-divider bg-transparent"
+    [class.groups-paginator--student]="project"
+    [hidden]="dataSource.data.length <= 10"
+    [pageSizeOptions]="[10, 15, 20, 25]"
+  ></mat-paginator>
+
+  @if (project && !unitRole && selectedGroupSet?.keepGroupsInSameClass && groups.length > 0) {
+    <p
+      class="m-0 flex items-start gap-2 border-t border-ot-divider px-5 py-4 text-sm text-ot-muted"
+    >
+      <mat-icon aria-hidden="true" class="!size-5 shrink-0 !text-xl !leading-none">info</mat-icon>
+      <span>
+        Only groups in your tutorials are shown. If a group you need is missing, check your
+        enrolment on the
+        <a
+          class="text-ot-link underline underline-offset-2"
+          [routerLink]="['/projects', project.id, 'tutorials']"
+          >tutorials page</a
+        >.
+      </span>
     </p>
   }
-</mat-card>
+</section>

@@ -1,13 +1,29 @@
-@use 'styles/mixins/task-status-colors-generator' as *;
-
 :host {
   font-size: 1em;
   display: inline-block;
 }
 
 @mixin status-icon($status) {
-  background-color: task-status-color($status);
-  color: task-status-color($status, fore);
+  // Read the runtime status tokens so the chip flips with data-ot-theme. The
+  // token names match the $status keys ('ready-for-feedback' etc.), and each
+  // -on foreground is white, which every fill clears at 4.5:1 by the contract.
+  background-color: var(--ot-status-#{$status});
+  color: var(--ot-status-#{$status}-on);
+}
+
+// The glyph size lives here rather than in important utilities, so a host that
+// deliberately shows a bigger glyph (the task status card header) can still override it.
+.status-chip mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.status-chip.status-chip--large mat-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
 }
 
 .status-chip {

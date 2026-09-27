@@ -29,6 +29,8 @@ import {
   CommunicationSetService,
   ProjectService,
   TaskDefinition,
+  TaskStatus,
+  TaskStatusEnum,
   Tutorial,
   TutorialStream,
   Unit,
@@ -41,6 +43,14 @@ import {
   CommunicationScheduleModalComponent,
   CommunicationScheduleModalData,
 } from './communication-schedule-modal/communication-schedule-modal.component';
+
+// The tabs of an open rule, in the order they appear.
+export enum CommunicationRuleTab {
+  Conditions = 0,
+  Actions = 1,
+  AfterRunning = 2,
+  Students = 3,
+}
 
 interface CommunicationTreeNode {
   type: 'set' | 'rule';
@@ -71,6 +81,8 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
   tutorials: readonly Tutorial[] = [];
   tutorialStreams: readonly TutorialStream[] = [];
   loading = false;
+  // The sets failed to load, so an empty list would wrongly read as no sets.
+  loadError = false;
   setPreviewLoading = false;
   readonly previewStudentColumns = [
     'preferred_name',
@@ -101,13 +113,13 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
     'CampusCondition',
   ];
   readonly conditionTypeLabels: Record<string, string> = {
-    TargetGradeCondition: 'Target Grade',
-    TaskDefinitionStatusCondition: 'Task Status',
-    TaskStatusCountCondition: 'Task Status Count',
-    LoginStatusCondition: 'Login Status',
-    SpecConCondition: 'Special Consideration Days',
-    TutorialEnrolmentCondition: 'Tutorial Enrolment',
-    TutorialStreamEnrolmentCondition: 'Tutorial Stream Enrolment',
+    TargetGradeCondition: 'Target grade',
+    TaskDefinitionStatusCondition: 'Task status',
+    TaskStatusCountCondition: 'Number of tasks in a status',
+    LoginStatusCondition: 'Last sign in',
+    SpecConCondition: 'Special consideration days',
+    TutorialEnrolmentCondition: 'Tutorial',
+    TutorialStreamEnrolmentCondition: 'Tutorial stream',
     CampusCondition: 'Campus',
   };
   readonly actionTypes = [
@@ -117,10 +129,10 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
     'TaskCommentAction',
   ];
   readonly actionTypeLabels: Record<string, string> = {
-    EmailStudentAction: 'Send email to student',
-    EmailStaffAction: 'Send email to staff',
-    ChangeTargetGradeAction: 'Change Target Grade',
-    TaskCommentAction: 'Task Comment',
+    EmailStudentAction: 'Email the student',
+    EmailStaffAction: 'Email staff',
+    ChangeTargetGradeAction: 'Change target grade',
+    TaskCommentAction: 'Comment on a task',
   };
   readonly gradeOperators = [
     'greater_than',
@@ -134,16 +146,16 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
   readonly dateOperators = ['before', 'after'];
   readonly enrolmentOperators = ['enrolled_in', 'not_enrolled_in'];
   readonly operatorLabels: Record<string, string> = {
-    greater_than: 'Greater Than',
-    greater_than_or_equal_to: 'Greater Than Or Equal To',
-    less_than: 'Less Than',
-    less_than_or_equal_to: 'Less Than Or Equal To',
-    equal_to: 'Equal To',
-    not_equal_to: 'Not Equal To',
+    greater_than: 'Greater than',
+    greater_than_or_equal_to: 'Greater than or equal to',
+    less_than: 'Less than',
+    less_than_or_equal_to: 'Less than or equal to',
+    equal_to: 'Equal to',
+    not_equal_to: 'Not equal to',
     before: 'Before',
     after: 'After',
-    enrolled_in: 'Enrolled In',
-    not_enrolled_in: 'Not Enrolled In',
+    enrolled_in: 'Enrolled in',
+    not_enrolled_in: 'Not enrolled in',
   };
   get targetGrades() {
     return this.unit.gradeDefinitions
@@ -151,17 +163,17 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
       .map((definition) => ({value: definition.value, label: definition.abbreviation}));
   }
   readonly emailVariables = [
-    {token: '{{student.first_name}}', label: 'Student First Name'},
-    {token: '{{student.last_name}}', label: 'Student Last Name'},
-    {token: '{{student.preferred_name}}', label: 'Student Preferred Name'},
-    {token: '{{student.full_name}}', label: 'Student Full Name'},
-    {token: '{{student.username}}', label: 'Student Username'},
+    {token: '{{student.first_name}}', label: 'Student first name'},
+    {token: '{{student.last_name}}', label: 'Student last name'},
+    {token: '{{student.preferred_name}}', label: 'Student preferred name'},
+    {token: '{{student.full_name}}', label: 'Student full name'},
+    {token: '{{student.username}}', label: 'Student username'},
     {token: '{{student.student_id}}', label: 'Student ID'},
-    {token: '{{affected_students_count}}', label: 'Affected Students Count'},
-    {token: '{{unit.code}}', label: 'Unit Code'},
-    {token: '{{unit.name}}', label: 'Unit Name'},
-    {token: '{{rule.name}}', label: 'Rule Name'},
-    {token: '{{target_grade}}', label: 'Target Grade'},
+    {token: '{{affected_students_count}}', label: 'Number of students picked up'},
+    {token: '{{unit.code}}', label: 'Unit code'},
+    {token: '{{unit.name}}', label: 'Unit name'},
+    {token: '{{rule.name}}', label: 'Rule name'},
+    {token: '{{target_grade}}', label: 'Target grade'},
     // {token: '{{conditions_summary}}', label: 'Conditions Summary'},
     // {token: '{{actions_summary}}', label: 'Actions Summary'},
   ];
@@ -207,8 +219,17 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
 
   private subscriptions: Subscription[] = [];
 
+  // The unit whose sets and lookups are loaded, so the first render loads once.
+  // ngOnChanges and ngOnInit both loaded them, which sent every request twice.
+  private loadedUnitId?: number;
+
   get currentUnitWeek(): number | null {
     return this.unit?.currentUnitWeek ?? null;
+  }
+
+  get currentWeekLabel(): string {
+    const week = this.currentUnitWeek;
+    return week && week > 0 ? `The unit is in week ${week}` : 'The unit has not started yet';
   }
 
   constructor(
@@ -228,15 +249,22 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
     this.campusService.query().subscribe((campuses) => {
       this.campuses = campuses;
     });
-    this.refreshUnitLookups();
-    this.loadSets();
+    this.loadUnit();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.unit && this.unit) {
-      this.refreshUnitLookups();
-      this.loadSets();
+      this.loadUnit();
     }
+  }
+
+  private loadUnit(): void {
+    if (!this.unit || this.loadedUnitId === this.unit.id) {
+      return;
+    }
+    this.loadedUnitId = this.unit.id;
+    this.refreshUnitLookups();
+    this.loadSets();
   }
 
   addSet(): void {
@@ -261,6 +289,14 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
   }
 
   deleteSet(set: CommunicationSet): void {
+    this.confirmationModalService.show(
+      `Delete ${set.name || 'this set'}`,
+      'This deletes the set with all of its rules and schedules. You cannot undo this.',
+      () => this.removeSet(set),
+    );
+  }
+
+  private removeSet(set: CommunicationSet): void {
     this.setService.deleteForUnit(this.unit.id, set.id).subscribe({
       next: () => {
         this.sets = this.sets.filter((item) => item.id !== set.id);
@@ -306,11 +342,11 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
 
   confirmExecuteSet(set: CommunicationSet): void {
     this.confirmationModalService.show(
-      'Execute Set?',
-      'This will execute every rule in this set, in sequence. Once a student is matched by an earlier rule, they are removed from consideration for the remaining rules, so each student can only be picked up once during the set run.',
+      'Run this set now?',
+      'Every rule in the set runs, in order. A student picked up by an earlier rule is left out of the rules after it, so each student is picked up once at most.',
       () => this.executeSet(set),
       undefined,
-      'Execute Set',
+      'Run set',
     );
   }
 
@@ -330,10 +366,16 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
   }
 
   deleteSchedule(set: CommunicationSet, schedule: CommunicationSetSchedule): void {
-    const updatedSchedules = (set.schedules || []).filter(
-      (item) => (item.id || item.client_key) !== (schedule.id || schedule.client_key),
+    this.confirmationModalService.show(
+      `Delete ${schedule.name || 'this schedule'}`,
+      'The set will no longer run on this schedule.',
+      () => {
+        const updatedSchedules = (set.schedules || []).filter(
+          (item) => (item.id || item.client_key) !== (schedule.id || schedule.client_key),
+        );
+        this.persistSchedules(set, updatedSchedules, 'Schedule removed');
+      },
     );
-    this.persistSchedules(set, updatedSchedules, 'Schedule removed');
   }
 
   scheduleTrackId(schedule: CommunicationSetSchedule): string | number {
@@ -412,14 +454,33 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
   }
 
   deleteRule(rule: CommunicationRule): void {
+    this.confirmationModalService.show(
+      `Delete ${rule.name || 'this rule'}`,
+      'This deletes the rule with its conditions and actions. You cannot undo this.',
+      () => this.removeRule(rule),
+    );
+  }
+
+  private removeRule(rule: CommunicationRule): void {
     this.ruleService.deleteForUnit(this.unit.id, rule.id).subscribe({
       next: () => {
-        this.rules = this.rules.filter((item) => item.id !== rule.id);
-        const set = this.selectedSet();
-        if (set) {
-          set.rules = this.rules;
-          this.selectedRuleId = this.rules[0]?.id;
-          this.loadPreviewForSet(set);
+        // The rule can be deleted from the list while another set is open. It
+        // used to be taken out of the open set's rules, so it stayed in its own
+        // set in the list and the open set's rules were overwritten.
+        const owner = this.sets.find((set) => set.rules?.some((item) => item.id === rule.id));
+        if (owner) {
+          owner.rules = owner.rules.filter((item) => item.id !== rule.id);
+        }
+
+        const selected = this.selectedSet();
+        if (selected && selected === owner) {
+          this.rules = owner.rules;
+          if (this.selectedRuleId === rule.id) {
+            this.selectedRuleId = this.rules[0]?.id;
+          }
+          this.loadPreviewForSet(selected);
+        } else {
+          this.rebuildTree();
         }
       },
       error: (error) => this.showError(error),
@@ -496,11 +557,11 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
 
   confirmExecuteRule(rule: CommunicationRule): void {
     this.confirmationModalService.show(
-      'Execute Rule?',
-      'This will execute only this rule. However, any earlier rules in the set are still taken into account first, so students who would already have been matched earlier are excluded before this rule is applied.',
+      'Run this rule now?',
+      'Only this rule runs. Students that an earlier rule in the set would pick up are still left out first.',
       () => this.executeRule(rule),
       undefined,
-      'Execute Rule',
+      'Run rule',
     );
   }
 
@@ -513,7 +574,7 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
 
   previewRule(rule: CommunicationRule, activateStudentsTab = true): void {
     if (activateStudentsTab) {
-      this.previewTabIndex[rule.id] = 2;
+      this.previewTabIndex[rule.id] = CommunicationRuleTab.Students;
     }
   }
 
@@ -573,13 +634,18 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
   }
 
   deleteCondition(rule: CommunicationRule, condition: CommunicationCondition): void {
-    this.conditionService.delete(this.unit.id, rule.id, condition.id).subscribe({
-      next: () => {
-        rule.conditions = rule.conditions.filter((item) => item.id !== condition.id);
-        this.refreshPreview(rule);
-      },
-      error: (error) => this.showError(error),
-    });
+    this.confirmationModalService.show(
+      'Delete condition',
+      `This takes the ${this.conditionTypeLabel(condition.type).toLowerCase()} condition out of ${rule.name}.`,
+      () =>
+        this.conditionService.delete(this.unit.id, rule.id, condition.id).subscribe({
+          next: () => {
+            rule.conditions = rule.conditions.filter((item) => item.id !== condition.id);
+            this.refreshPreview(rule);
+          },
+          error: (error) => this.showError(error),
+        }),
+    );
   }
 
   addAction(rule: CommunicationRule): void {
@@ -633,12 +699,17 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
   }
 
   deleteAction(rule: CommunicationRule, action: CommunicationAction): void {
-    this.actionService.delete(this.unit.id, rule.id, action.id).subscribe({
-      next: () => {
-        rule.actions = rule.actions.filter((item) => item.id !== action.id);
-      },
-      error: (error) => this.showError(error),
-    });
+    this.confirmationModalService.show(
+      'Delete action',
+      `This takes the ${this.actionTypeLabel(action.type).toLowerCase()} action out of ${rule.name}.`,
+      () =>
+        this.actionService.delete(this.unit.id, rule.id, action.id).subscribe({
+          next: () => {
+            rule.actions = rule.actions.filter((item) => item.id !== action.id);
+          },
+          error: (error) => this.showError(error),
+        }),
+    );
   }
 
   conditionFor(rule: CommunicationRule): Partial<CommunicationCondition> {
@@ -726,7 +797,12 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
     const matchedCount = this.previewLoaded[rule.id] ? this.studentsFor(rule).length : 0;
     const totalStudents = this.availableStudentsForRule(rule);
 
-    return `Students (${matchedCount}/${totalStudents})`;
+    return `Students (${matchedCount} of ${totalStudents})`;
+  }
+
+  studentsSummary(rule: CommunicationRule): string {
+    const matchedCount = this.previewLoaded[rule.id] ? this.studentsFor(rule).length : 0;
+    return `${matchedCount} of ${this.availableStudentsForRule(rule)} students`;
   }
 
   operatorsFor(conditionType: string): string[] {
@@ -771,13 +847,13 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
   actionSummary(action: CommunicationAction): string {
     switch (action.type) {
       case 'ChangeTargetGradeAction':
-        return `Change student's target grade to ${this.targetGradeName(action.target_grade)}`;
+        return `Change the student's target grade to ${this.targetGradeName(action.target_grade)}`;
       case 'EmailStudentAction':
-        return 'Send email to student';
+        return 'Email the student';
       case 'EmailStaffAction':
-        return `Send email to ${this.staffAudienceLabel(action)}`;
+        return `Email ${this.staffAudienceLabel(action)}`;
       case 'TaskCommentAction':
-        return `Add comment to ${this.taskDefinitionLabel(action.task_definition_id)}`;
+        return `Comment on ${this.taskDefinitionLabel(action.task_definition_id)}`;
       default:
         return this.actionTypeLabel(action.type);
     }
@@ -805,8 +881,9 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
     return `Task ${taskDefinition.abbreviation} ${taskDefinition.name}`;
   }
 
+  // The names the rest of the app shows for each status, such as Resubmit.
   taskStatusLabel(taskStatus: string): string {
-    return this.titleize(taskStatus);
+    return TaskStatus.STATUS_LABELS.get(taskStatus as TaskStatusEnum) ?? this.titleize(taskStatus);
   }
 
   taskStatusesLabel(taskStatuses: string[] = []): string {
@@ -840,7 +917,8 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
     const escaped = this.escapeHtml(value);
     const rendered = escaped.replace(/\{\{[\w.]+\}\}/g, (token) => {
       const replacement = this.resolveTemplateVariable(token, rule) || token;
-      return `<span class="rounded bg-blue-50 px-1 text-blue-800">${this.escapeHtml(replacement)}</span>`;
+      // A tint, not the raised surface, which is the same white as the card in light.
+      return `<span class="rounded-ot-xs bg-ot-selected px-1 text-ot-text">${this.escapeHtml(replacement)}</span>`;
     });
 
     return rendered.replace(/\n/g, '<br />');
@@ -918,12 +996,17 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
     }
   }
 
+  public retryLoadSets(): void {
+    this.loadSets();
+  }
+
   private loadSets(): void {
     if (!this.unit) {
       return;
     }
 
     this.loading = true;
+    this.loadError = false;
     this.setService.getForUnit(this.unit.id).subscribe({
       next: (sets) => {
         this.sets = sets;
@@ -936,6 +1019,7 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
       },
       error: (error) => {
         this.loading = false;
+        this.loadError = true;
         this.showError(error);
       },
     });
@@ -1211,20 +1295,20 @@ export class UnitCommunicationsEditorComponent implements OnInit, OnChanges, OnD
   private prettyKey(key: string): string {
     const labels: Record<string, string> = {
       operator: 'Operator',
-      target_grade: 'Target Grade',
+      target_grade: 'Target grade',
       task_definition_id: 'Task',
-      task_statuses: 'Task Statuses',
-      task_status_count: 'Task Status Count',
-      task_target_grade: 'Task Target Grade',
-      last_sign_in_at: 'Last Sign In',
-      spec_con_days: 'Special Consideration Days',
+      task_statuses: 'Task statuses',
+      task_status_count: 'Number of tasks',
+      task_target_grade: 'Task grade',
+      last_sign_in_at: 'Last sign in',
+      spec_con_days: 'Special consideration days',
       tutorial_id: 'Tutorial',
-      tutorial_stream_id: 'Tutorial Stream',
+      tutorial_stream_id: 'Tutorial stream',
       campus_id: 'Campus',
       subject: 'Subject',
       body: 'Body',
-      email_tutors: 'Email Tutors',
-      email_convenors: 'Email Convenors',
+      email_tutors: 'Email tutors',
+      email_convenors: 'Email convenors',
     };
 
     return labels[key] || key;

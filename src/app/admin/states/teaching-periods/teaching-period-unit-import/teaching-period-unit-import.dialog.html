@@ -76,6 +76,15 @@
 
     <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
     <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
+    <tr *matNoDataRow class="mat-row">
+      <td class="mat-cell !border-b-0" [attr.colspan]="displayedColumns.length">
+        <f-empty-state
+          hint="Enter unit codes below and select Add."
+          icon="school"
+          message="No units to import"
+        ></f-empty-state>
+      </td>
+    </tr>
   </table>
 </div>
 <div class="flex-column flex" mat-dialog-actions>

@@ -1,0 +1,13 @@
+// A value picked for a condition, set apart from the sentence around it. A
+// border rather than a fill, because the raised surface is the card colour in
+// light and a fill there does not show.
+.condition-value {
+  display: inline-block;
+  margin: 0 0.125rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-xs);
+  color: var(--ot-color-text);
+  font-weight: 500;
+  line-height: 1.5rem;
+}

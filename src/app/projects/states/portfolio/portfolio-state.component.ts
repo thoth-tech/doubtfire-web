@@ -1,14 +1,30 @@
-import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  afterNextRender,
+} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Observable, Subscription, of} from 'rxjs';
 import {Project} from 'src/app/api/models/project';
-import {GlobalStateService} from '../index/global-state.service';
 
 interface PortfolioStepTab {
   title: string;
   seq: number;
   active?: boolean;
 }
+
+/**
+ * How a step shows in the stepper. `current` is the step on screen, `done` a step
+ * whose requirement is met, `locked` a step the guards will not open yet, and
+ * `open` one the student can go to but has not finished.
+ */
+export type PortfolioStepState = 'current' | 'done' | 'open' | 'locked';
 
 @Component({
   selector: 'f-portfolio-state',
@@ -30,23 +46,23 @@ export class PortfolioStateComponent implements OnInit, OnDestroy {
     reviewStep: PortfolioStepTab;
   } = {
     welcomeStep: {
-      title: 'Portfolio Preparation',
+      title: 'Overview',
       seq: 1,
     },
     gradeStep: {
-      title: 'Select Grade',
+      title: 'Choose your grade',
       seq: 2,
     },
     summaryStep: {
-      title: 'Learning Summary Report',
+      title: 'Learning summary report',
       seq: 3,
     },
     otherFilesStep: {
-      title: 'Upload Other Files',
+      title: 'Other files',
       seq: 4,
     },
     reviewStep: {
-      title: 'Review Portfolio',
+      title: 'Review and create',
       seq: 5,
     },
   };
@@ -54,11 +70,15 @@ export class PortfolioStateComponent implements OnInit, OnDestroy {
   public readonly orderedTabs = Object.values(this.tabs).sort((a, b) => a.seq - b.seq);
   public activeTab: PortfolioStepTab = this.tabs.welcomeStep;
 
+  // The step panel takes focus when Next or Back swaps the step, because the button
+  // that was pressed is removed with the old step and focus would fall to the page.
+  @ViewChild('stepPanel') private stepPanel?: ElementRef<HTMLElement>;
+
   private projectSub?: Subscription;
 
   constructor(
-    private globalStateService: GlobalStateService,
     private route: ActivatedRoute,
+    private injector: Injector,
   ) {}
 
   public get selectedTabIndex(): number {
@@ -146,13 +166,66 @@ export class PortfolioStateComponent implements OnInit, OnDestroy {
     });
   }
 
+  public canAdvanceActiveTab(advanceBy: 1 | -1): boolean {
+    const newSeq = (this.activeTab?.seq ?? 1) + advanceBy;
+    const nextTab = this.orderedTabs.find((tab) => tab.seq === newSeq);
+
+    return Boolean(nextTab && !this.isTabDisabled(nextTab));
+  }
+
   public advanceActiveTab(advanceBy: 1 | -1): void {
     const newSeq = (this.activeTab?.seq ?? 1) + advanceBy;
     const nextTab = this.orderedTabs.find((tab) => tab.seq === newSeq);
 
-    if (nextTab) {
+    if (nextTab && !this.isTabDisabled(nextTab)) {
       this.setActiveTab(nextTab);
+      this.focusStepPanel();
     }
+  }
+
+  public stepState(tab: PortfolioStepTab): PortfolioStepState {
+    if (tab === this.activeTab) {
+      return 'current';
+    }
+
+    // A finished step keeps its tick even when the guards lock it, for example every
+    // earlier step once the portfolio is compiling.
+    if (this.isStepComplete(tab)) {
+      return 'done';
+    }
+
+    return this.isTabDisabled(tab) ? 'locked' : 'open';
+  }
+
+  private isStepComplete(tab: PortfolioStepTab): boolean {
+    if (!this.project) {
+      return false;
+    }
+
+    switch (tab.seq) {
+      case this.tabs.welcomeStep.seq:
+        return this.hasSubmittedGrade || this.activeTab.seq > tab.seq;
+      case this.tabs.gradeStep.seq:
+        return this.hasSubmittedGrade;
+      case this.tabs.summaryStep.seq:
+        return this.hasLearningSummaryReport;
+      case this.tabs.otherFilesStep.seq:
+        // Optional, so it counts as done once the student has moved past it.
+        return this.activeTab.seq > tab.seq;
+      case this.tabs.reviewStep.seq:
+        return Boolean(this.project.portfolioAvailable);
+      default:
+        return false;
+    }
+  }
+
+  private focusStepPanel(): void {
+    afterNextRender(
+      () => {
+        this.stepPanel?.nativeElement.focus();
+      },
+      {injector: this.injector},
+    );
   }
 
   private projectHasLearningSummaryReportFile(): boolean {

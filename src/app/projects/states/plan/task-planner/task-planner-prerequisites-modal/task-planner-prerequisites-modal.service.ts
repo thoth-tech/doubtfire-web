@@ -18,9 +18,12 @@ export class TaskPlannerPrerequisitesModalService {
       TaskPlannerPrerequisitesModalComponent,
       {
         data: {taskDefinition, project, dependents},
-        width: '100%',
+        width: 'calc(100vw - 2rem)',
         maxWidth: '900px',
-        panelClass: 'overflow-y-auto',
+        maxHeight: 'calc(100dvh - 2rem)',
+        autoFocus: 'dialog',
+        restoreFocus: true,
+        panelClass: 'task-connections-dialog-panel',
       },
     );
   }

@@ -11,4 +11,12 @@ import type {UnitCommunicationsEditorComponent} from '../unit-communications-edi
 export class CommunicationActionsComponent {
   @Input({required: true}) editor: UnitCommunicationsEditorComponent;
   @Input({required: true}) rule: CommunicationRule;
+
+  public get isAddingAction(): boolean {
+    return !!this.editor.actionFormOpen[this.rule.id] && !this.isEditingAction;
+  }
+
+  public get isEditingAction(): boolean {
+    return !!this.editor.editingActionId[this.rule.id];
+  }
 }

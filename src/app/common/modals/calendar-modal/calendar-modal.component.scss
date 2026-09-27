@@ -1,0 +1,367 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: block;
+  min-width: 0;
+  color: var(--ot-color-text);
+  background-color: var(--ot-color-surface);
+
+  @include mat.dialog-overrides(
+    (
+      subhead-color: var(--ot-color-text),
+      supporting-text-color: var(--ot-color-text),
+    )
+  );
+}
+
+mat-card {
+  @include mat.card-overrides(
+    (
+      outlined-container-color: var(--ot-color-surface-raised),
+      outlined-outline-color: var(--ot-color-border),
+      subtitle-text-color: var(--ot-color-text-muted),
+    )
+  );
+  color: var(--ot-color-text);
+}
+
+.calendar-dialog {
+  display: flex;
+  max-height: min(90dvh, 56rem);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.calendar-dialog__header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 0;
+}
+
+.calendar-dialog__header h2 {
+  // mat-dialog-title carries Material's own 24px side padding, which pushed the
+  // title in from the eyebrow above it. The header already sets the inset.
+  margin: 0;
+  padding: 0;
+  line-height: 1.25;
+}
+
+.calendar-dialog__eyebrow {
+  margin: 0 0 0.25rem;
+  color: var(--ot-color-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.calendar-dialog__enable-control {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.calendar-dialog__content {
+  min-height: 0;
+  flex: 1 1 auto;
+  padding-top: 1rem !important;
+  overflow-x: clip;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.calendar-dialog__loading,
+.calendar-dialog__error {
+  display: flex;
+  min-height: 12rem;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.calendar-dialog__error h3,
+.calendar-dialog__error p {
+  margin: 0;
+}
+
+.calendar-dialog__status {
+  margin-top: 0;
+}
+
+.calendar-options-card,
+.calendar-provider-help {
+  margin-top: 1rem;
+}
+
+:host ::ng-deep .calendar-unit-chips .mdc-evolution-chip-set__chips {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .calendar-unit-chips .mat-mdc-chip {
+  max-width: 100%;
+  min-height: 40px;
+  height: auto;
+  margin: 0;
+}
+
+:host ::ng-deep .calendar-unit-chips .mdc-evolution-chip__cell--primary,
+:host ::ng-deep .calendar-unit-chips .mdc-evolution-chip__action--primary,
+:host ::ng-deep .calendar-unit-chips .mdc-evolution-chip__text-label {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+}
+
+.calendar-unit-chip__label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.calendar-unit-chip--add {
+  min-height: 44px !important;
+}
+
+.calendar-options-card__empty {
+  margin: 0.5rem 0 1rem;
+  color: var(--ot-color-text-muted);
+}
+
+.calendar-reminder-group {
+  min-width: 0;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 0.625rem;
+}
+
+.calendar-reminder-group legend {
+  padding: 0 0.375rem;
+  color: var(--ot-color-text);
+  font-weight: 650;
+}
+
+.calendar-reminder-sentence {
+  display: grid;
+  grid-template-columns: auto minmax(7rem, 0.75fr) minmax(9rem, 1fr) minmax(8rem, auto);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.calendar-reminder-sentence mat-form-field {
+  min-width: 0;
+}
+
+.calendar-reminder-sentence__suffix {
+  margin-bottom: 1.25rem;
+  font-weight: 600;
+}
+
+.calendar-reminder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.calendar-reminder-actions button {
+  min-height: 44px;
+}
+
+// One option per line: mat-checkbox is inline, so two in a row sat side by side.
+.calendar-option {
+  display: flex;
+  min-height: 44px;
+}
+
+// Sits under the sessions option, lined up with its label rather than the box.
+.calendar-options-card__hint {
+  margin: 0 0 0.5rem 2.5rem;
+  color: var(--ot-color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.calendar-provider-help {
+  padding: 1rem;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 0.625rem;
+  background: var(--ot-color-surface-raised);
+}
+
+.calendar-provider-help h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+:host ::ng-deep .calendar-provider-help .mat-mdc-tab {
+  flex-grow: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 0.5rem;
+}
+
+.calendar-provider-help__instructions {
+  min-height: 3.5rem;
+  margin: 1rem 0;
+  color: var(--ot-color-text);
+}
+
+.calendar-subscription-url {
+  padding: 0.75rem;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 0.5rem;
+  background: var(--ot-color-surface);
+}
+
+.calendar-subscription-url__value {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  color: var(--ot-color-link);
+}
+
+.calendar-subscription-url__value span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+}
+
+.calendar-subscription-url__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.calendar-subscription-url__actions button,
+.calendar-dialog__actions button {
+  min-height: 44px;
+}
+
+.calendar-dialog__actions {
+  flex: 0 0 auto;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+@media (max-width: 639.98px), (max-height: 639.98px) {
+  .calendar-dialog {
+    max-height: calc(100dvh - 1rem);
+  }
+
+  .calendar-dialog__header {
+    align-items: flex-start;
+    padding: 1rem 1rem 0;
+  }
+
+  .calendar-dialog__enable-control {
+    align-items: flex-end;
+    flex-direction: column-reverse;
+    gap: 0.125rem;
+  }
+
+  .calendar-dialog__content {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .calendar-options-card {
+    margin-inline: 0;
+  }
+
+  .calendar-reminder-sentence {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .calendar-reminder-sentence mat-checkbox,
+  .calendar-reminder-sentence__suffix {
+    grid-column: 1 / -1;
+  }
+
+  .calendar-reminder-sentence__suffix {
+    margin: -0.75rem 0 0;
+  }
+
+  .calendar-subscription-url__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .calendar-subscription-url__actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .calendar-reminder-sentence {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .calendar-reminder-sentence mat-checkbox,
+  .calendar-reminder-sentence__suffix {
+    grid-column: auto;
+  }
+}
+
+.calendar-subscription-url__value:hover {
+  text-decoration: underline;
+}
+
+.calendar-subscription-url__value:focus-visible {
+  outline: 2px solid var(--ot-color-focus);
+  outline-offset: 3px;
+}
+
+// The M2 dark palette sets these tokens on :root[data-ot-theme] .mat-mdc-tab-group.
+// Include the local panel and host so those global declarations cannot win.
+:host .calendar-provider-help mat-tab-group {
+  @include mat.tabs-overrides(
+    (
+      active-label-text-color: var(--ot-color-link),
+      active-focus-label-text-color: var(--ot-color-link),
+      active-hover-label-text-color: var(--ot-color-link),
+      active-indicator-color: var(--ot-color-link),
+      active-focus-indicator-color: var(--ot-color-link),
+      active-hover-indicator-color: var(--ot-color-link),
+      inactive-label-text-color: var(--ot-color-text-muted),
+      inactive-focus-label-text-color: var(--ot-color-text),
+      inactive-hover-label-text-color: var(--ot-color-text),
+      pagination-icon-color: var(--ot-color-text),
+      divider-color: var(--ot-color-divider),
+    )
+  );
+}
+
+// Include the dialog so the global M2 .mat-primary palette cannot override
+// the accessible link colour on outlined actions in dark mode.
+:host .calendar-dialog button[mat-stroked-button] {
+  @include mat.button-overrides(
+    (
+      outlined-label-text-color: var(--ot-color-link),
+      outlined-outline-color: var(--ot-color-border),
+      outlined-state-layer-color: var(--ot-color-link),
+      outlined-disabled-label-text-color: var(--ot-color-disabled-text),
+      outlined-disabled-outline-color: var(--ot-color-divider),
+    )
+  );
+  background-color: var(--ot-color-surface);
+
+  &[color='warn'] {
+    @include mat.button-overrides(
+      (
+        outlined-label-text-color: var(--ot-color-error),
+        outlined-state-layer-color: var(--ot-color-error),
+      )
+    );
+  }
+}

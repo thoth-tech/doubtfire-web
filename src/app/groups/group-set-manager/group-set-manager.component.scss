@@ -1,0 +1,53 @@
+:host {
+  display: block;
+}
+
+// Fields in the members card run at 48px (Material density -2), like the toolbar
+// fields in the groups card beside it.
+.group-name-form .mat-mdc-form-field,
+.member-add .mat-mdc-form-field {
+  --mat-form-field-container-height: 48px;
+  --mat-form-field-container-vertical-padding: 12px;
+}
+
+.group-work-layout {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  min-width: 0;
+  width: 100%;
+}
+
+.group-work-layout__selector,
+.group-work-layout__members {
+  min-width: 0;
+  width: 100%;
+}
+
+.group-work-layout__members {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+}
+
+.group-members-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.group-members-title {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 799.98px) {
+  .group-work-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

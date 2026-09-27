@@ -78,11 +78,33 @@ export class CommunicationScheduleModalComponent implements OnInit {
     return !!this.draft.anchor_week && !!this.draft.anchor_day;
   }
 
+  public get isOneOff(): boolean {
+    return !this.draft.recurrence || this.draft.recurrence === 'none';
+  }
+
+  /** What one step of the repeat is, for the label of the Every field. */
+  public get intervalUnit(): string {
+    switch (this.draft.recurrence) {
+      case 'daily':
+        return 'days';
+      case 'weekly':
+        return 'weeks';
+      case 'monthly':
+        return 'months';
+      default:
+        return '';
+    }
+  }
+
   save(): void {
+    // A schedule that runs once has no repeat count or end. Values typed while it
+    // was set to repeat stayed on it and were saved with it.
+    const oneOff = this.isOneOff;
     const schedule = new CommunicationSetSchedule({
       ...this.draft,
       name: this.draft.name?.trim() || 'Untitled schedule',
-      until_at: this.untilDateTime || undefined,
+      repeat_count: oneOff ? undefined : this.draft.repeat_count,
+      until_at: (!oneOff && this.untilDateTime) || undefined,
       anchor_week: Math.max(1, Number(this.draft.anchor_week || 1)),
       anchor_day: this.draft.anchor_day || 'Monday',
       hour: this.safeHour(),
@@ -96,7 +118,7 @@ export class CommunicationScheduleModalComponent implements OnInit {
   scheduleSummary(): string {
     const parts: string[] = [];
     parts.push(
-      `Starts Week ${this.draft.anchor_week || 1} ${this.draft.anchor_day || 'Monday'} at ${this.timeLabel(this.safeHour(), this.safeMinute())}`,
+      `Starts in week ${this.draft.anchor_week || 1} on ${this.draft.anchor_day || 'Monday'} at ${this.timeLabel(this.safeHour(), this.safeMinute())}`,
     );
 
     switch (this.draft.recurrence) {
@@ -113,14 +135,14 @@ export class CommunicationScheduleModalComponent implements OnInit {
         parts.push('Runs once');
     }
 
-    if (this.draft.repeat_count) {
+    if (!this.isOneOff && this.draft.repeat_count) {
       parts.push(`up to ${this.draft.repeat_count} times`);
     }
-    if (this.untilDateTime) {
-      parts.push(`until ${this.untilDateTime}`);
+    if (!this.isOneOff && this.untilDateTime) {
+      parts.push(`until ${this.untilDateTime.replace('T', ' ')}`);
     }
 
-    return parts.join(' | ');
+    return parts.join(', ');
   }
 
   iceCubePreview(): string {

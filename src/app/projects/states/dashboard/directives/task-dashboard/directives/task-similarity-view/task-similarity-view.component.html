@@ -1,101 +1,175 @@
-<div class="p-2.5">
-  <div class="flex items-center">
-    <mat-icon class="mr-1">crisis_alert</mat-icon>
-    <h1 class="mat-headline m-0">Similarities</h1>
-    <span class="grow"></span>
-    <div class="example-action-buttons">
-      @if (!jplagOpenState) {
-        <button mat-button (click)="accordion.closeAll()">Collapse All</button>
-      }
-      @if (jplagOpenState) {
-        <button mat-button (click)="jplagOpenState = false">Back to Summary</button>
-      }
-    </div>
-  </div>
+@let similarities = (task?.similarityCache.values | async) ?? [];
 
+<header class="flex shrink-0 items-start justify-between gap-2 px-4 pt-4 pb-3">
+  <div class="min-w-0">
+    <h2 class="m-0 truncate text-lg leading-snug font-semibold text-ot-text">Similarities</h2>
+    <p class="m-0 mt-1 text-sm text-ot-muted">
+      @if (jplagOpenState) {
+        The JPlag comparison for this submission.
+      } @else {
+        Matches from the unit's similarity checks. Flag any that need a closer look.
+      }
+    </p>
+  </div>
+  <div class="flex shrink-0 items-center">
+    @if (jplagOpenState) {
+      <button mat-stroked-button type="button" (click)="closeJplagReport()">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+        Back to summary
+      </button>
+    } @else if (hasOpenPanel(similarities)) {
+      <button
+        aria-label="Collapse all"
+        mat-icon-button
+        matTooltip="Collapse all"
+        type="button"
+        (click)="collapseAll()"
+      >
+        <mat-icon aria-hidden="true">unfold_less</mat-icon>
+      </button>
+    }
+  </div>
+</header>
+
+<div class="min-h-0 flex-1 overflow-auto px-4 pb-4">
   <f-jplag-report-viewer #jplagViewer [hidden]="!jplagOpenState" />
 
   @if (!jplagOpenState) {
-    <mat-accordion multi>
-      @for (
-        similarity of $safeNavigationMigration(task?.similarityCache.values) | async;
-        track similarity
-      ) {
-        <div class="my-3">
-          @for (part of similarity.parts; track part; let i = $index) {
-            <mat-expansion-panel
-              hideToggle
-              (closed)="part.panelOpenState = false"
-              (opened)="part.panelOpenState = true"
-            >
-              <mat-expansion-panel-header [ngClass]="{flagged: similarity.flagged}">
-                <mat-panel-title>
-                  {{ similarity.friendlyTypeName }}
-                </mat-panel-title>
-                <mat-panel-description> {{ part.description }} </mat-panel-description>
-                @if (similarity.readyForViewer) {
-                  @if (similarity.type === 'JplagTaskSimilarity') {
-                    <button
-                      aria-label="View Detailed Report"
-                      mat-icon-button
-                      matTooltip="View JPlag report for this similarity"
-                      (click)="viewJplagReport(similarity); $event.stopPropagation()"
-                    >
-                      <mat-icon>summarize</mat-icon>
-                    </button>
-                  } @else if (similarity.type === 'TiiTaskSimilarity') {
-                    <button
-                      aria-label="View report"
-                      mat-icon-button
-                      matTooltip="View report in TurnItIn"
-                      (click)="openReport($event, similarity)"
-                    >
-                      <mat-icon>summarize</mat-icon>
-                    </button>
+    @if (loadError) {
+      <div class="flex flex-col items-center">
+        <f-empty-state
+          hint="Check your connection, then try again."
+          icon="cloud_off"
+          message="The similarities did not load"
+        ></f-empty-state>
+        <button mat-stroked-button type="button" (click)="loadSimilarities()">Try again</button>
+      </div>
+    } @else if (loading && similarities.length === 0) {
+      <div
+        aria-label="Loading the similarities"
+        class="flex min-h-60 items-center justify-center"
+        role="status"
+      >
+        <mat-spinner [diameter]="40"></mat-spinner>
+      </div>
+    } @else if (similarities.length === 0) {
+      <f-empty-state
+        hint="Matches from the unit's JPlag and Turnitin checks show here."
+        icon="difference"
+        message="No similarities found"
+      ></f-empty-state>
+    } @else {
+      <mat-accordion class="flex flex-col gap-3" displayMode="flat" multi>
+        @for (similarity of similarities; track similarity) {
+          <div class="flex flex-col gap-2">
+            @for (part of similarity.parts; track part; let i = $index) {
+              <mat-expansion-panel
+                class="similarity-panel rounded-ot-lg border"
+                [expanded]="!!part.panelOpenState"
+                [ngClass]="similarity.flagged ? 'border-l-4 border-ot-error' : 'border-ot-divider'"
+                (closed)="part.panelOpenState = false"
+                (opened)="part.panelOpenState = true"
+              >
+                <mat-expansion-panel-header class="min-h-16 gap-2 px-4 py-2">
+                  <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="text-sm font-semibold text-ot-text">
+                        {{ similarity.friendlyTypeName }}
+                      </span>
+                      @if (similarity.flagged) {
+                        <span
+                          class="inline-flex items-center gap-1 rounded-ot-pill border border-ot-error px-2 text-xs leading-5 font-medium text-ot-error"
+                        >
+                          <mat-icon aria-hidden="true" class="!size-4 !text-base">flag</mat-icon>
+                          Flagged
+                        </span>
+                      }
+                    </div>
+                    <span class="text-sm wrap-anywhere text-ot-muted">{{ part.description }}</span>
+                  </div>
+
+                  <!-- The header toggles on Enter and Space and eats the key, so each button
+                       stops it there or it could never be used from the keyboard. -->
+                  <div class="flex shrink-0 items-center">
+                    @if (similarity.readyForViewer) {
+                      @if (similarity.type === 'JplagTaskSimilarity') {
+                        <button
+                          aria-label="View the JPlag report"
+                          mat-icon-button
+                          matTooltip="View JPlag report for this similarity"
+                          type="button"
+                          (click)="viewJplagReport(similarity); $event.stopPropagation()"
+                          (keydown.enter)="$event.stopPropagation()"
+                          (keydown.space)="$event.stopPropagation()"
+                        >
+                          <mat-icon aria-hidden="true">summarize</mat-icon>
+                        </button>
+                      } @else if (similarity.type === 'TiiTaskSimilarity') {
+                        <button
+                          aria-label="View the TurnItIn report"
+                          mat-icon-button
+                          matTooltip="View report in TurnItIn"
+                          type="button"
+                          (click)="openReport($event, similarity)"
+                          (keydown.enter)="$event.stopPropagation()"
+                          (keydown.space)="$event.stopPropagation()"
+                        >
+                          <mat-icon aria-hidden="true">summarize</mat-icon>
+                        </button>
+                      }
+                    }
+                    @if (i === 0) {
+                      <button
+                        aria-label="Flag similarity"
+                        mat-icon-button
+                        type="button"
+                        [attr.aria-pressed]="similarity.flagged"
+                        [matTooltip]="similarity.flagged ? 'Unflag similarity' : 'Flag similarity'"
+                        (click)="toggleFlag($event, similarity)"
+                        (keydown.enter)="$event.stopPropagation()"
+                        (keydown.space)="$event.stopPropagation()"
+                      >
+                        <mat-icon
+                          aria-hidden="true"
+                          [ngClass]="similarity.flagged ? 'text-ot-error' : 'text-ot-muted'"
+                        >
+                          {{ similarity.flagged ? 'flag' : 'outlined_flag' }}
+                        </mat-icon>
+                      </button>
+                    }
+                  </div>
+                </mat-expansion-panel-header>
+
+                @if (part.panelOpenState) {
+                  @if (part.format) {
+                    @if (part.format === 'html' || part.format === 'pdf') {
+                      <f-file-viewer
+                        [fileType]="part.format"
+                        [src]="similarity.fileUrl(part.idx)"
+                      ></f-file-viewer>
+                    } @else if (part.format === 'jplag') {
+                      <div class="flex justify-center py-2">
+                        <button
+                          color="primary"
+                          mat-flat-button
+                          type="button"
+                          (click)="viewJplagReport(similarity)"
+                        >
+                          View JPlag similarity
+                        </button>
+                      </div>
+                    }
+                  } @else {
+                    <p class="m-0 text-sm text-ot-muted">
+                      There is no local similarity file for this.
+                    </p>
                   }
                 }
-                @if (i === 0) {
-                  <button
-                    aria-label="Flag similarities"
-                    mat-icon-button
-                    [matTooltip]="similarity.flagged ? 'Unflag similarity' : 'Flag similarity'"
-                    (click)="toggleFlag($event, similarity)"
-                  >
-                    <mat-icon [color]="similarity.flagged ? 'warn' : ''">{{
-                      similarity.flagged ? 'flag_circle' : 'check_circle'
-                    }}</mat-icon>
-                  </button>
-                }
-              </mat-expansion-panel-header>
-              @if (part.panelOpenState) {
-                @if (part.format) {
-                  @if (part.format === 'html' || part.format === 'pdf') {
-                    <f-file-viewer
-                      [fileType]="part.format"
-                      [src]="similarity.fileUrl(part.idx)"
-                    ></f-file-viewer>
-                  } @else if (part.format === 'jplag') {
-                    <button
-                      class="mx-auto block"
-                      color="primary"
-                      mat-raised-button
-                      (click)="viewJplagReport(similarity)"
-                    >
-                      View JPlag Similarity
-                    </button>
-                  }
-                } @else {
-                  <p>There is no local similarity file for this.</p>
-                }
-              }
-            </mat-expansion-panel>
-          }
-        </div>
-      } @empty {
-        <div class="mt-6 w-full text-center text-gray-400">
-          There are no similarities for this submission
-        </div>
-      }
-    </mat-accordion>
+              </mat-expansion-panel>
+            }
+          </div>
+        }
+      </mat-accordion>
+    }
   }
 </div>

@@ -1,0 +1,34 @@
+@use '../../portfolio-wizard' as wizard;
+
+.welcome-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem;
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface-raised);
+}
+
+.welcome-step__icon {
+  @include wizard.icon-tile(primary);
+}
+
+.welcome-note {
+  @include wizard.callout(info);
+}
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.portfolio-step-footer button {
+  min-height: 44px;
+}
+
+@media (max-width: 639.98px) {
+  .portfolio-step-footer {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}

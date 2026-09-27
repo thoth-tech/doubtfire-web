@@ -1,18 +1,19 @@
-@if (unit.hasGroupwork()) {
-  <mat-form-field appearance="outline" class="flex flex-grow">
-    <mat-label>Is this an individual or group task? Select group that submits</mat-label>
-    <mat-select required [(value)]="taskDefinition.groupSet">
-      @for (gs of unit.groupSets; track gs) {
-        <mat-option [value]="gs">{{ gs.name }}</mat-option>
-      }
-      <mat-option value="null">None - Individual Submission</mat-option>
-    </mat-select>
-  </mat-form-field>
-}
+<div class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+  @if (unit.hasGroupwork()) {
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Submitted by</mat-label>
+      <mat-select required [(value)]="groupSetChoice">
+        <mat-option [value]="individualSubmission">Each student on their own</mat-option>
+        @for (gs of unit.groupSets; track gs) {
+          <mat-option [value]="gs">Groups in {{ gs.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Pick a group set if groups submit this task together</mat-hint>
+    </mat-form-field>
+  }
 
-<div class="flex flex-row gap-6">
-  <mat-form-field appearance="outline" class="basis-1/2">
-    <mat-label>Tutorial Stream - Which tutor provides feedback?</mat-label>
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Tutorial stream</mat-label>
     <mat-select
       required
       [(value)]="taskDefinition.tutorialStream"
@@ -22,43 +23,54 @@
         <mat-option [value]="stream">{{ stream.name }}</mat-option>
       }
     </mat-select>
-  </mat-form-field>
-
-  <span class="flex-grow">
-    <strong class="">Related tutorials</strong>
-    <ul>
-      @for (
-        tutorial of $safeNavigationMigration(taskDefinition.tutorialStream?.tutorialsIn(unit))
-          | slice: 0 : (showAllTutorials ? undefined : 3);
-        track tutorial
-      ) {
-        <li>{{ tutorial?.abbreviation }} {{ tutorial.tutor?.name }}</li>
+    <mat-hint>
+      @if (unit.tutorialStreams.length) {
+        Tutors of this stream's classes give feedback
+      } @else {
+        This unit has no tutorial streams yet
       }
+    </mat-hint>
+  </mat-form-field>
+</div>
 
-      @if (!showAllTutorials && taskDefinition.tutorialStream?.tutorialsIn(unit)?.length > 3) {
-        <li class="mt-0.5">
-          +{{ taskDefinition.tutorialStream.tutorialsIn(unit).length - 3 }} more tutorials
+<div class="mt-2 rounded-ot-md border border-ot-divider px-4 py-3">
+  <p class="m-0 text-sm font-semibold text-ot-text">
+    Classes in this stream
+    <span class="font-normal text-ot-muted">({{ relatedTutorials.length }})</span>
+  </p>
+  @if (relatedTutorials.length) {
+    <ul
+      class="m-0 mt-2 grid list-none grid-cols-1 gap-x-6 gap-y-1 p-0 text-sm sm:grid-cols-2 lg:grid-cols-3"
+    >
+      @for (tutorial of shownTutorials; track tutorial) {
+        <li class="flex min-w-0 gap-2">
+          <span class="shrink-0 font-medium text-ot-text">{{ tutorial.abbreviation }}</span>
+          <span class="truncate text-ot-muted">{{ tutorial.tutor?.name || 'No tutor yet' }}</span>
         </li>
       }
-      @if (taskDefinition.tutorialStream?.tutorialsIn(unit).length > 3) {
-        <div class="mt-2.5">
-          @if (!showAllTutorials) {
-            <button color="primary" mat-button (click)="showAllTutorials = true">
-              View all tutorials
-            </button>
-          } @else {
-            <button color="warn" mat-button (click)="showAllTutorials = false">
-              Collapse list
-            </button>
-          }
-        </div>
-      }
     </ul>
-  </span>
+    @if (relatedTutorials.length > collapsedTutorialCount) {
+      <button
+        class="mt-1 -ml-3"
+        mat-button
+        type="button"
+        [attr.aria-expanded]="showAllTutorials"
+        (click)="showAllTutorials = !showAllTutorials"
+      >
+        {{ showAllTutorials ? 'Show fewer' : 'Show all ' + relatedTutorials.length }}
+      </button>
+    }
+  } @else {
+    <p class="m-0 mt-1 text-sm text-ot-muted">
+      @if (taskDefinition.tutorialStream) {
+        No classes are in this stream yet.
+      } @else {
+        Pick a tutorial stream to see its classes.
+      }
+    </p>
+  }
 </div>
 
-<div>
-  <mat-slide-toggle [(ngModel)]="taskDefinition.lockAssessmentsToTutorialStream"
-    >Only allow tutors in this tutorial stream to assess this task</mat-slide-toggle
-  >
-</div>
+<mat-slide-toggle class="mt-4 block" [(ngModel)]="taskDefinition.lockAssessmentsToTutorialStream">
+  Only tutors of this stream can mark this task
+</mat-slide-toggle>

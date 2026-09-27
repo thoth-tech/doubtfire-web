@@ -2,7 +2,6 @@ import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@ang
 import {ActivatedRoute} from '@angular/router';
 import {Observable, Subscription, of} from 'rxjs';
 import {GroupSet, Project} from 'src/app/api/models/doubtfire-model';
-import {GlobalStateService} from '../index/global-state.service';
 
 @Component({
   selector: 'f-project-groups-state',
@@ -19,10 +18,7 @@ export class ProjectGroupsStateComponent implements OnInit, OnDestroy {
 
   private projectSub?: Subscription;
 
-  constructor(
-    private globalStateService: GlobalStateService,
-    private route: ActivatedRoute,
-  ) {}
+  constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.project$ = this.project$ ?? of(this.route.parent?.snapshot.data.project as Project);
@@ -33,7 +29,18 @@ export class ProjectGroupsStateComponent implements OnInit, OnDestroy {
       }
 
       this.project = project;
-      this.selectedGroupSet = this.selectedGroupSet ?? project.unit?.groupSets?.[0];
+      const groupSets = project.unit?.groupSets ?? [];
+      const selectedGroupSetStillBelongsToUnit = groupSets.some(
+        (groupSet) => groupSet.id === this.selectedGroupSet?.id,
+      );
+      const projectGroupSetId = project.groups.find((group) => group.groupSet)?.groupSet?.id;
+
+      this.selectedGroupSet = selectedGroupSetStillBelongsToUnit
+        ? groupSets.find((groupSet) => groupSet.id === this.selectedGroupSet.id)
+        : (groupSets.find((groupSet) => groupSet.id === projectGroupSetId) ??
+          groupSets.find((groupSet) => groupSet.groups.length > 0) ??
+          groupSets.find((groupSet) => groupSet.allowStudentsToCreateGroups && !groupSet.locked) ??
+          groupSets[0]);
     });
   }
 

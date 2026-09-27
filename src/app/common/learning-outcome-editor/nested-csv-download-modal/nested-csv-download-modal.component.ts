@@ -17,6 +17,11 @@ export class NestedCsvDownloadModalComponent {
     @Inject(MAT_DIALOG_DATA) public data: {url: string; name: string; type: string},
   ) {}
 
+  /** What the CSV holds, in the words staff use. */
+  public get what(): string {
+    return this.data.type === 'Feedback Templates' ? 'feedback comments' : 'learning outcomes';
+  }
+
   downloadCsv() {
     this.fileDownloaderService.downloadFile(
       `${this.data.url}?includes_tlos=${this.includeNested}`,

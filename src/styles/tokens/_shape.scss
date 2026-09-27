@@ -1,0 +1,28 @@
+// OnTrack theme tokens — SHAPE (radius).
+// Companion to _light.scss / _dark.scss, but shape is theme-independent: the same
+// scale applies in light and dark, so it is declared once on the bare :root rather
+// than duplicated per marker. These are the ONLY radius values a component should
+// reference. Reach for a literal border-radius only for a deliberate exception
+// (a full-bleed edge at 0, an asymmetric segmented control), and leave a comment
+// saying why.
+//
+// The scale collapses the ~20 ad-hoc radii that had accreted across the tree
+// (2/4/5/6/8/10/12/15/16/18/20px and a spread of rems) onto six rungs:
+//
+//   xs  4px    tight insets, small tags, checkbox-scale corners
+//   sm  8px    controls: buttons, inputs, tabs, menu items, small chips
+//   md  12px   cards, panels, dialogs, raised surfaces  (the default surface rung)
+//   lg  16px   large feature containers, hero cards
+//   pill 999px status chips, toggles, badges, pill buttons, progress tracks
+//   circle 50% avatars, round icon-button hit areas
+//
+// Tailwind exposes these as rounded-ot-xs … rounded-ot-circle (see tailwind.config.js),
+// so templates use the same scale as SCSS with no dark: variant needed.
+:root {
+  --ot-radius-xs: 4px;
+  --ot-radius-sm: 8px;
+  --ot-radius-md: 12px;
+  --ot-radius-lg: 16px;
+  --ot-radius-pill: 999px;
+  --ot-radius-circle: 50%;
+}

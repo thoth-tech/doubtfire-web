@@ -3,7 +3,9 @@ import {TaskDefinition} from 'src/app/api/models/task-definition';
 import {Unit} from 'src/app/api/models/unit';
 import {TaskDefinitionService} from 'src/app/api/services/task-definition.service';
 import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {ConfirmationModalService} from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
 import {AlertService} from 'src/app/common/services/alert.service';
+import {PDF_ACCEPT, ZIP_ACCEPT, isPdfFile, isZipFile} from '../task-file-types';
 
 @Component({
   selector: 'f-task-definition-resources',
@@ -15,10 +17,14 @@ import {AlertService} from 'src/app/common/services/alert.service';
 export class TaskDefinitionResourcesComponent {
   @Input() taskDefinition: TaskDefinition;
 
+  public readonly pdfAccept = PDF_ACCEPT;
+  public readonly zipAccept = ZIP_ACCEPT;
+
   constructor(
     private fileDownloaderService: FileDownloaderService,
     private alerts: AlertService,
     private taskDefinitionService: TaskDefinitionService,
+    private confirmationModal: ConfirmationModalService,
   ) {}
 
   public get unit(): Unit {
@@ -40,23 +46,31 @@ export class TaskDefinitionResourcesComponent {
   }
 
   public removeTaskSheet() {
-    this.taskDefinition.deleteTaskSheet().subscribe({
-      next: () => this.alerts.success('Deleted task sheet', 2000),
-      error: (message) => this.alerts.error(message, 6000),
-    });
+    this.confirmationModal.show(
+      'Delete task sheet',
+      `Students will no longer be able to download the task sheet for ${this.taskDefinition.abbreviation}.`,
+      () =>
+        this.taskDefinition.deleteTaskSheet().subscribe({
+          next: () => this.alerts.success('Deleted task sheet', 2000),
+          error: (message) => this.alerts.error(message, 6000),
+        }),
+    );
   }
 
   public removeTaskResources() {
-    this.taskDefinition.deleteTaskResources().subscribe({
-      next: () => this.alerts.success('Deleted task resources', 2000),
-      error: (message) => this.alerts.error(message, 6000),
-    });
+    this.confirmationModal.show(
+      'Delete task resources',
+      `Students will no longer be able to download the resources for ${this.taskDefinition.abbreviation}.`,
+      () =>
+        this.taskDefinition.deleteTaskResources().subscribe({
+          next: () => this.alerts.success('Deleted task resources', 2000),
+          error: (message) => this.alerts.error(message, 6000),
+        }),
+    );
   }
 
   public uploadTaskSheet(files: ArrayLike<File>) {
-    const validFiles = Array.from(files as ArrayLike<File>).filter(
-      (f) => f.type === 'application/pdf',
-    );
+    const validFiles = Array.from(files as ArrayLike<File>).filter(isPdfFile);
     if (validFiles.length > 0) {
       const file = validFiles[0];
       this.taskDefinitionService.uploadTaskSheet(this.taskDefinition, file).subscribe({
@@ -72,9 +86,7 @@ export class TaskDefinitionResourcesComponent {
   }
 
   public uploadTaskResources(files: ArrayLike<File>) {
-    const validFiles = Array.from(files as ArrayLike<File>).filter(
-      (f) => f.type === 'application/zip' || f.type === 'application/x-zip-compressed',
-    );
+    const validFiles = Array.from(files as ArrayLike<File>).filter(isZipFile);
     if (validFiles.length > 0) {
       const file = validFiles[0];
       this.taskDefinitionService.uploadTaskResources(this.taskDefinition, file).subscribe({

@@ -1,50 +1,62 @@
-.example-list {
-  width: 300px;
-  max-width: 100%;
-  border: solid 1px #ccc;
-  min-height: 50px;
-  height: 100%;
-  display: block;
-  background: white;
-  // border-radius: 4px;
-  overflow: hidden;
-}
-
-.example-box {
-  padding: 20px 10px;
-  border-bottom: solid 1px #ccc;
-  height: 50px;
-  color: rgba(0, 0, 0, 0.87);
+// A step in the list: a drag handle and the button that opens the step. The
+// row is a plain element, so only the button takes clicks and focus.
+.step-row {
   display: flex;
-  flex-direction: row;
+  min-height: 2.75rem;
   align-items: center;
-  // justify-content: space-between;
-  box-sizing: border-box;
-  cursor: pointer;
-  background: white;
-  font-size: 14px;
-  font-family: sans-serif;
-  user-select: none;
+  gap: 0.25rem;
+  padding: 0 0.5rem;
+  border-bottom: 1px solid var(--ot-color-divider);
+  background: var(--ot-color-surface);
+  color: var(--ot-color-text);
+
+  &:last-child {
+    border-bottom: 0;
+  }
 }
 
-.cdk-drag-preview {
-  border: none;
-  box-sizing: border-box;
-  border-radius: 4px;
-  box-shadow:
-    0 5px 5px -3px rgba(0, 0, 0, 0.2),
-    0 8px 10px 1px rgba(0, 0, 0, 0.14),
-    0 3px 14px 2px rgba(0, 0, 0, 0.12);
+.step-row__button {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 0.375rem;
+  border: 0;
+  border-radius: var(--ot-radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+
+  &:hover {
+    background: var(--ot-color-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: -2px;
+  }
 }
+
+// The row being dragged. CDK moves a copy of it to the end of the page.
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-sm);
+  box-shadow: var(--ot-elevation-1);
+}
+
 .cdk-drag-placeholder {
   opacity: 0;
 }
+
 .cdk-drag-animating {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
-.example-box:last-child {
-  border: none;
-}
-.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+
+.step-list.cdk-drop-list-dragging .step-row:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }

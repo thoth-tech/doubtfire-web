@@ -4,6 +4,7 @@ import {Task} from 'src/app/api/models/task';
 import {Unit} from 'src/app/api/models/unit';
 import {ProjectService} from 'src/app/api/services/project.service';
 import {TaskService} from 'src/app/api/services/task.service';
+import {PortfolioCelebrationService} from 'src/app/common/celebrate/portfolio-celebration.service';
 import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
 import {ConfirmationModalService} from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
 import {AlertService} from 'src/app/common/services/alert.service';
@@ -25,10 +26,10 @@ export class PortfolioReviewStepComponent implements OnInit {
   public canCreatePortfolio: boolean = false;
 
   public readonly icons: Record<string, string> = {
-    document: 'article_outlined',
-    code: 'integration_instructions_outlined',
-    image: 'image_outlined',
-    zip: 'zip_outlined',
+    document: 'description',
+    code: 'code',
+    image: 'image',
+    zip: 'folder_zip',
   };
 
   constructor(
@@ -38,6 +39,7 @@ export class PortfolioReviewStepComponent implements OnInit {
     private alertService: AlertService,
     private confirmationModal: ConfirmationModalService,
     private fileDownloaderService: FileDownloaderService,
+    private portfolioCelebration: PortfolioCelebrationService,
   ) {}
 
   ngOnInit(): void {
@@ -47,7 +49,10 @@ export class PortfolioReviewStepComponent implements OnInit {
   }
 
   public get hasLearningSummaryReport(): boolean {
-    return (this.project?.portfolioFiles ?? []).some((file) => file.idx === 0);
+    return Boolean(
+      this.project?.usesDraftLearningSummary ||
+      (this.project?.portfolioFiles ?? []).some((file) => file.idx === 0),
+    );
   }
 
   public get hasTasksSelected(): boolean {
@@ -88,11 +93,15 @@ export class PortfolioReviewStepComponent implements OnInit {
 
   public createPortfolio(): void {
     this.project.compilePortfolio = !this.project.compilePortfolio;
+    // Read before the update, so the count is what the student actually sent.
+    const included = this.selectedTasks;
 
     this.projectService.update(this.project).subscribe({
       next: () => {
         this.project.compilePortfolio = true;
         this.project.portfolioStatus = 0.5;
+        // The end of a whole unit. Everything else here gets a line of text.
+        this.portfolioCelebration.celebrate(this.project, included);
       },
       error: (error) => {
         this.project.compilePortfolio = false;
@@ -122,9 +131,10 @@ export class PortfolioReviewStepComponent implements OnInit {
 
   public downloadPortfolio(): void {
     const username = this.project?.student?.username ?? 'student';
-    this.fileDownloaderService.downloadFile(
+    this.fileDownloaderService.downloadFileWithFeedback(
       this.project.portfolioUrl(true),
       `${username}-portfolio.pdf`,
+      {requestKey: `portfolio-${this.project?.id ?? 'current'}`},
     );
   }
 

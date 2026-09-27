@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {TaskDefinition} from 'src/app/api/models/task-definition';
 import {Unit} from 'src/app/api/models/unit';
 
@@ -12,6 +12,4 @@ import {Unit} from 'src/app/api/models/unit';
 export class FTaskDetailsViewComponent {
   @Input() taskDef: TaskDefinition;
   @Input() unit: Unit;
-
-  public readonly panelOpenState = signal(false);
 }

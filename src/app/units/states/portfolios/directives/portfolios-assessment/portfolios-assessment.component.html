@@ -1,40 +1,94 @@
-<div class="p-3">
-  <h2>Grade for {{ project.student.name }}</h2>
-  <p>Assign grade for this project.</p>
-  <mat-form-field appearance="outline" class="w-full">
-    <mat-label>Rationale</mat-label>
-    <textarea matInput rows="5" [(ngModel)]="project.gradeRationale"></textarea>
-  </mat-form-field>
-  @for (group of gradeResults; track group) {
-    <div class="mt-3 flex items-center justify-between gap-1">
-      <div class="w-[200px]">
-        <strong>{{ group.name }}</strong>
+<section
+  aria-labelledby="portfolio-grade-heading"
+  class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+>
+  <div class="flex flex-col gap-6 p-5 sm:p-6">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="min-w-0">
+        <h2
+          class="m-0 text-lg leading-snug font-semibold text-ot-text"
+          id="portfolio-grade-heading"
+        >
+          Final grade
+        </h2>
+        <p class="m-0 mt-1 max-w-[65ch] text-sm leading-relaxed text-ot-muted">
+          Write your rationale, then choose a score. The grade is saved as soon as you choose the
+          score.
+        </p>
       </div>
 
-      <div class="flex flex-1 justify-end gap-1">
-        @for (score of group.scores; track score) {
-          <button
-            mat-raised-button
-            [color]="project.grade === score ? 'primary' : 'default'"
-            [disabled]="!project.gradeRationale"
-            [style.flex]="'0 0 ' + 100 / maxScoresPerRow + '%'"
-            [value]="score"
-            (click)="project.assignGrade(score, project.gradeRationale)"
-          >
-            {{ score }}
-          </button>
+      <div aria-live="polite" class="min-w-32 rounded-ot-md border border-ot-divider px-4 py-2.5">
+        <p class="m-0 text-xs text-ot-muted">Current grade</p>
+        @if (graded) {
+          <p class="m-0 text-2xl leading-tight font-semibold text-ot-text tabular-nums">
+            {{ project.grade }}
+          </p>
+          @if (currentBandLabel) {
+            <p class="m-0 text-sm text-ot-muted">{{ currentBandLabel }}</p>
+          }
+        } @else {
+          <p class="m-0 text-base font-medium text-ot-text">Not graded</p>
         }
       </div>
     </div>
-  }
-  <div class="mt-6 flex w-full justify-end">
+
+    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+      <mat-label>Rationale</mat-label>
+      <textarea
+        matInput
+        rows="5"
+        [ngModel]="rationale"
+        (ngModelChange)="onRationaleChange($event)"
+      ></textarea>
+      <mat-hint>Explain how the portfolio earns the grade. Only staff can see this.</mat-hint>
+    </mat-form-field>
+
+    <fieldset class="m-0 flex min-w-0 flex-col gap-4 border-0 p-0">
+      <legend class="mb-3 p-0 text-sm font-semibold text-ot-text">Score</legend>
+      @for (band of gradeResults; track band.name) {
+        <div class="grid gap-2 sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-center">
+          <p class="m-0 text-sm" [id]="'portfolio-grade-band-' + $index">
+            <span class="font-medium text-ot-text">{{ bandLabel(band) }}</span>
+            <span class="text-ot-muted"> ({{ bandRange(band) }})</span>
+          </p>
+          <div
+            class="flex flex-wrap gap-1.5"
+            role="group"
+            [attr.aria-labelledby]="'portfolio-grade-band-' + $index"
+          >
+            @for (score of band.scores; track score) {
+              <button
+                class="h-10 min-w-12 rounded-ot-sm border px-3 text-sm font-medium tabular-nums focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ot-focus disabled:cursor-not-allowed"
+                type="button"
+                [attr.aria-pressed]="isSelected(score)"
+                [disabled]="!canChooseScore"
+                [ngClass]="
+                  isSelected(score)
+                    ? 'border-ot-primary bg-ot-primary text-ot-on-primary'
+                    : 'border-ot-border bg-ot-surface text-ot-text enabled:hover:bg-ot-hover disabled:border-ot-divider disabled:bg-(--ot-color-disabled-surface) disabled:text-(--ot-color-disabled-text)'
+                "
+                (click)="chooseScore(score)"
+              >
+                {{ score }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </fieldset>
+  </div>
+
+  <footer class="flex flex-wrap items-center gap-3 border-t border-ot-divider px-5 py-3 sm:px-6">
+    <span class="text-sm text-ot-muted">{{ statusMessage }}</span>
+    <span class="flex-1"></span>
     <button
       color="primary"
-      mat-raised-button
-      [disabled]="!project.gradeRationale"
-      (click)="project.assignGrade(project.grade, project.gradeRationale)"
+      mat-flat-button
+      type="button"
+      [disabled]="!canSaveRationale"
+      (click)="saveRationale()"
     >
-      Save
+      Save rationale
     </button>
-  </div>
-</div>
+  </footer>
+</section>

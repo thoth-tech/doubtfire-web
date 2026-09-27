@@ -1,73 +1,77 @@
 .audio-comment-container {
-  button:focus {
-    outline: 0;
-  }
-
-  button.play-button {
-    border: none;
-    background-image: none;
-    background-color: transparent;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
-
-    mat-icon {
-      font-size: 25px;
-      height: 25px;
-      margin-left: -5px;
-      width: 25px;
-    }
-  }
-
-  // display: flex;
-  vertical-align: middle;
-  padding: 0%;
+  display: flex;
+  align-items: center;
   width: 100%;
+  min-width: 180px;
+  gap: 6px;
 
-  mat-icon {
+  .play-button {
+    display: inline-flex;
+    flex: 0 0 36px;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
     color: white;
+    cursor: pointer;
   }
 
-  p#currentTime {
-    float: right;
-    white-space: nowrap;
-    font-size: 12px;
-    transform: translateY(16%);
-    padding-left: 10px;
+  .play-button:focus-visible,
+  .waveform:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
   }
 
-  .progress-bar-container {
-    &:hover {
-      cursor: pointer;
-    }
+  .play-button mat-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+  }
+}
 
-    background-color: white;
-    width: 100%;
-    height: 8px;
-    border-radius: 10px;
-    margin-bottom: 3px;
+.waveform-and-time {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 
-    .progress {
-      box-shadow: 0px;
-    }
-  }
-  /* TODO(mdc-migration): The following rule targets internal classes of progress-bar that may no longer apply for the MDC version.*/
-  /* TODO(mdc-migration): The following rule targets internal classes of progress-bar that may no longer apply for the MDC version.*/
-  :ng-deep .mat-progress-bar-fill::after {
-    background-color: white;
-  }
-  /* TODO(mdc-migration): The following rule targets internal classes of progress-bar that may no longer apply for the MDC version.*/
-  /* TODO(mdc-migration): The following rule targets internal classes of progress-bar that may no longer apply for the MDC version.*/
-  :ng-deep .mat-progress-bar-buffer {
-    background: #2650c3;
-  }
-  /* TODO(mdc-migration): The following rule targets internal classes of progress-bar that may no longer apply for the MDC version.*/
-  /* TODO(mdc-migration): The following rule targets internal classes of progress-bar that may no longer apply for the MDC version.*/
-  :ng-deep .mat-progress-bar-primary.mat-progress-bar-fill.mat-progress-bar-element {
-    pointer-events: none;
-  }
-  #progressContainer {
-    width: 100%;
-    background-color: red;
-  }
+.waveform {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 28px;
+  gap: 2px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.waveform-bar {
+  flex: 1 1 0;
+  min-width: 1px;
+  max-width: 4px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.42);
+  transition: background-color 80ms linear;
+}
+
+.waveform-bar.played {
+  background: white;
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -2px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.audio-error {
+  margin: 2px 0 0 42px;
+  color: currentColor;
+  font-size: 11px;
 }

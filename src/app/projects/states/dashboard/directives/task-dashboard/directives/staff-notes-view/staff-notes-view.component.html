@@ -1,9 +1,9 @@
-<div class="h-[calc(100%-50px)] p-2.5">
-  <div class="flex items-center">
-    <mat-icon class="mr-1">comment</mat-icon>
-    <h1 class="mat-headline m-0">Student Notes for {{ project?.student?.name }}</h1>
-  </div>
-  <p>Use these notes for private staff discussions about the student. Students cannot view them.</p>
+<header class="shrink-0 border-b border-ot-divider px-4 pt-4 pb-3">
+  <h2 class="m-0 truncate text-lg leading-snug font-semibold text-ot-text">Student notes</h2>
+  <p class="m-0 mt-1 text-sm text-ot-muted">
+    Private notes about {{ project?.student?.name ?? 'this student' }} for staff. Students cannot
+    see them.
+  </p>
+</header>
 
-  <f-staff-notes [project]="project"></f-staff-notes>
-</div>
+<f-staff-notes class="flex min-h-0 flex-1 flex-col" [project]="project"></f-staff-notes>

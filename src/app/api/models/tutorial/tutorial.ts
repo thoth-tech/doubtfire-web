@@ -58,7 +58,9 @@ export class Tutorial extends Entity {
       campusPart = '';
     }
 
-    return `${this.meetingDay.slice(0, 3)} at ${this.meetingTime} by ${this.tutorName} in ${
+    // A tutorial can be saved without a meeting day, which made slice() throw.
+    const day = this.meetingDay ? this.meetingDay.slice(0, 3) : 'No day set';
+    return `${day} at ${this.meetingTime} by ${this.tutorName} in ${
       this.meetingLocation
     }${campusPart}`;
   }

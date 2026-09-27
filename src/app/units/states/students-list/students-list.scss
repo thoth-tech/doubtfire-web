@@ -1,0 +1,39 @@
+// Toolbar fields run at 48px (Material density -2), the same as the student
+// dashboard, so the search lines up with the tutorial toggle beside it.
+.students-toolbar .mat-mdc-form-field {
+  --mat-form-field-container-height: 48px;
+  --mat-form-field-container-vertical-padding: 12px;
+}
+
+// The campus and tutorial pickers sit in every row, so they run at 40px to keep
+// the rows close to a plain table row instead of a stack of full-size forms.
+.table-field {
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-container-vertical-padding: 8px;
+}
+
+// The table sits on the card's surface: quiet column headings, and row rules on
+// the divider token so they read the same in light and dark.
+.students-table {
+  --mat-table-row-item-outline-color: var(--ot-color-divider);
+  --mat-table-header-headline-color: var(--ot-color-text-muted);
+  --mat-table-row-item-label-text-color: var(--ot-color-text);
+
+  // Eight columns at Material's 16px a side ran wider than the page on a laptop.
+  // 12px between columns lets the whole row fit at desktop width; the outer edges
+  // keep 16px so the table still lines up with the card.
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding-inline: 12px;
+  }
+
+  .mat-mdc-header-cell:first-child,
+  .mat-mdc-cell:first-child {
+    padding-left: 16px;
+  }
+
+  .mat-mdc-header-cell:last-child,
+  .mat-mdc-cell:last-child {
+    padding-right: 16px;
+  }
+}

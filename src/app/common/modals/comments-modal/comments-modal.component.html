@@ -1,11 +1,40 @@
-<div class="p-3.5">
-  @if (taskComment.commentType === 'image') {
-    <img
-      alt="Image attachment"
-      class="size-full rounded border-none p-0"
-      [src]="commentResourceUrl"
-    />
-  } @else if (taskComment.commentType === 'pdf') {
-    <f-pdf-viewer class="block h-[85vh] w-full" [pdfUrl]="commentResourceUrl"> </f-pdf-viewer>
-  }
-</div>
+<article aria-labelledby="comments-modal-title" class="comments-modal">
+  <header class="comments-modal__header">
+    <div class="comments-modal__heading">
+      <mat-icon aria-hidden="true">{{
+        taskComment.commentType === 'pdf' ? 'picture_as_pdf' : 'image'
+      }}</mat-icon>
+      <div>
+        <h2 id="comments-modal-title">{{ fileName }}</h2>
+        <p>
+          {{
+            taskComment.commentType === 'pdf'
+              ? 'PDF attachment preview'
+              : 'Image attachment preview'
+          }}
+        </p>
+      </div>
+    </div>
+    <button
+      aria-label="Close attachment preview"
+      class="comments-modal__close"
+      mat-icon-button
+      type="button"
+      (click)="close()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="comments-modal__content">
+    @if (taskComment.commentType === 'image') {
+      <img alt="Image attachment" class="comments-modal__image" [src]="commentResourceUrl" />
+    } @else if (taskComment.commentType === 'pdf') {
+      <f-pdf-viewer
+        class="comments-modal__pdf"
+        [filename]="fileName"
+        [pdfUrl]="commentResourceUrl"
+      ></f-pdf-viewer>
+    }
+  </div>
+</article>

@@ -11,6 +11,8 @@ import {
 import {Task, TaskComment, TaskCommentService} from 'src/app/api/models/doubtfire-model';
 import {BaseAudioRecorderComponent} from 'src/app/common/audio-recorder/audio/base-audio-recorder';
 import {AlertService} from 'src/app/common/services/alert.service';
+import {AppLifecycleService} from 'src/app/common/services/app-lifecycle.service';
+import {AudioPlaybackCoordinatorService} from 'src/app/common/services/audio-playback-coordinator.service';
 import {MediaRecorderService} from 'src/app/common/services/recorder-service';
 
 @Component({
@@ -47,8 +49,10 @@ export class DiscussionPromptComposerComponent
     private mediaRecorderService: MediaRecorderService,
     @Inject(TaskCommentService) private taskCommentService: TaskCommentService,
     private alerts: AlertService,
+    playbackCoordinator: AudioPlaybackCoordinatorService,
+    appLifecycle: AppLifecycleService,
   ) {
-    super(mediaRecorderService);
+    super(mediaRecorderService, playbackCoordinator, appLifecycle);
   }
 
   // We have to use ngAfterViewInit
@@ -60,13 +64,21 @@ export class DiscussionPromptComposerComponent
   }
 
   ngOnDestroy(): void {
+    if (this.audio) {
+      this.audio.onpause = null;
+      this.audio.onended = null;
+    }
+    super.ngOnDestroy();
     this.recordings.forEach((recording) => URL.revokeObjectURL(recording.url));
   }
 
   init(): void {
     super.init();
-    this.audio = this.audioRef.nativeElement;
+    this.attachAudio(this.audioRef.nativeElement);
     this.audio.onended = () => {
+      this.playingRecordingIndex = null;
+    };
+    this.audio.onpause = () => {
       this.playingRecordingIndex = null;
     };
     this.canvas = this.canvasRef.nativeElement;
@@ -88,7 +100,8 @@ export class DiscussionPromptComposerComponent
     this.playingRecordingIndex = index;
     this.audio.src = recording.url;
     this.audio.load();
-    this.audio.play();
+    this.recordingAvailable = true;
+    void this.playStop();
   }
 
   deleteRecording(index: number): void {
@@ -110,17 +123,12 @@ export class DiscussionPromptComposerComponent
   saveRecording(): void {
     if (this.blob && this.blob.size > 0) {
       if (this.canAddRecording) {
-        this.audio.pause();
-        this.audio.removeAttribute('src');
-        this.audio.load();
-        this.playingRecordingIndex = null;
         this.recordings.push({
           blob: this.blob,
           url: URL.createObjectURL(this.blob),
         });
       }
-      this.blob = new Blob();
-      this.recordingAvailable = false;
+      this.discardRecording();
     }
   }
 
@@ -152,18 +160,23 @@ export class DiscussionPromptComposerComponent
     const draw = () => {
       const WIDTH = this.canvas.width;
       const HEIGHT = this.canvas.height;
-      requestAnimationFrame(draw);
+      this.scheduleVisualisationFrame(draw);
       analyser.getByteTimeDomainData(dataArray);
       analyser.getByteFrequencyData(dataArray);
 
       this.canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+      // Resolve the fill from the theme token once per frame so the waveform flips with the
+      // panel, rather than baking in a literal blue on every bar.
+      const fill =
+        getComputedStyle(document.documentElement).getPropertyValue('--ot-color-primary').trim() ||
+        '#2563eb';
       let i = 0;
       const bar_width = 0.5;
       while (i < WIDTH) {
         const bar_x = i * 8;
         const bar_y = HEIGHT / 2;
         const bar_height = -(dataArray[i] / 4) + 1;
-        this.canvasCtx.fillStyle = '#2563eb';
+        this.canvasCtx.fillStyle = fill;
         this.canvasCtx.fillRect(bar_x, bar_y, bar_width, bar_height);
         this.canvasCtx.fillRect(bar_x, bar_y - bar_height, bar_width, bar_height);
         i++;

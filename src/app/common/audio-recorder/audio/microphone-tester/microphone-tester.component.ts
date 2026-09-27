@@ -7,6 +7,8 @@ import {
   ViewChild,
 } from '@angular/core';
 import {Task} from 'src/app/api/models/doubtfire-model';
+import {AppLifecycleService} from 'src/app/common/services/app-lifecycle.service';
+import {AudioPlaybackCoordinatorService} from 'src/app/common/services/audio-playback-coordinator.service';
 import {MediaRecorderService} from 'src/app/common/services/recorder-service';
 import {BaseAudioRecorderComponent} from '../base-audio-recorder';
 
@@ -25,8 +27,12 @@ export class MicrophoneTesterComponent extends BaseAudioRecorderComponent implem
   canvasCtx: CanvasRenderingContext2D;
   isSending: boolean = false;
 
-  constructor(private mediaRecorderService: MediaRecorderService) {
-    super(mediaRecorderService);
+  constructor(
+    private mediaRecorderService: MediaRecorderService,
+    playbackCoordinator: AudioPlaybackCoordinatorService,
+    appLifecycle: AppLifecycleService,
+  ) {
+    super(mediaRecorderService, playbackCoordinator, appLifecycle);
   }
 
   ngAfterViewInit() {
@@ -38,7 +44,7 @@ export class MicrophoneTesterComponent extends BaseAudioRecorderComponent implem
   init(): void {
     super.init();
     this.canvas = this.canvasRef.nativeElement;
-    this.audio = this.audioRef.nativeElement;
+    this.attachAudio(this.audioRef.nativeElement);
     this.canvasCtx = this.canvas.getContext('2d');
   }
 
@@ -56,7 +62,7 @@ export class MicrophoneTesterComponent extends BaseAudioRecorderComponent implem
 
       this.canvas.width = WIDTH = this.canvas.clientWidth;
       this.canvas.height = HEIGHT = this.canvas.clientHeight;
-      requestAnimationFrame(draw);
+      this.scheduleVisualisationFrame(draw);
       analyser.getByteTimeDomainData(dataArray);
       analyser.getByteFrequencyData(dataArray);
 

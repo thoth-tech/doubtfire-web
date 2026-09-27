@@ -1,0 +1,30 @@
+<button
+  class="sent-attachment-card"
+  type="button"
+  [attr.aria-busy]="busy"
+  [attr.aria-label]="accessibleLabel"
+  [class.sent-attachment-card--other]="!comment?.authorIsMe"
+  [class.sent-attachment-card--own]="comment?.authorIsMe"
+  [disabled]="busy"
+  (click)="onActivate()"
+>
+  <span aria-hidden="true" class="sent-attachment-card__file-mark">
+    <mat-icon>{{ icon }}</mat-icon>
+    <span class="sent-attachment-card__type">{{ fileTypeLabel }}</span>
+  </span>
+
+  <span class="sent-attachment-card__details">
+    <span class="sent-attachment-card__name" [title]="fileName">{{ fileName }}</span>
+    <span class="sent-attachment-card__meta">
+      {{ fileTypeLabel }} attachment
+      @if (formattedSize) {
+        <span aria-hidden="true"> · </span><span>{{ formattedSize }}</span>
+      }
+    </span>
+  </span>
+
+  <span aria-hidden="true" class="sent-attachment-card__action">
+    <mat-icon>{{ action === 'preview' ? 'visibility' : 'download' }}</mat-icon>
+    <span>{{ actionLabel }}</span>
+  </span>
+</button>

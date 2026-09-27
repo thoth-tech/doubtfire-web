@@ -1,0 +1,216 @@
+// The step list. Five equal columns, each a numbered marker with the step name
+// under it, joined by a line that fills in up to the step on screen.
+$marker-size: 2rem;
+$marker-size-phone: 1.75rem;
+$connector-gap: 0.375rem;
+
+.portfolio-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portfolio-steps__item {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  justify-content: center;
+}
+
+// The line into this step, from the previous marker's edge to this one's.
+.portfolio-steps__item + .portfolio-steps__item::before {
+  position: absolute;
+  top: calc($marker-size / 2 - 1px);
+  right: calc(50% + $marker-size / 2 + $connector-gap);
+  left: calc(-50% + $marker-size / 2 + $connector-gap);
+  height: 2px;
+  border-radius: var(--ot-radius-pill);
+  background: var(--ot-color-divider);
+  content: '';
+}
+
+.portfolio-steps__item--reached + .portfolio-steps__item--reached::before {
+  background: var(--ot-color-primary);
+}
+
+.portfolio-step {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.25rem 0.25rem;
+  border: 0;
+  border-radius: var(--ot-radius-sm);
+  background: transparent;
+  color: var(--ot-color-text);
+  font: inherit;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.portfolio-step__marker {
+  display: inline-flex;
+  width: $marker-size;
+  height: $marker-size;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-circle);
+  background: var(--ot-color-surface);
+  color: var(--ot-color-text);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+
+  .mat-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    font-size: 1.125rem;
+  }
+}
+
+.portfolio-step__label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.portfolio-step--open:hover .portfolio-step__marker,
+.portfolio-step--done:hover .portfolio-step__marker {
+  box-shadow: 0 0 0 4px var(--ot-color-hover);
+}
+
+.portfolio-step--current {
+  .portfolio-step__marker {
+    // The link blue is the lighter of the two in dark, so the ring stays visible on
+    // the slate surface; in light the two tokens are the same colour.
+    border-color: var(--ot-color-link);
+    background: var(--ot-color-primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ot-color-primary) 20%, transparent);
+    color: var(--ot-color-on-primary);
+  }
+
+  .portfolio-step__label {
+    font-weight: 600;
+  }
+}
+
+// The tick uses the link blue: the primary blue sits under 3:1 on the dark surface.
+.portfolio-step--done .portfolio-step__marker {
+  border-color: var(--ot-color-link);
+  background: color-mix(in srgb, var(--ot-color-primary) 12%, var(--ot-color-surface));
+  color: var(--ot-color-link);
+}
+
+// Locked steps are quieter but stay readable: muted text, which clears 4.5:1 on the
+// surface in both themes, instead of the old disabled grey.
+.portfolio-step--locked {
+  color: var(--ot-color-text-muted);
+
+  .portfolio-step__marker {
+    border-color: var(--ot-color-divider);
+    color: var(--ot-color-text-muted);
+  }
+}
+
+@media (max-width: 639.98px) {
+  .portfolio-steps__item + .portfolio-steps__item::before {
+    top: calc($marker-size-phone / 2 - 1px);
+    right: calc(50% + $marker-size-phone / 2 + $connector-gap);
+    left: calc(-50% + $marker-size-phone / 2 + $connector-gap);
+  }
+
+  .portfolio-step__marker {
+    width: $marker-size-phone;
+    height: $marker-size-phone;
+    font-size: 0.8125rem;
+  }
+
+  // The phone names only the current step, in the line under the markers.
+  .portfolio-step__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-step__marker {
+    transition: none;
+  }
+}
+
+.portfolio-mobile-stepper {
+  align-items: center;
+  background: var(--ot-color-surface);
+  border-block: 1px solid var(--ot-color-divider);
+  display: none;
+  gap: 0.5rem;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  margin-block-end: 0.75rem;
+  min-width: 0;
+  padding: 0.5rem max(0.5rem, env(safe-area-inset-right)) 0.5rem
+    max(0.5rem, env(safe-area-inset-left));
+  width: 100%;
+}
+
+.portfolio-mobile-stepper__current {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+  text-align: center;
+}
+
+.portfolio-mobile-stepper__current span {
+  color: var(--ot-color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.portfolio-mobile-stepper__current strong {
+  overflow-wrap: anywhere;
+}
+
+.portfolio-step-content {
+  display: block;
+  min-width: 0;
+}
+
+@media (max-width: 639.98px) {
+  .portfolio-mobile-stepper {
+    display: grid;
+  }
+
+  .portfolio-desktop-stepper {
+    display: none;
+  }
+}
+
+.portfolio-mobile-stepper button {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+}

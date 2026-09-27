@@ -49,34 +49,34 @@ export class EngagementPassportCardComponent implements OnChanges {
   private readonly fallbackPresentation: EngagementPresentation = {
     label: 'Other engagement',
     icon: 'star',
-    classes: 'border-gray-300 bg-gray-50 text-gray-700',
+    classes: 'border-ot-border bg-ot-raised text-ot-muted',
   };
 
   private readonly presentations: Record<string, EngagementPresentation> = {
     attendance: {
       label: 'Class attendance',
       icon: 'groups',
-      classes: 'border-green-300 bg-green-50 text-green-700',
+      classes: 'border-ot-success bg-ot-raised text-ot-success',
     },
     discussion: {
       label: 'Discussion',
       icon: 'record_voice_over',
-      classes: 'border-cyan-300 bg-cyan-50 text-cyan-700',
+      classes: 'border-ot-info bg-ot-raised text-ot-info',
     },
     forum: {
       label: 'Forum post',
       icon: 'forum',
-      classes: 'border-blue-300 bg-blue-50 text-blue-700',
+      classes: 'border-ot-link bg-ot-raised text-ot-link',
     },
     email: {
       label: 'Tutor email',
       icon: 'mail',
-      classes: 'border-violet-300 bg-violet-50 text-violet-700',
+      classes: 'border-ot-primary bg-ot-raised text-ot-primary',
     },
     attention: {
       label: 'Needs attention',
       icon: 'feedback',
-      classes: 'border-yellow-300 bg-yellow-50 text-yellow-700',
+      classes: 'border-ot-warning bg-ot-raised text-ot-warning',
     },
   };
 
@@ -92,6 +92,10 @@ export class EngagementPassportCardComponent implements OnChanges {
 
   get currentWeek(): number | null {
     return this.project?.unit?.currentUnitWeek ?? null;
+  }
+
+  get hasStamps(): boolean {
+    return this.weeks.some((week) => week.stamps.length > 0);
   }
 
   get currentUserCanAddEngagement(): boolean {

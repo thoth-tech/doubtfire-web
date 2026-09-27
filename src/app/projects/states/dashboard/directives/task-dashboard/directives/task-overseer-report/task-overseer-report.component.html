@@ -1,133 +1,203 @@
-<div class="mb-3 flex justify-end">
-  <button mat-stroked-button (click)="loadHistory(true)">Refresh</button>
-</div>
-@if (loading) {
-  <div class="flex min-h-[240px] items-center justify-center">
-    <mat-spinner [diameter]="48"></mat-spinner>
+<!-- In a dialog the title is the dialog's own and the dialog pads its content. -->
+<header
+  class="flex shrink-0 items-start justify-between gap-2 pb-3"
+  [ngClass]="inDialog ? 'pt-0' : 'px-4 pt-4'"
+>
+  <div class="min-w-0">
+    @if (!inDialog) {
+      <h2 class="m-0 mb-1 truncate text-lg leading-snug font-semibold text-ot-text">
+        Submission history
+      </h2>
+    }
+    <p aria-live="polite" class="m-0 text-sm text-ot-muted">{{ historySummary }}</p>
   </div>
-} @else {
-  <mat-accordion>
-    @for (history of histories; track history.id; let idx = $index) {
-      <mat-expansion-panel
-        [attr.id]="'history-panel-' + history.id"
-        [expanded]="
-          assessmentFor(history) && assessmentFor(history)?.id === loadOverseerAssessmentId
-        "
-        [hideToggle]="!assessmentFor(history)"
-        (opened)="onHistoryOpen(history)"
-      >
-        <mat-expansion-panel-header class="flex items-center justify-between">
-          <mat-panel-title class="flex items-center gap-3">
-            @if (assessmentFor(history); as oa) {
-              @if (oa.taskStatus) {
+  <!-- disabledInteractive keeps focus on the button while it reloads. -->
+  <button
+    aria-label="Refresh history"
+    class="shrink-0"
+    mat-icon-button
+    matTooltip="Refresh history"
+    type="button"
+    [disabled]="loading"
+    [disabledInteractive]="true"
+    (click)="refreshHistory()"
+  >
+    <mat-icon aria-hidden="true">refresh</mat-icon>
+  </button>
+</header>
+
+<div class="min-h-0 flex-1 overflow-auto" [ngClass]="{'px-4 pb-4': !inDialog}">
+  @if (loading) {
+    <div
+      aria-label="Loading the submission history"
+      class="flex min-h-60 items-center justify-center"
+      role="status"
+    >
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+  } @else if (loadError) {
+    <div class="flex flex-col items-center">
+      <f-empty-state
+        hint="Check your connection, then try again."
+        icon="cloud_off"
+        message="The history did not load"
+      ></f-empty-state>
+      <button mat-stroked-button type="button" (click)="loadHistory()">Try again</button>
+    </div>
+  } @else if (histories.length === 0) {
+    <f-empty-state
+      hint="A copy is kept each time the student submits, for files the task marks Keep in history."
+      icon="history"
+      message="No earlier submissions"
+    ></f-empty-state>
+  } @else {
+    <mat-accordion class="flex flex-col gap-2" displayMode="flat">
+      @for (history of histories; track history.id; let idx = $index) {
+        @let oa = assessmentFor(history);
+        <mat-expansion-panel
+          class="history-panel rounded-ot-lg border border-ot-divider"
+          [attr.id]="'history-panel-' + history.id"
+          [expanded]="!!oa && oa.id === loadOverseerAssessmentId"
+          [hideToggle]="!oa"
+          (opened)="onHistoryOpen(history)"
+        >
+          <mat-expansion-panel-header class="min-h-16 gap-2 px-4 py-2">
+            <div class="flex min-w-0 flex-1 items-center gap-3">
+              @if (oa?.taskStatus) {
                 <status-icon [status]="oa.taskStatus"></status-icon>
               }
-            }
-            <div class="flex flex-col">
-              <div>
-                Submission {{ histories.length - idx }}
-                @if (idx === 0) {
-                  <span class="text-gray-500">(Most recent)</span>
-                }
-                @if (isComparisonSource(history)) {
-                  <span class="text-blue-600">(Selected for comparison)</span>
-                }
-              </div>
-              <div class="text-xs font-normal text-gray-500">
-                {{ history.timestamp | date: 'dd/MM/yyyy HH:mm' }}
+              <div class="min-w-0 flex-1">
+                <p
+                  class="m-0 flex flex-wrap items-baseline gap-x-1.5 text-sm font-medium text-ot-text"
+                >
+                  <span>Submission {{ histories.length - idx }}</span>
+                  @if (idx === 0) {
+                    <span class="font-normal text-ot-muted">(Most recent)</span>
+                  }
+                  @if (isComparisonSource(history)) {
+                    <span class="font-normal text-ot-link">(Selected for comparison)</span>
+                  }
+                </p>
+                <p class="m-0 text-xs text-ot-muted">
+                  {{ history.timestamp | date: 'dd/MM/yyyy HH:mm' }}
+                </p>
               </div>
             </div>
-          </mat-panel-title>
 
-          <div
-            class="flex items-center gap-3"
-            [ngClass]="{
-              'pr-15': !currentUnitRole,
-            }"
-          >
-            @if (assessmentFor(history); as oa) {
-              @if (oa.reportReady) {
-                <span class="text-xs text-gray-500">Click to view Overseer report</span>
-                <span class="text-gray-500"> {{ oa.passedSteps }} / {{ oa.totalSteps }}</span>
-                @if (oa.passedSteps === oa.totalSteps) {
-                  <mat-icon color="primary">done</mat-icon>
+            <div class="flex shrink-0 items-center gap-1">
+              @if (oa) {
+                @if (oa.reportReady) {
+                  <span
+                    class="flex items-center gap-1 text-xs text-ot-muted"
+                    role="img"
+                    [attr.aria-label]="overseerResultLabel(oa)"
+                    [matTooltip]="overseerResultLabel(oa)"
+                  >
+                    <span aria-hidden="true" class="tabular-nums">
+                      {{ oa.passedSteps }}/{{ oa.totalSteps }}
+                    </span>
+                    <mat-icon
+                      aria-hidden="true"
+                      class="!size-5 !text-xl"
+                      [ngClass]="
+                        oa.passedSteps === oa.totalSteps ? 'text-ot-success' : 'text-ot-error'
+                      "
+                    >
+                      {{ oa.passedSteps === oa.totalSteps ? 'check_circle' : 'cancel' }}
+                    </mat-icon>
+                  </span>
                 } @else {
-                  <mat-icon color="warn">cancel</mat-icon>
+                  <span class="flex items-center gap-2 text-xs text-ot-muted">
+                    <mat-progress-spinner
+                      aria-hidden="true"
+                      mode="indeterminate"
+                      [diameter]="16"
+                    ></mat-progress-spinner>
+                    <span class="sr-only sm:not-sr-only">Tests in progress</span>
+                  </span>
                 }
-              } @else {
-                <span class="flex items-center gap-3 uppercase">
-                  Tests In Progress
-                  <mat-progress-spinner mode="indeterminate" [diameter]="25"></mat-progress-spinner>
-                </span>
               }
-            }
 
-            @if (history.hasSubmissionFiles && currentUnitRole) {
-              <button
-                #submissionMenuTrigger="matMenuTrigger"
-                aria-label="Submission options"
-                mat-icon-button
-                [matMenuTriggerFor]="menu"
-                (click)="viewSubmissionOptions($event)"
-              >
-                <mat-icon>more_vert</mat-icon>
-              </button>
-              <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="viewSubmissionFiles(history, $event)">
-                  <mat-icon>folder_zip</mat-icon>
-                  View Submission Files
+              @if (history.hasSubmissionFiles && currentUnitRole) {
+                <!-- The header toggles on Enter and Space and eats the key, so stop it
+                     there or the menu can never be opened from the keyboard. -->
+                <button
+                  #submissionMenuTrigger="matMenuTrigger"
+                  aria-label="Submission options"
+                  mat-icon-button
+                  matTooltip="Submission options"
+                  type="button"
+                  [matMenuTriggerFor]="menu"
+                  (click)="viewSubmissionOptions($event)"
+                  (keydown.enter)="$event.stopPropagation()"
+                  (keydown.space)="$event.stopPropagation()"
+                >
+                  <mat-icon aria-hidden="true">more_vert</mat-icon>
                 </button>
-                @if (hasComparisonSourceFor(history)) {
-                  <button mat-menu-item (click)="compareWithSelected(history, $event)">
-                    <mat-icon>compare_arrows</mat-icon>
-                    Compare With Selected
-                  </button>
-                } @else if (isComparisonSource(history)) {
-                  <button mat-menu-item (click)="clearComparisonSource($event)">
-                    <mat-icon>close</mat-icon>
-                    Clear Compare Selection
-                  </button>
-                } @else {
+                <mat-menu #menu="matMenu" xPosition="before">
                   <button
                     mat-menu-item
-                    (click)="selectComparisonSource(history, $event, submissionMenuTrigger)"
+                    type="button"
+                    (click)="viewSubmissionFiles(history, $event)"
                   >
-                    <mat-icon>task_alt</mat-icon>
-                    Select For Comparison
+                    <mat-icon aria-hidden="true">folder_zip</mat-icon>
+                    <span>View submission files</span>
                   </button>
-                }
-              </mat-menu>
-            }
-          </div>
-        </mat-expansion-panel-header>
+                  @if (hasComparisonSourceFor(history)) {
+                    <button
+                      mat-menu-item
+                      type="button"
+                      (click)="compareWithSelected(history, $event)"
+                    >
+                      <mat-icon aria-hidden="true">compare_arrows</mat-icon>
+                      <span>Compare with selected</span>
+                    </button>
+                  } @else if (isComparisonSource(history)) {
+                    <button mat-menu-item type="button" (click)="clearComparisonSource($event)">
+                      <mat-icon aria-hidden="true">close</mat-icon>
+                      <span>Clear compare selection</span>
+                    </button>
+                  } @else {
+                    <button
+                      mat-menu-item
+                      type="button"
+                      (click)="selectComparisonSource(history, $event, submissionMenuTrigger)"
+                    >
+                      <mat-icon aria-hidden="true">task_alt</mat-icon>
+                      <span>Select for comparison</span>
+                    </button>
+                  }
+                </mat-menu>
+              }
+            </div>
+          </mat-expansion-panel-header>
 
-        @if (assessmentFor(history); as oa) {
-          <div class="mb-4">
-            <mat-accordion>
+          @if (oa) {
+            <mat-accordion class="flex flex-col gap-2" displayMode="flat">
               @for (
                 result of oa.stepResultsCache.values | async;
                 track result.id;
-                let idx = $index
+                let stepIdx = $index
               ) {
-                <mat-expansion-panel>
-                  <mat-expansion-panel-header class="flex items-center justify-between">
-                    <mat-panel-title>
-                      Step {{ idx + 1 }}: {{ result.overseerStep?.displayName }}</mat-panel-title
-                    >
-                    <div class="mr-9">
-                      @if (result.pass) {
-                        <mat-icon color="primary">done</mat-icon>
-                      } @else {
-                        <mat-icon color="warn">cancel</mat-icon>
-                      }
+                <mat-expansion-panel class="history-panel rounded-ot-md border border-ot-divider">
+                  <mat-expansion-panel-header class="min-h-12 gap-2 px-4 py-2">
+                    <div class="flex min-w-0 flex-1 items-center gap-2">
+                      <span class="min-w-0 flex-1 text-sm font-medium wrap-anywhere text-ot-text">
+                        Step {{ stepIdx + 1 }}: {{ result.overseerStep?.displayName }}
+                      </span>
+                      <mat-icon
+                        aria-hidden="true"
+                        class="shrink-0"
+                        [ngClass]="result.pass ? 'text-ot-success' : 'text-ot-error'"
+                      >
+                        {{ result.pass ? 'check_circle' : 'cancel' }}
+                      </mat-icon>
+                      <span class="sr-only">{{ result.pass ? 'Passed' : 'Failed' }}</span>
                     </div>
                   </mat-expansion-panel-header>
 
-                  <!-- <p>Exit Status: {{ result.exitStatus }}</p> -->
-                  <!-- <p>Pass?: {{ result.pass }}</p> -->
-
                   @if (!result.pass) {
-                    <p class="text-normal w-full p-1 text-left tracking-wide text-gray-500">
+                    <p class="m-0 mb-3 text-sm wrap-anywhere text-ot-muted">
                       {{ result.feedbackMessage }}
                     </p>
                   }
@@ -137,36 +207,46 @@
                     result.expectedOutput !== result.stdout &&
                     (result.overseerStep?.stepType === 'output_diff' || !result.overseerStep)
                   ) {
-                    <div class="w-fill mb-3 flex items-center justify-center gap-1">
+                    <div
+                      aria-label="Output to show"
+                      class="mb-3 flex flex-wrap items-center justify-center gap-2"
+                      role="group"
+                    >
                       <button
                         mat-stroked-button
+                        type="button"
+                        [attr.aria-pressed]="viewOutput === 'your_output'"
                         [color]="viewOutput === 'your_output' ? 'primary' : undefined"
                         (click)="submissionOutput()"
                       >
-                        Your Output
+                        Your output
                       </button>
-
                       <button
                         mat-stroked-button
+                        type="button"
+                        [attr.aria-pressed]="viewOutput === 'expected_output'"
                         [color]="viewOutput === 'expected_output' ? 'primary' : undefined"
                         (click)="expectedOutput()"
                       >
-                        Expected Output
+                        Expected output
                       </button>
                       <button
                         mat-stroked-button
+                        type="button"
+                        [attr.aria-pressed]="viewOutput === 'diff'"
                         [color]="viewOutput === 'diff' ? 'primary' : undefined"
                         (click)="diff()"
                       >
                         Diff
                       </button>
-
                       <button
                         mat-stroked-button
+                        type="button"
+                        [attr.aria-pressed]="viewOutput === 'split_diff'"
                         [color]="viewOutput === 'split_diff' ? 'primary' : undefined"
                         (click)="splitDiff()"
                       >
-                        Split Diff
+                        Split diff
                       </button>
                     </div>
                     @if (viewOutput === 'diff' || viewOutput === 'split_diff') {
@@ -185,76 +265,72 @@
                       }
                     } @else if (viewOutput === 'your_output') {
                       <ngx-monaco-editor
-                        class="w-full p-3"
+                        class="w-full"
                         [options]="editorOptions"
                         [(ngModel)]="result.stdout"
                       ></ngx-monaco-editor>
                     } @else if (viewOutput === 'expected_output') {
                       <ngx-monaco-editor
-                        class="w-full p-3"
+                        class="w-full"
                         [options]="editorOptions"
                         [(ngModel)]="result.expectedOutput"
                       ></ngx-monaco-editor>
                     }
                   } @else if (result.stdout) {
                     <pre
-                      class="max-h-64 max-w-full scrollbar-gutter-stable overflow-auto rounded-md border border-gray-200 bg-gray-50 p-3 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-gray-800 shadow-inner"
+                      class="m-0 max-h-64 max-w-full scrollbar-gutter-stable overflow-auto rounded-ot-md border border-ot-divider bg-ot-code p-3 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-ot-text shadow-inner"
                     ><code [innerHTML]="renderOutput(result.stdout)"></code></pre>
                   } @else if (result.pass) {
-                    <div class="w-full text-center tracking-wide text-gray-400 uppercase">
-                      SUCCESS
-                    </div>
-                    <div
-                      class="text-normal w-full p-1 text-center tracking-wide text-gray-200 uppercase"
-                    >
-                      (No Output)
-                    </div>
+                    <p class="m-0 text-sm text-ot-muted">Passed with no output.</p>
                   }
                 </mat-expansion-panel>
               }
               @if (loadingAssessments.has(oa.id)) {
-                <div class="flex w-full items-center justify-center">
-                  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+                <div
+                  aria-label="Loading the Overseer steps"
+                  class="flex justify-center py-3"
+                  role="status"
+                >
+                  <mat-progress-spinner mode="indeterminate" [diameter]="32"></mat-progress-spinner>
                 </div>
               } @else {
-                @for (skipped of oa.stepsSkipped; track skipped.id; let idx = $index) {
+                @for (skipped of oa.stepsSkipped; track skipped.id; let skippedIdx = $index) {
                   <!-- TODO: filter oa.stepsSkipped, if this overseer assessment passed, then we can ignore this (dont render) skipped step -->
                   <!-- TODO: because it proably means the test was added after the assessment -->
-                  <mat-expansion-panel disabled>
-                    <mat-expansion-panel-header class="flex items-center justify-between">
-                      <mat-panel-title>
-                        Step {{ oa.stepResultsCache.currentValues.length + idx + 1 }}:
-                        {{ skipped?.displayName ?? '-' }}
-                        <span class="ml-3 italic">(Skipped)</span>
-                      </mat-panel-title>
-
-                      <mat-icon class="opacity-80">pause</mat-icon>
+                  <mat-expansion-panel
+                    class="history-panel rounded-ot-md border border-ot-divider"
+                    disabled
+                    hideToggle
+                  >
+                    <mat-expansion-panel-header class="min-h-12 gap-2 px-4 py-2">
+                      <div class="flex min-w-0 flex-1 items-center gap-2">
+                        <span class="min-w-0 flex-1 text-sm wrap-anywhere">
+                          Step {{ oa.stepResultsCache.currentValues.length + skippedIdx + 1 }}:
+                          {{ skipped?.displayName ?? '-' }}
+                          <span class="italic">(Skipped)</span>
+                        </span>
+                        <mat-icon aria-hidden="true" class="shrink-0">pause</mat-icon>
+                      </div>
                     </mat-expansion-panel-header>
                   </mat-expansion-panel>
                 }
               }
             </mat-accordion>
-          </div>
-        }
-        @if (history.hasSubmissionFiles && currentUnitRole) {
-          <div class="flex justify-center">
-            <button
-              color="primary"
-              mat-raised-button
-              (click)="viewSubmissionFiles(history, $event)"
-            >
-              View Submission
-            </button>
-          </div>
-        }
-      </mat-expansion-panel>
-    } @empty {
-      <div class="flex size-full flex-col items-center justify-center text-[#c5c5c5]">
-        <mat-icon style="height: 120px; width: 120px; font-size: 120px; color: #c5c5c5"
-          >subtitles_off</mat-icon
-        >
-        <div>No retained submissions for this task.</div>
-      </div>
-    }
-  </mat-accordion>
-}
+          }
+          @if (history.hasSubmissionFiles && currentUnitRole) {
+            <div class="flex justify-end" [ngClass]="{'pt-3': oa}">
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="viewSubmissionFiles(history, $event)"
+              >
+                <mat-icon aria-hidden="true">folder_zip</mat-icon>
+                View submission files
+              </button>
+            </div>
+          }
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</div>

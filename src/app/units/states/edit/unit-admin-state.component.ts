@@ -1,6 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {MatTabChangeEvent} from '@angular/material/tabs';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {Observable, Subscription, first, of} from 'rxjs';
 import {Unit, UnitRole, User, UserService} from 'src/app/api/models/doubtfire-model';
 import {GlobalStateService, ViewType} from 'src/app/projects/states/index/global-state.service';
@@ -15,14 +14,20 @@ type UnitAdminTabKey =
   | 'groups'
   | 'communication';
 
-interface UnitAdminTab {
+export interface UnitAdminTab {
   label: string;
   routeSegment: UnitAdminTabKey;
+  /**
+   * One plain line under the tab's heading. The task editor lays out its own page, so
+   * the tasks tab has no intro.
+   */
+  description?: string;
 }
 
 @Component({
   selector: 'f-unit-admin-state',
   templateUrl: './unit-admin-state.component.html',
+  host: {class: 'block'},
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
@@ -30,14 +35,44 @@ export class UnitAdminStateComponent implements OnInit, OnDestroy {
   @Input() public unit$: Observable<Unit>;
 
   public readonly tabs: UnitAdminTab[] = [
-    {label: 'Unit Details', routeSegment: 'details'},
-    {label: 'Learning Outcomes', routeSegment: 'learning-outcomes'},
-    {label: 'Staff', routeSegment: 'staff'},
-    {label: 'Tutorials', routeSegment: 'tutorials'},
-    {label: 'Students', routeSegment: 'students'},
+    {
+      label: 'Unit details',
+      routeSegment: 'details',
+      description: 'Name, dates, grades and the options that shape how this unit runs.',
+    },
+    {
+      label: 'Learning outcomes',
+      routeSegment: 'learning-outcomes',
+      description:
+        'What students should be able to do by the end of the unit, and the feedback comments for each outcome.',
+    },
+    {
+      label: 'Staff',
+      routeSegment: 'staff',
+      description: 'The people who teach this unit, and what each of them can do.',
+    },
+    {
+      label: 'Tutorials',
+      routeSegment: 'tutorials',
+      description: 'Tutorial streams, and the classes students enrol in within each one.',
+    },
+    {
+      label: 'Students',
+      routeSegment: 'students',
+      description: 'Everyone enrolled in this unit, with their campus and tutorials.',
+    },
     {label: 'Tasks', routeSegment: 'tasks'},
-    {label: 'Groups', routeSegment: 'groups'},
-    {label: 'Communications', routeSegment: 'communication'},
+    {
+      label: 'Groups',
+      routeSegment: 'groups',
+      description: 'Group sets for team work, and the groups in each one.',
+    },
+    {
+      label: 'Communications',
+      routeSegment: 'communication',
+      description:
+        'Rules that pick out students and send them messages or follow-up actions automatically.',
+    },
   ];
 
   public unit: Unit | null = null;
@@ -50,7 +85,6 @@ export class UnitAdminStateComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private userService: UserService,
     private globalStateService: GlobalStateService,
   ) {}
@@ -58,20 +92,26 @@ export class UnitAdminStateComponent implements OnInit, OnDestroy {
   public ngOnInit(): void {
     this.updateCurrentTabFromState(this.route.snapshot.paramMap.get('tab'));
 
-    this.unit$ = this.unit$ ?? of(this.route.parent.snapshot.data.unit);
-    if (this.unit$) {
-      this.subscriptions.push(
-        this.unit$.pipe(first()).subscribe((unit) => {
+    this.unit$ = this.unit$ ?? of(this.route.parent?.snapshot.data.unit);
+    this.subscriptions.push(
+      this.unit$.pipe(first()).subscribe({
+        next: (unit) => {
+          // Without a unit there is nothing to administer, so stop loading and let the
+          // page show its error state rather than a skeleton that never resolves.
           if (!unit) {
+            this.loadingUnit = false;
             return;
           }
 
           this.assessingUnitRole = this.findUnitRole(unit.id);
           this.loadTutors();
           this.loadUnit(unit);
-        }),
-      );
-    }
+        },
+        error: () => {
+          this.loadingUnit = false;
+        },
+      }),
+    );
 
     this.subscriptions.push(
       this.route.paramMap.subscribe((params) => this.updateCurrentTabFromState(params.get('tab'))),
@@ -87,21 +127,8 @@ export class UnitAdminStateComponent implements OnInit, OnDestroy {
     return index >= 0 ? index : 0;
   }
 
-  public onTabChange(event: MatTabChangeEvent): void {
-    const nextTab = this.tabs[event.index] ?? this.tabs[0];
-    this.currentTab = nextTab;
-    if (this.route.parent?.snapshot.data.unit) {
-      this.router.navigate(
-        [
-          '/units',
-          this.route.parent.snapshot.paramMap.get('unitId'),
-          'admin',
-          nextTab.routeSegment,
-        ],
-        {replaceUrl: true},
-      );
-      return;
-    }
+  public isCurrent(tab: UnitAdminTab): boolean {
+    return tab.routeSegment === this.currentTab.routeSegment;
   }
 
   private updateCurrentTabFromState(tabParam?: string | null): void {
@@ -122,7 +149,7 @@ export class UnitAdminStateComponent implements OnInit, OnDestroy {
     }
 
     let unitRole = this.globalStateService.loadedUnitRoles.currentValues.find(
-      (role) => role.unit.id === unitId,
+      (role) => role.unit?.id === unitId,
     );
 
     if (

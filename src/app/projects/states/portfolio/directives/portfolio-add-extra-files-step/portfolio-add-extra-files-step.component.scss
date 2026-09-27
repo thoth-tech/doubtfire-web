@@ -1,0 +1,77 @@
+@use '../../portfolio-wizard' as wizard;
+
+:host {
+  display: block;
+}
+
+.file-list {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface-raised);
+  list-style: none;
+}
+
+.file-list__row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+
+  & + & {
+    border-top: 1px solid var(--ot-color-divider);
+  }
+}
+
+.file-list__icon {
+  @include wizard.icon-tile(primary, 2rem);
+
+  .mat-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    font-size: 1.125rem;
+  }
+}
+
+.file-list-empty {
+  margin: 0;
+  padding: 0.875rem 1rem;
+  border: 1px dashed var(--ot-color-divider);
+  border-radius: var(--ot-radius-md);
+  color: var(--ot-color-text-muted);
+  font-size: 0.875rem;
+}
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.portfolio-step-footer button {
+  min-height: 44px;
+}
+
+@media (max-width: 639.98px) {
+  .portfolio-step-footer {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+.portfolio-extra-file__name {
+  overflow-wrap: anywhere;
+}
+
+.portfolio-file-uploader {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 639.98px) {
+  .file-list__row {
+    flex-wrap: wrap;
+  }
+}

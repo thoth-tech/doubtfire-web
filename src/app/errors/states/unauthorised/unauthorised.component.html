@@ -1,8 +1,12 @@
-<div class="mt-3 flex flex-col items-center justify-center">
-  <mat-icon class="!h-[65px] !w-[65px] !text-[65px]">warning</mat-icon>
-  <h1>Unauthorised</h1>
-  <p>
+<div
+  class="flex min-h-[calc((var(--vh,1vh)*100)-85px-var(--ot-demo-banner-height,0px))] flex-col items-center justify-center gap-4 px-6 text-center"
+>
+  <mat-icon class="!h-[72px] !w-[72px] !text-[72px] text-ot-warning">warning</mat-icon>
+  <h1 class="mb-0">Unauthorised</h1>
+  <p class="m-0 max-w-md text-ot-muted">
     You do not have sufficient permissions to access this resource, or your session has expired.
   </p>
-  <button color="primary" mat-button type="button" (click)="goBack()">Go back</button>
+  <button class="mt-2" color="primary" mat-flat-button type="button" (click)="goBack()">
+    Go back
+  </button>
 </div>

@@ -1,52 +1,83 @@
-<mat-card appearance="outlined" class="mx-auto max-w-[1100px]">
-  <mat-card-header>
-    <mat-card-title>Upload Other Files</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <p class="py-3">
-      Now is your chance to upload any extra files to include in your portfolio. They'll appear at
-      the very top of your portfolio, before your tasks.
-    </p>
-    <div class="pb-3">
-      <ol>
-        @for (file of extraFiles; track file) {
-          <li class="flex items-center justify-between border-b-2 border-b-gray-100 py-1">
-            <div class="flex items-center justify-between gap-1">
-              <mat-icon>{{ icons[file.kind] }}</mat-icon>
-              {{ file.name }}
-            </div>
-            <button color="primary" mat-button (click)="deleteFileFromPortfolio(file)">
-              Remove
-            </button>
-          </li>
-        } @empty {
-          <p>If you do not have any files to add, you can skip this step.</p>
-        }
-      </ol>
+<section
+  class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+>
+  <div class="flex flex-col gap-5 p-5 sm:p-6">
+    <div>
+      <h2 class="m-0 text-lg leading-snug font-semibold text-ot-text">Other files</h2>
+      <p class="m-0 mt-1 text-sm leading-relaxed text-ot-muted">
+        Optional. Anything you add here goes at the very front of your portfolio, before your tasks.
+      </p>
     </div>
-    <div class="flex items-center justify-center">
-      <mat-form-field appearance="outline" class="w-full max-w-2xl">
-        <mat-label>Select type of file:</mat-label>
+
+    <div class="flex flex-col gap-2">
+      <p class="m-0 text-sm font-semibold text-ot-text">
+        Added files
+        <span class="font-normal text-ot-muted">({{ extraFiles?.length ?? 0 }})</span>
+      </p>
+      @if (extraFiles?.length) {
+        <ul class="file-list">
+          @for (file of extraFiles; track file) {
+            <li class="file-list__row">
+              <span aria-hidden="true" class="file-list__icon">
+                <mat-icon>{{ icons[file.kind] ?? 'insert_drive_file' }}</mat-icon>
+              </span>
+              <span
+                class="portfolio-extra-file__name min-w-0 flex-1 text-ot-text"
+                [title]="file.name"
+                >{{ file.name }}</span
+              >
+              <button
+                class="shrink-0"
+                mat-button
+                type="button"
+                [attr.aria-label]="'Remove ' + file.name"
+                (click)="deleteFileFromPortfolio(file)"
+              >
+                <mat-icon aria-hidden="true">delete</mat-icon>
+                Remove
+              </button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="file-list-empty">
+          No other files yet. If you have nothing to add, you can skip this step.
+        </p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-3 border-t border-ot-divider pt-5">
+      <p class="m-0 text-sm font-semibold text-ot-text">Add a file</p>
+      <mat-form-field appearance="outline" class="w-full sm:max-w-xs" subscriptSizing="dynamic">
+        <mat-label>Type of file</mat-label>
         <mat-select [(ngModel)]="uploadType" (selectionChange)="onTypeChange($event)">
-          <mat-option value="document">Document File</mat-option>
-          <mat-option value="code">Code File</mat-option>
-          <mat-option value="image">Image File</mat-option>
-          <mat-option value="zip">ZIP File</mat-option>
+          <mat-option value="document">Document</mat-option>
+          <mat-option value="code">Code</mat-option>
+          <mat-option value="image">Image</mat-option>
+          <mat-option value="zip">ZIP archive</mat-option>
         </mat-select>
       </mat-form-field>
+      <f-file-uploader
+        class="portfolio-file-uploader"
+        [files]="uploadFileType"
+        [isUploading]="isUploading"
+        [onSuccess]="addNewFilesToPortfolio.bind(this)"
+        [payload]="uploadFilePayload"
+        [showName]="false"
+        [uploadingLabel]="'Uploading your work'"
+        [url]="project.portfolioUrl()"
+      >
+      </f-file-uploader>
     </div>
-    <f-file-uploader
-      [files]="uploadFileType"
-      [isUploading]="isUploading"
-      [onSuccess]="addNewFilesToPortfolio.bind(this)"
-      [payload]="uploadFilePayload"
-      [showName]="false"
-      [url]="project.portfolioUrl()"
-    >
-    </f-file-uploader>
-  </mat-card-content>
-  <mat-card-footer class="flex w-full justify-between p-3">
-    <button mat-raised-button (click)="advanceActiveTab(-1)">Back</button>
-    <button color="primary" mat-raised-button (click)="advanceActiveTab(1)">Next</button>
-  </mat-card-footer>
-</mat-card>
+  </div>
+
+  <footer
+    class="portfolio-step-footer flex flex-wrap items-center gap-3 border-t border-ot-divider px-5 py-3 sm:px-6"
+  >
+    <button mat-stroked-button type="button" (click)="advanceActiveTab(-1)">Back</button>
+    <span class="flex-1"></span>
+    <button color="primary" mat-flat-button type="button" (click)="advanceActiveTab(1)">
+      {{ extraFiles?.length ? 'Next' : 'Skip' }}
+    </button>
+  </footer>
+</section>

@@ -29,7 +29,20 @@ export class PortfolioGradeSelectStepComponent {
   }
 
   public get targetGrade(): string {
-    return this.gradeService.grades[this.project.submittedGrade] ?? 'selected grade';
+    return this.gradeLabel(this.project.submittedGrade) ?? 'selected grade';
+  }
+
+  public get hasSubmittedGrade(): boolean {
+    return this.project.submittedGrade !== null && this.project.submittedGrade !== undefined;
+  }
+
+  // Next needs both the criteria box and a saved grade, as before.
+  public get canContinue(): boolean {
+    return this.agreedToAssessmentCriteria && this.hasSubmittedGrade;
+  }
+
+  public gradeLabel(grade: number): string | undefined {
+    return this.gradeService.gradeLabel(grade, this.unit);
   }
 
   updateSubmittedGrade(newGrade: number): void {

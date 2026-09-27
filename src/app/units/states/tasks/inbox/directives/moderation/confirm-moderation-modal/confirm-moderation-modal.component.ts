@@ -39,6 +39,26 @@ export class ConfirmModerationModalComponent implements OnInit {
     this.callback = this.data.callback;
   }
 
+  private static readonly ACTION_ICONS: Record<FeedbackModerationActionType, string> = {
+    show_less: 'thumb_up',
+    show_more: 'flag',
+    dismiss_ok: 'archive',
+    dismiss_good: 'task_alt',
+    overturn: 'gavel',
+    upheld: 'verified',
+    snooze: 'snooze',
+  };
+
+  public get actionIcon(): string {
+    return ConfirmModerationModalComponent.ACTION_ICONS[this.action] ?? 'rate_review';
+  }
+
+  // The task may belong to a tutorial with no tutor, or to a student in no tutorial,
+  // and the dialog must still open so the task can be moderated.
+  public get tutorName(): string {
+    return this.task?.tutor?.user?.displayName ?? this.task?.tutor?.user?.name ?? 'not assigned';
+  }
+
   public runCallback() {
     this.callback(this.dismissAllTasks);
     this.dismiss();

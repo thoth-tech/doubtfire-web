@@ -1,0 +1,16 @@
+// A calm error note in the error tone, in place of the old red Tailwind palette box.
+.lti-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--ot-color-error) 35%, var(--ot-color-divider));
+  border-radius: var(--ot-radius-md);
+  background: color-mix(in srgb, var(--ot-color-error) 8%, var(--ot-color-surface));
+  color: var(--ot-color-text);
+
+  > .mat-icon {
+    flex: none;
+    color: var(--ot-color-error);
+  }
+}

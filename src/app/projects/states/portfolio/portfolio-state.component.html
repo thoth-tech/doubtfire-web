@@ -1,49 +1,128 @@
 @if (project) {
-  <div class="w-full" id="portfolio-state">
-    <mat-tab-group
-      class="mb-3"
-      [dynamicHeight]="true"
-      [selectedIndex]="selectedTabIndex"
-      (selectedIndexChange)="onSelectedTabIndexChange($event)"
-    >
-      @for (tab of orderedTabs; track tab.seq) {
-        <mat-tab
-          [disabled]="isTabDisabled(tab)"
-          [label]="'Step ' + tab.seq + ': ' + tab.title"
-        ></mat-tab>
-      }
-    </mat-tab-group>
-    @if (activeTab === tabs.welcomeStep) {
-      <f-portfolio-welcome-step
-        [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
-      ></f-portfolio-welcome-step>
-    }
-    @if (activeTab === tabs.gradeStep) {
-      <f-portfolio-grade-select-step
-        [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
-        [project]="project"
-        [unit]="project.unit"
-      ></f-portfolio-grade-select-step>
-    }
-    @if (activeTab === tabs.summaryStep) {
-      <f-portfolio-learning-summary-report-step
-        [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
-        [project]="project"
-        [unit]="project.unit"
-      ></f-portfolio-learning-summary-report-step>
-    }
-    @if (activeTab === tabs.otherFilesStep) {
-      <f-portfolio-add-extra-files-step
-        [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
-        [project]="project"
-      ></f-portfolio-add-extra-files-step>
-    }
-    @if (activeTab === tabs.reviewStep) {
-      <f-portfolio-review-step
-        [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
-        [project]="project"
-        [unit]="project.unit"
-      ></f-portfolio-review-step>
-    }
-  </div>
+  <f-page-container>
+    <div class="mx-auto flex w-full max-w-4xl flex-col pt-2 pb-10" id="portfolio-state">
+      <header class="pb-6">
+        <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">
+          Create your portfolio
+        </h1>
+        <p class="m-0 mt-1.5 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+          Choose the grade you are applying for, add your learning summary report and any other
+          files, then create the portfolio your assessor will read.
+        </p>
+      </header>
+
+      <nav aria-label="Portfolio steps" class="portfolio-mobile-stepper">
+        <button
+          aria-label="Previous portfolio step"
+          mat-icon-button
+          type="button"
+          [disabled]="!canAdvanceActiveTab(-1)"
+          (click)="advanceActiveTab(-1)"
+        >
+          <mat-icon aria-hidden="true">chevron_left</mat-icon>
+        </button>
+
+        <div aria-live="polite" class="portfolio-mobile-stepper__current">
+          <span>Step {{ selectedTabIndex + 1 }} of {{ orderedTabs.length }}</span>
+          <strong>{{ activeTab.title }}</strong>
+        </div>
+
+        <button
+          aria-label="Next portfolio step"
+          mat-icon-button
+          type="button"
+          [disabled]="!canAdvanceActiveTab(1)"
+          (click)="advanceActiveTab(1)"
+        >
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      </nav>
+
+      <nav aria-label="Portfolio steps" class="portfolio-desktop-stepper mb-6">
+        <ol class="portfolio-steps">
+          @for (tab of orderedTabs; track tab.seq) {
+            @let state = stepState(tab);
+            <li
+              class="portfolio-steps__item"
+              [class.portfolio-steps__item--reached]="state === 'current' || state === 'done'"
+            >
+              <button
+                class="portfolio-step"
+                type="button"
+                [attr.aria-current]="state === 'current' ? 'step' : null"
+                [disabled]="isTabDisabled(tab)"
+                [ngClass]="'portfolio-step--' + state"
+                (click)="onSelectedTabIndexChange(tab.seq - 1)"
+              >
+                <span aria-hidden="true" class="portfolio-step__marker">
+                  @if (state === 'done') {
+                    <mat-icon>check</mat-icon>
+                  } @else {
+                    {{ tab.seq }}
+                  }
+                </span>
+                <span class="portfolio-step__label">
+                  <span class="sr-only">Step {{ tab.seq }}: </span>{{ tab.title }}
+                  @if (state === 'done') {
+                    <span class="sr-only"> (done)</span>
+                  } @else if (state === 'locked') {
+                    <span class="sr-only"> (finish the earlier steps first)</span>
+                  }
+                </span>
+              </button>
+            </li>
+          }
+        </ol>
+        <!-- The step names do not fit five across on a phone, so the phone shows the
+             markers alone and names the current step under them. -->
+        <p aria-hidden="true" class="m-0 mt-3 text-center text-sm text-ot-muted sm:hidden">
+          Step {{ activeTab.seq }} of {{ orderedTabs.length }} ·
+          <span class="font-semibold text-ot-text">{{ activeTab.title }}</span>
+        </p>
+      </nav>
+
+      <div
+        #stepPanel
+        class="portfolio-step-content rounded-ot-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ot-focus"
+        role="region"
+        tabindex="-1"
+        [attr.aria-label]="
+          'Step ' + activeTab.seq + ' of ' + orderedTabs.length + ': ' + activeTab.title
+        "
+      >
+        @if (activeTab === tabs.welcomeStep) {
+          <f-portfolio-welcome-step
+            [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
+          ></f-portfolio-welcome-step>
+        }
+        @if (activeTab === tabs.gradeStep) {
+          <f-portfolio-grade-select-step
+            [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
+            [project]="project"
+            [unit]="project.unit"
+          ></f-portfolio-grade-select-step>
+        }
+        @if (activeTab === tabs.summaryStep) {
+          <f-portfolio-learning-summary-report-step
+            [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
+            [project]="project"
+            [unit]="project.unit"
+          ></f-portfolio-learning-summary-report-step>
+        }
+        @if (activeTab === tabs.otherFilesStep) {
+          <f-portfolio-add-extra-files-step
+            [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
+            [project]="project"
+          ></f-portfolio-add-extra-files-step>
+        }
+        @if (activeTab === tabs.reviewStep) {
+          <f-portfolio-review-step
+            [onAdvanceActiveTab]="advanceActiveTab.bind(this)"
+            [project]="project"
+            [unit]="project.unit"
+          ></f-portfolio-review-step>
+        }
+      </div>
+    </div>
+  </f-page-container>
 }

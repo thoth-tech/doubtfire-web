@@ -3,10 +3,12 @@ import {
   Component,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
+import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {MatTableDataSource} from '@angular/material/table';
 import {Observable, Subscription} from 'rxjs';
 import {Task} from 'src/app/api/models/task';
@@ -25,7 +27,7 @@ import {AlertService} from 'src/app/common/services/alert.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
+export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges, OnDestroy {
   @Input() taskDefinition: TaskDefinition;
   @Input() staffView: boolean;
   @Input() task: Task;
@@ -33,11 +35,15 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
   displayedColumns: string[] = ['task-definition', 'minimum-required-state', 'actions'];
 
   private prereqSub?: Subscription;
+  private searchSub?: Subscription;
 
   public dataSource: MatTableDataSource<TaskPrerequisite> = new MatTableDataSource();
 
   selectedTaskPrerequisite: TaskDefinition | null = null;
-  searchCtrl = new FormControl('');
+  // The search box drives the autocomplete through this control alone. It also
+  // had [(ngModel)] on it, which Angular warns about, and the two fought over
+  // the value.
+  searchCtrl: FormControl<string | TaskDefinition> = new FormControl('');
 
   // All other task definitions in the unit (exclude the current one)
   filteredTaskDefs: TaskDefinition[] = [];
@@ -52,7 +58,7 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
   };
 
   public readonly stateOptions = [
-    {value: 'ready_for_feedback', label: 'Ready for Feedback'},
+    {value: 'ready_for_feedback', label: 'Ready for feedback'},
     {value: 'discuss', label: 'Discuss'},
     {value: 'complete', label: 'Complete'},
   ];
@@ -71,16 +77,31 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.searchCtrl.valueChanges.subscribe((value: string | TaskDefinition) => {
+    this.searchSub = this.searchCtrl.valueChanges.subscribe((value) => {
+      // Typing again after picking a task means the pick no longer stands.
+      if (typeof value === 'string') {
+        this.selectedTaskPrerequisite = null;
+      }
       const search = (typeof value === 'string' ? value : value?.name || '').toLowerCase();
       this.filterTaskDefs(search);
     });
 
+    // ngOnChanges has already subscribed when the task came in as an input.
+    if (!this.prereqSub && this.taskDefinition) {
+      this.watchPrerequisites();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.prereqSub?.unsubscribe();
+    this.searchSub?.unsubscribe();
+  }
+
+  private watchPrerequisites() {
+    this.prereqSub?.unsubscribe();
     this.prereqSub = this.taskDefinition.taskPrerequisitesCache.values.subscribe((values) => {
       this.dataSource.data = values;
     });
-
-    // this.fetchTaskPrerequisites();
   }
 
   private mapPrerequisites(taskDefinition: TaskDefinition) {
@@ -99,11 +120,10 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
       changes.taskDefinition &&
       changes.taskDefinition.previousValue?.id !== changes.taskDefinition.currentValue?.id
     ) {
-      this.filterTaskDefs(this.searchCtrl.value ?? '');
-      this.prereqSub?.unsubscribe();
-      this.prereqSub = this.taskDefinition.taskPrerequisitesCache.values.subscribe((values) => {
-        this.dataSource.data = values;
-      });
+      this.selectedTaskPrerequisite = null;
+      this.searchCtrl.setValue('', {emitEvent: false});
+      this.filterTaskDefs('');
+      this.watchPrerequisites();
       this.fetchTaskPrerequisites();
     }
   }
@@ -136,7 +156,7 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
             );
           }
           this.mapPrerequisites(taskDefinition);
-          this.filterTaskDefs(this.searchCtrl.value ?? '');
+          this.filterTaskDefs(this.searchText());
         },
         error: (error) => {
           this.alertService.error(
@@ -147,30 +167,51 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
       });
   }
 
+  private searchText(): string {
+    const value = this.searchCtrl.value;
+    return (typeof value === 'string' ? value : '').toLowerCase();
+  }
+
   private filterTaskDefs(search: string) {
-    this.filteredTaskDefs = this.taskDefinition.unit.taskDefinitionCache.currentValues
+    const taskDefinition = this.taskDefinition;
+    if (!taskDefinition?.unit) {
+      this.filteredTaskDefs = [];
+      return;
+    }
+
+    this.filteredTaskDefs = taskDefinition.unit.taskDefinitionCache.currentValues
       // Hide self from the list
-      .filter((td) => td.id !== this.taskDefinition.id)
-      // Hide tasks already added as a prerequisite
+      .filter((td) => td.id !== taskDefinition.id)
+      // Hide tasks already added as a prerequisite. By id: the linked task is
+      // only filled in once the list has loaded, and reading it before then
+      // threw and stopped the list from filtering at all.
       .filter(
         (td) =>
-          !this.taskDefinition.taskPrerequisitesCache.currentValues.some(
-            (p: TaskPrerequisite) => p.prerequisite.id === td.id,
+          !taskDefinition.taskPrerequisitesCache.currentValues.some(
+            (p: TaskPrerequisite) => (p.prerequisite?.id ?? p.prerequisiteId) === td.id,
           ),
       )
       // Higher target grades can not be a prerequisite
-      .filter((td) => td.targetGrade <= this.taskDefinition.targetGrade)
+      .filter((td) => td.targetGrade <= taskDefinition.targetGrade)
       // Tasks with a later due date can not be a prerequisite
       // .filter((td) => td.targetDate <= this.taskDefinition.targetDate)
       // Search filter
       .filter(
         (td) =>
-          td.name.toLowerCase().includes(search) || td.abbreviation.toLowerCase().includes(search),
+          (td.name ?? '').toLowerCase().includes(search) ||
+          (td.abbreviation ?? '').toLowerCase().includes(search),
       );
   }
 
-  displayFn(td: TaskDefinition): string {
-    return td && td.abbreviation ? `${td.abbreviation} - ${td.name}` : '';
+  displayFn(td: TaskDefinition | string | null): string {
+    if (typeof td === 'string') {
+      return td;
+    }
+    return td?.abbreviation ? `${td.abbreviation} - ${td.name}` : '';
+  }
+
+  public onPrerequisitePicked(event: MatAutocompleteSelectedEvent): void {
+    this.selectedTaskPrerequisite = event.option.value;
   }
 
   public addTaskPrerequisite(event: Event): void {
@@ -210,8 +251,10 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
             `Successfully added task ${selectedTaskPrerequisite.abbreviation} as a prerequisite`,
             5000,
           );
-          this.unit.refresh();
-          this.filterTaskDefs(this.searchCtrl.value ?? '');
+          // The unit used to be reloaded here. It carries nothing about
+          // prerequisites, and the reload wrote the server's copy over the open
+          // task, so any edits not yet saved were lost without a word.
+          this.searchCtrl.setValue('');
         },
         error: (error) => {
           this.alertService.error(`Failed to add task prerequisite: ${error}`, 6000);
@@ -220,6 +263,7 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
   }
 
   public updateTaskPrerequisite(prerequisiteLink: TaskPrerequisite) {
+    prerequisiteLink.taskDefinition ??= this.taskDefinition;
     this.taskDefinitionService
       .updateTaskPrerequisite(prerequisiteLink, prerequisiteLink.taskStatus)
       .subscribe({
@@ -229,7 +273,7 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
             return;
           }
           this.alertService.success(
-            `Successfully updated prerequisite ${prerequisiteLink.prerequisite.abbreviation} to ${prerequisiteLink.taskStatus} `,
+            `Updated prerequisite ${prerequisiteLink.prerequisite?.abbreviation ?? ''}`.trim(),
             5000,
           );
         },
@@ -243,8 +287,29 @@ export class TaskDefinitionPrerequisitesComponent implements OnInit, OnChanges {
     if (!prerequisiteToRemove) {
       return;
     }
-    prerequisiteToRemove.delete().subscribe(() => {
-      this.filterTaskDefs(this.searchCtrl.value ?? '');
-    });
+
+    // Removed here rather than with TaskPrerequisite.delete, which reads the unit
+    // through a link that is not always filled in yet, and which reports a
+    // successful delete as an error.
+    const taskDefinition = this.taskDefinition;
+    this.taskPrerequisiteService
+      .delete<void>(
+        {
+          unitId: taskDefinition.unit.id,
+          taskDefId: prerequisiteToRemove.taskDefinitionId ?? taskDefinition.id,
+          prerequisiteId: prerequisiteToRemove.prerequisiteId,
+        },
+        {cache: taskDefinition.taskPrerequisitesCache},
+      )
+      .subscribe({
+        next: () => {
+          taskDefinition.taskPrerequisitesCache.delete(prerequisiteToRemove.id);
+          this.alertService.success('Removed prerequisite', 4000);
+          this.filterTaskDefs(this.searchText());
+        },
+        error: (error) => {
+          this.alertService.error(`Failed to remove prerequisite: ${error}`, 6000);
+        },
+      });
   }
 }

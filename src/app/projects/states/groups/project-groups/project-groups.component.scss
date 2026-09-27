@@ -1,5 +1,46 @@
-.mat-icon {
-  font-size: 75px;
-  width: 75px;
-  height: 75px;
+.demo-group-note {
+  align-items: flex-start;
+  background: color-mix(in srgb, var(--ot-color-warning) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ot-color-warning) 45%, var(--ot-color-divider));
+  border-radius: 0.5rem;
+  color: var(--ot-color-text);
+  display: flex;
+  gap: 0.5rem;
+  margin-block-end: 0.75rem;
+  overflow-wrap: anywhere;
+  padding: 0.75rem;
+}
+
+.demo-group-note .mat-icon {
+  flex: 0 0 auto;
+}
+
+.group-work-state {
+  align-items: center;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  margin-inline: auto;
+  max-width: 48rem;
+  padding: clamp(1.5rem, 6vw, 3rem) 1rem;
+  text-align: center;
+}
+
+.group-work-state .mat-icon {
+  font-size: 4rem;
+  height: 4rem;
+  width: 4rem;
+}
+
+.group-work-state h1 {
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  margin: 0.5rem 0;
+}
+
+.group-work-state p {
+  color: var(--ot-color-text-muted);
+  margin: 0.25rem 0;
+  max-width: 40rem;
+  overflow-wrap: anywhere;
 }

@@ -1,5 +1,67 @@
-.submitted .mat-icon {
-  font-size: 50px;
-  width: 50px;
-  height: 50px;
+@use '../../portfolio-wizard' as wizard;
+
+:host {
+  display: block;
+}
+
+.report-part {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem;
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface-raised);
+}
+
+.report-part__icon {
+  @include wizard.icon-tile(primary);
+}
+
+.report-done {
+  @include wizard.callout(success);
+
+  // Nested so these follow the mixin's own rules, which they override.
+  & {
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+
+.report-reminder {
+  @include wizard.callout(warning);
+}
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.portfolio-step-footer button {
+  min-height: 44px;
+}
+
+@media (max-width: 639.98px) {
+  .portfolio-step-footer {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+.portfolio-validation {
+  @include wizard.callout(error);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.portfolio-file-uploader {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 639.98px) {
+  .submitted {
+    flex-direction: column;
+    text-align: center;
+  }
 }

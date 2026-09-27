@@ -13,8 +13,14 @@ export class CommentsModalService {
     this.dialog.open<CommentsModalComponent, CommentsModalData>(CommentsModalComponent, {
       data: {commentResourceUrl, comment},
       width: '100%',
-      maxWidth: '900px',
-      panelClass: 'overflow-y-auto',
+      maxWidth: '960px',
+      maxHeight: '100dvh',
+      autoFocus: '.comments-modal__close',
+      restoreFocus: true,
+      closeOnNavigation: true,
+      disableClose: false,
+      ariaLabelledBy: 'comments-modal-title',
+      panelClass: 'comments-modal-dialog',
     });
   }
 }

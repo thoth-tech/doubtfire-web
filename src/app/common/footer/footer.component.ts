@@ -78,7 +78,7 @@ export class FooterComponent implements OnInit {
   }
 
   public get canAccessTutorNotes(): boolean {
-    const tutor = this.selectedTask.tutor;
+    const tutor = this.selectedTask?.tutor;
     if (!tutor) {
       return false;
     }
@@ -182,7 +182,11 @@ export class FooterComponent implements OnInit {
 
   public get currentUnitRole(): UnitRole | undefined {
     const currentUser = this.userService.currentUser;
-    return this.selectedTask.unit.staff.find((ur) => ur.user.id === currentUser.id);
+    if (!currentUser) {
+      return undefined;
+    }
+
+    return this.selectedTask?.unit?.staff?.find((ur) => ur.user?.id === currentUser.id);
   }
 
   public get actionButtonEnabled(): boolean {
@@ -194,8 +198,10 @@ export class FooterComponent implements OnInit {
       return false;
     }
 
+    // An admin or auditor may not hold a role in the unit, and nobody can mark a task
+    // claimed by someone else, so a missing role reads as "not yours".
     if (this.viewType === 'overflow' || this.selectedTask.claimedByUnitRoleId) {
-      if (this.currentUnitRole.id !== this.selectedTask.claimedByUnitRoleId) {
+      if (this.currentUnitRole?.id !== this.selectedTask.claimedByUnitRoleId) {
         return false;
       }
     }
@@ -205,6 +211,35 @@ export class FooterComponent implements OnInit {
 
   public get completeButtonEnabled(): boolean {
     return this.actionButtonEnabled && !!this.selectedTask?.canMarkComplete;
+  }
+
+  public readonly completeHintId = 'footer-complete-blocked-reason';
+
+  /** Why Complete is off for this task, or nothing when that is not the reason. */
+  public get completeBlockedReason(): string {
+    if (!this.selectedTask || this.selectedTask.canMarkComplete) {
+      return '';
+    }
+
+    return 'Discuss this task in class before marking it complete';
+  }
+
+  public get suggestedStatusLabel(): string {
+    const status = this.selectedTask?.suggestedTaskStatus;
+    if (!status) {
+      return '';
+    }
+
+    return `Recommended: Mark as ${this.taskService.statusData(status).label}`;
+  }
+
+  public get progressLabel(): string {
+    const stats = this.selectedTask?.project?.taskStats;
+    if (!stats || stats.length <= 4) {
+      return 'Progress unavailable';
+    }
+
+    return `${stats[4].value}% progress towards ${this.selectedTask.project.targetGradeWord}`;
   }
 
   public get discussActionStatus(): TaskStatusEnum {

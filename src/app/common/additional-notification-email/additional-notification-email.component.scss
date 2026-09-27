@@ -1,0 +1,97 @@
+@use '../edit-profile-form/profile-form' as profile;
+
+@include profile.theme;
+
+:host {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.additional-email {
+  @include profile.card;
+
+  // empty live regions stay in the tree for screen readers but take no gap
+  > p:empty {
+    margin-top: -16px;
+  }
+
+  &__heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+
+    > div {
+      @include profile.card-heading;
+    }
+  }
+
+  &__status {
+    flex: 0 0 auto;
+    padding: 4px 10px;
+    border-radius: var(--ot-radius-pill);
+    background: var(--ot-color-warning);
+    color: var(--ot-color-on-warning);
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.4;
+
+    &--verified {
+      background: var(--ot-status-complete);
+      color: var(--ot-status-complete-on);
+    }
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    button {
+      min-height: 44px;
+    }
+  }
+
+  &__help,
+  &__message,
+  &__error {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  &__help {
+    color: var(--ot-color-text-muted);
+  }
+
+  &__message {
+    color: var(--ot-color-success);
+  }
+
+  &__error {
+    color: var(--ot-color-error);
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 599px) {
+  .additional-email {
+    &__heading {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__status {
+      align-self: flex-start;
+    }
+
+    &__actions button {
+      flex: 1 1 100%;
+    }
+  }
+}

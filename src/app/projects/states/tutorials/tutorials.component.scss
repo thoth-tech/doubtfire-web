@@ -1,0 +1,147 @@
+:host {
+  display: block;
+  min-width: 0;
+  color: var(--ot-color-text);
+}
+
+.tutorial-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--ot-color-divider);
+  border-radius: 10px;
+  background: var(--ot-color-surface);
+
+  &:focus-visible {
+    outline: 3px solid var(--ot-color-primary);
+    outline-offset: 3px;
+  }
+}
+
+table {
+  --mat-table-background-color: var(--ot-color-surface);
+  --mat-table-header-headline-color: var(--ot-color-text);
+  --mat-table-row-item-label-text-color: var(--ot-color-text);
+  --mat-table-row-item-outline-color: var(--ot-color-divider);
+  width: 100%;
+  background: var(--ot-color-surface);
+  color: var(--ot-color-text);
+}
+
+tr[mat-header-row] {
+  background: var(--ot-color-surface-raised);
+}
+
+tr[mat-row]:hover {
+  background: var(--ot-color-hover);
+}
+
+th[mat-header-cell],
+td[mat-cell] {
+  border-bottom-color: var(--ot-color-divider);
+}
+
+.tutorial-card-list {
+  display: none;
+}
+
+.tutorial-table {
+  width: 100%;
+}
+
+.tutorial-empty {
+  align-items: center;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.tutorial-empty h3,
+.tutorial-empty p {
+  margin: 0.25rem 0;
+}
+
+@media (max-width: 639.98px) {
+  :host {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .tutorial-table {
+    display: none;
+  }
+
+  .tutorial-card-list {
+    display: grid;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  .tutorial-card {
+    min-width: 0;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .tutorial-card__details {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+  }
+
+  .tutorial-card__details div {
+    min-width: 0;
+  }
+
+  .tutorial-card__details dt {
+    color: var(--ot-color-text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .tutorial-card__details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .tutorial-card__tutor {
+    grid-column: 1 / -1;
+  }
+
+  .tutorial-card__actions {
+    align-items: center;
+    border-top: 1px solid var(--ot-color-border);
+    display: flex;
+    justify-content: flex-end;
+    min-height: 60px;
+    padding: 0.5rem 1rem;
+  }
+
+  .tutorial-card__actions button {
+    min-height: 44px;
+    min-width: 96px;
+  }
+
+  .tutorial-card__enrolled {
+    color: var(--ot-color-success);
+    font-weight: 700;
+  }
+
+  .tutorial-card__managed {
+    color: var(--ot-color-text-muted);
+    font-size: 0.875rem;
+    text-align: right;
+  }
+}
+
+@media (max-width: 639.98px) {
+  .tutorial-table-container {
+    display: none;
+  }
+}

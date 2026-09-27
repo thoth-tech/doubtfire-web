@@ -1,44 +1,55 @@
-<div class="h-screen w-full items-center justify-center px-12" id="home">
-  <div class="mx-auto flex h-screen w-full max-w-4xl flex-col items-center justify-center gap-3">
+<div class="flex min-h-screen w-full items-center justify-center px-4 sm:px-12" id="home">
+  <div class="mx-auto flex w-full max-w-2xl flex-col items-center justify-center gap-5 py-10">
     <div class="flex items-center justify-center">
       <mat-icon
-        aria-label="Formatif logo"
+        aria-hidden="true"
         class="formatif-icon size-[100px]"
         svgIcon="formatif-logo"
       ></mat-icon>
-      <h1 class="m-0 ml-3 text-4xl">OnTrack</h1>
+      <h1 class="m-0 ml-3 text-4xl font-semibold tracking-tight text-ot-text">OnTrack</h1>
     </div>
 
     @if (loadingUnits) {
-      <p>Loading...</p>
+      <p class="m-0 flex items-center gap-3 text-ot-muted" role="status">
+        <mat-spinner aria-hidden="true" diameter="24"></mat-spinner>
+        Loading your units...
+      </p>
+    } @else if (loadUnitsFailed) {
+      <div class="lti-callout w-full" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <div class="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-3">
+          <p class="m-0">Your units could not be loaded.</p>
+          <button mat-stroked-button type="button" (click)="loadUnits()">Try again</button>
+        </div>
+      </div>
     } @else if (!activeUnits.length) {
-      <p class="w-full max-w-2xl text-center text-gray-400">
-        You must already be a Convenor or Admin to link a unit. You are not currently assigned to
-        any units.
+      <p class="m-0 w-full text-center text-ot-muted">
+        You must already be a convenor or admin of a unit to link it. You are not assigned to any
+        units yet.
       </p>
     } @else {
-      <p class="w-full max-w-2xl text-center">
-        Students will be automatically enrolled in this unit when they launch the OnTrack tool from
-        this course.
+      <p class="m-0 w-full text-center text-ot-text">
+        Students are enrolled in the unit you link when they launch OnTrack from this course.
       </p>
-      <mat-form-field class="w-full">
-        <mat-label>Select a unit to link</mat-label>
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Unit to link</mat-label>
         <mat-select [(value)]="selectedUnit">
-          @for (unit of activeUnits; track unit) {
-            <mat-option [value]="unit"
-              >{{ unit.code }} {{ unit.name }} ({{ getTeachingPeriod(unit) }})</mat-option
-            >
+          @for (unit of activeUnits; track unit.id) {
+            <mat-option [value]="unit">
+              {{ unit.code }} {{ unit.name }} ({{ getTeachingPeriod(unit) }})
+            </mat-option>
           }
         </mat-select>
       </mat-form-field>
       <button
-        class="w-full max-w-lg"
+        class="h-12 w-full max-w-lg"
         color="primary"
-        mat-raised-button
+        mat-flat-button
+        type="button"
         [disabled]="!selectedUnit"
         (click)="submit()"
       >
-        Confirm
+        Link unit
       </button>
     }
   </div>

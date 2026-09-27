@@ -1,14 +1,15 @@
-<div mat-dialog-content>
-  <h4 mat-dialog-title>Download the {{ data.type }} CSV</h4>
-  <div class="px-6">
-    <p>This action will download all {{ data.type.toLowerCase() }} associated with this unit.</p>
-    <mat-slide-toggle [(ngModel)]="includeNested"
-      >Include task {{ data.type.toLowerCase() }}</mat-slide-toggle
-    >
-  </div>
-</div>
+<h2 mat-dialog-title>Download {{ what }}</h2>
 
-<div align="end" class="pr-6 pb-4" mat-dialog-actions>
-  <button mat-button mat-dialog-close>Cancel</button>
-  <button color="primary" mat-raised-button (click)="downloadCsv()">Download</button>
-</div>
+<mat-dialog-content>
+  <p class="m-0 mb-4 text-sm leading-relaxed text-ot-muted">
+    The CSV lists every one of the unit's {{ what }}.
+  </p>
+  <mat-slide-toggle [(ngModel)]="includeNested"
+    >Include the {{ what }} of each task too</mat-slide-toggle
+  >
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close type="button">Cancel</button>
+  <button color="primary" mat-flat-button type="button" (click)="downloadCsv()">Download</button>
+</mat-dialog-actions>

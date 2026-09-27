@@ -1,55 +1,81 @@
 @if (loading) {
-  <div class="flex-start flex size-full items-center justify-center text-gray-400 italic">
+  <div
+    class="flex items-center justify-center gap-3 px-5 py-10 text-sm text-ot-muted"
+    role="status"
+  >
+    <mat-spinner aria-hidden="true" diameter="20"></mat-spinner>
     Loading members...
   </div>
-} @else if (!selectedGroup || selectedGroup.members.length === 0) {
-  <div class="flex size-full flex-col items-center justify-center p-2.5 text-gray-400">
-    <mat-icon class="scale-125">group_off</mat-icon>
-    <p class="p-2.5">There are no members in this group</p>
+} @else if (loadError) {
+  <div class="flex flex-col items-center pb-8">
+    <f-empty-state
+      hint="Check your connection, then try again."
+      icon="error_outline"
+      message="Members could not be loaded"
+    ></f-empty-state>
+    <button class="-mt-6" mat-stroked-button type="button" (click)="loadMembers()">
+      Try again
+    </button>
   </div>
+} @else if (members.length === 0) {
+  <f-empty-state
+    icon="group_off"
+    message="No members yet"
+    [hint]="unitRole ? 'Add a student with the search below.' : ''"
+  ></f-empty-state>
 } @else {
-  <table mat-table [dataSource]="dataSource">
-    <ng-container matColumnDef="student_id">
-      <th *matHeaderCellDef mat-header-cell>{{ unitRole ? 'Student ID' : '' }}</th>
-      <td *matCellDef="let member" mat-cell>
+  <ul aria-label="Group members" class="m-0 list-none p-0" [class.student-member-cards]="project">
+    @for (member of members; track member.id) {
+      <li
+        class="flex min-h-14 items-center gap-3 border-b border-ot-divider px-5 py-2 last:border-b-0"
+        [class.student-member-card]="project"
+      >
+        <div class="min-w-0 flex-1" [class.student-member-card__identity]="project">
+          <p class="m-0 truncate font-medium text-ot-text">
+            {{ member.student?.name || 'Unnamed student' }}
+            @if (project?.id === member.id) {
+              <strong>(You)</strong>
+            }
+          </p>
+          @if (unitRole && member.student?.username) {
+            <p class="m-0 truncate text-sm text-ot-muted">{{ member.student.username }}</p>
+          }
+        </div>
+
         @if (unitRole) {
-          {{ member.student.username || 'N/A' }}
+          <f-grade-icon
+            class="inline-block shrink-0 text-xs"
+            [grade]="member.targetGrade"
+            [unit]="unit"
+          ></f-grade-icon>
         }
-      </td>
-    </ng-container>
 
-    <ng-container matColumnDef="name">
-      <th *matHeaderCellDef mat-header-cell>Name</th>
-      <td *matCellDef="let member" mat-cell>
-        {{ member.student.name }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="target_grade">
-      <th *matHeaderCellDef mat-header-cell>{{ unitRole ? 'Target Grade' : '' }}</th>
-      <td *matCellDef="let member" mat-cell>
-        @if (unitRole) {
-          <f-grade-icon [grade]="member.targetGrade" [unit]="unit"></f-grade-icon>
-        }
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th *matHeaderCellDef mat-header-cell>{{ canRemoveMembers ? 'Actions' : '' }}</th>
-      <td *matCellDef="let member" mat-cell>
         @if (canRemoveMembers) {
           @if (!project && unitRole) {
-            <button color="warn" mat-icon-button (click)="removeMember(member)">
-              <mat-icon>delete</mat-icon>
+            <button
+              class="shrink-0 text-ot-error"
+              mat-icon-button
+              matTooltip="Remove from group"
+              type="button"
+              [attr.aria-label]="
+                'Remove ' + (member.student?.name || 'student') + ' from the group'
+              "
+              (click)="removeMember(member)"
+            >
+              <mat-icon>person_remove</mat-icon>
             </button>
           } @else if (project && project.id === member.id) {
-            <button mat-raised-button (click)="removeMember(member)">Leave</button>
+            <button
+              class="shrink-0"
+              mat-stroked-button
+              type="button"
+              (click)="removeMember(member)"
+            >
+              Leave group
+            </button>
           }
         }
-      </td>
-    </ng-container>
-
-    <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-    <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
-  </table>
+      </li>
+    }
+  </ul>
 }

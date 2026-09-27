@@ -1,0 +1,5 @@
+@use 'styles/mixins/token-expansion-panel' as *;
+
+.similarity-panel {
+  @include token-expansion-panel;
+}

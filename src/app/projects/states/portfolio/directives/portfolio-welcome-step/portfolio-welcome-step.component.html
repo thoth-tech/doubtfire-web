@@ -1,23 +1,47 @@
-<mat-card appearance="outlined" class="mx-auto max-w-[1100px]">
-  <mat-card-header>
-    <mat-card-title>Portfolio Preparation</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <p>Preparing your portfolio involves 5 steps:</p>
-    <ol class="ml-2.5 list-inside list-decimal space-y-1 py-3">
-      <li>Select your <strong>Grade</strong> you are applying for</li>
-      <li>Upload your <strong>Learning Summary Report</strong></li>
-      <li>Upload any <strong>Other Resources</strong> you want to add</li>
-      <li><strong>Compile</strong> your resources into your portfolio and review</li>
+<section
+  class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+>
+  <div class="flex flex-col gap-5 p-5 sm:p-6">
+    <div>
+      <h2 class="m-0 text-lg leading-snug font-semibold text-ot-text">
+        Four steps to your portfolio
+      </h2>
+      <p class="m-0 mt-1 text-sm leading-relaxed text-ot-muted">
+        Your portfolio is the evidence for your final grade. It takes four steps after this one.
+      </p>
+    </div>
+
+    <ol class="m-0 grid list-none gap-3 p-0 sm:grid-cols-2">
+      @for (step of steps; track step.title) {
+        <li class="welcome-step">
+          <span aria-hidden="true" class="welcome-step__icon">
+            <mat-icon>{{ step.icon }}</mat-icon>
+          </span>
+          <div class="min-w-0">
+            <p class="m-0 text-xs font-semibold tracking-wide text-ot-muted uppercase">
+              Step {{ $index + 2 }}
+            </p>
+            <p class="m-0 mt-0.5 font-semibold text-ot-text">{{ step.title }}</p>
+            <p class="m-0 mt-1 text-sm leading-relaxed text-ot-muted">{{ step.detail }}</p>
+          </div>
+        </li>
+      }
     </ol>
-    <p>
-      Once you have completed all of these steps, your portfolio will be prepared by
-      {{ externalName }} and you will be notified when it is ready. You can then check your work,
-      and if you want to make any corrections repeat these steps to create a new version of your
-      portfolio.
-    </p>
-  </mat-card-content>
-  <mat-card-footer class="flex w-full justify-end p-3">
-    <button color="primary" mat-raised-button (click)="goNextStep()">Next</button>
-  </mat-card-footer>
-</mat-card>
+
+    <div class="welcome-note">
+      <mat-icon aria-hidden="true">schedule</mat-icon>
+      <p class="m-0 text-sm leading-relaxed">
+        {{ externalName }} builds the portfolio for you and lets you know when it is ready. If you
+        want to change something after that, delete it and create it again.
+      </p>
+    </div>
+  </div>
+
+  <footer
+    class="portfolio-step-footer flex flex-wrap items-center justify-end gap-3 border-t border-ot-divider px-5 py-3 sm:px-6"
+  >
+    <button color="primary" mat-flat-button type="button" (click)="goNextStep()">
+      Get started
+    </button>
+  </footer>
+</section>

@@ -1,0 +1,16 @@
+// The sections stack with an even gap, and the body is wide enough for the grade
+// toggles without crowding a phone.
+.grade-task-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 28rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+// Material's dialog actions sit on 8px padding. The title and body use 24px at the
+// sides, so the buttons take the same inset and the same space underneath.
+.grade-task-actions {
+  padding: 8px 24px 24px;
+}

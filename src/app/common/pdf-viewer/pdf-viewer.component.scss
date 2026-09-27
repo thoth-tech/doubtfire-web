@@ -1,83 +1,239 @@
-@use 'styles/mixins/scrollable' as *;
-
-#pdfContainer {
-  flex-direction: column;
+:host {
+  display: block;
   height: 100%;
-  min-height: 100%;
-  min-width: 100%;
+  min-height: 0;
+  min-width: 0;
   width: 100%;
+}
+
+// The panel that holds the viewer already draws the frame, so the viewer does not
+// add a second border and radius inside it.
+.pdf-viewer {
+  background: var(--ot-color-surface);
+  color: var(--ot-color-text);
   box-sizing: border-box;
   display: flex;
-  place-content: center;
-  align-items: center;
-}
-
-#actionBar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-object {
+  flex-direction: column;
   height: 100%;
-  min-width: 100%;
+  min-height: 18rem;
+  min-width: 0;
+  overflow: hidden;
   width: 100%;
 }
 
-#pdfViewActions {
-  padding-top: 1rem;
-  padding-left: 1rem;
-  margin-right: auto;
+.pdf-viewer__toolbar {
+  border-bottom: 1px solid var(--ot-color-divider);
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.375rem 0.5rem 0.5rem 0.75rem;
+}
 
-  button {
-    margin-bottom: 28px;
+.pdf-viewer__title-row {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.pdf-viewer__file-heading {
+  align-items: center;
+  color: var(--ot-color-text);
+  display: flex;
+  flex: 1 1 auto;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  min-width: 0;
+
+  mat-icon {
+    color: var(--ot-color-text-muted);
+    flex: none;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
-#pdfActions {
-  padding-top: 1rem;
-  padding-right: 1rem;
-  margin-left: auto;
+.pdf-viewer__actions,
+.pdf-viewer__zoom {
+  align-items: center;
+  display: flex;
+  flex: none;
+  gap: 0.125rem;
+}
 
-  ::ng-deep .mdc-notched-outline__leading {
-    min-width: 28px !important;
-    border-top-left-radius: 28px !important;
-    border-bottom-left-radius: 28px !important;
-  }
-  ::ng-deep .mdc-notched-outline__notch {
-    border-radius: 28px 0 0 28px !important;
-  }
-  ::ng-deep .mdc-notched-outline__trailing {
-    border-radius: 0 28px 28px 0 !important;
-  }
-  ::ng-deep .mat-form-field-outline-end {
-    border-radius: 0 28px 28px 0 !important;
-  }
-  ::ng-deep .mat-mdc-form-field-flex {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
+// Round Material icon buttons, the same as every other panel's actions.
+.pdf-viewer__icon-button {
+  --mat-icon-button-state-layer-size: 40px;
+  color: var(--ot-color-text-muted);
+  padding: 8px;
+}
+
+.pdf-viewer__document-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+// The search pill used across the app (the inbox and the task list): a rounded field
+// on the surface with a muted icon, and one focus ring round the whole pill.
+.pdf-viewer__search {
+  align-items: center;
+  background: var(--ot-color-surface);
+  border: 1px solid var(--ot-color-border);
+  border-radius: 999px;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 12rem;
+  gap: 0.5rem;
+  height: 2.5rem;
+  min-width: 0;
+  padding-inline: 0.75rem;
+
+  &:focus-within {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 1px;
   }
 
-  button {
-    margin-left: -12px;
+  mat-icon {
+    color: var(--ot-color-text-muted);
+    flex: none;
   }
+
+  input {
+    background: transparent;
+    border: 0;
+    color: var(--ot-color-text);
+    flex: 1 1 auto;
+    font: inherit;
+    font-size: 0.9375rem;
+    min-width: 0;
+    outline: 0;
+    width: 100%;
+
+    &::placeholder {
+      color: var(--ot-color-text-muted);
+      opacity: 1;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.pdf-viewer__zoom output {
+  color: var(--ot-color-text-muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.75rem;
+  text-align: center;
+}
+
+.pdf-viewer__content {
+  background: var(--ot-color-page);
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  position: relative;
+}
+
+// The document fills exactly the space under the toolbar. With its own 18rem minimum
+// it overflowed a shorter space, and its scroll box and scrollbar were cut off inside
+// the content's scroll box, so the PDF could not be scrolled to its end. The viewer
+// as a whole keeps the minimum instead.
+.pdf-viewer__document,
+.pdf-viewer__native-document {
+  border: 0;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.pdf-viewer__document--loading {
+  opacity: 0;
 }
 
 pdf-viewer {
-  width: 100%;
-  height: 100%;
-
-  .ng2-pdf-viewer-container {
-    overflow-x: hidden;
-    overflow-y: visible;
+  ::ng-deep .ng2-pdf-viewer-container {
+    overflow: auto;
   }
 }
 
-.ng2-pdf-viewer-container {
-  overflow-x: hidden;
-  overflow-y: visible;
+.pdf-viewer__state {
+  align-items: center;
+  color: var(--ot-color-text);
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.625rem;
+  justify-content: center;
+  min-height: 16rem;
+  padding: 1.25rem;
+  text-align: center;
+
+  h3,
+  p {
+    margin: 0;
+    max-width: 34rem;
+    overflow-wrap: anywhere;
+  }
+
+  > mat-icon {
+    font-size: 2.5rem;
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+}
+
+.pdf-viewer__state--overlay {
+  background: var(--ot-color-surface);
+  inset: 0;
+  position: absolute;
+  z-index: 2;
+}
+
+.pdf-viewer__state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.sr-only {
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+// The browser presents only this element in full screen. Keep its page colour
+// and constrain the document to the theme's comfortable reading width.
+#pdfContainer:fullscreen {
+  background: var(--ot-color-page);
+  color: var(--ot-color-text);
+  border-radius: 0;
+
+  .pdf-viewer__content {
+    justify-content: center;
+  }
+
+  pdf-viewer,
+  object {
+    min-width: 0;
+    max-width: 64rem;
+  }
 }

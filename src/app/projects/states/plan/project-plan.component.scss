@@ -1,0 +1,70 @@
+// The target grade field runs at 48px (Material density -2) so it lines up with
+// the calendar button beside it.
+.plan-grade-field {
+  --mat-form-field-container-height: 48px;
+  --mat-form-field-container-vertical-padding: 12px;
+}
+
+.planner-intro {
+  display: flex;
+  flex-direction: column;
+}
+
+.planner-primary-controls {
+  display: grid;
+  grid-template-columns: minmax(16rem, 1fr) minmax(16rem, 1fr);
+  align-items: start;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.planner-grade-field {
+  width: 100%;
+}
+
+.planner-calendar-action {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.planner-calendar-action p {
+  margin: 0;
+}
+
+.planner-calendar-action button {
+  min-height: 44px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 767.98px) {
+  .planner-primary-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .planner-calendar-action {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .planner-calendar-action button {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 639.98px) {
+  :host {
+    display: block;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .task-planner-surface {
+    height: auto !important;
+    padding: 0 1rem;
+  }
+}

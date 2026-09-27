@@ -1,7 +1,9 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {of} from 'rxjs';
+import {Subject, of} from 'rxjs';
 import {Task, TaskComment, TaskCommentService} from 'src/app/api/models/doubtfire-model';
 import {AlertService} from 'src/app/common/services/alert.service';
+import {AppLifecycleService, MediaPauseEvent} from 'src/app/common/services/app-lifecycle.service';
+import {AudioPlaybackCoordinatorService} from 'src/app/common/services/audio-playback-coordinator.service';
 import {MediaRecorderService} from 'src/app/common/services/recorder-service';
 import {DiscussionPromptComposerComponent} from './discussion-prompt-composer.component';
 
@@ -46,6 +48,15 @@ describe('DiscussionPromptComposerComponent', () => {
       {} as MediaRecorderService,
       taskCommentService as unknown as TaskCommentService,
       {error: vi.fn()} as unknown as AlertService,
+      {
+        activate: vi.fn(),
+        release: vi.fn(),
+        isActive: vi.fn(() => true),
+      } as unknown as AudioPlaybackCoordinatorService,
+      {
+        registerMedia: vi.fn(() => vi.fn()),
+        mediaPauseSubject: new Subject<MediaPauseEvent>(),
+      } as unknown as AppLifecycleService,
     );
     component.task = {id: 1} as Task;
     component.testAudio = {

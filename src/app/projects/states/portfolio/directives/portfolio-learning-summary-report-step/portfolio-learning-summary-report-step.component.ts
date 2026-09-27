@@ -33,10 +33,10 @@ export class PortfolioLearningSummaryReportStepComponent {
     private gradeService: GradeService,
   ) {}
 
-  public get projectHasDraftLearningSummaryReport() {
-    return (
+  public get projectHasDraftLearningSummaryReport(): boolean {
+    return Boolean(
       this.project?.usesDraftLearningSummary ||
-      this.project?.portfolioFiles.find((f) => f.idx === 0)
+      this.project?.portfolioFiles?.some((file) => file.idx === 0),
     );
   }
 

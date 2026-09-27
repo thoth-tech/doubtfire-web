@@ -1,13 +1,53 @@
-mat-form-field {
-  padding: 1rem;
+// Numbered by a counter rather than by hand, so the optional weight step shifts the
+// later numbers without any template logic.
+.d2l-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: d2l-step;
 }
 
-li {
-  width: 100%;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+.d2l-step {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  column-gap: 0.75rem;
+  align-items: start;
+  counter-increment: d2l-step;
+
+  &::before {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--ot-color-border);
+    border-radius: var(--ot-radius-circle);
+    color: var(--ot-color-text);
+    content: counter(d2l-step);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    line-height: 1;
+  }
 }
 
-li button {
-  margin-right: 1rem;
+// A calm tinted panel: a light wash of the info tone on the surface, a matching hairline
+// and the icon in the tone. The text stays in the body colour for full contrast.
+.d2l-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--ot-color-info) 35%, var(--ot-color-divider));
+  border-radius: var(--ot-radius-md);
+  background: color-mix(in srgb, var(--ot-color-info) 8%, var(--ot-color-surface));
+  color: var(--ot-color-text);
+
+  > .mat-icon {
+    flex: none;
+    color: var(--ot-color-info);
+  }
 }

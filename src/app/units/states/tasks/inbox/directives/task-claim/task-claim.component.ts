@@ -25,7 +25,43 @@ export class TaskClaimComponent {
 
   public get currentUnitRole(): UnitRole | undefined {
     const currentUser = this.userService.currentUser;
-    return this.selectedTask.unit.staff.find((ur) => ur.user.id === currentUser.id);
+    if (!currentUser) {
+      return undefined;
+    }
+
+    return this.selectedTask?.unit?.staff?.find((ur) => ur.user?.id === currentUser.id);
+  }
+
+  /** True when the task is claimed by the person looking at it. */
+  public get claimedByMe(): boolean {
+    const claimedBy = this.selectedTask?.claimedByUnitRoleId;
+    return !!claimedBy && claimedBy === this.currentUnitRole?.id;
+  }
+
+  public get claimIcon(): string {
+    if (!this.selectedTask?.claimedByUnitRoleId) {
+      return 'sync_lock';
+    }
+
+    return this.claimedByMe ? 'check_circle' : 'event_busy';
+  }
+
+  public get claimLabel(): string {
+    if (!this.selectedTask?.claimedByUnitRoleId) {
+      return 'Claim task';
+    }
+
+    return this.claimedByMe ? 'Claimed by you' : 'Claimed by another tutor';
+  }
+
+  public get claimTooltip(): string {
+    if (!this.selectedTask?.claimedByUnitRoleId) {
+      return 'Claim this task from the overflow queue so you can mark it.';
+    }
+
+    return this.claimedByMe
+      ? 'You have claimed this task.'
+      : 'Another tutor is giving feedback on this task right now.';
   }
 
   claimTask(task: Task) {
@@ -36,7 +72,7 @@ export class TaskClaimComponent {
           `Successfully claimed task. This task will be automatically unclaimed after 30 minutes of inactivity.`,
           'OK',
         );
-        task.claimedByUnitRoleId = this.currentUnitRole.id;
+        task.claimedByUnitRoleId = this.currentUnitRole?.id ?? task.claimedByUnitRoleId;
       },
       error: (error) => {
         this.alertService.error(`Failed to claim task ${error}`, 6000);

@@ -1,21 +1,21 @@
-<div class="space-y-5 rounded-lg border border-gray-200 bg-white p-4">
+<div class="space-y-5 rounded-lg border border-ot-divider bg-ot-surface p-4">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
     <div>
-      <h3 class="m-0 text-lg font-semibold text-gray-900">Create discussion prompts</h3>
-      <p class="m-0 mt-1 text-sm text-gray-600">
+      <h3 class="m-0 text-lg font-semibold text-ot-text">Create discussion prompts</h3>
+      <p class="m-0 mt-1 text-sm text-ot-muted">
         Record up to three short prompts. Students will hear them one at a time and respond out
         loud.
       </p>
     </div>
     <span
-      class="shrink-0 self-start rounded-full bg-gray-100 px-3 py-1 text-xs font-medium whitespace-nowrap text-gray-700"
+      class="shrink-0 self-start rounded-full bg-ot-raised px-3 py-1 text-xs font-medium whitespace-nowrap text-ot-muted"
     >
       {{ recordings.length }} / 3 prompts
     </span>
   </div>
 
   @if (!canRecord) {
-    <p class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+    <p class="rounded-md bg-ot-raised p-3 text-sm text-ot-warning">
       Audio recording is only supported in modern versions of Chrome, Firefox and Safari.
     </p>
   }
@@ -45,11 +45,11 @@
         </button>
 
         <div
-          class="relative min-w-[180px] grow overflow-hidden rounded-lg border border-blue-100 bg-blue-50"
+          class="relative min-w-[180px] grow overflow-hidden rounded-lg border border-ot-divider bg-ot-raised"
         >
           <canvas #discussionPromptComposerCanvas class="h-[72px] w-full"></canvas>
           <div
-            class="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/50 via-transparent to-white/50"
+            class="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--ot-scrim)] via-transparent to-[var(--ot-scrim)]"
           ></div>
         </div>
 
@@ -65,7 +65,7 @@
         </button>
       </div>
     } @else {
-      <div class="rounded-md bg-blue-50 p-3 text-sm text-blue-900">
+      <div class="rounded-md bg-ot-raised p-3 text-sm text-ot-text">
         You have recorded the maximum of three prompts.
       </div>
     }
@@ -76,12 +76,12 @@
   <mat-action-list class="mb-3 h-full" id="recordingList">
     <h3 mat-subheader>Discussion Prompts</h3>
     @if (recordings.length === 0) {
-      <div class="px-4 pb-3 text-sm text-gray-500">No prompts recorded yet.</div>
+      <div class="px-4 pb-3 text-sm text-ot-muted">No prompts recorded yet.</div>
     }
 
     @for (recording of recordings; track recording; let i = $index) {
       <mat-list-item class="cursor-pointer" (click)="playRecording(recording, i)">
-        <mat-icon class="text-black" matListItemIcon>
+        <mat-icon class="text-ot-text" matListItemIcon>
           {{ isRecordingPlaying(i) ? 'stop_circle' : 'play_arrow_rounded' }}
         </mat-icon>
         <span matListItemTitle>Prompt {{ i + 1 }}</span>

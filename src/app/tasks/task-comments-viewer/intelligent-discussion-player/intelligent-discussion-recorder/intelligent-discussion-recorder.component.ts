@@ -12,6 +12,8 @@ import {
   BaseAudioRecorderComponent,
   RecordingEvent,
 } from 'src/app/common/audio-recorder/audio/base-audio-recorder';
+import {AppLifecycleService} from 'src/app/common/services/app-lifecycle.service';
+import {AudioPlaybackCoordinatorService} from 'src/app/common/services/audio-playback-coordinator.service';
 import {MediaRecorderService} from 'src/app/common/services/recorder-service';
 
 @Component({
@@ -38,8 +40,10 @@ export class IntelligentDiscussionRecorderComponent
   constructor(
     private mediaRecorderService: MediaRecorderService,
     private taskCommentService: TaskCommentService,
+    playbackCoordinator: AudioPlaybackCoordinatorService,
+    appLifecycle: AppLifecycleService,
   ) {
-    super(mediaRecorderService);
+    super(mediaRecorderService, playbackCoordinator, appLifecycle);
   }
 
   ngAfterViewInit() {
@@ -70,6 +74,25 @@ export class IntelligentDiscussionRecorderComponent
     }
   }
 
+  /** Ends the take without producing a recording, so nothing is posted. */
+  cancelRecording(): void {
+    this.isPlaying = false;
+    if (this.isRecording || this.isRequestingPermission) {
+      this.mediaRecorder.cancelRecording();
+      this.isRecording = false;
+      this.isRequestingPermission = false;
+      this.stopVisualisation();
+      this.clearWaveform();
+    }
+  }
+
+  // A stop posts the take as the student's reply, and the API marks the
+  // discussion complete. A backgrounded take is only part of an answer, so it
+  // is dropped instead and the dialog asks the student to start again.
+  protected onLifecyclePause(): void {
+    this.cancelRecording();
+  }
+
   sendRecording() {
     if (this.blob && this.blob.size > 0) {
       this.isSending = true;
@@ -91,12 +114,14 @@ export class IntelligentDiscussionRecorderComponent
       let WIDTH: number;
       let HEIGHT: number;
 
+      this.resolveWaveformColours();
+
       this.canvas.width = 1;
       this.canvas.height = 1;
 
       this.canvas.width = WIDTH = this.canvas.clientWidth;
       this.canvas.height = HEIGHT = this.canvas.clientHeight;
-      requestAnimationFrame(draw);
+      this.scheduleVisualisationFrame(draw);
       analyser.getByteTimeDomainData(dataArray);
       analyser.getByteFrequencyData(dataArray);
 
@@ -122,12 +147,32 @@ export class IntelligentDiscussionRecorderComponent
     draw();
   }
 
+  // Waveform fill colours are read from the theme tokens so the visualiser flips with the
+  // panel. getComputedStyle is resolved once per animation frame (see resolveWaveformColours),
+  // never inside the per-bar draw loop where the getter is read.
+  private waveformIdleColour = '#2563eb';
+  private waveformRecordingColour = '#dc2626';
+  private waveformRecordingMutedColour = '#b91c1c66';
+
+  private resolveWaveformColours(): void {
+    const styles = getComputedStyle(document.documentElement);
+    const idle = styles.getPropertyValue('--ot-color-primary').trim();
+    const error = styles.getPropertyValue('--ot-color-error').trim();
+    if (idle) {
+      this.waveformIdleColour = idle;
+    }
+    if (error) {
+      this.waveformRecordingColour = error;
+      this.waveformRecordingMutedColour = `color-mix(in srgb, ${error} 40%, transparent)`;
+    }
+  }
+
   private get waveformColour(): string {
     if (!this.isRecording) {
-      return '#2563eb';
+      return this.waveformIdleColour;
     }
 
-    return this.promptActive ? '#b91c1c66' : '#dc2626';
+    return this.promptActive ? this.waveformRecordingMutedColour : this.waveformRecordingColour;
   }
 
   private clearWaveform(): void {

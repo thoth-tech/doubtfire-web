@@ -83,4 +83,18 @@ describe('WelcomeComponent', () => {
 
     expect(element.textContent).toContain('Welcome to OnTrack');
   });
+
+  it('uses the approved coloured logo and centred signed-out branding', () => {
+    const element: HTMLElement = fixture.nativeElement;
+    const logo = element.querySelector<HTMLImageElement>('.wordmark img');
+    const wordmark = element.querySelector<HTMLElement>('.wordmark');
+    const heading = element.querySelector<HTMLElement>('.welcome-heading');
+
+    expect(logo?.getAttribute('src')).toBe('/assets/images/logo.svg');
+    expect(logo?.getAttribute('alt')).toBe('OnTrack logo');
+    expect(wordmark?.classList).toContain('justify-center');
+    expect(wordmark?.classList).toContain('text-center');
+    expect(heading?.classList).toContain('self-center');
+    expect(heading?.classList).toContain('text-center');
+  });
 });

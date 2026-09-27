@@ -3,7 +3,9 @@ import {TaskDefinition} from 'src/app/api/models/task-definition';
 import {Unit} from 'src/app/api/models/unit';
 import {TaskDefinitionService} from 'src/app/api/services/task-definition.service';
 import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {ConfirmationModalService} from 'src/app/common/modals/confirmation-modal/confirmation-modal.service';
 import {AlertService} from 'src/app/common/services/alert.service';
+import {ZIP_ACCEPT, isZipFile} from '../task-file-types';
 
 @Component({
   selector: 'f-task-definition-scorm',
@@ -15,10 +17,15 @@ import {AlertService} from 'src/app/common/services/alert.service';
 export class TaskDefinitionScormComponent {
   @Input() taskDefinition: TaskDefinition;
 
+  // The drop zone only took application/zip, so a ZIP dragged in on Windows,
+  // which the browser calls application/x-zip-compressed, was silently ignored.
+  public readonly zipAccept = ZIP_ACCEPT;
+
   constructor(
     private fileDownloaderService: FileDownloaderService,
     private alerts: AlertService,
     private taskDefinitionService: TaskDefinitionService,
+    private confirmationModal: ConfirmationModalService,
   ) {}
 
   public get unit(): Unit {
@@ -40,18 +47,19 @@ export class TaskDefinitionScormComponent {
   }
 
   public removeScormData() {
-    this.taskDefinition.deleteScormData().subscribe({
-      next: () => this.alerts.success('Deleted SCORM test data', 2000),
-      error: (message) => this.alerts.error(message, 6000),
-    });
+    this.confirmationModal.show(
+      'Delete test package',
+      `Students will not be able to take the test for ${this.taskDefinition.abbreviation} until you upload another.`,
+      () =>
+        this.taskDefinition.deleteScormData().subscribe({
+          next: () => this.alerts.success('Deleted SCORM test data', 2000),
+          error: (message) => this.alerts.error(message, 6000),
+        }),
+    );
   }
 
   public uploadScormData(files: ArrayLike<File>) {
-    // console.log(Array.from(files).map((f) => f.type));
-    const validMimeTypes = ['application/zip', 'application/x-zip-compressed', 'multipart/x-zip'];
-    const validFiles = Array.from(files as ArrayLike<File>).filter((f) =>
-      validMimeTypes.includes(f.type),
-    );
+    const validFiles = Array.from(files as ArrayLike<File>).filter(isZipFile);
     if (validFiles.length > 0) {
       const file = validFiles[0];
       this.taskDefinitionService.uploadScormData(this.taskDefinition, file).subscribe({

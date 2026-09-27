@@ -1,3 +1,4 @@
-<button class="pr-2.5" mat-button (click)="uploadGradesCSV()">
-  <mat-icon inline>upload</mat-icon> Upload Grades CSV
+<button mat-stroked-button type="button" [disabled]="disabled || !unit" (click)="uploadGradesCSV()">
+  <mat-icon aria-hidden="true">upload</mat-icon>
+  Upload grades
 </button>

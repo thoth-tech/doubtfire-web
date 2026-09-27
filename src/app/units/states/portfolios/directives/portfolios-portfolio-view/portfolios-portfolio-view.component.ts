@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
 import {Project} from 'src/app/api/models/project';
 
 @Component({
@@ -10,4 +10,7 @@ import {Project} from 'src/app/api/models/project';
 })
 export class PortfoliosPortfolioViewComponent {
   @Input() project: Project;
+
+  // With no portfolio to read, the useful next step is the student's progress.
+  @Output() showProgress: EventEmitter<void> = new EventEmitter();
 }
