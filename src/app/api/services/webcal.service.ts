@@ -16,6 +16,7 @@ export class WebcalService extends EntityService<Webcal> {
       'id',
       'guid',
       'includeStartDates',
+      'includeLearningSessions',
       'userId',
       'reminder',
       'unitExclusions',

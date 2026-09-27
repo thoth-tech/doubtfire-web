@@ -1,132 +1,271 @@
-<mat-card appearance="outlined" class="p-[16px]">
-  <mat-card-header class="mb-2.5 flex justify-between">
-    <mat-card-title>
-      <h2>Tutor Times Session Summary</h2>
-    </mat-card-title>
+<section
+  aria-labelledby="analytics-sessions-title"
+  class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+>
+  <header class="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 px-5 pt-5 pb-4 sm:px-6">
+    <div class="min-w-0 flex-1 basis-72">
+      <h2 class="m-0 text-lg leading-snug font-semibold text-ot-text" id="analytics-sessions-title">
+        Marking sessions
+      </h2>
+      <p class="m-0 mt-1 text-sm leading-relaxed text-ot-muted">
+        @if (showsOnlyOwnSessions) {
+          The time you spent marking, shown by day.
+        } @else {
+          The time each tutor spent marking, shown by day. Select a session or a name to see only
+          that tutor.
+        }
+      </p>
+    </div>
 
-    <div class="flex gap-1">
+    <div class="flex flex-wrap items-center gap-2">
       @if (role === 'Convenor') {
         <button
-          mat-button
-          matTooltip="Download CSV summary for the selected date range"
-          matTooltipPosition="above"
-          matTooltipShowDelay="1000"
+          data-download-summary
+          mat-stroked-button
+          matTooltip="Every tutor's time for these dates, as a CSV file"
+          type="button"
           (click)="getTutorTimesSummary()"
         >
-          <mat-icon>download</mat-icon> Download Summary
+          <mat-icon aria-hidden="true">download</mat-icon>
+          Download summary
         </button>
       }
-
       <button
-        mat-button
-        matTooltip="Download CSV of your tutor sessions for the selected date range"
-        matTooltipPosition="above"
-        matTooltipShowDelay="1000"
+        data-download-mine
+        mat-stroked-button
+        matTooltip="Your own sessions for these dates, as a CSV file"
+        type="button"
         (click)="getMyTutorTimesSessions()"
       >
-        <mat-icon>download</mat-icon> Download My Sessions
+        <mat-icon aria-hidden="true">download</mat-icon>
+        Download my sessions
       </button>
     </div>
-  </mat-card-header>
+  </header>
 
-  <div class="flex flex-col items-center justify-center">
-    <div class="mb-3 flex flex-row gap-1">
-      <button class="w-24" color="primary" mat-raised-button (click)="goPreviousWeek()">
-        Previous
-      </button>
-      <button mat-raised-button (click)="goTodayWeek()">Today</button>
-      <button class="w-24" color="primary" mat-raised-button (click)="goNextWeek()">Next</button>
-    </div>
-    <div class="mb-3 flex flex-row gap-1">
-      <mat-form-field appearance="outline">
-        <mat-label>Choose a date</mat-label>
-        <input
-          matInput
-          [matDatepicker]="startdatepicker"
-          [(ngModel)]="tutorTimeSummaryStartDate"
-          (dateChange)="onDateChange($event)"
-        />
-        <mat-hint>Sessions from this day onward</mat-hint>
-        <mat-datepicker-toggle matIconSuffix [for]="startdatepicker"></mat-datepicker-toggle>
-        <mat-datepicker #startdatepicker></mat-datepicker>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Choose a date</mat-label>
-        <input
-          matInput
-          [matDatepicker]="enddatepicker"
-          [(ngModel)]="tutorTimeSummaryEndDate"
-          (dateChange)="onDateChange($event)"
-        />
-        <mat-hint>Sessions up to this day</mat-hint>
-        <mat-datepicker-toggle matIconSuffix [for]="enddatepicker"></mat-datepicker-toggle>
-        <mat-datepicker #enddatepicker></mat-datepicker>
-      </mat-form-field>
-    </div>
-    <div class="mb-1 flex w-full justify-end">
-      <mat-slide-toggle
-        labelPosition="before"
-        [(ngModel)]="hideSessionsDuringTutorials"
-        (toggleChange)="onToggleChangeHideSessionsDuringTutorial()"
-        >Hide sessions during tutorials</mat-slide-toggle
+  <div
+    class="flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-ot-divider px-5 py-4 sm:px-6"
+  >
+    <div aria-label="Change dates" class="flex items-center gap-1" role="group">
+      <button data-go-today mat-stroked-button type="button" (click)="goTodayWeek()">Today</button>
+      <button
+        data-go-previous
+        mat-icon-button
+        type="button"
+        [attr.aria-label]="'Previous ' + periodName"
+        [matTooltip]="'Previous ' + periodName"
+        (click)="goPreviousWeek()"
       >
+        <mat-icon aria-hidden="true">chevron_left</mat-icon>
+      </button>
+      <button
+        data-go-next
+        mat-icon-button
+        type="button"
+        [attr.aria-label]="'Next ' + periodName"
+        [matTooltip]="'Next ' + periodName"
+        (click)="goNextWeek()"
+      >
+        <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      </button>
     </div>
+
+    <mat-form-field appearance="outline" class="w-full sm:w-72" subscriptSizing="dynamic">
+      <mat-label>Dates</mat-label>
+      <mat-date-range-input [formGroup]="dateRange" [rangePicker]="sessionsRangePicker">
+        <input
+          aria-label="First day"
+          formControlName="start"
+          matStartDate
+          placeholder="Start"
+          (dateChange)="onDateChange()"
+        />
+        <input
+          aria-label="Last day"
+          formControlName="end"
+          matEndDate
+          placeholder="End"
+          (dateChange)="onDateChange()"
+        />
+      </mat-date-range-input>
+      <mat-datepicker-toggle matIconSuffix [for]="sessionsRangePicker">
+        <mat-icon matDatepickerToggleIcon>calendar_month</mat-icon>
+      </mat-datepicker-toggle>
+      <mat-date-range-picker
+        #sessionsRangePicker
+        (closed)="onRangePickerClosed()"
+      ></mat-date-range-picker>
+    </mat-form-field>
+
+    <mat-slide-toggle
+      class="sm:ml-auto"
+      [ngModel]="hideSessionsDuringTutorials"
+      (ngModelChange)="setHideSessionsDuringTutorials($event)"
+    >
+      Hide sessions during tutorials
+    </mat-slide-toggle>
   </div>
 
-  <ng-template #eventTooltipTemplate let-event="event">
-    <div class="z-50 rounded bg-[rgba(25,25,25,0.8)] p-1 text-white">
-      <strong
-        >{{ event.tutorName }} ({{ event.duration }} minutes)
-        {{ event.duringTutorial ? 'T' : '' }}</strong
-      ><br />
-      {{ event.startHour }} — {{ event.endHour }}<br />
-      Assessments: {{ event.assessments || 0 }}<br />
-      Comments: {{ event.commentsAdded || 0 }}<br />
-      Submissions opened: {{ event.submissionsOpened || 0 }} <br />
-      During Tutorial?: {{ event.duringTutorial ? 'yes' : 'no' }}
+  <div class="flex flex-col gap-3 border-t border-ot-divider px-5 py-4 sm:px-6">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <p aria-live="polite" class="m-0 text-base font-semibold text-ot-text" data-range-label>
+        {{ rangeLabel }}
+      </p>
+      @if (!isLoading && !loadError) {
+        <p class="m-0 text-sm text-ot-muted tabular-nums" data-range-total>
+          {{ sessionCountLabel }} · {{ formatMinutes(totalMinutes) }} of marking
+        </p>
+      }
     </div>
-  </ng-template>
 
-  <div class="relative">
+    @if (tutorSummaries.length > 1) {
+      <div class="flex flex-wrap items-center gap-2">
+        <ul aria-label="Show one tutor's sessions" class="m-0 flex list-none flex-wrap gap-2 p-0">
+          @for (tutor of tutorSummaries; track tutor.userId) {
+            <li>
+              <button
+                class="inline-flex min-h-8 items-center gap-2 rounded-ot-pill border px-3 py-1 text-sm text-ot-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ot-focus"
+                data-tutor-chip
+                type="button"
+                [attr.aria-pressed]="selectedUserId === tutor.userId"
+                [ngClass]="
+                  selectedUserId === tutor.userId
+                    ? 'border-ot-link bg-ot-selected'
+                    : 'border-ot-border bg-ot-surface hover:bg-ot-hover'
+                "
+                (click)="toggleTutor(tutor.userId)"
+              >
+                <span
+                  aria-hidden="true"
+                  class="size-2.5 shrink-0 rounded-ot-circle"
+                  [style.background-color]="tutor.accent"
+                ></span>
+                {{ tutor.name }}
+                <span class="text-ot-muted tabular-nums">{{ formatMinutes(tutor.minutes) }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+        @if (selectedUserId !== null) {
+          <button data-show-everyone mat-button type="button" (click)="clearTutorFilter()">
+            Show everyone
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="relative border-t border-ot-divider" [attr.aria-busy]="isLoading">
     @if (isLoading) {
-      <div
-        aria-label="Loading analytics"
-        class="analytics-loading-spinner absolute top-1/2 left-1/2 z-50 -translate-1/2"
-        role="status"
-      ></div>
+      <mat-progress-bar
+        aria-label="Loading marking sessions"
+        class="absolute inset-x-0 top-0 z-10"
+        mode="indeterminate"
+      ></mat-progress-bar>
     }
 
-    <mwl-calendar-week-view
-      [daysInWeek]="daysInWeek"
-      [eventTemplate]="calendarEventTemplate"
-      [events]="filteredEvents"
-      [hourDuration]="60"
-      [hourSegmentHeight]="15"
-      [hourSegments]="4"
-      [minimumEventHeight]="5"
-      [viewDate]="viewDate"
-      [weekStartsOn]="0"
-      (beforeViewRender)="beforeViewRender($event)"
-      (eventClicked)="eventClicked($event)"
-    />
-
-    <ng-template #calendarEventTemplate let-eventClicked="eventClicked" let-weekEvent="weekEvent">
-      <div
-        class="cal-event"
-        role="application"
-        tabindex="0"
-        [attr.title]="sessionEventTitle(weekEvent.event)"
-        [ngStyle]="{
-          color: weekEvent.event.color?.secondaryText,
-          backgroundColor: weekEvent.event.color?.secondary,
-          borderColor: weekEvent.event.color?.primary,
-        }"
-        (click)="eventClicked.emit({sourceEvent: $event})"
-        (keydown.enter)="eventClicked.emit({sourceEvent: $event})"
-      >
-        {{ weekEvent.event.title }}
+    @if (loadError) {
+      <div class="flex flex-col items-center px-5 pb-10" data-sessions-error role="alert">
+        <f-empty-state
+          icon="error_outline"
+          message="Marking sessions could not be loaded"
+          [hint]="loadError"
+        ></f-empty-state>
+        <button mat-stroked-button type="button" (click)="loadSessions()">Try again</button>
       </div>
-    </ng-template>
+    } @else if (!isLoading && filteredEvents.length === 0) {
+      <div class="flex flex-col items-center px-5 pb-10" data-sessions-empty>
+        @if (sessionsHiddenByFilters) {
+          <f-empty-state
+            icon="visibility_off"
+            message="No sessions match the filters"
+            [hint]="
+              selectedTutorName
+                ? 'There are sessions in these dates, but none for ' + selectedTutorName + '.'
+                : 'Every session in these dates was during a tutorial.'
+            "
+          ></f-empty-state>
+          <button mat-stroked-button type="button" (click)="clearFilters()">
+            Show all sessions
+          </button>
+        } @else {
+          <f-empty-state
+            icon="event_busy"
+            message="No marking sessions in these dates"
+            [hint]="
+              showsOnlyOwnSessions
+                ? 'A session is recorded when you open, comment on or assess a student\'s task.'
+                : 'A session is recorded when a tutor opens, comments on or assesses a student\'s task.'
+            "
+          ></f-empty-state>
+          <button mat-stroked-button type="button" (click)="goPreviousWeek()">
+            Show the previous {{ periodName }}
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="analytics-calendar" [style.--analytics-days]="daysInWeek">
+        <mwl-calendar-week-view
+          [dayEndHour]="dayEndHour"
+          [dayStartHour]="dayStartHour"
+          [daysInWeek]="daysInWeek"
+          [eventTemplate]="calendarEventTemplate"
+          [events]="filteredEvents"
+          [headerTemplate]="calendarHeaderTemplate"
+          [hourDuration]="60"
+          [hourSegmentHeight]="15"
+          [hourSegments]="4"
+          [minimumEventHeight]="20"
+          [viewDate]="viewDate"
+          [weekStartsOn]="0"
+          (eventClicked)="eventClicked($event)"
+        />
+      </div>
+    }
   </div>
-</mat-card>
+</section>
+
+<!-- The library's header puts every day in the tab order with nothing behind it and paints
+     weekends red, so the days are drawn here instead. The first cell is the corner above
+     the hour labels; it sticks with them when the calendar scrolls sideways. -->
+<ng-template #calendarHeaderTemplate let-days="days">
+  <div class="cal-day-headers" role="row">
+    <div aria-hidden="true" class="analytics-calendar__corner"></div>
+    @for (day of days; track day.date.getTime()) {
+      <div
+        class="cal-header analytics-day"
+        role="columnheader"
+        [attr.aria-current]="day.isToday ? 'date' : null"
+        [ngClass]="{'analytics-day--today': day.isToday}"
+      >
+        <span class="analytics-day__weekday">{{ day.date | date: 'EEE' }}</span>
+        <span class="analytics-day__date">{{ day.date | date: 'd MMM' }}</span>
+      </div>
+    }
+  </div>
+</ng-template>
+
+<ng-template #calendarEventTemplate let-eventClicked="eventClicked" let-weekEvent="weekEvent">
+  @let session = weekEvent.event;
+  <!-- A session during a tutorial also gets a dashed edge, so it still shows when the
+       block is too short for the second line. -->
+  <button
+    class="analytics-session"
+    matTooltipClass="analytics-session-tooltip"
+    type="button"
+    [attr.aria-label]="sessionAriaLabel(session)"
+    [attr.aria-pressed]="selectedUserId !== null && session.userId === selectedUserId"
+    [matTooltip]="sessionEventTitle(session)"
+    [ngClass]="{'analytics-session--tutorial': session.duringTutorial}"
+    [style.--session-accent]="session.accent"
+    (click)="eventClicked.emit({sourceEvent: $event})"
+  >
+    <span class="analytics-session__name">{{ session.tutorName }}</span>
+    <span class="analytics-session__meta">
+      {{ session.startHour }}–{{ session.endHour }} · {{ session.duration }} min
+      @if (session.duringTutorial) {
+        · in tutorial
+      }
+    </span>
+  </button>
+</ng-template>

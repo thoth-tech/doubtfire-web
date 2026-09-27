@@ -1,31 +1,243 @@
-.cal-week-view {
-  position: relative;
-  max-height: 750px;
-  overflow-y: scroll;
-  overscroll-behavior: contain;
-}
+// angular-calendar ships a light-only stylesheet (white grid, red weekends, a green
+// "today", a red time line). This component is not encapsulated so it can reach the
+// calendar's own elements, and every rule is scoped under the host so none of it leaks.
+// Colours come only from the --ot-* tokens, so the grid follows the theme.
 
-.cal-day-headers {
-  position: sticky;
-  top: 0;
-  right: 0;
-  z-index: 2;
-  background-color: white;
-  width: 100%;
-  min-height: 35px;
-}
+// Matches the library's own .cal-time-label-column width.
+$time-column-width: 70px;
 
-.analytics-loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgb(0 0 0 / 12%);
-  border-top-color: var(--mat-sys-primary, #3f51b5);
-  border-radius: 50%;
-  animation: analytics-spinner-rotate 800ms linear infinite;
-}
+f-analytics-tutor-times {
+  display: block;
 
-@keyframes analytics-spinner-rotate {
-  to {
-    transform: rotate(360deg);
+  .analytics-calendar {
+    // One box scrolls both ways, so a long day or a narrow phone never makes the page
+    // scroll sideways, and the day names stay on top while the hours scroll.
+    .cal-week-view {
+      max-height: min(44rem, 75vh);
+      overflow: auto;
+      // Sideways swipes stay in the calendar instead of paging the browser back. Up and
+      // down still hand over to the page at the ends, so a phone cannot get stuck.
+      overscroll-behavior-x: contain;
+      border-top: 0;
+      background-color: var(--ot-color-surface);
+      color: var(--ot-color-text);
+    }
+
+    // Each day keeps a readable width. A week fits a desktop card; on a phone, or for a
+    // long date range, the calendar scrolls inside its box instead of squeezing.
+    .cal-day-headers,
+    .cal-time-events {
+      min-width: calc(#{$time-column-width} + var(--analytics-days, 7) * 5.5rem);
+    }
+
+    // The sticky day row is opaque so hours scroll under it. It uses the card colour, not
+    // the raised one, because in dark mode the divider is the raised colour and the lines
+    // between days would vanish.
+    .cal-day-headers {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      padding-left: 0;
+      border-width: 0 0 1px;
+      border-color: var(--ot-color-divider);
+      background-color: var(--ot-color-surface);
+    }
+
+    .analytics-calendar__corner {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      flex: none;
+      width: $time-column-width;
+      border-right: 1px solid var(--ot-color-divider);
+      background-color: var(--ot-color-surface);
+    }
+
+    .cal-day-headers .cal-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.125rem;
+      padding: 0.5rem 0.25rem;
+      border-color: var(--ot-color-divider);
+      color: var(--ot-color-text-muted);
+
+      // The library dims every span in the header and shades a hovered day, which reads as
+      // clickable. Nothing happens on click, so neither applies here.
+      span {
+        opacity: 1;
+      }
+
+      &:hover {
+        background-color: transparent;
+      }
+
+      // Written out because the library's own rule for this state outranks the one above
+      // and would keep its light grey divider in dark mode.
+      &:not(:last-child) {
+        border-right-color: var(--ot-color-divider);
+      }
+
+      .analytics-day__weekday {
+        font-size: 0.75rem;
+        line-height: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .analytics-day__date {
+        padding: 0 0.5rem;
+        border-radius: var(--ot-radius-pill);
+        font-size: 0.875rem;
+        font-weight: 600;
+        line-height: 1.25rem;
+        color: var(--ot-color-text);
+      }
+
+      // Today's date sits in the selection pill. The pair is made to read in both themes,
+      // where the primary blue is a fill colour and too dark for text in dark mode.
+      &.analytics-day--today .analytics-day__date {
+        background-color: var(--ot-color-selected);
+        color: var(--ot-color-selected-text);
+      }
+
+      &.analytics-day--today .analytics-day__weekday {
+        color: var(--ot-color-text);
+        font-weight: 600;
+      }
+    }
+
+    .cal-time-events {
+      border-width: 0;
+      border-color: var(--ot-color-divider);
+    }
+
+    // The hour labels stay put when the calendar scrolls sideways.
+    .cal-time-events .cal-time-label-column {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      border-right: 1px solid var(--ot-color-divider);
+      background-color: var(--ot-color-surface);
+    }
+
+    .cal-time {
+      padding-top: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--ot-color-text-muted);
+    }
+
+    .cal-day-column {
+      border-left-color: var(--ot-color-divider);
+    }
+
+    .cal-time-events .cal-day-column:first-child {
+      border-left: 0;
+    }
+
+    // A faint band on every other hour, halfway between the card and the page, so it
+    // stays opaque behind the sticky hour labels.
+    .cal-hour-odd {
+      background-color: color-mix(in srgb, var(--ot-color-page) 50%, var(--ot-color-surface));
+    }
+
+    .cal-hour:not(:last-child) .cal-hour-segment,
+    .cal-hour:last-child :not(:last-child) .cal-hour-segment {
+      border-bottom-color: var(--ot-color-divider);
+    }
+
+    // Hovering an empty slot does nothing, so it is not shaded as if it did.
+    .cal-time-events .cal-day-columns:not(.cal-resize-active) .cal-hour-segment:hover {
+      background-color: transparent;
+    }
+
+    // The link blue clears 3:1 on the grid in both themes. The primary blue does not in dark.
+    .cal-current-time-marker {
+      background-color: var(--ot-color-link);
+    }
+
+    // A session of a few minutes is only a few pixels tall at the calendar's scale,
+    // which cut its label down to a sliver. The calendar's minimumEventHeight input
+    // gives every session room for one line (set there, not here, so the calendar
+    // lays out neighbouring sessions around the same height it draws), and a short
+    // one puts the name and time side by side on that line.
+    .cal-time-events .cal-event-container {
+      container-type: size;
+    }
+
+    @container (max-height: 2.25rem) {
+      .analytics-session {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.375rem;
+        padding-block: 0;
+      }
+
+      .analytics-session__name {
+        flex: none;
+        max-width: 60%;
+      }
+    }
   }
+
+  // One marking session. The tutor's colour is a thin edge and a light wash, so the
+  // text stays in the normal text colour and reads in both themes.
+  .analytics-session {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 2px);
+    height: calc(100% - 2px);
+    margin: 1px;
+    padding: 0.125rem 0.375rem;
+    overflow: hidden;
+    border: 0;
+    border-left: 3px solid var(--session-accent);
+    border-radius: var(--ot-radius-sm);
+    background-color: color-mix(in srgb, var(--session-accent) 16%, var(--ot-color-surface));
+    color: var(--ot-color-text);
+    font: inherit;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--session-accent) 26%, var(--ot-color-surface));
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ot-color-focus);
+      outline-offset: 1px;
+    }
+
+    &[aria-pressed='true'] {
+      background-color: color-mix(in srgb, var(--session-accent) 30%, var(--ot-color-surface));
+      box-shadow: inset 0 0 0 1px var(--session-accent);
+    }
+  }
+
+  .analytics-session--tutorial {
+    border-left-style: dashed;
+  }
+
+  .analytics-session__name,
+  .analytics-session__meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // The time line keeps the full text colour. Muted grey drops under 4.5:1 on the
+  // stronger hover and selected washes.
+  .analytics-session__name {
+    font-weight: 600;
+  }
+}
+
+// The session tooltip opens in the overlay container, outside the host, so this one rule
+// cannot be scoped under it. It keeps the tooltip's line breaks.
+.analytics-session-tooltip .mdc-tooltip__surface {
+  white-space: pre-line;
+  text-align: left;
 }

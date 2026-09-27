@@ -1,41 +1,154 @@
-<div class="mx-auto max-w-[90vw]">
-  <h1>Unit Statistics</h1>
+@if (unit) {
+  <f-page-container>
+    <div class="flex flex-col pt-2 pb-10">
+      <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pb-5">
+        <div class="min-w-0">
+          <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">
+            Unit analytics
+          </h1>
+          <p class="m-0 mt-1.5 max-w-[70ch] text-sm leading-relaxed text-ot-muted">
+            Download reports for {{ unit.code }} and see when marking happened.
+          </p>
+        </div>
+      </header>
 
-  <div class="flex flex-col gap-2.5">
-    <mat-card appearance="outlined" class="mt-2.5 p-[16px]">
-      <mat-card-content class="flex gap-1">
-        <button mat-button (click)="getTaskCompletionCsv()">
-          <mat-icon>download</mat-icon> Task Completion Stats
-        </button>
-        <button mat-button (click)="getTutorAssessmentCsv()">
-          <mat-icon>download</mat-icon> Tutor Assessment Stats
-        </button>
-        <button mat-button (click)="getTasksAwaitingFeedbackCsv()">
-          <mat-icon>download</mat-icon> Tasks Awaiting Feedback
-        </button>
-        <button mat-button (click)="getTaskAssessmentCountCsv()">
-          <mat-icon>download</mat-icon> Task Assessment Counts
-        </button>
-        @if (role === 'Convenor' || isAdmin) {
-          <button mat-button (click)="getOverflowTaskClaimsCsv()">
-            <mat-icon>download</mat-icon> Overflow Task Claims
-          </button>
-        }
-      </mat-card-content>
-    </mat-card>
+      <div class="flex flex-col gap-6">
+        <section
+          aria-labelledby="analytics-reports-title"
+          class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+        >
+          <div class="px-5 pt-5 pb-4 sm:px-6">
+            <h2
+              class="m-0 text-lg leading-snug font-semibold text-ot-text"
+              id="analytics-reports-title"
+            >
+              Reports
+            </h2>
+            <p class="m-0 mt-1 text-sm leading-relaxed text-ot-muted">
+              Each report downloads as a CSV file with the unit's current data.
+            </p>
+          </div>
 
-    <f-analytics-tutor-times [downloadCsvFn]="downloadCsv" [unit]="unit"></f-analytics-tutor-times>
-  </div>
-</div>
-<!--
+          <div class="grid grid-cols-1 border-t border-ot-divider md:grid-cols-2">
+            @for (group of reportGroups; track group.id; let first = $first) {
+              <div
+                class="min-w-0 px-5 pt-4 pb-2 sm:px-6"
+                role="group"
+                [attr.aria-labelledby]="'analytics-report-group-' + group.id"
+                [ngClass]="first ? '' : 'border-t border-ot-divider md:border-t-0 md:border-l'"
+              >
+                <h3
+                  class="m-0 text-sm font-semibold text-ot-text"
+                  [id]="'analytics-report-group-' + group.id"
+                >
+                  {{ group.title }}
+                </h3>
+                <ul class="m-0 list-none p-0">
+                  @for (report of group.reports; track report.id) {
+                    @if (canDownload(report)) {
+                      <li
+                        class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-ot-divider py-3 last:border-b-0"
+                        [attr.data-report]="report.id"
+                      >
+                        <div class="min-w-0 flex-1 basis-56">
+                          <p class="m-0 text-sm font-medium text-ot-text">{{ report.title }}</p>
+                          <p class="m-0 mt-0.5 text-sm leading-relaxed text-ot-muted">
+                            {{ report.description }}
+                          </p>
+                        </div>
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          [attr.aria-label]="'Download ' + report.title + ' as CSV'"
+                          (click)="downloadReport(report)"
+                        >
+                          <mat-icon aria-hidden="true">download</mat-icon>
+                          Download
+                        </button>
+                      </li>
+                    }
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </section>
 
-  TODO: Re-implement the following charts using ngx-charts:
-    TODO: Task Status Stats (Summary Chart)
-      - View distribution of tasks by their current status either unit-wide or broken down into a specific tutorial or task
-    TODO: Target Grade Stats (Pie Chart)
-      - View distribution of student target grades either unit-wide or broken down into a specific tutorial
-    TODO: Task Completion Stats (Box Plot)
-      - View how tasks have been marked as completed as a box plot
+        <section
+          aria-labelledby="analytics-statistics-title"
+          class="flex flex-col gap-4"
+          data-statistics
+        >
+          <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+            <div class="min-w-0 flex-1 basis-72">
+              <h2
+                class="m-0 text-lg leading-snug font-semibold text-ot-text"
+                id="analytics-statistics-title"
+              >
+                Statistics
+              </h2>
+              <p class="m-0 mt-1 text-sm leading-relaxed text-ot-muted">
+                Counts include tutorial enrolments. Students enrolled in multiple tutorial streams
+                may contribute more than once to whole-unit counts.
+              </p>
+            </div>
+            <mat-form-field appearance="outline" class="w-full sm:w-72" subscriptSizing="dynamic">
+              <mat-label>Statistics tutorial</mat-label>
+              <mat-select [(ngModel)]="tutorialId">
+                <mat-option [value]="null">Whole unit</mat-option>
+                @for (tutorial of unit?.tutorials ?? []; track tutorial.id) {
+                  <mat-option [value]="tutorial.id"
+                    >{{ tutorial.abbreviation }} — {{ tutorial.tutorName }}</mat-option
+                  >
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-  TODO: We also want each of these as sub-states
--->
+          @if (statisticsLoading) {
+            <p class="m-0 text-sm text-ot-muted" role="status">Loading unit statistics…</p>
+          }
+          @if (statisticsFailed) {
+            <div class="flex flex-wrap items-center gap-3">
+              <p class="m-0 text-sm text-ot-error" role="alert">
+                Some statistics could not be loaded.
+              </p>
+              <button mat-stroked-button type="button" (click)="loadStatistics()">
+                Retry statistics
+              </button>
+            </div>
+          }
+
+          <div class="flex flex-col gap-6">
+            @if (taskStatusStats !== null) {
+              <f-summary-task-status-scatter
+                [data]="taskStatusStats"
+                [tutorialId]="tutorialId"
+                [unit]="unit"
+              />
+            }
+            @if (targetGradeStats !== null) {
+              <f-target-grade-pie-chart
+                [data]="targetGradeStats"
+                [tutorialId]="tutorialId"
+                [unit]="unit"
+              />
+            }
+            @if (taskCompletionStats !== null) {
+              <f-task-completion-box-plot
+                [data]="taskCompletionStats"
+                [tutorialId]="tutorialId"
+                [unit]="unit"
+              />
+            }
+          </div>
+        </section>
+
+        <f-analytics-tutor-times
+          [downloadCsvFn]="downloadCsv"
+          [unit]="unit"
+        ></f-analytics-tutor-times>
+      </div>
+    </div>
+  </f-page-container>
+}

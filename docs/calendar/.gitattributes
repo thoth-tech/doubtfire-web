@@ -1,0 +1,2 @@
+# Preserve RFC 5545 CRLF content lines in downloadable calendar fixtures.
+*.ics -text whitespace=cr-at-eol

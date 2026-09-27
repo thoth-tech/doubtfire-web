@@ -5,6 +5,7 @@ export class Webcal extends Entity {
   id: number;
   guid: string;
   includeStartDates: boolean;
+  includeLearningSessions: boolean = false;
   userId: number;
   reminder: {
     time: number;

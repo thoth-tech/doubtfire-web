@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1100" viewBox="0 0 1100 1100" role="img" aria-labelledby="title desc">
+<title id="title">Calendar controls placement mockup</title>
+<desc id="desc">Illustration of the task action row, dashboard download button, download options and web calendar subscription controls. Synthetic content; not a running application screenshot.</desc>
+<defs><style>text{font-family:Arial,sans-serif;fill:#172b4d}.h{font-size:22px;font-weight:700}.b{font-size:16px}.s{font-size:14px;fill:#40556b}.button{fill:#fff;stroke:#546e7a;stroke-width:1.5}.card{fill:#fff;stroke:#c3cdd8;stroke-width:1.5}.accent{fill:#0057b8}.w{fill:#fff;font-weight:700;font-size:15px}</style></defs>
+<rect width="1100" height="1100" fill="#f2f5f9"/>
+<text x="36" y="43" class="h">Calendar controls · placement and keyboard flow</text>
+<text x="36" y="72" class="s">CAL-UX01 design reference • synthetic illustration, not a screenshot • 20 September 2026</text>
+<rect x="36" y="104" width="1028" height="160" rx="12" class="card"/>
+<text x="58" y="139" class="h">Task description</text><text x="58" y="165" class="s">One task, one all-day event using its resolved due date.</text>
+<rect x="58" y="189" width="142" height="48" rx="8" class="button"/><text x="80" y="219" class="b">Task Sheet</text>
+<rect x="216" y="189" width="137" height="48" rx="8" class="button"/><text x="239" y="219" class="b">Resources</text>
+<rect x="369" y="189" width="253" height="48" rx="8" class="button"/><text x="388" y="219" class="b">Add to Google Calendar</text>
+<text x="665" y="211" class="s">Calendar action follows existing</text><text x="665" y="233" class="s">resource actions; label stays visible.</text>
+<rect x="36" y="292" width="480" height="270" rx="12" class="card"/>
+<text x="58" y="329" class="h">Plan Your Tasks</text>
+<text x="58" y="359" class="s">Unit Progress Dashboard</text>
+<rect x="58" y="381" width="211" height="48" rx="8" class="button"/><text x="82" y="411" class="b">View Task Planner</text>
+<rect x="58" y="447" width="211" height="48" rx="8" class="button"/><text x="106" y="477" class="b">Download .ics</text>
+<text x="58" y="530" class="s">Stacked actions fit narrow screens. Opens options →</text>
+<rect x="550" y="292" width="514" height="426" rx="12" class="card"/>
+<text x="574" y="329" class="h">Download options</text><text x="574" y="356" class="s">Focus starts on Grade. Tab follows the controls below.</text>
+<rect x="574" y="373" width="466" height="54" rx="7" class="button"/><text x="587" y="393" class="s">Grade</text><text x="587" y="415" class="b">High Distinction</text><text x="1010" y="411" class="b">▾</text>
+<rect x="574" y="445" width="466" height="44" class="button"/><text x="720" y="473" class="b">Up to this grade</text>
+<rect x="574" y="489" width="466" height="44" fill="#e1edff" stroke="#0057b8"/><text x="707" y="517" class="b">This grade and above</text>
+<text x="574" y="558" class="s">High Distinction and above — HD tasks only</text>
+<rect x="574" y="578" width="19" height="19" rx="3" class="accent"/><text x="577" y="593" class="w">✓</text><text x="605" y="594" class="b">Exclude submitted and completed tasks</text>
+<text x="574" y="629" class="s">1 task with due dates ready to download.</text>
+<text x="828" y="682" class="b">Cancel</text><rect x="903" y="652" width="137" height="46" rx="8" class="accent"/><text x="920" y="681" class="w">Download .ics</text>
+<rect x="36" y="589" width="480" height="262" rx="12" class="card"/><text x="58" y="626" class="h">Web calendar</text>
+<text x="58" y="655" class="s">Global calendar button / account menu</text>
+<rect x="58" y="673" width="178" height="40" rx="20" fill="#e8eef5"/><text x="73" y="699" class="b">TEST101   [remove]</text>
+<rect x="250" y="673" width="112" height="40" rx="8" class="button"/><text x="267" y="699" class="b">Add unit</text>
+<text x="58" y="746" class="s">Subscription link · Copy · Regenerate</text>
+<rect x="58" y="768" width="202" height="48" rx="8" class="button"/><text x="88" y="798" class="b">Download a copy</text>
+<text x="550" y="754" class="s">Grade ranges:</text><text x="550" y="780" class="s">Up to P / C / D / HD → 1 / 2 / 3 / 4 grade tiers</text><text x="550" y="806" class="s">HD and above → HD tier only</text><text x="550" y="832" class="s">No dated matches → explanation + disabled download</text>
+<rect x="36" y="890" width="1028" height="170" rx="12" class="card"/>
+<text x="58" y="927" class="h">Behavior and verification notes</text>
+<text x="58" y="962" class="b">Grade and completion choices apply only to the unit download; the subscription keeps its saved settings.</text>
+<text x="58" y="995" class="b">Redo and Fix and resubmit stay outstanding. Tasks without due dates cannot become events.</text>
+<text x="58" y="1028" class="s">Manual screen-reader, responsive-layout and calendar-client checks remain separate from this mockup.</text>
+</svg>
