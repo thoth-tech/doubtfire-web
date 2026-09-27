@@ -7,14 +7,14 @@
   }
 
   .group-set-name {
-    color: #777;
+    color: var(--ot-color-text-muted);
     text-align: center;
     font-size: 1em;
     font-weight: bold;
   }
 
   .mat-chip-clicked {
-    outline: #007bff auto 1px !important;
+    outline: var(--ot-color-focus) auto 1px !important;
   }
 
   .task-status {

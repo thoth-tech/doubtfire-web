@@ -1,0 +1,8 @@
+:host {
+  color: var(--ot-color-text);
+}
+
+.task-planner-controls button:not(:disabled) {
+  color: var(--ot-color-link);
+  border-color: var(--ot-color-border);
+}

@@ -4,7 +4,7 @@
     <p>Overseer script</p>
   </div>
   <div class="flex justify-end">
-    <button mat-icon-button (click)="save()">
+    <button aria-label="Save script" mat-icon-button (click)="save()">
       <mat-icon>save</mat-icon>
     </button>
   </div>
@@ -13,6 +13,7 @@
       class="h-[70vh] w-full"
       [codeModel]="model"
       [readOnly]="true"
+      [theme]="theme.isDark() ? 'vs-dark' : 'vs'"
     ></ngs-code-editor>
   }
 </div>

@@ -1,5 +1,6 @@
 <div class="flex flex-row items-start justify-start">
   <a
+    aria-label="Student dashboard"
     style="display: flex"
     [queryParams]="unselected ? null : {tutor: true}"
     [routerLink]="studentDashboardRoute"
@@ -20,7 +21,7 @@
       [routerLink]="studentDashboardRoute"
     >
       <h4 class="mat-h4" style="margin-bottom: 1px">
-        {{ selectedTask?.project.student.firstName }} {{ selectedTask?.project.student.lastName }}
+        {{ selectedTask?.project?.student?.displayName || selectedTask?.project?.student?.name }}
       </h4>
     </a>
     <a

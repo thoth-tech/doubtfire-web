@@ -1,5 +1,5 @@
 .mat-icon {
-  color: black;
+  color: var(--ot-color-text);
   overflow: initial;
 }
 
@@ -13,5 +13,5 @@
 }
 
 .mat-icon.f-breadcrumb {
-  color: rgb(221, 221, 221);
+  color: var(--ot-color-divider);
 }

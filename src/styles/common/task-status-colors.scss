@@ -15,7 +15,7 @@ $task-status-foreground-color-dark: #444;
 
 $task-status-colors: (
   ready-for-feedback: (
-    base: #0079d8,
+    base: #0064b4,
     dark: color.adjust(#0079d8, $lightness: -15%),
     light: color.adjust(#0079d8, $lightness: 15%),
     fore: $task-status-foreground-color-light,
@@ -27,13 +27,13 @@ $task-status-colors: (
     fore: $task-status-foreground-color-dark,
   ),
   working-on-it: (
-    base: #eb8f06,
+    base: #8a5400,
     dark: color.adjust(#eb8f06, $lightness: -15%),
     light: color.adjust(#eb8f06, $lightness: 15%),
     fore: $task-status-foreground-color-light,
   ),
   need-help: (
-    base: #a48fce,
+    base: #5b4a86,
     dark: color.adjust(#a48fce, $lightness: -15%),
     light: color.adjust(#a48fce, $lightness: 15%),
     fore: $task-status-foreground-color-light,
@@ -45,7 +45,7 @@ $task-status-colors: (
     fore: $task-status-foreground-color-dark,
   ),
   feedback-exceeded: (
-    base: #d46b54,
+    base: #9c3d29,
     dark: color.adjust(#d46b54, $lightness: -15%),
     light: color.adjust(#d46b54, $lightness: 15%),
     fore: $task-status-foreground-color-light,
@@ -57,7 +57,7 @@ $task-status-colors: (
     fore: $task-status-foreground-color-light,
   ),
   discuss: (
-    base: #31b0d5,
+    base: #146a86,
     dark: color.adjust(#31b0d5, $lightness: -15%),
     light: color.adjust(#31b0d5, $lightness: 15%),
     fore: $task-status-foreground-color-light,
@@ -69,13 +69,13 @@ $task-status-colors: (
     fore: $task-status-foreground-color-light,
   ),
   demonstrate: (
-    base: #428bca,
+    base: #2b5f8f,
     dark: color.adjust(#428bca, $lightness: -15%),
     light: color.adjust(#428bca, $lightness: 15%),
     fore: $task-status-foreground-color-light,
   ),
   complete: (
-    base: #5bb75b,
+    base: #2f7a2f,
     dark: color.adjust(#5bb75b, $lightness: -20%),
     light: color.adjust(#5bb75b, $lightness: 15%),
     fore: $task-status-foreground-color-light,
@@ -99,7 +99,7 @@ $task-status-colors: (
     fore: $task-status-foreground-color-dark,
   ),
   attention-required: (
-    base: #f1814d,
+    base: #a8431a,
     dark: color.adjust(#f1814d, $lightness: -15%),
     light: color.adjust(#f1814d, $lightness: 15%),
     fore: $task-status-foreground-color-light,

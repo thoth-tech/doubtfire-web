@@ -1,136 +1,299 @@
-<div class="flex items-center justify-between p-3">
-  <div class="flex items-center gap-2">
-    <mat-slide-toggle [(ngModel)]="showDatesColumn">Show Task Dates</mat-slide-toggle>
+<div
+  aria-label="Task planner display options"
+  class="planner-toolbar flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-ot-divider px-4 py-2.5"
+>
+  <div class="planner-toggles flex flex-wrap items-center gap-x-6 gap-y-2">
+    <mat-slide-toggle [(ngModel)]="showDatesColumn">Show task dates</mat-slide-toggle>
     <mat-slide-toggle
-      [ngModel]="hideTasksAboveTargetGrade"
-      (ngModelChange)="setHideTasksAboveTargetGrade($event)"
+      [ngModel]="showTasksAboveTargetGrade"
+      (ngModelChange)="setShowTasksAboveTargetGrade($event)"
     >
-      Hide tasks beyond target grade
+      Show tasks beyond target grade
     </mat-slide-toggle>
   </div>
   @if (unit.allowFlexibleDates) {
-    <div class="flex items-center gap-2">
-      <button color="primary" mat-button (click)="saveImage()">
-        <mat-icon>save_alt</mat-icon> Download Chart
+    <div class="planner-date-actions flex flex-wrap items-center gap-2">
+      <button mat-button type="button" (click)="saveImage()">
+        <mat-icon aria-hidden="true">save_alt</mat-icon>
+        Download chart
+      </button>
+      <button mat-stroked-button type="button" (click)="confirmResetTargetDates()">
+        Reset to unit dates
       </button>
       <button
         color="primary"
-        mat-raised-button
+        mat-flat-button
+        type="button"
         [disabled]="!anyUnsavedChanges()"
         (click)="confirmSaveTargetDates()"
       >
-        Save Dates
+        Save dates
       </button>
-      <button mat-raised-button (click)="confirmResetTargetDates()">Reset To Unit Default</button>
     </div>
   }
 </div>
-<ngx-gantt
-  #gantt
-  class="h-full overflow-hidden"
-  [async]="false"
-  [baselineItems]="unit.allowFlexibleDates ? baselineItems : []"
-  [class.flexible-dates]="overlayLines"
-  [disabledLoadOnScroll]="true"
-  [draggable]="project.unit.allowFlexibleDates"
-  [end]="latestEndDate"
-  [items]="items"
-  [start]="earliestStartDate"
-  [viewOptions]="viewOptions"
-  [viewType]="viewType"
-  [virtualScrollEnabled]="false"
+
+<!-- A key for the bar colours, which carry each task's planning state, plus the one
+     interaction a new student would not guess. -->
+<div
+  aria-label="What the bar colours mean"
+  class="planner-legend flex flex-wrap items-center gap-x-4 gap-y-1.5 border-b border-ot-divider px-4 py-2.5 text-xs text-ot-muted"
+  role="list"
 >
-  <ngx-gantt-table>
-    <ngx-gantt-column name="Tasks" width="350px">
-      <ng-template #cell let-item="item">
-        <!-- TODO: redirect to new project dashboard -->
-        <div
-          class="flex items-center justify-between"
+  <span class="planner-legend__item" role="listitem">
+    <span
+      aria-hidden="true"
+      class="planner-legend__swatch border-(--ot-color-link) bg-(--ot-color-primary)"
+    ></span>
+    Planned
+  </span>
+  <span class="planner-legend__item" role="listitem">
+    <span
+      aria-hidden="true"
+      class="planner-legend__swatch border-(--ot-status-complete-graphic) bg-(--ot-status-complete)"
+    ></span>
+    Complete
+  </span>
+  <span class="planner-legend__item" role="listitem">
+    <span
+      aria-hidden="true"
+      class="planner-legend__swatch border-(--ot-status-fix-and-resubmit-graphic) bg-(--ot-status-fix-and-resubmit)"
+    ></span>
+    Close to the feedback deadline
+  </span>
+  <span class="planner-legend__item" role="listitem">
+    <span
+      aria-hidden="true"
+      class="planner-legend__swatch border-(--ot-status-attention-required-graphic) bg-(--ot-status-attention-required)"
+    ></span>
+    Due before a task it needs
+  </span>
+  <span class="planner-legend__item" role="listitem">
+    <span
+      aria-hidden="true"
+      class="planner-legend__swatch border-(--ot-status-time-exceeded-graphic) bg-(--ot-status-time-exceeded)"
+    ></span>
+    Past the feedback deadline
+  </span>
+  @if (showTasksAboveTargetGrade) {
+    <span class="planner-legend__item" role="listitem">
+      <span
+        aria-hidden="true"
+        class="planner-legend__swatch border-(--ot-color-text-muted) bg-(--ot-color-disabled-surface)"
+      ></span>
+      Beyond your target grade
+    </span>
+  }
+  <span class="planner-legend__item" role="listitem">
+    <span aria-hidden="true" class="planner-legend__today"></span>
+    Today
+  </span>
+  <span class="ml-auto inline-flex items-center gap-1">
+    <mat-icon aria-hidden="true" class="!size-4 !text-base !leading-none">touch_app</mat-icon>
+    Select a bar to see the tasks that come before and after it.
+  </span>
+</div>
+
+<section aria-label="Tasks in this plan" class="mobile-planner">
+  @if (!items.length) {
+    <div class="mobile-planner-empty" role="status">No tasks match the selected target grade.</div>
+  }
+
+  @for (item of items; track item.id) {
+    <article class="mobile-task-card" [attr.data-task-definition-id]="item.id">
+      <header class="mobile-task-card__header">
+        <div class="min-w-0">
+          <p class="mobile-task-card__grade">
+            {{ gradeString(item.taskDefinition.targetGrade) }} task
+          </p>
+          <h3>{{ item.taskDefinition.abbreviation }} {{ item.taskDefinition.name }}</h3>
+        </div>
+        <div class="mobile-task-card__status">
+          <status-icon [showTooltip]="false" [status]="item.task.status"> </status-icon>
+          <span>{{ statusLabel(item) }}</span>
+        </div>
+      </header>
+
+      <p class="mobile-task-card__date-summary">
+        {{ toDateString(item.start) }} to {{ toDateString(item.end) }}
+      </p>
+
+      @if (showDatesColumn) {
+        <dl class="mobile-task-card__dates">
+          <div>
+            <dt>Start date</dt>
+            <dd>{{ toDateString(item.start) }}</dd>
+          </div>
+          <div>
+            <dt>Target / due date</dt>
+            <dd>{{ toDateString(item.end) }}</dd>
+          </div>
+          <div>
+            <dt>Deadline</dt>
+            <dd>
+              {{
+                item.task.localDeadlineDate()
+                  ? toDateString(item.task.localDeadlineDate())
+                  : 'Not set'
+              }}
+            </dd>
+          </div>
+        </dl>
+      }
+
+      <div class="mobile-task-card__connections">
+        <mat-icon aria-hidden="true">account_tree</mat-icon>
+        <span>{{ connectionSummary(item) }}</span>
+      </div>
+
+      <div class="mobile-task-card__actions">
+        <button
+          mat-stroked-button
+          type="button"
+          [attr.aria-label]="
+            'View prerequisites and dependent tasks for ' + item.taskDefinition.abbreviation
+          "
+          (click)="barClick(item)"
+        >
+          View connections
+        </button>
+        <a
+          mat-button
+          [attr.aria-label]="'Open task ' + item.taskDefinition.abbreviation"
           [routerLink]="['/projects', project.id, 'dashboard', item.taskDefinition.abbreviation]"
         >
-          <div class="flex w-full min-w-0 items-center gap-3">
-            <f-grade-icon
-              [colorful]="true"
-              [grade]="item.taskDefinition.targetGrade"
-              [unit]="unit"
-            ></f-grade-icon>
-            <div class="w-full min-w-0 flex-1 truncate">
-              {{ item.title }}
-            </div>
-          </div>
-          <status-icon [status]="item.task.status"></status-icon>
-        </div>
+          Open task
+        </a>
+      </div>
+    </article>
+  }
+</section>
+
+<!-- The chart gets a fixed height from its row count, since ngx-gantt fills its
+     container; the toolbar and legend above it are free to wrap. -->
+<div class="planner-chart desktop-planner" [style.height.px]="items?.length ? ganttHeight : 220">
+  <ngx-gantt
+    #gantt
+    class="desktop-planner h-full overflow-hidden"
+    [async]="false"
+    [baselineItems]="unit.allowFlexibleDates ? baselineItems : []"
+    [class.flexible-dates]="overlayLines"
+    [disabledLoadOnScroll]="true"
+    [draggable]="project.unit.allowFlexibleDates"
+    [end]="latestEndDate"
+    [items]="items"
+    [start]="earliestStartDate"
+    [viewOptions]="viewOptions"
+    [viewType]="viewType"
+    [virtualScrollEnabled]="false"
+  >
+    <ngx-gantt-table>
+      <ng-template #tableEmpty>
+        <p class="planner-empty">No tasks to show for this target grade.</p>
       </ng-template>
-    </ngx-gantt-column>
-
-    @if (showDatesColumn) {
-      <ngx-gantt-column name="Start Date" width="110px">
-        <ng-template #cell class="text-center" let-item="item">
-          {{ toDateString(item.start) }}
+      <ngx-gantt-column name="Tasks" width="350px">
+        <ng-template #cell let-item="item">
+          <!-- A real link, so the row opens the task from the keyboard as well. The code is
+               set apart from the name so the list scans by code. -->
+          <a
+            class="planner-task-link flex items-center justify-between gap-2 rounded-ot-xs text-inherit no-underline underline-offset-2 hover:underline"
+            [routerLink]="['/projects', project.id, 'dashboard', item.taskDefinition.abbreviation]"
+          >
+            <span class="flex w-full min-w-0 items-center gap-3">
+              <f-grade-icon
+                [colorful]="true"
+                [grade]="item.taskDefinition.targetGrade"
+                [unit]="unit"
+              ></f-grade-icon>
+              <span class="min-w-0 flex-1 truncate">
+                <span class="font-semibold text-ot-muted tabular-nums">{{
+                  item.taskDefinition.abbreviation
+                }}</span>
+                {{ item.taskDefinition.name }}
+              </span>
+            </span>
+            <status-icon class="shrink-0" [status]="item.task.status"></status-icon>
+          </a>
         </ng-template>
       </ngx-gantt-column>
 
-      <ngx-gantt-column name="Target Date" width="110px">
-        <ng-template #cell class="text-center" let-item="item">
-          {{ toDateString(item.end) }}
-        </ng-template>
-      </ngx-gantt-column>
+      @if (showDatesColumn) {
+        <ngx-gantt-column name="Start Date" width="110px">
+          <ng-template #cell class="text-center" let-item="item">
+            {{ toDateString(item.start) }}
+          </ng-template>
+        </ngx-gantt-column>
 
-      <ngx-gantt-column name="Deadline" width="110px">
-        <ng-template #cell class="text-center" let-item="item">
-          {{ item.task.localDeadlineDate() ? toDateString(item.task.localDeadlineDate()) : 'N/A' }}
-        </ng-template>
-      </ngx-gantt-column>
-    }
+        <ngx-gantt-column name="Target Date" width="110px">
+          <ng-template #cell class="text-center" let-item="item">
+            {{ toDateString(item.end) }}
+          </ng-template>
+        </ngx-gantt-column>
 
-    <ng-template #bar let-item="item">
-      <span
-        class="gantt-bar flex h-[35px] w-full items-center justify-between gap-1 p-1 text-white"
-        matTooltipPosition="above"
-        matTooltipShowDelay="500"
-        [attr.data-gantt-id]="item.id"
-        [matTooltip]="getTooltip(item)"
-        [ngClass]="getItemClasses(item)"
-        (click)="barClick(item)"
-        (mouseleave)="onBarLeave(item)"
-        (mouseover)="onBarHover(item)"
-        ><div class="flex items-center gap-1">
-          <div class="flex items-center gap-1">
-            @if (unsavedChanges(item)) {
-              <mat-icon class="scale-95">change_circle</mat-icon>
-            }
-            @if (prerequisiteConflict(item)) {
-              <mat-icon
-                class="scale-90"
-                matTooltip="This task must be completed earlier because other tasks depend on it"
-                >warning</mat-icon
-              >
-            } @else if (isBlockedByPrerequisite(item)) {
-              <mat-icon
-                class="scale-90"
-                matTooltip="You will not be able to complete this task until all prerequisites are met"
-                >warning</mat-icon
-              >
-            }
-            @if (isPastFeedbackDeadline(item)) {
-              <mat-icon
-                class="scale-90"
-                matTooltip="Your planned target date is past the feedback deadline."
-                >dangerous</mat-icon
-              >
-            }
-            @if (isCloseToFeedbackDeadline(item)) {
-              <mat-icon
-                class="scale-90"
-                matTooltip="Your planned target date is close to the last date to receive feedback for this task."
-                >query_builder</mat-icon
-              >
-            }
+        <ngx-gantt-column name="Deadline" width="110px">
+          <ng-template #cell class="text-center" let-item="item">
+            {{
+              item.task.localDeadlineDate() ? toDateString(item.task.localDeadlineDate()) : 'N/A'
+            }}
+          </ng-template>
+        </ngx-gantt-column>
+      }
+
+      <ng-template #bar let-item="item">
+        <span
+          class="gantt-bar flex h-[35px] w-full items-center justify-between gap-1 p-1"
+          matTooltipPosition="above"
+          matTooltipShowDelay="500"
+          role="button"
+          tabindex="0"
+          [attr.data-gantt-id]="item.id"
+          [matTooltip]="getTooltip(item)"
+          [ngClass]="getItemClasses(item)"
+          (blur)="onBarLeave(item)"
+          (click)="barClick(item)"
+          (focus)="onBarHover(item)"
+          (keydown.enter)="onBarKeydown($event, item)"
+          (keydown.space)="onBarKeydown($event, item)"
+          (mouseleave)="onBarLeave(item)"
+          (mouseover)="onBarHover(item)"
+          ><div class="flex items-center gap-1">
+            <div class="flex items-center gap-1">
+              @if (unsavedChanges(item)) {
+                <mat-icon class="scale-95">change_circle</mat-icon>
+              }
+              @if (prerequisiteConflict(item)) {
+                <mat-icon
+                  class="scale-90"
+                  matTooltip="This task must be completed earlier because other tasks depend on it"
+                  >warning</mat-icon
+                >
+              } @else if (isBlockedByPrerequisite(item)) {
+                <mat-icon
+                  class="scale-90"
+                  matTooltip="You will not be able to complete this task until all prerequisites are met"
+                  >warning</mat-icon
+                >
+              }
+              @if (isPastFeedbackDeadline(item)) {
+                <mat-icon
+                  class="scale-90"
+                  matTooltip="Your planned target date is past the feedback deadline."
+                  >dangerous</mat-icon
+                >
+              }
+              @if (isCloseToFeedbackDeadline(item)) {
+                <mat-icon
+                  class="scale-90"
+                  matTooltip="Your planned target date is close to the last date to receive feedback for this task."
+                  >query_builder</mat-icon
+                >
+              }
+            </div>
+
+            &nbsp;&nbsp;{{ item.title }}
           </div>
-
-          &nbsp;&nbsp;{{ item.title }}
-        </div>
-      </span>
-    </ng-template>
-  </ngx-gantt-table>
-</ngx-gantt>
+        </span>
+      </ng-template>
+    </ngx-gantt-table>
+  </ngx-gantt>
+</div>

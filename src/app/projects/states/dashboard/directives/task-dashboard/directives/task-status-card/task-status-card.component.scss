@@ -1,13 +1,124 @@
-.mat-mdc-card {
+:host {
+  display: block;
+}
+
+// Wrap the whole status card in the current task's status colour. --tsc / --tsc-on
+// are bound on the card from the template (the status token and its on-colour), with
+// a neutral fallback until they resolve.
+.mat-mdc-card.task-status-card {
+  --tsc: var(--ot-color-selected);
+  --tsc-on: var(--ot-color-selected-text);
+
+  --mat-card-outlined-outline-color: var(--tsc);
+  border-color: var(--tsc) !important;
+
+  // A faint status wash over the raised surface so the whole card carries the hue.
+  background-color: color-mix(in srgb, var(--tsc) 7%, var(--ot-color-surface-raised)) !important;
+
   .mat-mdc-form-field-infix {
-    padding: 6px;
+    padding: 2px 6px;
   }
 }
 
+// The status header (the select field) becomes a solid status bar with on-colour text.
 ::ng-deep f-task-status-card .mat-mdc-text-field-wrapper.mdc-text-field {
-  background: #e7e7ff;
+  background: var(--tsc) !important;
+}
+
+::ng-deep f-task-status-card .mat-mdc-text-field-wrapper {
+  .mat-mdc-select-value,
+  .mat-mdc-select-value-text,
+  .mat-mdc-select-arrow,
+  .mat-mdc-select-min-line,
+  h2 {
+    color: var(--tsc-on) !important;
+  }
+
+  // The status-icon chip inside the solid header: drop its own fill and draw the
+  // glyph in the on-colour, the same as the header text. Tighten the padding
+  // around it and enlarge the glyph so the header icon is bold, not a small chip.
+  // Scope to .mat-mdc-select-value (the trigger display) only. This Material build
+  // renders the select panel inside the field wrapper, so an unscoped rule here also
+  // hits the option chips and blanks their fills — dark glyph on the dark panel, the
+  // dark-mode invisible-status-glyph bug. The options keep their own status colours.
+  .mat-mdc-select-value status-icon .status-chip {
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 6px 0 0 !important;
+    background: transparent !important;
+    color: var(--tsc-on) !important;
+
+    mat-icon {
+      width: 30px;
+      height: 30px;
+      font-size: 30px;
+      transform: none;
+    }
+  }
 }
 
 ::ng-deep .mat-mdc-option {
   height: 50px;
+}
+
+// The action buttons sit on the status-tinted card. Left neutral they read as
+// dropped-in grey, so tint them with the same status hue: a status-coloured outline
+// over a wash a touch stronger than the card, label kept in the high-contrast text
+// colour. Works for every status token and both themes; disabled buttons keep
+// Material's muted treatment.
+::ng-deep f-task-status-card .mat-mdc-card-actions .mat-mdc-outlined-button:not(:disabled) {
+  --mat-button-outlined-outline-color: color-mix(in srgb, var(--tsc) 55%, var(--ot-color-border));
+  --mat-button-outlined-label-text-color: var(--ot-color-text);
+  min-height: 44px;
+  background-color: color-mix(in srgb, var(--tsc) 12%, var(--ot-color-surface-raised));
+  box-shadow: none;
+
+  // the icon takes the same status hue as the outline, not the global primary
+  .mat-icon {
+    color: var(--tsc);
+  }
+}
+
+::ng-deep f-task-status-card .mat-mdc-card-actions .mat-mdc-outlined-button:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--tsc) 22%, var(--ot-color-surface-raised));
+}
+
+.task-status-actions {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  // line the buttons up with the card text above and give them room to breathe
+  padding: 0.75rem 16px 16px;
+}
+
+.task-status-primary-actions {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  button {
+    min-height: 44px;
+    white-space: normal;
+  }
+}
+
+// Size this through Material's own token. It derives the width, the height and
+// the padding together, so the glyph stays in the middle of its hover circle.
+// Setting width and height by hand leaves the padding at the 40px default and
+// the icon sits up and to the left of the ripple.
+.task-status-actions > [mat-icon-button] {
+  --mat-icon-button-state-layer-size: 44px;
+  flex: none;
+}
+
+@media (max-width: 359.98px) {
+  .task-status-primary-actions button {
+    width: 100%;
+  }
 }

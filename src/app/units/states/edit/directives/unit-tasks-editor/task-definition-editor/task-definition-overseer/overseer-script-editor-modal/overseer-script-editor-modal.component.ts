@@ -1,8 +1,9 @@
 import {CodeModel} from '@ngstack/code-editor';
 import {HttpClient} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, Inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Inject, OnInit, inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {AlertService} from 'src/app/common/services/alert.service';
+import {ThemeService} from 'src/app/common/theme/theme.service';
 import {OverseerScriptEditorModalData} from './overseer-script-editor-modal.service';
 
 @Component({
@@ -13,6 +14,7 @@ import {OverseerScriptEditorModalData} from './overseer-script-editor-modal.serv
   standalone: false,
 })
 export class OverseerScriptEditorModalComponent implements OnInit {
+  readonly theme = inject(ThemeService);
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: OverseerScriptEditorModalData,
     public dialogRef: MatDialogRef<OverseerScriptEditorModalData>,

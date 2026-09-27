@@ -4,7 +4,9 @@
 
 .welcome-heading {
   margin-bottom: 30px;
-  color: black;
+  // THM-M01: was hardcoded black, invisible in dark. Text token resolves to the
+  // same near-black in light and flips with the marker.
+  color: var(--ot-color-text, #000);
   font-size: 24px;
 }
 
@@ -14,7 +16,7 @@
   padding-top: 42px;
 
   p {
-    color: black;
+    color: var(--ot-color-text, #000);
   }
 
   img: {
@@ -42,7 +44,7 @@ h1 {
     margin-left: 8px;
     font-family: 'Grotesk';
     font-size: 2em;
-    color: black;
+    color: var(--ot-color-text, #000);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -57,6 +59,12 @@ f-welcome .content-container {
 
 .welcome {
   width: 100%;
+}
+
+.signed-out-shell,
+.signed-out-content {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .media-screen-hide {
@@ -74,10 +82,56 @@ f-welcome .content-container {
 /* Sidebar and Wordmark Media query for screens 960px and below */
 
 @media (max-width: 959px) {
+  :host {
+    display: block;
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .signed-out-shell {
+    box-sizing: border-box;
+    height: auto;
+    min-height: 100dvh;
+    // no gutter here: the content panel is a different shade from the page, so
+    // any padding showed up as a frame round the app. the card keeps its own p-4
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+      env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+
+  .signed-out-content {
+    min-width: 0;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .signed-out-card,
+  .subcontainer {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+  }
+
   .sidebar {
     display: none; /* Hide the element */
   }
   .wordmark {
     display: flex; /* Show the element */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .welcome-heading {
+    align-self: center;
+    width: 100%;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+}
+
+@media (min-width: 960px) {
+  .signed-out-shell,
+  .signed-out-content {
+    height: 100vh;
   }
 }

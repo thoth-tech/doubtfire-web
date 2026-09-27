@@ -1,19 +1,89 @@
 .mat-toolbar {
   height: 72px;
-  background-color: white;
+  // THM-M01: was hardcoded white / #f5f5f5 / black, which never flipped in dark
+  // because component styles beat the global Material theme. Onto tokens: the light
+  // value of --ot-color-surface is #ffffff, so light is unchanged.
+  background-color: var(--ot-color-surface, #fff);
   box-shadow: 3px 4px 5px #0000000d;
   margin-bottom: 20px;
 
   &.inbox {
-    background-color: #f5f5f5;
+    background-color: var(--ot-color-page, #f5f5f5);
     box-shadow: none;
     margin-bottom: 0px; // nice drop shadow on bottom of toolbar
   }
 
   font-family: 'Grotesk';
+  overflow: hidden;
 
   .mat-icon {
-    color: black;
+    color: var(--ot-color-text, #000);
     transform: scale(1.5);
+  }
+  // Icon buttons: the global scale(1.5) overran the 48px state layer, leaving only
+  // a ~6px hover ring. Scale the glyph to 32px inside the 48px target for an even
+  // ~8px ring on every toolbar hover.
+  .mat-mdc-icon-button.mat-mdc-button-base .mat-icon {
+    transform: scale(1.33);
+  }
+
+  // Account avatar: make the text button a circular 48px target matching the round
+  // 32px avatar, so its hover ring is even instead of a cramped rectangle.
+  .account-menu-trigger.mat-mdc-button.mat-mdc-button-base {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+
+    .mat-mdc-button-persistent-ripple,
+    .mat-mdc-button-persistent-ripple::before {
+      border-radius: 50%;
+    }
+  }
+}
+
+// Keep the dark toolbar aligned with the page and use a visible divider.
+:host-context([data-ot-theme='dark']) .mat-toolbar {
+  background-color: var(--ot-color-page);
+  border-bottom: 1px solid var(--ot-color-divider);
+}
+
+.header-spacer {
+  min-width: 0;
+}
+
+@media (max-width: 599px) {
+  .mat-toolbar {
+    gap: 0;
+    padding-inline: 8px;
+
+    unit-dropdown {
+      flex: 0 0 auto;
+      min-width: 0;
+    }
+
+    task-dropdown {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+
+  notification-bell {
+    flex: 0 0 44px;
+    width: 44px;
+  }
+
+  .account-menu-trigger.mat-mdc-button.mat-mdc-button-base {
+    flex: 0 0 44px;
+    height: 44px;
+    min-width: 44px;
+    width: 44px;
+    padding: 0;
   }
 }

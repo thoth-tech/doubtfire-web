@@ -1,0 +1,138 @@
+// OnTrack theme tokens — DARK.
+// Generated to the values fixed in docs/theme/THEME-CONTRACT.md sections 7 and 8.
+// The only block, with _light.scss, permitted to declare a colour value.
+// Applies exactly when the resolved theme marker is dark.
+
+:root[data-ot-theme='dark'] {
+  // --- 7. Semantic ---
+  // Soft slate ground (a lifted GitHub-dark), easier on the eye than a near-black:
+  // Softened whites (never #fff), elevation by lightness. Vivid, saturated status
+  // fills carry the colour.
+  --ot-color-page: #21262d;
+  --ot-color-surface: #2b313b;
+  --ot-color-surface-raised: #353c47;
+  --ot-color-text: #dbe3ea;
+  --ot-color-text-muted: #a4afbd;
+  // Borders and the focus ring mark component edges, so they clear 3:1 (WCAG
+  // 1.4.11) on page, surface and raised. #464f5b sat at 1.34:1 on raised, so it
+  // is lifted to #798698 (3.01:1 on raised, 4.11:1 on page). Focus #388bfd is
+  // 3.32:1 on raised. Purely decorative rules can use the divider token.
+  --ot-color-border: #798698;
+  // The edge of a control a user has to find (input outline, unchecked box).
+  // 1.4.11 needs 3:1 on every surface: #7b8899 is 3.08:1 on raised.
+  --ot-color-control-border: #7b8899;
+  --ot-color-divider: #353c47;
+  --ot-color-focus: #388bfd;
+  --ot-color-link: #6cb2ff;
+  // Filled buttons/chips use primary with a white label, so it must clear AA on
+  // white: #1f6feb measures 4.6:1 (the lighter #388bfd only 3.3). Link stays the
+  // brighter #58a6ff for text on the dark ground.
+  --ot-color-primary: #1f6feb;
+  --ot-color-on-primary: #ffffff;
+  --ot-color-success: #41be52;
+  --ot-color-warning: #e3b341;
+  // The dark warning and error are light enough to read as text on the slate ground,
+  // so text on a filled header goes dark: white would sit at 1.95:1 and 2.52:1.
+  --ot-color-on-warning: #161b22;
+  --ot-color-error: #ff8279;
+  --ot-color-on-error: #161b22;
+  --ot-color-info: #6cb2ff;
+  --ot-color-inverse-surface: #e6edf3;
+  --ot-color-inverse-text: #161b22;
+
+  // --- 8.1 Task status: --ot-status-<key> / -on ---
+  // Every status carries white icons and text, so each fill is darkened (hue and
+  // saturation held) until white clears 4.5:1. See THEME-CONTRACT.md 8.1.
+  --ot-status-ready-for-feedback: #0071f1;
+  --ot-status-ready-for-feedback-on: #ffffff;
+  --ot-status-not-started: #6f7782;
+  --ot-status-not-started-on: #ffffff;
+  --ot-status-working-on-it: #a4690c;
+  --ot-status-working-on-it-on: #ffffff;
+  --ot-status-need-help: #9447ff;
+  --ot-status-need-help-on: #ffffff;
+  --ot-status-fix-and-resubmit: #877613;
+  --ot-status-fix-and-resubmit-on: #ffffff;
+  --ot-status-feedback-exceeded: #cb4e00;
+  --ot-status-feedback-exceeded-on: #ffffff;
+  --ot-status-redo: #bb5b1f;
+  --ot-status-redo-on: #ffffff;
+  --ot-status-discuss: #1c8189;
+  --ot-status-discuss-on: #ffffff;
+  --ot-status-rediscuss: #1b8376;
+  --ot-status-rediscuss-on: #ffffff;
+  --ot-status-demonstrate: #0074e6;
+  --ot-status-demonstrate-on: #ffffff;
+  --ot-status-complete: #2e863a;
+  --ot-status-complete-on: #ffffff;
+  --ot-status-fail: #eb1309;
+  --ot-status-fail-on: #ffffff;
+  --ot-status-time-exceeded: #eb1309;
+  --ot-status-time-exceeded-on: #ffffff;
+  --ot-status-assess-in-portfolio: #877613;
+  --ot-status-assess-in-portfolio-on: #ffffff;
+  --ot-status-attention-required: #be580f;
+  --ot-status-attention-required-on: #ffffff;
+
+  // Status as a mark on the page (chart slices, bars, accents, footer glyphs).
+  // The darkened fills sit under 3:1 on the dark surface, so marks keep the
+  // vivid colours, which all clear it.
+  --ot-status-ready-for-feedback-graphic: #58a6ff;
+  --ot-status-not-started-graphic: #848c97;
+  --ot-status-working-on-it-graphic: #f0a838;
+  --ot-status-need-help-graphic: #bc8cff;
+  --ot-status-fix-and-resubmit-graphic: #e6cf4a;
+  --ot-status-feedback-exceeded-graphic: #ff9a5b;
+  --ot-status-redo-graphic: #db6d28;
+  --ot-status-discuss-graphic: #56d4dd;
+  --ot-status-rediscuss-graphic: #2dd4bf;
+  --ot-status-demonstrate-graphic: #6cb6ff;
+  --ot-status-complete-graphic: #3fb950;
+  --ot-status-fail-graphic: #f85149;
+  --ot-status-time-exceeded-graphic: #f85149;
+  --ot-status-assess-in-portfolio-graphic: #e6cf4a;
+  --ot-status-attention-required-graphic: #f0883e;
+
+  // --- 8.2 Everything else ---
+  --ot-urgency-overdue: #fa857f;
+  --ot-urgency-soon: #e3b341;
+  --ot-urgency-later: #a4afbd;
+
+  --ot-chart-1: #58a6ff;
+  --ot-chart-2: #388bfd;
+  --ot-chart-3: #3fb950;
+  --ot-chart-4: #f85149;
+  --ot-chart-5: #bc8cff;
+  --ot-chart-6: #e3b341;
+  --ot-chart-grid: #4a5361;
+  --ot-chart-axis: #a4afbd;
+  // The empty part of a progress or meter bar, so its full length shows on a card.
+  --ot-meter-track: #4a5361;
+  // The fill behind other people's chat messages: one clear step off the panel so a
+  // bubble reads as a shape, 1.18:1 against the surface in both themes.
+  --ot-comment-bubble: #353c47;
+
+  // Unit accents: each light accent mixed 70% into the page, so the bands stay
+  // distinct without shouting over the slate ground. White text clears 7:1.
+  --ot-unit-1: #3233c0;
+  --ot-unit-2: #145e5a;
+  --ot-unit-3: #6134b3;
+  --ot-unit-4: #8f1838;
+  --ot-unit-5: #0c557e;
+  --ot-unit-6: #884614;
+  --ot-unit-previous: #3c4757;
+  --ot-unit-on: #ffffff;
+
+  --ot-code-surface: #1a1f26;
+  --ot-code-text: #e6edf3;
+
+  --ot-scrim: rgba(1, 4, 9, 0.8);
+  --ot-elevation-1: 0 1px 3px rgba(1, 4, 9, 0.5);
+
+  --ot-color-disabled-text: #7e8896;
+  --ot-color-disabled-surface: #353c47;
+
+  --ot-color-selected: #1e4272;
+  --ot-color-selected-text: #e6edf3;
+  --ot-color-hover: rgba(255, 255, 255, 0.06);
+}

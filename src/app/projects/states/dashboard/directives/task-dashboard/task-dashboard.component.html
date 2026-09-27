@@ -1,4 +1,7 @@
-<div class="flex size-full flex-col overflow-hidden">
+<div
+  class="task-dashboard-shell flex size-full flex-col overflow-hidden"
+  [class.task-dashboard-shell--document]="currentView === DashboardViews.details"
+>
   <div class="z-10 flex w-full shrink-0 items-center gap-1">
     <mat-tab-group
       class="task-dashboard-tabs min-w-0 flex-1"
@@ -8,11 +11,11 @@
     >
       <mat-tab label="Task Details"></mat-tab>
       <mat-tab label="Task Sheet" [disabled]="!task.definition.hasTaskSheet"></mat-tab>
-      <mat-tab [disabled]="!task.hasPdf && !task.processingPdf">
+      <mat-tab [disabled]="!task.hasSubmissionHistory()">
         <ng-template mat-tab-label>
           <span class="flex items-center gap-1">
             Your Submission
-            @if (task.processingPdf) {
+            @if (task.submissionProcessingActive) {
               <mat-spinner diameter="16"></mat-spinner>
             }
           </span>
@@ -25,7 +28,7 @@
             <span class="inline-flex items-center gap-1">
               Similarities
               @if (task.similaritiesDetected) {
-                <mat-icon class="text-red-500">warning</mat-icon>
+                <mat-icon class="text-ot-error">warning</mat-icon>
               }
             </span>
           </ng-template>
@@ -36,8 +39,8 @@
               Student Notes
               @if (task.project.staffNoteCount) {
                 <span
-                  class="ml-0.5 inline-flex size-[22px] items-center justify-center rounded-full p-0 text-[12px] leading-[22px] font-semibold text-white"
-                  style="background-color: #3939ff"
+                  class="ml-0.5 inline-flex size-[22px] items-center justify-center rounded-full p-0 text-[12px] leading-[22px] font-semibold text-ot-on-primary"
+                  style="background-color: var(--ot-color-primary)"
                 >
                   {{ task.project.staffNoteCount }}
                 </span>
@@ -51,9 +54,11 @@
       }
     </mat-tab-group>
 
+    <app-panel-collapse-button buttonClass="shrink-0 text-ot-muted"></app-panel-collapse-button>
+    <app-panel-fullscreen-button buttonClass="shrink-0 text-ot-muted"></app-panel-fullscreen-button>
     <button
       aria-label="Task actions"
-      class="shrink-0 text-gray-600"
+      class="shrink-0 text-ot-muted"
       mat-icon-button
       [matMenuTriggerFor]="taskMenu"
     >
@@ -61,21 +66,43 @@
     </button>
 
     <mat-menu #taskMenu="matMenu" xPosition="before">
-      <button mat-menu-item [disabled]="!task.hasPdf" (click)="downloadSubmission()">
+      <button mat-menu-item [disabled]="!task.submissionPdfReady" (click)="downloadSubmission()">
         <mat-icon>download</mat-icon>
-        <span>Download submission PDF</span>
+        <span>
+          {{
+            task.submissionPdfReady
+              ? 'Download submission PDF'
+              : 'Submission PDF unavailable — check status below'
+          }}
+        </span>
       </button>
-      <button mat-menu-item [disabled]="!task.hasPdf" (click)="downloadSubmittedFiles()">
+      <button
+        mat-menu-item
+        [disabled]="!task.submissionFilesReady"
+        (click)="downloadSubmittedFiles()"
+      >
         <mat-icon>folder_zip</mat-icon>
-        <span>Download submitted files</span>
+        <span>
+          {{
+            task.submissionFilesReady
+              ? 'Download submitted files'
+              : 'Submitted files unavailable — check status below'
+          }}
+        </span>
       </button>
     </mat-menu>
   </div>
 
-  <div class="min-h-0 flex-1 overflow-auto">
+  <div
+    class="task-dashboard-body min-h-0 flex-1 overflow-auto"
+    [class.task-dashboard-body--document]="currentView === DashboardViews.details"
+  >
     @switch (currentView) {
       @case (DashboardViews.details) {
-        <div class="flex flex-col gap-3 p-3">
+        <div
+          class="task-details task-dashboard-details mobile-scroll-target flex flex-col gap-3 p-3"
+          [class.dashboard-reading-measure]="readingMeasure"
+        >
           <f-task-ilos-card
             [iloContextType]="'TaskDefinition'"
             [taskDef]="task.definition"
@@ -94,6 +121,9 @@
           <f-task-due-card [task]="task"></f-task-due-card>
           <f-task-assessment-card [task]="task"></f-task-assessment-card>
           <f-task-submission-card [task]="task"></f-task-submission-card>
+          @if (canViewPeerProgress) {
+            <f-ppi-widget [task]="task" [taskDef]="task.definition"></f-ppi-widget>
+          }
         </div>
       }
       <!-- <ng-template [ngSwitchCase]="DashboardViews.task">
@@ -109,7 +139,7 @@
       @case (DashboardViews.task) {
         @if (task && task.blockedByPrerequisiteTasks()) {
           <div
-            class="flex items-center border-x-4 border-yellow-500 bg-yellow-100 px-2.5 py-2 text-center text-yellow-700"
+            class="flex items-center border-x-4 border-ot-warning bg-ot-raised px-2.5 py-2 text-center text-ot-warning"
           >
             <mat-icon class="mr-1">warning</mat-icon>
             Warning: This task has
@@ -121,7 +151,11 @@
           </div>
         }
         @if (task.definition.hasTaskSheet) {
-          <f-pdf-viewer [pdfUrl]="task.definition.getTaskPDFUrl()" [startPage]="1"></f-pdf-viewer>
+          <f-pdf-viewer
+            [filename]="task.definition.effectiveTaskSheetFilename"
+            [pdfUrl]="task.definition.getTaskPDFUrl()"
+            [startPage]="1"
+          ></f-pdf-viewer>
         } @else {
           <div class="flex size-full flex-col items-center justify-center">
             <mat-icon class="empty-state-icon">subtitles_off</mat-icon>
@@ -129,37 +163,56 @@
         }
       }
       @case (DashboardViews.submission) {
-        @if (task.hasPdf) {
-          <f-pdf-viewer [pdfUrl]="task.submissionUrl()" [startPage]="2"></f-pdf-viewer>
-        } @else {
-          <div class="flex size-full flex-col items-center justify-center">
-            <mat-icon class="empty-state-icon">subtitles_off</mat-icon>
-          </div>
-        }
+        <div class="submission-view">
+          <f-task-submission-card [task]="task"></f-task-submission-card>
+          @if (task.submissionPdfReady) {
+            <div class="submission-preview">
+              <f-pdf-viewer
+                [filename]="task.definition.abbreviation + '-submission.pdf'"
+                [pdfUrl]="task.submissionUrl()"
+                [startPage]="1"
+              ></f-pdf-viewer>
+            </div>
+          } @else {
+            <div class="submission-preview-placeholder" role="status">
+              <mat-icon aria-hidden="true">hourglass_top</mat-icon>
+              <strong>{{
+                task.submissionProcessingActive
+                  ? 'Preview is being prepared'
+                  : 'Preview unavailable'
+              }}</strong>
+              <span>{{
+                task.submissionProcessingActive
+                  ? 'You can leave this task and return later.'
+                  : 'Use the recovery action above when available.'
+              }}</span>
+            </div>
+          }
+        </div>
       }
       @case (DashboardViews.similarity) {
         @if (canAccessStaffViews) {
-          <div class="h-full overflow-auto">
+          <div class="h-full">
             <f-task-similarity-view [task]="task"></f-task-similarity-view>
           </div>
         }
       }
       @case (DashboardViews.submission_history) {
         @if (canAccessStaffViews) {
-          <div class="h-full overflow-auto">
+          <div class="h-full" [class.dashboard-reading-measure]="readingMeasure">
             <f-task-overseer-report [task]="task"></f-task-overseer-report>
           </div>
         }
       }
       @case (DashboardViews.staff_notes) {
         @if (canAccessStaffViews) {
-          <div class="h-full">
+          <div class="h-full" [class.dashboard-reading-measure]="readingMeasure">
             <f-staff-notes-view [project]="task.project"></f-staff-notes-view>
           </div>
         }
       }
       @case (DashboardViews.tutor_notes) {
-        <div class="h-full overflow-auto">
+        <div class="h-full" [class.dashboard-reading-measure]="readingMeasure">
           @if (canAccessTutorNotes) {
             <f-tutor-notes-view [task]="task"></f-tutor-notes-view>
           }

@@ -1,25 +1,53 @@
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
 @use '@worktile/gantt/styles/index';
+@use 'styles/gantt-theme';
 @use 'theme' as *;
 @use 'styles/common/typeface';
+@use 'styles/common/accessibility';
+// Theme foundation (THM-F01): the --ot-* token layer. These two partials are the
+// only place a colour value is declared. Light is the bare :root default so the
+// app stays correct even if the pre-hydration marker script (THM-F04) never runs.
+@use 'styles/tokens/light';
+@use 'styles/tokens/dark';
+// Shape (radius) scale — theme-independent, declared once. Reference --ot-radius-*
+// (or the rounded-ot-* Tailwind utilities) instead of hardcoding a radius.
+@use 'styles/tokens/shape';
+@use 'styles/theme-special-surfaces';
 @use 'tailwindcss';
 @config '../tailwind.config.js';
 
 @include mat.elevation-classes();
 @include mat.app-background();
 
-@import '../node_modules/angular-calendar/css/angular-calendar.css';
+// angular-calendar layout and palette are loaded by theme-special-surfaces.
+
+:root {
+  --mobile-task-tabs-height: 52px;
+  --mobile-sticky-offset: calc(var(--mobile-task-tabs-height) + 0.5rem);
+  --mobile-page-bottom-padding: max(1rem, env(safe-area-inset-bottom, 0px));
+}
 
 // Keep Angular's [hidden] bindings stronger than display utilities such as Tailwind's .flex.
 [hidden] {
   display: none !important;
 }
 
+// The route background colour is painted on <body> by GlobalStateService, but body is
+// only as tall as its content, so on short pages (empty states, error pages) the darker
+// <html> colour showed through below it as a seam. Fill the true viewport so the canvas
+// always reaches the bottom (dvh accounts for mobile browser chrome; --vh has a header
+// offset baked in and would leave a sliver, so it is not used here).
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 $main-view-top-padding: 30px;
 $main-view-bottom-padding: $main-view-top-padding;
 
-$main-view-max-height: calc((var(--vh, 1vh) * (100)) - 85px);
+// --ot-demo-banner-height is published by the demo banner, which sits above the header.
+$main-view-max-height: calc((var(--vh, 1vh) * (100)) - 85px - var(--ot-demo-banner-height, 0px));
 
 // This is the new Angular Material 3 theme file which we will migrate to
 // @use './styles/m3-theme.scss';
@@ -51,7 +79,7 @@ $main-view-max-height: calc((var(--vh, 1vh) * (100)) - 85px);
 
 .f-table {
   @include mat.elevation(1);
-  border-radius: 0.8rem;
+  border-radius: var(--ot-radius-md);
   margin-bottom: 1rem;
 
   background-color: transparent !important;
@@ -63,7 +91,7 @@ $main-view-max-height: calc((var(--vh, 1vh) * (100)) - 85px);
 
   &.selectable {
     .mat-mdc-row:hover .mat-mdc-cell {
-      background-color: rgb(243, 243, 243);
+      background-color: var(--ot-color-hover);
     }
     .mat-mdc-row .mat-mdc-cell {
       cursor: pointer;
@@ -73,7 +101,7 @@ $main-view-max-height: calc((var(--vh, 1vh) * (100)) - 85px);
 
 .table-selectable {
   .mat-mdc-row:hover .mat-mdc-cell {
-    background-color: rgb(243, 243, 243);
+    background-color: var(--ot-color-hover);
   }
   .mat-mdc-row .mat-mdc-cell {
     cursor: pointer;
@@ -82,7 +110,40 @@ $main-view-max-height: calc((var(--vh, 1vh) * (100)) - 85px);
 
 .mat-mdc-progress-spinner circle,
 .mat-spinner circle {
-  stroke: #ddd !important;
+  stroke: var(--ot-color-divider) !important;
+}
+
+// Dialogs follow the 12px surface rung (Material defaults to a tight 4px), so every
+// modal has the same soft corner as a card. Both themes.
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-shape: var(--ot-radius-md);
+}
+
+// Inactive tab labels default to a low-contrast tone (visible on the calendar
+// modal's For Google / Apple / Outlook strip in dark). Pin them to the muted text
+// token so every tab strip clears AA; the active label keeps the theme accent.
+.mat-mdc-tab-group,
+.mat-mdc-tab-nav-bar {
+  // This Material build reads --mat-tab-{active,inactive}-label-text-color for the
+  // label colour (the --mat-tab-header-* names are NOT honoured, verified computed).
+  // Inactive defaulted to a low-contrast tone on the dark panel -> muted text; the
+  // active label defaulted to the mid primary #1f6feb which read dim -> brighter link
+  // token (#6cb2ff dark / #3939ff light) so the selected tab pops.
+  --mat-tab-inactive-label-text-color: var(--ot-color-text-muted);
+  --mat-tab-active-label-text-color: var(--ot-color-link);
+}
+// The theme mixin re-sets --mat-tab-active-label-text-color inside the dark scope at
+// higher specificity than the declaration above, so the token override is beaten in
+// dark. Force the active label colour directly (!important clears the scoped token).
+.mat-mdc-tab.mdc-tab--active .mdc-tab__text-label,
+.mat-mdc-tab-link.mdc-tab--active .mdc-tab__text-label {
+  color: var(--ot-color-link) !important;
+}
+// Ink bar to match the active label (Material's own indicator rule wins on source
+// order, so this needs !important).
+.mat-mdc-tab-group .mdc-tab-indicator__content--underline,
+.mat-mdc-tab-nav-bar .mdc-tab-indicator__content--underline {
+  border-color: var(--ot-color-link) !important;
 }
 
 /* Ensures smooth resizing of task list in project dashboard */
@@ -100,4 +161,345 @@ body.split-pane-resizing pdf-viewer {
 
 .mat-badge-accent .mat-badge-content {
   color: white;
+}
+
+// SPIKE (THM-M01): page frame follows the resolved theme in dark. The Material
+// dark theme (theme.scss) handles component chrome; this covers the raw body.
+:root[data-ot-theme='dark'] body {
+  background-color: var(--ot-color-page);
+  color: var(--ot-color-text);
+}
+
+// Outlined buttons, in both themes: a thin token outline over a faint primary wash,
+// the theme's text colour for the label and primary for the icon, a consistent
+// radius and no shadow. The old grey fill with a drop shadow read as a legacy
+// raised box in light mode. Material's own state layer handles hover and focus.
+.mat-mdc-outlined-button:not(:disabled) {
+  --mat-button-outlined-container-shape: var(--ot-radius-md);
+  box-shadow: none;
+}
+
+// The outline is a control edge, so it is mixed from the control tokens rather
+// than the decorative ones. --ot-color-border and --ot-color-primary are both
+// dark in the dark theme, and the old mix of the two landed on #385A8D: 1.60:1
+// against a dialog or card, where WCAG 1.4.11 asks for 3:1. --ot-color-link and
+// --ot-color-control-border are the lighter pair the dark theme already defines
+// for exactly this, and give 3.66:1. Light is unchanged to the byte, because
+// there link equals primary and control-border equals border.
+.mat-mdc-outlined-button:not(:disabled):not(.mat-warn) {
+  --mat-button-outlined-outline-color: color-mix(
+    in srgb,
+    var(--ot-color-link) 35%,
+    var(--ot-color-control-border)
+  );
+  --mat-button-outlined-label-text-color: var(--ot-color-text);
+  // The wash stays on primary: it is a background, and it is meant to be faint.
+  // The glyph drawn over it is meaningful non-text and needs 3:1, which dark
+  // primary only reaches on the bare page (2.21:1 on a card). Link is the same
+  // accent one step lighter, and the same colour as primary in light.
+  background-color: color-mix(in srgb, var(--ot-color-primary) 5%, transparent);
+
+  .mat-icon {
+    color: var(--ot-color-link);
+  }
+}
+
+.mat-mdc-outlined-button:not(:disabled):not(.mat-warn):hover {
+  background-color: color-mix(in srgb, var(--ot-color-primary) 11%, transparent);
+}
+
+// color="warn" is the app's way of saying "this one destroys something", and the
+// treatment above painted it in primary anyway: a blue trash icon on Delete
+// portfolio. Give warn the same shape of treatment in its own colour. The filled
+// rule below already excludes .mat-warn; this is the outlined half of that.
+.mat-mdc-outlined-button:not(:disabled).mat-warn {
+  // Mixed against the control edge for the same reason as above: over the
+  // decorative border this lands at 2.36:1 in dark, and at 3.57:1 here.
+  --mat-button-outlined-outline-color: color-mix(
+    in srgb,
+    var(--ot-color-error) 45%,
+    var(--ot-color-control-border)
+  );
+  // The outline and the icon carry the warning. The label stays in the text
+  // colour: error over an error-tinted fill tops out around 4.3:1, under the
+  // 4.5:1 text needs, and no mix of error and text clears it in both themes
+  // without going pink. Non-text only has to reach 3:1, which the icon does at
+  // 3.92:1 in the worst case.
+  --mat-button-outlined-label-text-color: var(--ot-color-text);
+  background-color: color-mix(in srgb, var(--ot-color-error) 5%, transparent);
+
+  .mat-icon {
+    color: var(--ot-color-error);
+  }
+}
+
+.mat-mdc-outlined-button:not(:disabled).mat-warn:hover {
+  background-color: color-mix(in srgb, var(--ot-color-error) 11%, transparent);
+}
+
+// Filled buttons. Without a color input Material fills them with a neutral grey,
+// which in dark mode reads as a disabled box rather than the main action. Give
+// every filled button the primary fill and the same shape as outlined ones, so
+// the app has two clear button styles: filled for the main action, outlined for
+// the rest. Buttons that set color="warn" keep their own fill.
+.mat-mdc-unelevated-button:not(:disabled):not(.mat-warn) {
+  --mat-button-filled-container-color: var(--ot-color-primary);
+  --mat-button-filled-label-text-color: var(--ot-color-on-primary);
+  --mat-button-filled-container-shape: var(--ot-radius-md);
+  box-shadow: none;
+
+  .mat-icon {
+    color: inherit;
+  }
+}
+
+.mat-mdc-unelevated-button:disabled {
+  --mat-button-filled-container-shape: var(--ot-radius-md);
+}
+
+.mat-mdc-unelevated-button:not(:disabled),
+.mat-mdc-outlined-button:not(:disabled) {
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+// ngx-skeleton-loader sets a fixed light grey and a white shimmer on its own
+// element, in its encapsulated styles, so every loading placeholder stayed light
+// in dark mode. Restate them there with the divider token the hand-built
+// skeletons use. The :root prefix outweighs the library's attribute selector.
+//
+// The library's shimmer is a 200px pseudo-element that travels 100vw inside each
+// placeholder's own clip box, on ease-in-out. A narrow placeholder therefore
+// shows the sheen for a sliver of the cycle and a wide one for much longer, so a
+// page of skeletons flickered out of step. Sizing the sheen to the placeholder
+// and moving it by a percentage of itself is what fixes that: every placeholder
+// now plays one full sweep per cycle whatever its width.
+//
+// This used to drive that from a single registered custom property animated on
+// :root behind a :has(). The property inherits, so its computed value changed on
+// every element in the document sixty times a second for as long as any skeleton
+// was on screen, and only the handful of pseudo-elements below ever read it.
+//
+// What the shared clock bought was a common phase, and a common phase is not
+// something anyone can see here: a percentage transform ties speed to width, so
+// a 600px bar's sheen crosses at about 750px/s and a 30px circle's at about
+// 37px/s. They were in phase and never in step. Within one loading state the
+// placeholders mount together and so start together anyway. Two regions loading
+// on separate flags can now drift apart, which is the one thing given up.
+@keyframes ot-skeleton-sheen {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+:root ngx-skeleton-loader .skeleton-loader {
+  --ngx-skeleton-loader-base-color: var(--ot-color-divider);
+  --ot-skeleton-sheen-color: color-mix(in srgb, var(--ot-color-divider), #fff 14%);
+}
+
+@supports (color: oklch(from red l c h)) {
+  :root ngx-skeleton-loader .skeleton-loader {
+    --ot-skeleton-sheen-color: oklch(from var(--ot-color-divider) calc(l + 0.06) c h);
+  }
+}
+
+:root ngx-skeleton-loader .skeleton-loader.progress::before {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+    105deg,
+    transparent 25%,
+    var(--ot-skeleton-sheen-color) 50%,
+    transparent 75%
+  );
+  background-size: 100% 100%;
+  animation: ot-skeleton-sheen 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root ngx-skeleton-loader .skeleton-loader.progress::before {
+    display: none;
+  }
+}
+
+// Gantt (ngx-gantt) dark theme. The library paints from var(--gantt-color-*,
+// <light-fallback>) AND sets those variables' light defaults INLINE on its own
+// <ngx-gantt-root> host, which beats a :root definition. So override them on the
+// host with !important (a stylesheet !important wins over an inline non-important
+// custom property). References only — the --ot-* tokens stay the single source.
+// Today is drawn in the warning colour in both themes, so the planner's legend can
+// key it with the same token. The library's light default was a salmon that also
+// put white text on the today chip at about 2:1.
+ngx-gantt-root {
+  --gantt-color-highlight: var(--ot-color-warning) !important;
+}
+
+:root[data-ot-theme='dark'] ngx-gantt-root {
+  --gantt-color-background: var(--ot-color-surface) !important;
+  --gantt-color-gray-100: var(--ot-color-page) !important;
+  --gantt-color-gray-200: var(--ot-color-selected) !important;
+  --gantt-color-gray-300: var(--ot-color-surface-raised) !important;
+  --gantt-color-gray-400: var(--ot-color-border) !important;
+  --gantt-color-gray-500: var(--ot-color-divider) !important;
+  --gantt-color-gray-600: var(--ot-color-border) !important;
+  --gantt-color-text-main: var(--ot-color-text) !important;
+  --gantt-color-text-muted: var(--ot-color-text-muted) !important;
+  --gantt-color-text-light: var(--ot-color-text-muted) !important;
+  --gantt-color-text-inverse: var(--ot-color-on-primary) !important;
+  --gantt-color-primary: var(--ot-color-primary) !important;
+  --gantt-color-highlight: var(--ot-color-warning) !important;
+  --gantt-color-danger: var(--ot-color-error) !important;
+}
+
+// gray-600 above is reused by ngx-gantt for its empty-table message text, where
+// the border tone is unreadable (1.4:1). Give that one string a muted-text colour.
+:root[data-ot-theme='dark'] .gantt-table-empty .empty-text {
+  color: var(--ot-color-text-muted);
+}
+
+// Accessibility: a single global keyboard focus ring, driven by the focus token so
+// it flips light/dark. :is() (not :where()) so it beats the browser default;
+// :focus-visible so mouse clicks never draw it. Interactive elements only.
+:is(
+  a[href],
+  area[href],
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  [tabindex]:not([tabindex='-1']),
+  [role='button'],
+  [role='link'],
+  [role='tab'],
+  [role='menuitem'],
+  [role='menuitemcheckbox'],
+  [role='menuitemradio'],
+  [role='option'],
+  [role='checkbox'],
+  [role='radio'],
+  [role='switch'],
+  [role='slider'],
+  [contenteditable='true']
+):focus-visible {
+  outline: 2px solid var(--ot-color-focus);
+  outline-offset: 2px;
+}
+
+// Accessibility (1.4.11): the resting outline of a text field is how a user finds
+// it, and Material's default is 38% black, which is 2.7:1 on a white card.
+//
+// Only the text field. An earlier version of this pointed the checkbox and radio
+// tokens here too, on the assumption they shared that 38% default. They do not:
+// both default to on-surface-variant, which is already better than this token on
+// every surface, so overriding them LOWERED contrast rather than raising it. The
+// radio line was dead as well, because Material sets that token on the element
+// itself once a colour is applied and a :root rule can never win.
+//
+// The dark selector matches the dark Material theme include in theme.scss.
+//
+// Only the resting half was pinned, so a focused field fell back to M2's primary and drew
+// DIMMER than at rest in dark: 2.40:1 on a raised card against the 3.08:1 resting edge.
+// The focus token is the one the global ring above already uses, so a keyboard user sees
+// one colour everywhere: 3.32:1 dark and 6.56:1 light at worst, and Material keeps drawing
+// focus at 2px against the resting 1px, so focus reads stronger on width as well as tone.
+:root,
+:root[data-ot-theme='dark'] {
+  --mat-form-field-outlined-outline-color: var(--ot-color-control-border);
+  --mat-form-field-outlined-focus-outline-color: var(--ot-color-focus);
+}
+
+// Keep focus outlines inside menu panels so their edges do not clip them.
+.mat-mdc-menu-panel .mat-mdc-menu-item:focus-visible,
+.mat-mdc-select-panel .mat-mdc-option:focus-visible {
+  outline-offset: -2px;
+}
+
+// A Material form field draws its own focused outline, so the control inside it
+// does not take the ring as well: it showed as a second box inside the field. Same
+// specificity as the ring rule above and later in the file, so it wins.
+.mat-mdc-form-field :is(input, textarea, select, .mat-mdc-select):focus-visible {
+  outline: none;
+}
+
+// Accessibility: honour prefers-reduced-motion. Near-zero (not 0) durations keep
+// JS transitionend/animationend callbacks firing. Canvas effects also need a guard
+// at their source (see ConfettiService).
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 639.98px) {
+  // The document is the single vertical scroller on phones. `clip` prevents an
+  // over-wide feature from creating page-level horizontal drift without also
+  // creating another scroll container (as `hidden` would).
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  html {
+    scroll-padding-top: var(--mobile-sticky-offset);
+  }
+
+  :target,
+  .mobile-scroll-target {
+    scroll-margin-top: var(--mobile-sticky-offset);
+  }
+}
+
+// The feedback attachment preview owns its responsive shell. Remove the MDC
+// surface spacing only for this dialog so 320px and zoomed viewports retain the
+// full toolbar width without changing other dialogs.
+.comments-modal-dialog {
+  .mat-mdc-dialog-container,
+  .mat-mdc-dialog-surface {
+    max-height: 100dvh;
+    overflow: hidden;
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 600px), (max-height: 600px) {
+  .comments-modal-dialog {
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+
+    .mat-mdc-dialog-container,
+    .mat-mdc-dialog-surface {
+      border-radius: 0 !important;
+      height: 100dvh;
+      max-width: 100vw;
+      width: 100vw;
+    }
+  }
+}
+
+// Print the application chrome in Light as well as switching semantic tokens.
+// Keep this in the global stylesheet: components import theme.scss for palette
+// variables and must not each emit a duplicate print theme. Use the same
+// specificity as the on-screen Dark block without changing the
+// root marker or the user's saved preference.
+@media print {
+  :root,
+  :root[data-ot-theme='dark'] {
+    @include mat.all-component-colors($theme);
+  }
 }

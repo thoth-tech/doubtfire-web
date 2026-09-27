@@ -1,0 +1,25 @@
+// The library's theme variables cover the chart surface, labels and borders.
+// These rules replace its rgba(var(--color), alpha) declarations, which are
+// invalid when the variable contains a complete CSS colour instead of RGB parts.
+f-task-planner .gantt {
+  .gantt-main-container .gantt-group,
+  .gantt-table-body .gantt-table-group,
+  .gantt-table-body .gantt-table-item-first-level-group {
+    background: var(--ot-color-surface-raised);
+  }
+
+  .gantt-table-body .gantt-table-item-active,
+  .gantt-table-body .gantt-table-item-active:hover,
+  .gantt-main-container .gantt-item.gantt-main-item-active {
+    background: var(--ot-color-selected);
+  }
+
+  .gantt-calendar-grid .secondary-backdrop {
+    fill: var(--ot-color-surface-raised);
+  }
+
+  .gantt-calendar .today-rect {
+    background: var(--ot-color-primary);
+    color: var(--ot-color-on-primary);
+  }
+}

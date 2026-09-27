@@ -2,17 +2,182 @@
 <html lang="en">
   <head>
     <base href="/" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VJWZRWYE2C"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
+    <meta content="no-referrer" name="referrer" />
 
-      gtag('config', 'G-VJWZRWYE2C');
+    <!-- THM-W01: light page colour as the pre-JS default. The pre-boot script below
+         sets the resolved page colour, and ThemeService keeps it in step on every
+         theme change. -->
+    <meta content="#f3f4f6" name="theme-color" />
+    <!-- CSP: this inline pre-boot theme script depends on unsafe-inline in nginx.conf.
+         Before removing it, allow this exact script's SHA-256 in script-src or
+         serve a per-response nonce. Otherwise dark first paint stops working. -->
+    <!-- THM-F04 pre-boot theme marker. Runs synchronously before any stylesheet
+         so the resolved theme is painted before Angular boots and there is no
+         incorrect-theme flash. Mirrors ThemeService.applyResolved and reads the
+         same storage key ('ontrack.theme.preference' / THEME_STORAGE_KEY). -->
+    <script>
+      // Only the storage read can throw (private mode, quota). Guard it alone so a
+      // throw still falls through to the system value, exactly like
+      // ThemeService.readThemePreference, instead of skipping the paint entirely.
+      let stored = null;
+      try {
+        stored = localStorage.getItem('ontrack.theme.preference');
+      } catch {
+        /* storage blocked; treat as unset and resolve against the OS */
+      }
+      const prefersDark =
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const resolved =
+        stored === 'light' || stored === 'dark' ? stored : prefersDark ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-ot-theme', resolved);
+      document.documentElement.style.colorScheme = resolved;
+      document
+        .querySelector('meta[name="theme-color"]')
+        .setAttribute('content', resolved === 'dark' ? '#21262d' : '#f3f4f6');
     </script>
+
+    <!-- Pre-boot loader. Shown inside <app-root> until Angular replaces it with the
+         splash screen, and drawn to the same size, position and timings as
+         src/app/home/splash-screen so the hand-off does not jump. Values in var()
+         fall back to the theme tokens because this can paint before styles load. -->
+    <style>
+      .ot-boot {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ot-color-page, #f3f4f6);
+      }
+      :root[data-ot-theme='dark'] .ot-boot {
+        background: var(--ot-color-page, #21262d);
+      }
+      .ot-boot-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        opacity: 0;
+        animation: ot-boot-appear 1ms linear 180ms forwards;
+      }
+      .ot-boot-mark {
+        position: relative;
+        width: 88px;
+        height: 51px;
+      }
+      .ot-boot-mark svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      .ot-boot-stroke {
+        animation: ot-boot-draw-down 360ms cubic-bezier(0.77, 0, 0.175, 1) both;
+      }
+      .ot-boot-stroke-short {
+        animation-name: ot-boot-draw-up;
+        animation-delay: 180ms;
+      }
+      .ot-boot-stroke-middle {
+        animation-delay: 300ms;
+      }
+      .ot-boot-stroke-long {
+        animation-delay: 420ms;
+      }
+      .ot-boot-sheen {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        -webkit-mask: url('/assets/images/logo.svg') center / contain no-repeat;
+        mask: url('/assets/images/logo.svg') center / contain no-repeat;
+      }
+      .ot-boot-sheen span {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 40%;
+        background: linear-gradient(
+          105deg,
+          transparent 0%,
+          color-mix(in srgb, var(--ot-color-on-primary, #ffffff) 45%, transparent) 50%,
+          transparent 100%
+        );
+        transform: translateX(-100%);
+        animation: ot-boot-sheen 2.4s linear 1080ms infinite;
+      }
+      .ot-boot-wordmark {
+        margin-top: 18px;
+        color: var(--ot-color-text, #212121);
+        font-family: Inter, 'open-sans', Roboto, system-ui, sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 28px;
+        letter-spacing: -0.01em;
+        opacity: 0;
+        animation: ot-boot-rise 200ms cubic-bezier(0.23, 1, 0.32, 1) 700ms both;
+      }
+      :root[data-ot-theme='dark'] .ot-boot-wordmark {
+        color: var(--ot-color-text, #dbe3ea);
+      }
+      .ot-boot-status {
+        min-height: 20px;
+        margin-top: 16px;
+      }
+      @keyframes ot-boot-appear {
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes ot-boot-draw-down {
+        from {
+          clip-path: inset(0 100% 100% 0);
+        }
+        to {
+          clip-path: inset(0);
+        }
+      }
+      @keyframes ot-boot-draw-up {
+        from {
+          clip-path: inset(100% 100% 0 0);
+        }
+        to {
+          clip-path: inset(0);
+        }
+      }
+      @keyframes ot-boot-sheen {
+        0% {
+          transform: translateX(-100%);
+          animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        45%,
+        100% {
+          transform: translateX(250%);
+        }
+      }
+      @keyframes ot-boot-rise {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .ot-boot-stroke {
+          animation: none;
+        }
+        .ot-boot-sheen {
+          display: none;
+        }
+        .ot-boot-wordmark {
+          animation: ot-boot-appear 1ms linear 180ms forwards;
+        }
+      }
+    </style>
 
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined"
@@ -31,9 +196,8 @@
     <link href="/assets/icons/apple-touch-icon.png" rel="apple-touch-icon" />
     <!-- 180×180 -->
     <link href="/manifest.webmanifest" rel="manifest" />
-    <meta content="#3939ff" name="theme-color" />
 
-    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
     <meta charset="utf-8" />
     <meta content="IE=edge" http-equiv="X-UA-Compatible" />
     <meta content="Learning and feedback tool." name="description" />
@@ -45,7 +209,49 @@
     <![endif]-->
   </head>
   <body class="mat-typography">
-    <app-root></app-root>
+    <app-root>
+      <div aria-hidden="true" class="ot-boot">
+        <div class="ot-boot-inner">
+          <div class="ot-boot-mark">
+            <svg focusable="false" viewBox="0 0 294.58 171.12">
+              <path
+                class="ot-boot-stroke ot-boot-stroke-long"
+                d="M286.58,160.82h0a27.33,27.33,0,0,1-38.67,0l-139-139,9.87-9.87a40.72,40.72,0,0,1,57.57,0L286.58,122.17A27.33,27.33,0,0,1,286.58,160.82Z"
+                fill="#3691ff"
+              />
+              <path
+                class="ot-boot-stroke ot-boot-stroke-middle"
+                d="M164.29,159.22h0a27.33,27.33,0,0,1-38.65,0L48.55,82.14,87.2,43.49l77.09,77.07A27.33,27.33,0,0,1,164.29,159.22Z"
+                fill="#3939ff"
+              />
+              <path
+                class="ot-boot-stroke ot-boot-stroke-short"
+                d="M67.76,143.79l-.38.38L48.44,163.11a27.36,27.36,0,0,1-38.67,0L8,161.34a27.33,27.33,0,0,1,0-38.66L27,103.74l.38-.38Z"
+                fill="#5639ff"
+              />
+            </svg>
+            <span class="ot-boot-sheen"><span></span></span>
+          </div>
+          <div class="ot-boot-wordmark">OnTrack</div>
+          <div class="ot-boot-status"></div>
+        </div>
+      </div>
+    </app-root>
+    <script>
+      // Once the pre-boot loader has actually become visible, mark the page so the
+      // splash screen continues from a drawn mark instead of drawing it twice. A
+      // fast boot replaces the loader before its delay is up and never sets this.
+      {
+        const bootInner = document.querySelector('.ot-boot-inner');
+        if (bootInner) {
+          bootInner.addEventListener('animationstart', (event) => {
+            if (event.target === bootInner && bootInner.isConnected) {
+              document.documentElement.setAttribute('data-ot-boot-splash', 'shown');
+            }
+          });
+        }
+      }
+    </script>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
   </body>
 </html>

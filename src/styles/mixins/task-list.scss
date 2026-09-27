@@ -42,7 +42,7 @@
     &:focus {
       cursor: pointer;
       text-decoration: none;
-      // background-color: $list-group-hover-bg;
+      background-color: var(--ot-color-hover);
       &.ready-for-feedback {
         @include custom-box-shadow(
           color.adjust(task-status-color('ready-for-feedback'), $lightness: 15%)
@@ -101,6 +101,8 @@
       }
     }
     &.selected {
+      background-color: var(--ot-color-selected);
+      color: var(--ot-color-selected-text);
       &.ready-for-feedback {
         @include custom-box-shadow(task-status-color('ready-for-feedback'));
       }
@@ -177,16 +179,21 @@
             width: 12px;
           }
           &.grade-badge {
-            background-color: #000000;
+            // Invert against the list surface so the badge stays visible in
+            // both themes (dark chip/light text in light, light chip/dark text
+            // in dark), instead of a black circle that vanishes on the dark list.
+            background-color: var(--ot-color-inverse-surface);
+            color: var(--ot-color-inverse-text);
             font-size: 9px;
           }
           &.quality-badge {
-            background-color: #000000;
+            background-color: var(--ot-color-inverse-surface);
+            color: var(--ot-color-inverse-text);
             font-size: 9px;
           }
           &.soon-badge {
-            background-color: color.adjust(#eb8f06, $lightness: 15%);
-            color: black;
+            // The working-on-it amber is dark enough for the white clock in both themes.
+            background-color: var(--ot-status-working-on-it);
           }
           &.due-badge {
             background-color: $doubtfire-color;

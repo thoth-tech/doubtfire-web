@@ -1,14 +1,15 @@
+<!-- The glyph keeps a fixed size and the circle grows around it, so the icon never
+     crowds the edge of the fill. -->
 <div
-  class="status-chip mx-0.5 flex h-7 min-h-[30px] cursor-pointer items-center justify-center rounded-full"
+  class="status-chip mx-0.5 flex shrink-0 items-center justify-center rounded-full"
   matTooltip="{{ statusLabel }}"
   matTooltipPosition="above"
-  style="font-size: 14px"
+  role="img"
+  [attr.aria-label]="statusLabel"
   [matTooltipDisabled]="!showTooltip"
-  [ngClass]="[statusClass, compact ? 'max-w-[30px] min-w-[30px]' : 'min-w-[50px] px-3']"
+  [ngClass]="[statusClass, size === 'large' ? 'status-chip--large size-11' : 'size-9']"
 >
-  <mat-icon
-    class="m-0 scale-75 place-self-center"
-    [ngClass]="{'font-black': resolvedStatus === 'complete'}"
-    >{{ statusIcon }}</mat-icon
-  >
+  <mat-icon aria-hidden="true" class="m-0" [class.font-black]="resolvedStatus === 'complete'">{{
+    statusIcon
+  }}</mat-icon>
 </div>

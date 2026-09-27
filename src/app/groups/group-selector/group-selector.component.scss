@@ -1,9 +1,138 @@
-.mat-mdc-row .mat-mdc-cell {
-  border-bottom: 1px solid transparent;
-  border-top: 1px solid transparent;
-  cursor: pointer;
+:host {
+  display: block;
+  min-width: 0;
 }
 
-.mat-mdc-row:hover {
-  background-color: #eee;
+// Toolbar fields run at 48px (Material density -2) so they line up with the
+// tutorial toggle and the buttons beside them.
+.group-toolbar .mat-mdc-form-field {
+  --mat-form-field-container-height: 48px;
+  --mat-form-field-container-vertical-padding: 12px;
+}
+
+// The fields that open inside a row while it is edited stay close to row height.
+.table-field {
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-container-vertical-padding: 8px;
+}
+
+// The table sits on the card's surface: quiet column headings, and row rules on
+// the divider token so they read the same in light and dark. Only rows a person
+// can open get a pointer; that is set per row in the template.
+.groups-table {
+  --mat-table-row-item-outline-color: var(--ot-color-divider);
+  --mat-table-header-headline-color: var(--ot-color-text-muted);
+  --mat-table-row-item-label-text-color: var(--ot-color-text);
+}
+
+.student-group-cards {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0 0.75rem 0.75rem;
+}
+
+.student-group-card {
+  border: 1px solid var(--ot-color-divider);
+  border-radius: 0.75rem;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 1rem;
+}
+
+.student-group-card--joined {
+  border-color: var(--ot-color-primary);
+  border-width: 2px;
+}
+
+.student-group-card__heading,
+.student-group-card__actions {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.student-group-card__heading h3 {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.student-group-card__details {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.student-group-card__details div {
+  min-width: 0;
+}
+
+.student-group-card__details dt {
+  color: var(--ot-color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.student-group-card__details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.student-group-card__actions {
+  border-top: 1px solid var(--ot-color-divider);
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+}
+
+.student-group-card__actions button {
+  min-height: 44px;
+}
+
+.student-group-card__joined {
+  color: var(--ot-color-success);
+}
+
+.group-selector-header-row,
+.group-selector-heading-controls,
+.group-create-controls {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.group-selector-header-row {
+  justify-content: space-between;
+  width: 100%;
+}
+
+@media (max-width: 639.98px) {
+  .student-group-cards {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .groups-table--student,
+  .groups-paginator--student {
+    display: none;
+  }
+
+  .group-selector-header-row,
+  .group-selector-heading-controls,
+  .group-create-controls {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .group-create-controls button {
+    min-height: 44px;
+  }
 }

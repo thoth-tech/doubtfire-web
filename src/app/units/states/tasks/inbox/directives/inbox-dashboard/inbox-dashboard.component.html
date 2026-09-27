@@ -1,6 +1,6 @@
 <div class="flex size-full flex-col overflow-hidden">
   @if (task) {
-    <div class="z-10 flex w-full shrink-0 items-center gap-1">
+    <div class="z-10 flex w-full shrink-0 items-center gap-1 border-b border-ot-divider">
       <mat-tab-group
         class="inbox-dashboard-tabs min-w-0 flex-1"
         dynamicHeight
@@ -8,13 +8,22 @@
         (selectedTabChange)="onTabChange($event)"
       >
         <mat-tab label="Submission"></mat-tab>
-        <mat-tab label="Task Sheet" [disabled]="!task.definition.hasTaskSheet"></mat-tab>
+        <mat-tab label="Task sheet" [disabled]="!task.definition?.hasTaskSheet"></mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
             <span class="inline-flex items-center gap-1">
               Similarities
               @if (task.similaritiesDetected) {
-                <mat-icon class="text-red-500">warning</mat-icon>
+                <span
+                  aria-label="Similarities detected"
+                  class="inline-flex"
+                  matTooltip="Similarities detected"
+                  role="img"
+                >
+                  <mat-icon aria-hidden="true" class="!size-5 !text-xl !leading-none text-ot-error">
+                    warning
+                  </mat-icon>
+                </span>
               }
             </span>
           </ng-template>
@@ -25,11 +34,16 @@
         <mat-tab>
           <ng-template mat-tab-label>
             <span class="inline-flex items-center gap-1">
-              Student Notes
-              @if (task.project.staffNoteCount) {
+              Student notes
+              @if (task.project?.staffNoteCount) {
                 <span
-                  class="ml-0.5 inline-flex size-[22px] items-center justify-center rounded-full p-0 text-[12px] leading-[22px] font-semibold text-white"
-                  style="background-color: #3939ff"
+                  class="inline-flex h-5 min-w-5 items-center justify-center rounded-ot-pill bg-ot-primary px-1.5 text-xs leading-none font-semibold text-ot-on-primary tabular-nums"
+                  role="img"
+                  [attr.aria-label]="
+                    task.project.staffNoteCount +
+                    ' note' +
+                    (task.project.staffNoteCount === 1 ? '' : 's')
+                  "
                 >
                   {{ task.project.staffNoteCount }}
                 </span>
@@ -38,26 +52,38 @@
           </ng-template>
         </mat-tab>
         @if (canAccessTutorNotes) {
-          <mat-tab label="Mod Notes"></mat-tab>
+          <mat-tab label="Mod notes"></mat-tab>
         }
       </mat-tab-group>
 
+      <app-panel-collapse-button buttonClass="shrink-0 text-ot-muted"></app-panel-collapse-button>
+      <app-panel-fullscreen-button
+        buttonClass="shrink-0 text-ot-muted"
+      ></app-panel-fullscreen-button>
       <button
-        aria-label="Task actions"
-        class="shrink-0 text-gray-600"
+        aria-label="More actions for this task"
+        class="shrink-0 text-ot-muted"
         mat-icon-button
+        matTooltip="More actions"
+        type="button"
         [matMenuTriggerFor]="taskMenu"
       >
-        <mat-icon>more_vert</mat-icon>
+        <mat-icon aria-hidden="true">more_vert</mat-icon>
       </button>
 
       <mat-menu #taskMenu="matMenu" xPosition="before">
-        <button mat-menu-item [disabled]="!task.hasPdf" (click)="downloadSubmission()">
-          <mat-icon>download</mat-icon>
+        <button
+          mat-menu-item
+          type="button"
+          [disabled]="!task.hasPdf"
+          (click)="downloadSubmission()"
+        >
+          <mat-icon aria-hidden="true">download</mat-icon>
           <span>Download submission PDF</span>
         </button>
-        <button mat-menu-item [disabled]="!task" (click)="downloadSubmittedFiles()">
-          <mat-icon>folder_zip</mat-icon>
+        <!-- Left on even without a PDF: the files are kept when making the PDF fails. -->
+        <button mat-menu-item type="button" (click)="downloadSubmittedFiles()">
+          <mat-icon aria-hidden="true">folder_zip</mat-icon>
           <span>Download submitted files</span>
         </button>
       </mat-menu>
@@ -69,58 +95,78 @@
           <div class="h-full">
             @if (task.hasPdf) {
               <f-pdf-viewer [pdfUrl]="task.submissionUrl()"></f-pdf-viewer>
+            } @else if (task.loadingSubmissionDetails) {
+              <div
+                aria-label="Loading the submission"
+                class="flex h-full items-center justify-center"
+                role="status"
+              >
+                <mat-spinner diameter="40"></mat-spinner>
+              </div>
+            } @else if (task.processingPdf) {
+              <div class="flex h-full items-center justify-center px-4">
+                <f-empty-state
+                  hint="This can take a few minutes. Check back soon."
+                  icon="hourglass_empty"
+                  message="The submission PDF is still being made"
+                ></f-empty-state>
+              </div>
             } @else {
-              <div class="flex h-full flex-col items-center justify-center">
-                <mat-icon class="size-[120px] text-[120px] text-[#c5c5c5]">
-                  description_off
-                </mat-icon>
+              <div class="flex h-full items-center justify-center px-4">
+                <f-empty-state
+                  hint="This task has no submitted PDF to review."
+                  icon="description"
+                  message="No submission to show"
+                ></f-empty-state>
               </div>
             }
           </div>
         }
         @case (InboxDashboardTab.taskSheet) {
           <div class="h-full">
-            @if (task.definition.hasTaskSheet) {
+            @if (task.definition?.hasTaskSheet) {
               <f-pdf-viewer [pdfUrl]="task.definition.getTaskPDFUrl()"></f-pdf-viewer>
             } @else {
-              <div class="flex h-full flex-col items-center justify-center">
-                <mat-icon class="size-[120px] text-[120px] text-[#c5c5c5]">
-                  subtitles_off
-                </mat-icon>
+              <div class="flex h-full items-center justify-center px-4">
+                <f-empty-state icon="subtitles_off" message="This task has no task sheet">
+                </f-empty-state>
               </div>
             }
           </div>
         }
         @case (InboxDashboardTab.staffNotes) {
-          <div class="h-full">
+          <div class="h-full" [class.dashboard-reading-measure]="readingMeasure">
             <f-staff-notes-view
               [project]="$safeNavigationMigration(task?.project)"
             ></f-staff-notes-view>
           </div>
         }
         @case (InboxDashboardTab.tutorNotes) {
-          <div class="h-full overflow-auto">
+          <div class="h-full" [class.dashboard-reading-measure]="readingMeasure">
             @if (canAccessTutorNotes) {
               <f-tutor-notes-view [task]="task"></f-tutor-notes-view>
             }
           </div>
         }
         @case (InboxDashboardTab.similarities) {
-          <div class="h-full overflow-auto">
+          <div class="h-full">
             <f-task-similarity-view [task]="task"></f-task-similarity-view>
           </div>
         }
         @case (InboxDashboardTab.overseer) {
-          <div class="h-full">
+          <div class="h-full" [class.dashboard-reading-measure]="readingMeasure">
             <f-task-overseer-report [task]="task"></f-task-overseer-report>
           </div>
         }
       }
     </div>
   } @else {
-    <div class="flex h-full flex-col items-center justify-center">
-      <mat-icon class="size-[120px] text-[120px] text-[#c5c5c5]">subtitles_off</mat-icon>
-      <p class="mt-1 text-[#c5c5c5]">Select a task to review</p>
+    <div class="flex h-full items-center justify-center px-4">
+      <f-empty-state
+        hint="Pick a task from the list to see the submission and mark it."
+        icon="rate_review"
+        message="Select a task to review"
+      ></f-empty-state>
     </div>
   }
 </div>

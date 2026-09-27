@@ -9,11 +9,11 @@
 
   .large-button {
     transform: scale(1.15);
-    background-color: white;
+    background-color: var(--ot-color-surface);
   }
 
   .large-button:hover {
-    background-color: #f5f5f5;
+    background-color: var(--ot-color-hover);
   }
 
   .extra-large-button {

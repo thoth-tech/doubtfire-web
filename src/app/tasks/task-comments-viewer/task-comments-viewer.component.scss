@@ -2,19 +2,24 @@
 @use 'styles/mixins/scrollable' as *;
 
 :host {
-  min-width: 230px;
+  min-width: 0;
 }
 
 ::ng-deep .text-bubble .comment-text .markdown-to-html p {
   margin: 0 0 0 0px !important;
 }
 
-$comment-bubble-color: #3939ff;
-$comment-bubble-color-darker: color.adjust($comment-bubble-color, $lightness: -10%);
-$comment-bubble-color-other-user: rgb(241, 240, 240);
-$comment-bubble-color-other-user-darker: color.adjust(
-  $comment-bubble-color-other-user,
-  $lightness: -10%
+$comment-bubble-color: var(--ot-color-primary);
+$comment-bubble-color-darker: color-mix(in srgb, var(--ot-color-primary) 82%, black);
+$comment-bubble-color-other-user: color-mix(
+  in srgb,
+  var(--ot-color-text) 6%,
+  var(--ot-color-surface)
+);
+$comment-bubble-color-other-user-darker: color-mix(
+  in srgb,
+  var(--ot-color-text) 14%,
+  var(--ot-color-surface)
 );
 $comment-author-bubble-size: 38px;
 $comment-text-padding: 12px;
@@ -34,14 +39,15 @@ $comment-inner-border-radius: 4px;
   margin: 0;
 }
 
+// The same gutter on both sides, so a bubble never sits against the panel edge. A
+// page that shows the comments wider sets --comments-gutter to give them more room.
 .comments-body {
-  padding-left: 10px;
+  padding-inline: var(--comments-gutter, 0.875rem);
   overflow-y: auto;
   @include scrollable();
 }
 
 .comments-scroll-content {
-  padding-right: 4px;
   max-height: 100%;
 }
 
@@ -69,10 +75,10 @@ $comment-inner-border-radius: 4px;
 }
 
 :host {
-  overflow-x: none;
+  overflow-x: hidden;
 
   p#commentTimestamp {
-    color: #9696969d;
+    color: var(--ot-color-text-muted);
     font-size: 12px;
     text-align: center;
     width: 100%;
@@ -90,7 +96,7 @@ $comment-inner-border-radius: 4px;
     height: 80px;
     width: 80px;
     font-size: 80px;
-    color: #c5c5c5;
+    color: var(--ot-color-text-muted);
   }
 
   .comments-body {
@@ -115,7 +121,7 @@ $comment-inner-border-radius: 4px;
     border-radius: 10px;
     outline-width: 1.5px;
     outline-style: dashed;
-    outline-color: #3939ff;
+    outline-color: var(--ot-color-focus);
   }
 
   .comment-container {
@@ -132,6 +138,20 @@ $comment-inner-border-radius: 4px;
     }
   }
 
+  // The reply/edit/delete actions used to be shown by a mouseover handler writing a flag
+  // on the comment, which no keyboard user could ever set. The reveal is CSS now, so it
+  // answers to focus inside the comment as well as to the pointer. It has to be opacity
+  // rather than display or visibility, both of which would drop the buttons out of the
+  // tab order and leave :focus-within with no way to ever become true.
+  .comment-overflow comment-bubble-action {
+    opacity: 0;
+  }
+
+  .anchor:hover .comment-overflow comment-bubble-action,
+  .anchor:focus-within .comment-overflow comment-bubble-action {
+    opacity: 1;
+  }
+
   .comment-by-other-user .comment-container {
     display: flex;
     flex-grow: 2;
@@ -139,7 +159,7 @@ $comment-inner-border-radius: 4px;
     .original-comment {
       .reply-text {
         margin-left: 1em;
-        color: rgba(0, 0, 0, 0.7);
+        color: var(--ot-color-text-muted);
       }
     }
   }
@@ -157,6 +177,8 @@ $comment-inner-border-radius: 4px;
   .comment-container .comment-status {
     width: 100%;
     align-self: flex-end;
+    // room above and below so a status change reads as its own line in the thread
+    margin-block: 12px;
 
     hr {
       margin: 0;
@@ -167,14 +189,14 @@ $comment-inner-border-radius: 4px;
       position: relative;
       outline: 0;
       border: 0;
-      color: black;
+      color: var(--ot-color-text-muted);
       text-align: center;
-      height: 1.5em;
-      opacity: 0.8;
+      height: auto;
+      margin: 0;
 
       &:before {
         content: '';
-        background: linear-gradient(to right, transparent, #9696969d, transparent);
+        background: linear-gradient(to right, transparent, var(--ot-color-divider), transparent);
         position: absolute;
         left: 0;
         top: 50%;
@@ -182,15 +204,19 @@ $comment-inner-border-radius: 4px;
         height: 1px;
       }
 
+      // a pill on the line, not a dark box cut out of it
       &:after {
         content: attr(data-content);
         position: relative;
         display: inline-block;
-        color: black;
-        padding: 0 0.5em;
+        padding: 2px 12px;
+        border: 1px solid var(--ot-color-border);
+        border-radius: var(--ot-radius-pill);
+        background-color: var(--ot-color-surface-raised);
+        color: var(--ot-color-text-muted);
+        font-size: 0.8125rem;
+        font-weight: 600;
         line-height: 1.5em;
-        color: #9696969d;
-        background-color: #fff;
       }
     }
   }
@@ -203,15 +229,15 @@ $comment-inner-border-radius: 4px;
 
       @keyframes fade-in-comment-animation {
         0% {
-          background: rgba(33, 150, 243, 0.4);
+          background: color-mix(in srgb, var(--ot-color-info) 40%, transparent);
         }
 
         0% {
-          border: rgba(33, 150, 243, 1);
+          border: var(--ot-color-info);
         }
 
         0% {
-          box-shadow: 0 0 6px rgba(33, 150, 243, 1);
+          box-shadow: 0 0 6px var(--ot-color-info);
         }
 
         100% {
@@ -242,7 +268,7 @@ $comment-inner-border-radius: 4px;
         user-select: text;
         white-space: normal;
         font-size: 12px;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--ot-color-on-primary);
       }
     }
   }
@@ -262,7 +288,7 @@ $comment-inner-border-radius: 4px;
       $comment-bubble-color-other-user-darker
     );
     // color: $text-color;
-    color: black;
+    color: var(--ot-color-text);
   }
 
   .comment.comment-by-other-user .user-icon {
@@ -271,7 +297,7 @@ $comment-inner-border-radius: 4px;
 
   img {
     border-radius: $comment-border-radius;
-    color: #eeeeee;
+    color: var(--ot-color-on-primary);
     border-style: solid;
     border-width: 1px;
   }
@@ -329,16 +355,18 @@ $comment-inner-border-radius: 4px;
   }
 
   @mixin base-bubble {
-    max-width: 300px;
+    // A page that shows the comments wider, such as the full-screen chat, sets
+    // --comment-bubble-max-width so a message is not wrapped into a narrow strip.
+    max-width: var(--comment-bubble-max-width, 300px);
     margin-left: 5px;
     display: flex;
-    color: #fff;
+    color: var(--ot-color-on-primary);
     font-size: 1em;
     padding-top: 6px;
     padding-bottom: 6px;
     padding-left: 0;
     line-height: 1.5em;
-    background: $comment-bubble-color;
+    background: var(--ot-color-primary);
 
     .comment-text,
     .comment-pdf,
@@ -379,7 +407,7 @@ $comment-inner-border-radius: 4px;
 
     a p,
     a {
-      color: white;
+      color: inherit;
       margin-bottom: 0px;
     }
 
@@ -399,6 +427,13 @@ $comment-inner-border-radius: 4px;
   .pdf-bubble {
     @include base-bubble;
     display: inline-block;
+  }
+
+  .comment .document-bubble {
+    display: inline-block;
+    margin-left: 5px;
+    max-width: min(28rem, calc(100vw - 5rem));
+    min-width: 0;
   }
 
   // Audio comments
@@ -433,29 +468,35 @@ $comment-inner-border-radius: 4px;
     max-width: 300px;
 
     mat-stepper {
-      background-color: white;
+      background-color: var(--ot-color-surface);
     }
 
     background: $discussion-comment-bubble-color;
   } */
 
+  // Other people's bubbles take their own fill: the raised surface is white in light,
+  // which vanished against the near-white panel.
   .comment.comment-by-other-user .text-bubble {
-    background: $comment-bubble-color-other-user;
-    color: black;
+    background: var(--ot-comment-bubble);
+    color: var(--ot-color-text);
     margin-left: 0;
   }
 
   .comment.comment-by-other-user .pdf-bubble {
-    background: $comment-bubble-color-other-user;
-    color: black;
-    color: black;
+    background: var(--ot-comment-bubble);
+    color: var(--ot-color-text);
     margin-right: 50px;
     margin-left: 0;
 
     a p {
-      color: black;
+      color: var(--ot-color-text);
       margin-bottom: 0;
     }
+  }
+
+  .comment.comment-by-other-user .document-bubble {
+    margin-left: 0;
+    margin-right: 5px;
   }
 
   .comment.comment-by-other-user .audio-bubble {
@@ -486,7 +527,7 @@ $comment-inner-border-radius: 4px;
   .panel-footer {
     padding: 0;
     font-size: 15px;
-    background-color: white;
+    background-color: var(--ot-color-surface);
   }
 
   // Editor & submitter
@@ -511,5 +552,37 @@ $comment-inner-border-radius: 4px;
 
   #contextOverlay {
     position: absolute;
+  }
+}
+
+@media (max-width: 639.98px) {
+  :host {
+    display: block;
+    width: 100%;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .comments-panel {
+    height: auto !important;
+    min-height: calc(100dvh - var(--mobile-task-tabs-height));
+    overflow: visible;
+  }
+
+  .comments-body {
+    height: auto !important;
+    min-height: 0;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .comments-scroll-content {
+    max-height: none;
+  }
+
+  .anchor,
+  .conversation-end,
+  .comments-footer {
+    scroll-margin-top: var(--mobile-sticky-offset);
   }
 }

@@ -1,27 +1,30 @@
-<mat-card appearance="outlined">
-  <mat-card-header class="flex w-full items-center justify-between">
-    <mat-card-title class="w-full">
-      {{ taskDefinition.abbreviation }} {{ taskDefinition.name }}
-    </mat-card-title>
+<div class="task-connections-dialog">
+  <header class="task-connections-dialog__header">
+    <div class="min-w-0 flex-1">
+      <p class="task-connections-dialog__eyebrow">Task connections</p>
+      <h2 mat-dialog-title>{{ taskDefinition.abbreviation }} {{ taskDefinition.name }}</h2>
+    </div>
     <status-icon [status]="taskDefinition.projectTask(project).status"></status-icon>
-  </mat-card-header>
-  <mat-card-content>
-    <mat-card-subtitle class="py-3"
-      >Task Description:
-      <p>{{ taskDefinition.description }}</p></mat-card-subtitle
-    >
+  </header>
+
+  <div class="task-connections-dialog__content" mat-dialog-content>
+    <section aria-labelledby="task-description-heading">
+      <h3 id="task-description-heading">Task description</h3>
+      <p>{{ taskDefinition.description }}</p>
+    </section>
+
     <f-task-prerequisites-card
       [task]="task"
       [taskDefinition]="taskDefinition"
     ></f-task-prerequisites-card>
     @if (!task.hasPrerequisiteTasks()) {
-      <div class="w-full p-3 text-center text-gray-400">This task has no prerequisites.</div>
+      <div class="w-full p-3 text-center text-ot-muted">This task has no prerequisites.</div>
     }
     <mat-divider class="my-3"></mat-divider>
     @if (dependents.length) {
-      <mat-card appearance="outlined" class="mt-3">
+      <mat-card appearance="outlined" class="dependent-tasks mt-3">
         <mat-card-header>
-          <mat-card-title>Required by</mat-card-title>
+          <mat-card-title>Dependent tasks</mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
@@ -32,7 +35,7 @@
             reach the <strong>Discuss</strong> or <strong>Complete</strong> status, which requires
             tutor feedback. Plan ahead to avoid being locked out of submission.
           </mat-card-subtitle>
-          <table mat-table [dataSource]="dataSource">
+          <table class="dependent-tasks__table" mat-table [dataSource]="dataSource">
             <ng-container matColumnDef="task-definition">
               <th *matHeaderCellDef mat-header-cell>Task</th>
               <td *matCellDef="let link" mat-cell>
@@ -68,12 +71,45 @@
             <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
             <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
           </table>
+
+          <div aria-label="Dependent tasks" class="dependent-tasks__cards">
+            @for (link of dependents; track link.id) {
+              <article>
+                <h4>{{ link.taskDefinition?.abbreviation }} {{ link.taskDefinition?.name }}</h4>
+                <dl>
+                  <div>
+                    <dt>Submission</dt>
+                    <dd>
+                      @if (link.taskDefinition.projectTask(project).blockedByPrerequisiteTasks()) {
+                        Blocked by prerequisites
+                      } @else {
+                        Open
+                      }
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Required status</dt>
+                    <dd>
+                      <status-icon
+                        [showTooltip]="false"
+                        [status]="link.taskStatus ?? 'complete'"
+                      ></status-icon>
+                    </dd>
+                  </div>
+                </dl>
+              </article>
+            }
+          </div>
         </mat-card-content>
       </mat-card>
     } @else {
-      <div class="w-full p-3 text-center text-gray-400">
+      <div class="w-full p-3 text-center text-ot-muted">
         This task is not a prerequisite for any other tasks.
       </div>
     }
-  </mat-card-content>
-</mat-card>
+  </div>
+
+  <div class="task-connections-dialog__actions" mat-dialog-actions>
+    <button mat-dialog-close mat-stroked-button type="button">Close</button>
+  </div>
+</div>

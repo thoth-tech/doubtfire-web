@@ -3,7 +3,7 @@ div {
 }
 
 p {
-  color: #2c2c2c;
+  color: var(--ot-color-text);
   text-align: center;
 }
 
@@ -12,13 +12,12 @@ hr {
 }
 
 .hr-fade {
-  background: linear-gradient(to right, transparent, #9696969d, transparent);
+  background: linear-gradient(to right, transparent, var(--ot-color-divider), transparent);
   width: 100%;
 }
 
 .fade-text {
-  color: #9696969d;
-  opacity: 0.8;
+  color: var(--ot-color-text-muted);
 }
 
 .hr-text {
@@ -27,13 +26,12 @@ hr {
   position: relative;
   outline: 0;
   border: 0;
-  color: black;
+  color: var(--ot-color-text-muted);
   text-align: center;
   height: 1.5em;
-  opacity: 0.8;
   &:before {
     content: '';
-    background: linear-gradient(to right, transparent, #9696969d, transparent);
+    background: linear-gradient(to right, transparent, var(--ot-color-divider), transparent);
     position: absolute;
     left: 0;
     top: 50%;
@@ -44,12 +42,10 @@ hr {
     content: attr(data-content);
     position: relative;
     display: inline-block;
-    color: black;
-
     padding: 0 0.5em;
     line-height: 1.5em;
 
-    color: #9696969d;
-    background-color: #fff;
+    color: var(--ot-color-text-muted);
+    background-color: var(--ot-color-page);
   }
 }

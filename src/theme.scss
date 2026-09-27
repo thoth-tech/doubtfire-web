@@ -163,3 +163,166 @@ $is-dark-theme: map.get($color-config, 'is-dark');
 
 @include mat.all-component-typographies($theme);
 @include mat.all-component-themes($theme);
+
+// SPIKE (THM-M01): a dark Material theme keyed to the resolved marker. Emits only
+// component *colours* (typography/density stay from the light include above), so
+// every Material component flips to dark when <html data-ot-theme="dark">.
+//
+// A GitHub-blue ramp with 500 = #1f6feb to match --ot-color-primary exactly, so
+// Material chips, buttons and progress bars use the same accent as the token layer
+// (white labels clear AA on #1f6feb at 4.6:1).
+$md-formatif-dark: (
+  50: #cae3ff,
+  100: #a5cbff,
+  200: #79b0ff,
+  300: #4d94fa,
+  400: #2f80f0,
+  500: #1f6feb,
+  600: #1a63d8,
+  700: #1657bf,
+  800: #1247a0,
+  900: #0d3576,
+  A100: #ffffff,
+  A200: #cae3ff,
+  A400: #79b0ff,
+  A700: #4d94fa,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #000000,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #000000,
+  ),
+);
+// Default 500 = #1f6feb with a white contrast, so filled buttons, the fab and
+// progress bars read as one blue with white labels, matching --ot-color-primary.
+// (contrast for 500 is #ffffff in the map above.)
+$primary-dark: mat.m2-define-palette($md-formatif-dark, 500, 300, 700);
+
+$dark-theme: mat.m2-define-dark-theme(
+  (
+    color: (
+      primary: $primary-dark,
+      accent: $accent,
+      warn: $warn,
+    ),
+  )
+);
+
+:root[data-ot-theme='dark'] {
+  @include mat.all-component-colors($dark-theme);
+
+  // The app background is emitted once in light (mat.app-background, outside this
+  // scope), so force the main containers onto the page token here.
+  &,
+  .mat-app-background,
+  .mat-drawer-container,
+  .mat-sidenav-content,
+  .welcome .content {
+    background-color: var(--ot-color-page);
+    color: var(--ot-color-text);
+  }
+
+  // M2's dark theme gives every other Material surface the same neutral #424242,
+  // which showed as grey tables and grey toggle buttons on the slate cards (unit
+  // admin Staff and Learning outcomes). Point them at the theme tokens once here, so
+  // a page no longer has to override them one by one. A page that sets its own
+  // value still wins inside its own subtree.
+  --mat-table-background-color: var(--ot-color-surface);
+  --mat-expansion-container-background-color: var(--ot-color-surface-raised);
+  --mat-button-toggle-background-color: var(--ot-color-surface);
+  --mat-button-toggle-disabled-state-background-color: var(--ot-color-surface);
+  --mat-button-toggle-selected-state-background-color: var(--ot-color-selected);
+  --mat-button-toggle-selected-state-text-color: var(--ot-color-selected-text);
+  --mat-button-toggle-divider-color: var(--ot-color-border);
+  --mat-datepicker-calendar-container-background-color: var(--ot-color-surface-raised);
+  --mat-timepicker-container-background-color: var(--ot-color-surface-raised);
+  --mat-autocomplete-background-color: var(--ot-color-surface-raised);
+  --mat-bottom-sheet-container-background-color: var(--ot-color-surface-raised);
+  --mat-stepper-container-color: var(--ot-color-surface);
+  --mat-sidenav-container-background-color: var(--ot-color-surface);
+  --mat-sidenav-content-background-color: var(--ot-color-page);
+  --mat-toolbar-container-background-color: var(--ot-color-surface);
+  --mat-tree-container-background-color: var(--ot-color-surface);
+
+  // M2's dark paginator keeps a warm-grey container that reads as a stray band on
+  // the slate ground (seen under the units tables and the View-all list). It is
+  // transparent so it takes whatever it sits on: the page, or the card that holds
+  // the table (a page-coloured band under a card's table read as a second band).
+  .mat-mdc-paginator {
+    --mat-paginator-container-background-color: transparent;
+    background-color: transparent;
+  }
+
+  // M2's dark theme paints every raised surface a neutral warm #424242, which
+  // fights the cool slate ramp and reads muddy. Repoint the container colours onto
+  // the raised token so cards, menus, dialogs and select panels sit in the same
+  // family as the page. Angular Material 22 reads the --mat-* tokens (the --mdc-*
+  // ones are not honoured), and the card also needs the literal background because
+  // M2 paints it directly.
+  //
+  // Dark elevation reads by a defined edge, not a drop shadow: --ot-elevation-1 is
+  // near invisible on the #21262d ground, so a raised surface separated only by an
+  // ~18-point lightness step still reads flat. Give every raised surface a hairline
+  // border on the border token (#464f5b, one clear step above the #353c47 card) so
+  // cards, dialogs, menus and select panels lift off the page the way a shadow does
+  // in light. The outlined-card outline previously pointed at --ot-color-divider,
+  // which is the SAME value as the raised surface in dark (#353c47), so it drew
+  // nothing — repointed to the border token so it actually reads.
+  .mat-mdc-card {
+    --mat-card-elevated-container-color: var(--ot-color-surface-raised);
+    --mat-card-outlined-container-color: var(--ot-color-surface-raised);
+    --mat-card-outlined-outline-color: var(--ot-color-border);
+    background-color: var(--ot-color-surface-raised);
+    color: var(--ot-color-text);
+    border: 1px solid var(--ot-color-border);
+  }
+  .mat-mdc-menu-panel {
+    --mat-menu-container-color: var(--ot-color-surface-raised);
+    border: 1px solid var(--ot-color-border);
+  }
+  .mat-mdc-dialog-container {
+    --mat-dialog-container-color: var(--ot-color-surface-raised);
+  }
+  // The visible, rounded dialog element is the surface, not the container — border
+  // it so the modal has a defined edge against the scrimmed page (the Web calendar
+  // dialog read as a floating slab with no boundary before this).
+  .mat-mdc-dialog-container .mat-mdc-dialog-surface,
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border: 1px solid var(--ot-color-border);
+  }
+  .mat-mdc-select-panel,
+  .mat-mdc-autocomplete-panel {
+    --mat-select-panel-background-color: var(--ot-color-surface-raised);
+    background-color: var(--ot-color-surface-raised);
+    border: 1px solid var(--ot-color-border);
+  }
+
+  // The shared data table (.f-table, styles.scss) is a bare <table> styled as a
+  // raised panel with mat.elevation(1). It matches none of the card/menu/dialog
+  // selectors above, so it gets no central edge — give it the same hairline so
+  // every data table reads as a defined surface in dark, not a floating grid.
+  .f-table {
+    border: 1px solid var(--ot-color-border);
+  }
+
+  // M2's dark filled text-field container defaults to a pale overlay, so appearance="fill"
+  // fields (the target/submitted-grade cards, the enrolment modal) render as a light box on
+  // the dark card. Point the container onto the surface token so a filled field reads as a
+  // subtle inset one step below the raised card, mirroring the light-mode look. The wrapper is
+  // repainted directly because M2 honours the --mat-* tokens over the --mdc-* ones here too.
+  .mat-mdc-text-field-wrapper.mdc-text-field--filled {
+    --mdc-filled-text-field-container-color: var(--ot-color-surface);
+    --mdc-filled-text-field-disabled-container-color: var(--ot-color-surface);
+    background-color: var(--ot-color-surface);
+  }
+}

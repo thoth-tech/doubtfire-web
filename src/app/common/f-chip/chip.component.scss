@@ -1,0 +1,7 @@
+// THM-M01: the chip colours were Tailwind bg-formatif-blue / text-white (both
+// !important via the config), so they never flipped. Onto the accent tokens: the
+// light values are #3939ff / #ffffff, so light is unchanged; dark follows the marker.
+.f-chip__box {
+  background-color: var(--ot-color-primary, #3939ff);
+  color: var(--ot-color-on-primary, #fff);
+}
