@@ -1,0 +1,1225 @@
+// Spacing scale: 4 / 8 / 12 / 16 / 24 / 32 / 48. Colours come only from --ot-* tokens.
+@use './hub-card' as hub;
+
+@include hub.card-theme;
+
+:host {
+  display: block;
+  color: var(--ot-color-text);
+  --hub-space-1: 4px;
+  --hub-space-2: 8px;
+  --hub-space-3: 12px;
+  --hub-space-4: 16px;
+  --hub-space-5: 24px;
+  --hub-space-6: 32px;
+  --hub-space-7: 48px;
+  // every Unit Hub button: the app's filled or outlined style, at a 44px touch height
+  --mat-button-filled-container-height: 44px;
+  --mat-button-outlined-container-height: 44px;
+}
+.unit-hub {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--hub-space-5) var(--hub-space-6) var(--hub-space-7);
+  box-sizing: border-box;
+}
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+h1 {
+  font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-size: 1.15rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+h3,
+h4 {
+  font-size: 1.02rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+p {
+  line-height: 1.6;
+}
+a {
+  color: var(--ot-color-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a,
+button,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  &:focus-visible {
+    outline: 3px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+mat-icon {
+  flex-shrink: 0;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ---- Header ----
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hub-space-1);
+  margin-bottom: var(--hub-space-4);
+  font-size: 0.9rem;
+  text-decoration: none;
+  border-radius: var(--ot-radius-xs);
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.hub-heading {
+  // title and unit picker share the top row, the actions sit on their own row
+  // under the title, so nothing floats or wraps into a ragged edge
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'title picker'
+    'actions actions';
+  align-items: end;
+  gap: var(--hub-space-4) var(--hub-space-5);
+  margin-bottom: var(--hub-space-5);
+}
+.hub-title {
+  grid-area: title;
+  min-width: 0;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hub-space-1);
+}
+.eyebrow {
+  color: var(--ot-color-link);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.hub-subtitle {
+  color: var(--ot-color-text-muted);
+  font-size: 0.95rem;
+}
+.heading-actions {
+  display: contents;
+}
+.action-row {
+  grid-area: actions;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hub-space-2);
+}
+// one icon size for every header action; shape and colour come from the app button styles
+.hub-action.mat-mdc-button-base mat-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+}
+.narrow-only {
+  display: none;
+}
+
+// ---- Notices and status ----
+// one callout style for every notice: leading icon, copy beside it
+.notice {
+  @include hub.callout(page);
+  margin-bottom: var(--hub-space-5);
+  p {
+    margin: 0;
+  }
+  .notice-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hub-space-2);
+    min-width: 0;
+  }
+}
+.error-notice,
+.delete-notice {
+  border-color: color-mix(in srgb, var(--ot-color-error) 60%, var(--hub-card-border));
+  > mat-icon {
+    color: color-mix(in srgb, var(--ot-color-error) 80%, var(--ot-color-text));
+  }
+}
+.info-notice {
+  color: var(--ot-color-text);
+}
+.status:empty {
+  display: none;
+}
+.status {
+  padding: var(--hub-space-3) var(--hub-space-4);
+  margin-bottom: var(--hub-space-4);
+  border-radius: var(--ot-radius-sm);
+  background: var(--ot-color-selected);
+  color: var(--ot-color-selected-text);
+  font-weight: 600;
+}
+
+// ---- Fields ----
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--hub-space-4);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.field input,
+.field select,
+.field textarea {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  // Muted text, not the border token: that is 1.6:1 in dark, too faint for a field edge.
+  border: 1px solid var(--ot-color-text-muted);
+  border-radius: var(--ot-radius-sm);
+  min-height: 44px;
+  padding: 10px 12px;
+  font: inherit;
+  font-weight: 400;
+  background: var(--ot-color-surface);
+  color: inherit;
+}
+.field textarea {
+  resize: vertical;
+}
+.unit-filter {
+  grid-area: picker;
+  justify-self: end;
+  width: min(100%, 300px);
+  margin: 0;
+  // sit on the same line as the action buttons
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 44px;
+  }
+  ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 44px;
+    padding-block: 10px;
+  }
+}
+
+// ---- Tabs ----
+.hub-filters {
+  display: flex;
+  margin-bottom: var(--hub-space-5);
+}
+.view-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hub-space-1);
+  padding: var(--hub-space-1);
+  border: 1px solid var(--hub-card-border);
+  border-radius: var(--ot-radius-pill);
+  background: var(--ot-color-surface);
+}
+.view-switch button {
+  min-height: 40px;
+  padding: var(--hub-space-2) var(--hub-space-4);
+  border: 0;
+  border-radius: var(--ot-radius-pill);
+  background: transparent;
+  color: var(--ot-color-text);
+  font: inherit;
+  font-size: 0.9rem;
+  &:hover {
+    background: var(--ot-color-hover);
+  }
+}
+.view-switch button[aria-pressed='true'] {
+  background: var(--ot-color-primary);
+  color: var(--ot-color-on-primary);
+  font-weight: 650;
+}
+
+// ---- Columns ----
+.hub-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: var(--hub-space-5) var(--hub-space-6);
+  align-items: start;
+}
+.hub-columns > * {
+  min-width: 0;
+}
+.hub-columns.single-column {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 820px;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--hub-space-2);
+  margin-bottom: var(--hub-space-4);
+  > mat-icon {
+    color: var(--ot-color-link);
+  }
+}
+.count {
+  min-width: 1.5em;
+  padding: 2px var(--hub-space-2);
+  border-radius: var(--ot-radius-pill);
+  background: var(--ot-color-surface-raised);
+  border: 1px solid var(--hub-card-border);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+// ---- Cards ----
+.hub-card {
+  @include hub.card(page);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hub-space-3);
+  padding: var(--hub-space-4) var(--hub-space-5);
+  margin-bottom: var(--hub-space-3);
+  border-radius: var(--ot-radius-lg);
+  box-shadow: var(--ot-elevation-1);
+  overflow-wrap: anywhere;
+}
+// The whole card opens its details: the title button's ::after stretches over the
+// card, and the card's own links and buttons sit above that hit area.
+.announcement-card,
+.session-card,
+.up-next {
+  position: relative;
+  isolation: isolate;
+  a,
+  button:not(.details-title) {
+    position: relative;
+    z-index: 2;
+  }
+}
+.announcement-card:hover,
+.session-card:hover {
+  border-color: var(--ot-color-link);
+}
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hub-space-2) var(--hub-space-3);
+  font-size: 0.75rem;
+}
+// author and date sit in the meta row, each with its own icon
+.meta-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hub-space-1);
+  min-width: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.8rem;
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: var(--ot-color-link);
+  }
+}
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hub-space-1);
+  min-width: 0;
+}
+.unit-badge {
+  padding: 2px var(--hub-space-2);
+  border-radius: var(--ot-radius-xs);
+  background: var(--ot-color-surface-raised);
+  border: 1px solid var(--hub-card-border);
+  color: var(--ot-color-text);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hub-space-1);
+  padding: 2px var(--hub-space-2);
+  border-radius: var(--ot-radius-pill);
+  font-weight: 650;
+  line-height: 1.6;
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+}
+.chip-pinned {
+  background: var(--ot-color-selected);
+  color: var(--ot-color-selected-text);
+}
+.chip-neutral {
+  background: var(--ot-color-surface-raised);
+  color: var(--ot-color-text);
+  border: 1px solid var(--hub-card-border);
+}
+.kind-chip {
+  background: var(--ot-status-ready-for-feedback);
+  color: var(--ot-status-ready-for-feedback-on);
+  &[data-tone='helphub'] {
+    background: var(--ot-status-discuss);
+    color: var(--ot-status-discuss-on);
+  }
+  &[data-tone='lecture'] {
+    background: var(--ot-status-need-help);
+    color: var(--ot-status-need-help-on);
+  }
+  // cancelled items drop the type colour, so the cancelled state is the only colour signal
+  &[data-tone='cancelled'] {
+    background: var(--ot-color-surface-raised);
+    color: var(--ot-color-text);
+    box-shadow: inset 0 0 0 1px var(--hub-card-border);
+  }
+}
+.preserve-lines {
+  white-space: pre-wrap;
+}
+.card-preview {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  font-size: 0.92rem;
+}
+.details-title {
+  // The card, rather than this button, contains the stretched hit area.
+  position: static;
+  display: block;
+  width: 100%;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  border-radius: var(--ot-radius-xs);
+  &:hover {
+    color: var(--ot-color-link);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+.announcement-card .details-title:focus-visible,
+.session-card .details-title:focus-visible,
+.up-next .details-title:focus-visible {
+  outline: none;
+}
+.announcement-card .details-title::after,
+.session-card .details-title::after,
+.up-next .details-title::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--ot-radius-lg);
+}
+.announcement-card .details-title:focus-visible::after,
+.session-card .details-title:focus-visible::after,
+.up-next .details-title:focus-visible::after {
+  outline: 3px solid var(--ot-color-focus);
+  outline-offset: 3px;
+}
+// every card action sits in one footer row on the content inset, same outlined style
+.card-actions {
+  @include hub.action-row;
+  padding-top: var(--hub-space-1);
+}
+
+// ---- Upcoming ----
+.notice.time-note {
+  margin-bottom: var(--hub-space-4);
+  padding: var(--hub-space-2) var(--hub-space-3);
+  font-size: 0.82rem;
+  > mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+.day-group + .day-group {
+  margin-top: var(--hub-space-5);
+}
+.day-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hub-space-2);
+  margin-bottom: var(--hub-space-2);
+  color: var(--ot-color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: var(--ot-color-link);
+  }
+}
+.day-label {
+  color: var(--ot-color-text);
+  font-weight: 750;
+}
+.session-card {
+  padding: var(--hub-space-4);
+}
+// time, type and place as one compact row that wraps
+.facts-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hub-space-2) var(--hub-space-4);
+  font-size: 0.86rem;
+  .chip {
+    font-size: 0.75rem;
+  }
+}
+.fact {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--hub-space-1);
+  min-width: 0;
+  color: var(--ot-color-text);
+  line-height: 1.5;
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    margin-top: 1px;
+    color: var(--ot-color-link);
+  }
+}
+.action-note.help-text {
+  margin: 0;
+  color: var(--ot-color-text-muted);
+}
+// Cancelled recedes below active cards: the quietest card on the page. The banner
+// carries the state in words. The banner carries the state in words.
+.session-card.is-cancelled {
+  @include hub.cancelled-card;
+  .card-preview,
+  .fact {
+    color: var(--ot-color-text-muted);
+  }
+}
+.cancelled-banner {
+  @include hub.cancelled-banner;
+}
+.help-text {
+  margin: var(--hub-space-2) 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.notice.calendar-note {
+  margin: var(--hub-space-5) 0 0;
+  .notice-body button {
+    align-self: flex-start;
+  }
+}
+
+// ---- Empty, error and loading states ----
+.state-panel,
+.empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hub-space-2);
+  text-align: center;
+}
+.state-panel {
+  max-width: 560px;
+  margin: var(--hub-space-6) auto;
+  padding: var(--hub-space-7) var(--hub-space-5);
+  @include hub.card(page);
+  border-radius: var(--ot-radius-lg);
+  p {
+    color: var(--ot-color-text-muted);
+    margin-bottom: var(--hub-space-3);
+  }
+}
+.empty-card {
+  padding: var(--hub-space-6) var(--hub-space-5);
+  border-style: dashed;
+  box-shadow: none;
+  p {
+    color: var(--ot-color-text-muted);
+    font-size: 0.9rem;
+  }
+  button {
+    margin-top: var(--hub-space-2);
+  }
+}
+.state-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--hub-space-1);
+  border-radius: var(--ot-radius-circle);
+  background: var(--ot-color-selected);
+  color: var(--ot-color-selected-text);
+}
+.error-state .state-icon {
+  background: var(--ot-color-error);
+  color: var(--ot-color-on-error);
+}
+.skeleton-card {
+  box-shadow: none;
+}
+.skeleton {
+  border-radius: var(--ot-radius-xs);
+  background: var(--ot-color-divider);
+  animation: hub-pulse 1.4s ease-in-out infinite;
+}
+.skeleton-heading {
+  width: 40%;
+  height: 22px;
+  margin-bottom: var(--hub-space-4);
+}
+.skeleton-chip {
+  width: 64px;
+  height: 18px;
+  border-radius: var(--ot-radius-pill);
+}
+.skeleton-title {
+  width: 70%;
+  height: 20px;
+  margin: var(--hub-space-3) 0;
+}
+.skeleton-line {
+  width: 100%;
+  height: 12px;
+  margin-top: var(--hub-space-2);
+  &.short {
+    width: 55%;
+  }
+}
+@keyframes hub-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+.hub-footer {
+  margin-top: var(--hub-space-5);
+  color: var(--ot-color-text-muted);
+  font-size: 0.8rem;
+}
+.hub-essentials {
+  margin-bottom: var(--hub-space-5);
+}
+.show-more.mat-mdc-button-base {
+  width: 100%;
+  margin-top: var(--hub-space-2);
+}
+
+// ---- Manage panel ----
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hub-space-2);
+}
+.manage-panel {
+  @include hub.card(page);
+  padding: var(--hub-space-5);
+  border-radius: var(--ot-radius-lg);
+  .section-heading p {
+    margin-top: var(--hub-space-1);
+    color: var(--ot-color-text-muted);
+  }
+  .field.manage-unit {
+    max-width: 420px;
+  }
+  .notice {
+    // inside the panel card, so the callout takes the raised surface
+    background: var(--ot-color-surface-raised);
+    margin-bottom: var(--hub-space-4);
+  }
+}
+.manage-actions {
+  margin: var(--hub-space-5) 0;
+}
+.editor {
+  max-width: 820px;
+  margin: var(--hub-space-5) 0;
+}
+.editor-heading,
+.list-heading {
+  @include hub.icon-heading;
+  margin-bottom: var(--hub-space-4);
+}
+// fieldset-like groups: Details, When, Where, Visibility
+.form-group {
+  @include hub.card(surface);
+  padding: var(--hub-space-4);
+  margin-bottom: var(--hub-space-4);
+  min-width: 0;
+  > .help-text:last-child {
+    margin-bottom: 0;
+  }
+  > .field:last-child {
+    margin-bottom: 0;
+  }
+}
+.group-heading {
+  @include hub.label;
+  margin-bottom: var(--hub-space-3);
+}
+.editor-actions {
+  @include hub.action-row;
+  margin-bottom: var(--hub-space-4);
+}
+.manage-panel .notice .actions,
+.delete-notice .actions {
+  @include hub.action-row;
+}
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0 var(--hub-space-4);
+}
+.check-field {
+  display: flex;
+  align-items: center;
+  gap: var(--hub-space-2);
+  min-height: 44px;
+}
+.check-field input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--ot-color-primary);
+}
+.management-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--hub-space-5);
+  margin-top: var(--hub-space-5);
+}
+.management-lists > section {
+  min-width: 0;
+}
+// each existing item is its own card: title and status, then an actions footer
+.managed-row {
+  @include hub.card(surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--hub-space-3);
+  padding: var(--hub-space-3) var(--hub-space-4);
+  margin-bottom: var(--hub-space-2);
+  overflow-wrap: anywhere;
+}
+.managed-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hub-space-1);
+  min-width: 0;
+  span {
+    color: var(--ot-color-text-muted);
+    font-size: 0.8rem;
+  }
+}
+.managed-actions {
+  @include hub.action-row;
+}
+.managed-note {
+  color: var(--ot-color-text-muted);
+  font-size: 0.84rem;
+}
+
+// ---- Responsive ----
+@media (max-width: 900px) {
+  .hub-columns,
+  .management-lists {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  // Upcoming comes first when the columns stack.
+  .sessions-column {
+    order: -1;
+  }
+}
+@media (max-width: 720px) {
+  .wide-only {
+    display: none;
+  }
+  .narrow-only {
+    display: inline-flex;
+  }
+  // phones: title on top, then the picker and the Actions menu on one row
+  .hub-heading {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'title title'
+      'picker actions';
+  }
+  .unit-filter {
+    justify-self: stretch;
+    width: auto;
+  }
+  .action-row {
+    justify-content: flex-end;
+  }
+}
+@media (max-width: 599px) {
+  .unit-hub {
+    padding: var(--hub-space-4) var(--hub-space-4) var(--hub-space-6);
+  }
+  .hub-heading {
+    margin-bottom: var(--hub-space-4);
+  }
+  .view-switch {
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+  .view-switch button {
+    flex: 1;
+    min-width: 0;
+    padding: var(--hub-space-2) var(--hub-space-1);
+    font-size: 0.8rem;
+  }
+  .hub-card,
+  .session-card {
+    padding: var(--hub-space-4);
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .manage-panel {
+    padding: var(--hub-space-4);
+  }
+  .form-group {
+    padding: var(--hub-space-3);
+  }
+  .facts-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--hub-space-1);
+  }
+  .state-panel {
+    padding: var(--hub-space-6) var(--hub-space-4);
+  }
+}
+
+// the composer sits inside the manage panel card here, so it takes the raised surface
+.editor f-teams-meeting-composer {
+  --hub-composer-surface: var(--ot-color-surface-raised);
+}
+
+// ---- Read status (student feed only) ----
+.section-heading .mark-all-read.mat-mdc-button-base {
+  margin-left: auto;
+}
+.announcement-card.is-unread {
+  // unread: the whole card takes a light primary wash and edge
+  @include hub.solid-card(var(--ot-color-primary), var(--ot-color-on-primary));
+  box-shadow: var(--ot-elevation-1);
+  .details-title {
+    font-weight: 750;
+  }
+}
+.announcement-card.is-read {
+  .details-title {
+    font-weight: 500;
+  }
+}
+.chip-new {
+  background: var(--ot-color-selected);
+  color: var(--ot-color-selected-text);
+}
+.new-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--ot-radius-circle);
+  background: currentColor;
+}
+// Sized through Material's tokens, which derive the box and its padding together.
+// Hardcoding width and height leaves the padding at the default and knocks the
+// glyph off the centre of its hover circle.
+// Centred by the flex box rather than by Material's padding arithmetic. That
+// padding is derived from the state-layer size alone, so the 1px border here is
+// not accounted for and the glyph sits off-centre. mat-icon also keeps its 24px
+// line-height when the font-size drops to 20, which pushes the glyph down again.
+.card-meta .mark-read.mat-mdc-icon-button {
+  --mat-icon-button-state-layer-size: 36px;
+  --mat-icon-button-icon-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid var(--hub-card-border);
+  color: var(--ot-color-link);
+  mat-icon {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+    overflow: visible;
+  }
+}
+@media (max-width: 599px) {
+  .section-heading {
+    flex-wrap: wrap;
+  }
+}
+
+// ---- Markdown ----
+.format-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hub-space-2) var(--hub-space-3);
+  margin: 0 0 var(--hub-space-3);
+  .format-hint {
+    margin: 0;
+    color: var(--ot-color-text-muted);
+  }
+}
+// the same segmented control as the feed filter, at field scale
+.write-preview {
+  display: inline-flex;
+  gap: var(--hub-space-1);
+  padding: 2px;
+  border: 1px solid var(--hub-card-border);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface);
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hub-space-1);
+    min-height: 36px;
+    padding: 0 var(--hub-space-3);
+    border: 0;
+    border-radius: var(--ot-radius-sm);
+    background: transparent;
+    color: var(--ot-color-text);
+    font: inherit;
+    font-size: 0.84rem;
+    &:hover {
+      background: var(--ot-color-hover);
+    }
+    &[aria-pressed='true'] {
+      background: var(--ot-color-primary);
+      color: var(--ot-color-on-primary);
+      font-weight: 650;
+    }
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+}
+.markdown-preview {
+  @include hub.card(page);
+  @include hub.markdown;
+  max-width: none;
+  min-height: 96px;
+  margin-bottom: var(--hub-space-4);
+  padding: var(--hub-space-3) var(--hub-space-4);
+}
+@media (max-width: 599px) {
+  .write-preview {
+    width: 100%;
+    button {
+      flex: 1;
+      justify-content: center;
+      min-height: 44px;
+    }
+  }
+}
+
+// ---- Session timing ----
+// Tints at 14% on the surface with the tone pulled 40% toward the text colour clear 4.5:1:
+// success 6.7:1 light, 5.4:1 dark; warning 6.7:1 light, 5.9:1 dark.
+.chip-now {
+  background: color-mix(in srgb, var(--ot-color-success) 14%, var(--ot-color-surface));
+  color: color-mix(in srgb, var(--ot-color-success) 60%, var(--ot-color-text));
+}
+.chip-soon {
+  background: color-mix(in srgb, var(--ot-color-warning) 14%, var(--ot-color-surface));
+  color: color-mix(in srgb, var(--ot-color-warning) 60%, var(--ot-color-text));
+}
+.chip-today {
+  background: var(--ot-color-selected);
+  color: var(--ot-color-selected-text);
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--ot-radius-circle);
+  background: currentColor;
+  animation: hub-live 2s ease-in-out infinite;
+}
+@keyframes hub-live {
+  50% {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot {
+    animation: none;
+  }
+}
+.session-card[data-timing='now'] {
+  @include hub.solid-card(var(--ot-status-complete), var(--ot-status-complete-on));
+  box-shadow: var(--ot-elevation-1);
+}
+.session-card[data-timing='soon'] {
+  @include hub.solid-card(var(--ot-color-primary), var(--ot-color-on-primary));
+  box-shadow: var(--ot-elevation-1);
+}
+
+// ---- Up next ----
+.up-next {
+  @include hub.card(page);
+  display: flex;
+  flex-direction: column;
+  gap: var(--hub-space-2);
+  margin-bottom: var(--hub-space-4);
+  padding: var(--hub-space-4);
+  border-radius: var(--ot-radius-lg);
+  @include hub.tinted-card(var(--ot-color-link), 4%, 22%);
+  box-shadow: none;
+  overflow-wrap: anywhere;
+  &[data-timing='now'] {
+    @include hub.tinted-card(var(--ot-color-success), 7%, 32%);
+  }
+  h3 {
+    font-size: 1rem;
+  }
+}
+.up-next-label {
+  @include hub.label;
+}
+.up-next-when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hub-space-1) var(--hub-space-3);
+  font-size: 0.86rem;
+}
+.up-next-relative {
+  font-weight: 650;
+}
+
+// ---- What your task statuses mean ----
+// Reference, not something to read through. It stays closed until asked for, and
+// each row is one status with the reason it is set and what to do about it.
+
+.status-guide {
+  margin-block-start: 24px;
+}
+
+.status-guide__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface);
+  color: var(--ot-color-text);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    transform 140ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 160ms ease;
+
+  &:hover {
+    background: var(--ot-color-surface-raised);
+  }
+
+  &:active {
+    transform: scale(0.995);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--ot-color-text-muted);
+    font-size: 20px;
+  }
+}
+
+.status-guide__chevron {
+  margin-inline-start: auto;
+}
+
+.status-guide__groups {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-block-start: 12px;
+  animation: status-guide-open 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.status-guide__group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: var(--ot-color-text-muted);
+  font-size: 0.74rem;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.status-guide__list {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.status-guide__row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface);
+}
+
+// The same fill the status carries everywhere else, so the pill here is
+// recognisable as the one on the task.
+.status-guide__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px 5px 8px;
+  border-radius: 999px;
+  background: var(--ot-color-surface-raised);
+  color: var(--ot-color-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  @each $tone in not-started, working-on-it, need-help, ready-for-feedback, fix-and-resubmit, redo,
+    attention-required, discuss, rediscuss, demonstrate, assess-in-portfolio, complete,
+    feedback-exceeded, time-exceeded, fail
+  {
+    &[data-tone='#{$tone}'] {
+      background: var(--ot-status-#{$tone});
+      color: var(--ot-status-#{$tone}-on);
+    }
+  }
+}
+
+.status-guide__reason {
+  margin: 0;
+  color: var(--ot-color-text);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.status-guide__action {
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+@keyframes status-guide-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-guide__groups {
+    animation: none;
+  }
+
+  .status-guide__toggle {
+    transition: none;
+  }
+}

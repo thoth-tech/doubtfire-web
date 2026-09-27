@@ -1,0 +1,294 @@
+// Shared grouping styles for the Unit Hub page, its dialogs and the Study essentials strip.
+// Colours come only from --ot-* tokens.
+//
+// A card must stand apart from whatever it sits on. The divider token equals the raised
+// surface in dark, so it is never used for a card edge here.
+
+// Emits the card edge token for a component. Include once at the top level of the stylesheet.
+// Light keeps the soft edge it had before (the border token toned toward the surface).
+// Dark needs the full border token, because the surfaces there sit close together.
+@mixin card-theme {
+  :host {
+    --hub-card-border: color-mix(in srgb, var(--ot-color-border) 30%, var(--ot-color-surface));
+  }
+  :host-context([data-ot-theme='dark']) {
+    --hub-card-border: var(--ot-color-border);
+  }
+}
+
+// $on names the surface the card sits on:
+//   page    - the page ground, e.g. feed cards and the manage panel
+//   raised  - a raised surface, e.g. anything inside a dialog
+//   surface - inside another card that already uses the surface token
+@mixin card($on: page) {
+  box-sizing: border-box;
+  border: 1px solid var(--hub-card-border);
+  border-radius: var(--ot-radius-md);
+  @if $on == surface {
+    background: var(--ot-color-surface-raised);
+  } @else {
+    background: var(--ot-color-surface);
+  }
+}
+
+// Small uppercase label with a 16px icon, as used for facts and group headings.
+@mixin label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+
+  mat-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: var(--ot-color-link);
+  }
+}
+
+// A heading inside a card with a leading icon in the link colour.
+@mixin icon-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.4;
+
+  mat-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: var(--ot-color-link);
+  }
+}
+
+// One callout style for notices: leading icon, text beside it.
+@mixin callout($on: page) {
+  @include card($on);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  font-size: 0.86rem;
+  line-height: 1.55;
+
+  > mat-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    font-size: 20px;
+    color: var(--ot-color-link);
+  }
+}
+
+// Footer row of outlined or filled buttons. Wraps together, full width on phones.
+@mixin action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  > a {
+    text-decoration: none;
+  }
+
+  @media (max-width: 599px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    > a,
+    > button {
+      width: 100%;
+      min-height: 44px;
+    }
+  }
+}
+
+// A state tint over the whole card: a wash of the state colour on the surface and an
+// edge in the same hue. Used instead of a side accent bar.
+@mixin tinted-card($tone, $wash: 10%, $edge: 45%) {
+  border-style: solid;
+  border-color: color-mix(in srgb, #{$tone} #{$edge}, var(--ot-color-border));
+  background: color-mix(in srgb, #{$tone} #{$wash}, var(--ot-color-surface));
+}
+
+// A cancelled item recedes: sunken toward the page, a plain edge, no elevation. The
+// banner and struck title say what happened, so the card itself stays quiet.
+@mixin cancelled-card {
+  border-style: solid;
+  border-color: var(--ot-color-border);
+  background: color-mix(in srgb, var(--ot-color-surface) 45%, var(--ot-color-page));
+  box-shadow: none;
+  // faded back so live sessions lead; full strength again when someone points at
+  // it or tabs into it, so it is still easy to read on purpose
+  opacity: 0.55;
+  transition: opacity 160ms ease;
+
+  &:hover,
+  &:focus-within {
+    opacity: 1;
+  }
+
+  :where(h2, h3, h4) {
+    color: var(--ot-color-text);
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+}
+
+// One banner row stating the cancellation in words, with an icon.
+// Error at 14% on the surface behind error pulled 40% toward the text colour:
+// 6.8:1 in light and 5.4:1 in dark.
+@mixin cancelled-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  // a quiet line, not a filled strip: the state is stated, not shouted
+  padding: 0;
+  background: none;
+  color: color-mix(in srgb, var(--ot-color-error) 55%, var(--ot-color-text));
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.4;
+
+  mat-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    color: inherit;
+  }
+}
+
+// Rendered markdown for announcement bodies and session descriptions.
+// Links and text use theme tokens, so it reads the same in light and dark.
+// Include it on the element that receives the rendered HTML.
+@mixin markdown {
+  max-width: 68ch;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+
+  // the markup comes from [innerHTML], so it carries no encapsulation attribute
+  ::ng-deep {
+    :where(p, ul, ol, blockquote, pre, h3, h4) {
+      margin: 0 0 0.75em;
+    }
+    > :last-child {
+      margin-bottom: 0;
+    }
+    :where(h3, h4) {
+      margin-top: 1.1em;
+      color: var(--ot-color-text);
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    > :where(h3, h4):first-child {
+      margin-top: 0;
+    }
+    h3 {
+      font-size: 1.05rem;
+    }
+    h4 {
+      font-size: 0.98rem;
+    }
+    :where(ul, ol) {
+      padding-left: 1.4em;
+    }
+    li + li {
+      margin-top: 0.25em;
+    }
+    a {
+      color: var(--ot-color-link);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    strong {
+      font-weight: 650;
+    }
+    blockquote {
+      padding: 0.5em 0.9em;
+      border-left: 3px solid var(--ot-color-link);
+      border-radius: var(--ot-radius-xs);
+      background: var(--ot-color-surface-raised);
+      color: var(--ot-color-text);
+    }
+    code {
+      padding: 0.1em 0.35em;
+      border-radius: var(--ot-radius-xs);
+      background: var(--ot-color-surface-raised);
+      font-size: 0.88em;
+    }
+    pre {
+      padding: 0.75em 1em;
+      overflow-x: auto;
+      border-radius: var(--ot-radius-sm);
+      background: var(--ot-color-surface-raised);
+      white-space: pre;
+    }
+    pre code {
+      padding: 0;
+      background: none;
+    }
+    hr {
+      height: 0;
+      margin: 1em 0;
+      border: 0;
+      border-top: 1px solid var(--hub-card-border);
+    }
+  }
+}
+
+// Experiment: a solid state fill. The fill is painted on the card first, then the
+// text, border and surface tokens are re-pointed at the on-colour for its children
+// only. Re-pointing them on the card itself made var(--ot-color-primary) resolve to
+// the on-colour and painted the card white.
+@mixin solid-card($tone, $on) {
+  border-color: transparent;
+  background: #{$tone};
+  color: #{$on};
+
+  > * {
+    --ot-color-text: #{$on};
+    // Nothing on a solid fill can sit lighter than the on-colour, so a translucent muted
+    // tone loses contrast instead of gaining it: 82% measured 3.64:1 on the dark primary
+    // fill and 3.59:1 on the light complete one. Muted keeps the on-colour (4.51:1 at
+    // worst) and the smaller, heavier, uppercase type carries the step down instead.
+    --ot-color-text-muted: #{$on};
+    --ot-color-link: #{$on};
+    --ot-color-primary: #{$on};
+    --ot-color-border: color-mix(in srgb, #{$on} 35%, transparent);
+    // The control edge was the one token this block missed, so an outlined button inside a
+    // solid card mixed a scope-local link with the GLOBAL slate border: 1.95:1 against the
+    // fill, where 1.4.11 asks 3:1. At 80% of the on-colour that outline measures 3.51:1 at
+    // worst and 4.89:1 at best, and the edge stays a step below the label.
+    --ot-color-control-border: color-mix(in srgb, #{$on} 80%, transparent);
+    --ot-color-surface: color-mix(in srgb, #{$on} 14%, transparent);
+    --ot-color-surface-raised: color-mix(in srgb, #{$on} 18%, transparent);
+    --ot-color-selected: color-mix(in srgb, #{$on} 20%, transparent);
+    --ot-color-selected-text: #{$on};
+  }
+
+  // state and type chips drop their own hue on a fill, so a green "Happening now" never
+  // sits green on green. The glass fill lifted the ground under its own white label to
+  // 3.18:1, and any fill lighter than the card does that, so the chip is an outline now:
+  // the card fill shows through and the label reads at the card's own 4.51:1 worst case.
+  // The edge is the same 3:1 control step as the buttons, 3.06:1 at worst.
+  :where(.chip, .unit-badge, .kind-chip) {
+    border-color: color-mix(in srgb, #{$on} 70%, transparent);
+    background: transparent;
+    color: #{$on};
+  }
+}

@@ -1,0 +1,151 @@
+@use './hub-card' as hub;
+
+@include hub.card-theme;
+
+:host {
+  display: block;
+  min-width: 0;
+  // every Unit Hub button: the app's filled or outlined style, at a 44px touch height
+  --mat-button-filled-container-height: 44px;
+  --mat-button-outlined-container-height: 44px;
+}
+
+// One card. Inside it, labelled groups separated by spacing, never by rules.
+// The host page can set --hub-composer-surface when the composer sits inside another card.
+.teams-composer {
+  @include hub.card(raised);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+  padding: 16px;
+  background: var(--hub-composer-surface, var(--ot-color-surface));
+  color: var(--ot-color-text);
+  overflow-wrap: anywhere;
+}
+
+.composer-heading {
+  @include hub.icon-heading;
+}
+
+p {
+  margin: 0;
+}
+.composer-intro {
+  margin-top: -8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.composer-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.group-label {
+  @include hub.label;
+}
+.meeting-subject p:not(.group-label) {
+  line-height: 1.6;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+input,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.65rem;
+  // Muted text, not the border token: that is 1.6:1 in dark, too faint for a field edge.
+  border: 1px solid var(--ot-color-text-muted);
+  border-radius: var(--ot-radius-sm);
+  background: var(--ot-color-surface-raised);
+  color: var(--ot-color-text);
+  font: inherit;
+  font-weight: 400;
+
+  &::placeholder {
+    color: var(--ot-color-text-muted);
+    opacity: 1;
+  }
+}
+
+textarea {
+  resize: vertical;
+}
+small,
+.handoff-note,
+.fallback-note {
+  color: var(--ot-color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+.fallback-note {
+  margin-top: 6px;
+}
+
+// icon beside the copy, no border: it already sits inside the composer card
+.composer-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.5;
+
+  > mat-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    font-size: 18px;
+    color: var(--ot-color-link);
+  }
+}
+.repeat-note p {
+  font-weight: 600;
+}
+
+.composer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+
+  a {
+    text-decoration: none;
+  }
+}
+.draft-error {
+  // Pulled a fifth of the way to the text colour, which keeps it above 4.5:1 on the
+  // card in both themes (the plain error token is 4.2:1 on a tinted box in light).
+  color: color-mix(in srgb, var(--ot-color-error) 80%, var(--ot-color-text));
+  font-size: 0.85rem;
+}
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--ot-color-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 599px) {
+  .teams-composer {
+    padding: 12px;
+  }
+  .composer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .composer-actions a,
+  .composer-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+}

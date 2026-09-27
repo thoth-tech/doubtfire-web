@@ -1,0 +1,261 @@
+@if (content; as detail) {
+  <header class="details-header" [class.is-cancelled]="cancelled">
+    <div>
+      <p class="detail-unit">{{ detail.unitCode }} · {{ detail.unitName }}</p>
+      <h2 id="unit-hub-detail-title" mat-dialog-title tabindex="-1">
+        @if (cancelled) {
+          <span class="visually-hidden">Cancelled: </span>
+        }
+        {{ title }}
+      </h2>
+      @if (cancelled) {
+        <p class="cancelled-banner" role="status">
+          <mat-icon aria-hidden="true">event_busy</mat-icon>Cancelled: this session will not run
+        </p>
+      }
+    </div>
+    <button aria-label="Close details" mat-icon-button type="button" (click)="close()">
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </button>
+  </header>
+
+  <mat-dialog-content class="details-content">
+    @if (detail.demo) {
+      <aside class="detail-notice">
+        <mat-icon aria-hidden="true">science</mat-icon>
+        <p>
+          <strong>OnTrack demonstration</strong><br />This content and its schedule are fictional.
+          Calendar copies are labelled DEMO and are added only if you choose.
+          @if (detail.joinUrl) {
+            The joining button opens a real meeting supplied by the demo host; sample times are not
+            an official timetable.
+          }
+        </p>
+      </aside>
+    }
+    @if (detail.announcement; as announcement) {
+      <dl class="detail-facts">
+        <div>
+          <dt><mat-icon aria-hidden="true">school</mat-icon>Unit</dt>
+          <dd>{{ detail.unitCode }} · {{ detail.unitName }}</dd>
+        </div>
+        <div>
+          <dt><mat-icon aria-hidden="true">link</mat-icon>Source</dt>
+          <dd>{{ sourceLabel }}</dd>
+        </div>
+        @if (announcement.published_at) {
+          <div>
+            <dt><mat-icon aria-hidden="true">schedule</mat-icon>Published</dt>
+            <dd>
+              <time [attr.datetime]="announcement.published_at">{{
+                announcement.published_at | date: 'EEEE, d MMMM yyyy, h:mm a'
+              }}</time
+              ><small>{{ deviceTimeZone }}</small>
+            </dd>
+          </div>
+        }
+        @if (announcement.author_name) {
+          <div>
+            <dt><mat-icon aria-hidden="true">person</mat-icon>Posted by</dt>
+            <dd>{{ announcement.author_name }}</dd>
+          </div>
+        }
+        @if (announcement.expires_at) {
+          <div>
+            <dt><mat-icon aria-hidden="true">event_busy</mat-icon>Visible until</dt>
+            <dd>
+              {{ announcement.expires_at | date: 'd MMMM yyyy, h:mm a'
+              }}<small>{{ deviceTimeZone }}</small>
+            </dd>
+          </div>
+        }
+        @if (announcement.pinned) {
+          <div>
+            <dt><mat-icon aria-hidden="true">flag</mat-icon>Priority</dt>
+            <dd>Pinned announcement</dd>
+          </div>
+        }
+      </dl>
+      <section aria-label="Full announcement" class="full-content">
+        <h3 class="content-label"><mat-icon aria-hidden="true">notes</mat-icon>Announcement</h3>
+        <div
+          #bodyText
+          class="markdown-body"
+          id="unit-hub-detail-body"
+          [class.is-clamped]="bodyCollapsible && !bodyExpanded"
+          [innerHTML]="announcement.body | hubMarkdown"
+        ></div>
+        @if (bodyCollapsible) {
+          <ng-container
+            *ngTemplateOutlet="bodyToggle; context: {label: 'Show full announcement'}"
+          ></ng-container>
+        }
+      </section>
+      @if (safeUrl(announcement.source_url)) {
+        <a
+          class="detail-source"
+          mat-stroked-button
+          rel="noopener noreferrer"
+          target="_blank"
+          [href]="safeUrl(announcement.source_url)"
+          ><mat-icon aria-hidden="true">open_in_new</mat-icon>Open original post</a
+        >
+      }
+    }
+
+    @if (detail.session; as session) {
+      <dl class="detail-facts">
+        <div>
+          <dt><mat-icon aria-hidden="true">category</mat-icon>Session</dt>
+          <dd>{{ sessionKind }}</dd>
+        </div>
+        <div>
+          <dt><mat-icon aria-hidden="true">school</mat-icon>Unit</dt>
+          <dd>{{ detail.unitCode }} · {{ detail.unitName }}</dd>
+        </div>
+        <div>
+          <dt><mat-icon aria-hidden="true">play_circle</mat-icon>Starts</dt>
+          <dd>
+            <time [attr.datetime]="session.start_at">{{
+              session.start_at | date: 'EEEE, d MMMM yyyy, h:mm a'
+            }}</time
+            ><small>{{ deviceTimeZone }}</small>
+          </dd>
+        </div>
+        <div>
+          <dt><mat-icon aria-hidden="true">stop_circle</mat-icon>Ends</dt>
+          <dd>
+            <time [attr.datetime]="session.end_at">{{
+              session.end_at | date: 'EEEE, d MMMM yyyy, h:mm a'
+            }}</time
+            ><small>{{ deviceTimeZone }}</small>
+          </dd>
+        </div>
+        @if (session.timezone !== deviceTimeZone) {
+          <div>
+            <dt><mat-icon aria-hidden="true">public</mat-icon>Schedule time zone</dt>
+            <dd>
+              {{ session.timezone }}<small>Dates above are converted to your time zone.</small>
+            </dd>
+          </div>
+        }
+        @if (session.location) {
+          <div>
+            <dt><mat-icon aria-hidden="true">place</mat-icon>Location</dt>
+            <dd>{{ session.location }}</dd>
+          </div>
+        }
+        <div>
+          <dt><mat-icon aria-hidden="true">repeat</mat-icon>Repeat</dt>
+          <dd>
+            {{ session.recurrence === 'weekly' ? 'Part of a weekly series' : 'One session' }}
+            @if (session.recurrence === 'weekly' && session.recurrence_until) {
+              <small>Series ends {{ session.recurrence_until | date: 'd MMMM yyyy' }}</small>
+            }
+          </dd>
+        </div>
+      </dl>
+      <section aria-label="Full session description" class="full-content">
+        <h3 class="content-label"><mat-icon aria-hidden="true">notes</mat-icon>Description</h3>
+        <div
+          #bodyText
+          class="markdown-body"
+          id="unit-hub-detail-body"
+          [class.is-clamped]="bodyCollapsible && !bodyExpanded"
+          [innerHTML]="
+            session.description || 'Your teaching team has not added any further details.'
+              | hubMarkdown
+          "
+        ></div>
+        @if (bodyCollapsible) {
+          <ng-container
+            *ngTemplateOutlet="bodyToggle; context: {label: 'Show full description'}"
+          ></ng-container>
+        }
+      </section>
+      @if (safeUrl(session.source_url)) {
+        <a
+          class="detail-source"
+          mat-stroked-button
+          rel="noopener noreferrer"
+          target="_blank"
+          [href]="safeUrl(session.source_url)"
+          ><mat-icon aria-hidden="true">open_in_new</mat-icon>View original session details</a
+        >
+      }
+      @if (!session.cancelled) {
+        <aside class="calendar-guidance">
+          <h3>
+            <mat-icon aria-hidden="true">event_available</mat-icon>Choose how to add this session
+          </h3>
+          <p>
+            Google Calendar and .ics downloads add a copy of this occurrence. Copies do not receive
+            changes.
+            @if (!detail.demo) {
+              Use Calendar settings to opt in to a subscription that follows schedule updates.
+            } @else {
+              Demo schedules are not available as subscriptions.
+            }
+          </p>
+          @if (!detail.demo) {
+            <button mat-stroked-button type="button" (click)="calendarSettings()">
+              <mat-icon aria-hidden="true">date_range</mat-icon>
+              Open calendar settings
+            </button>
+          }
+        </aside>
+      }
+      @if (detail.canManage && !detail.demo && !session.cancelled) {
+        <f-teams-meeting-composer [draft]="session" [unitCode]="detail.unitCode" />
+      }
+    }
+    <p class="detail-status" role="status">{{ status }}</p>
+    <ng-template #bodyToggle let-label="label">
+      <button
+        aria-controls="unit-hub-detail-body"
+        class="body-toggle"
+        mat-stroked-button
+        type="button"
+        [attr.aria-expanded]="bodyExpanded"
+        (click)="toggleBody()"
+      >
+        <mat-icon aria-hidden="true">{{ bodyExpanded ? 'expand_less' : 'expand_more' }}</mat-icon
+        >{{ bodyExpanded ? 'Show less' : label }}
+      </button>
+    </ng-template>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="details-actions">
+    @if (detail.session && !detail.session.cancelled) {
+      @if (safeUrl(detail.joinUrl)) {
+        <a
+          mat-flat-button
+          rel="noopener noreferrer"
+          target="_blank"
+          [href]="safeUrl(detail.joinUrl)"
+          ><mat-icon aria-hidden="true">videocam</mat-icon
+          >{{ detail.demo ? 'Join hosted demo' : 'Join session' }}</a
+        >
+      }
+      @if (safeUrl(detail.googleCalendarUrl)) {
+        <a
+          mat-stroked-button
+          rel="noopener noreferrer"
+          target="_blank"
+          [href]="safeUrl(detail.googleCalendarUrl)"
+          ><mat-icon aria-hidden="true">event</mat-icon
+          >{{ detail.demo ? 'Preview DEMO in Google Calendar' : 'Add to Google Calendar' }}</a
+        >
+      }
+      @if (detail.download) {
+        <button mat-stroked-button type="button" (click)="download()">
+          <mat-icon aria-hidden="true">download</mat-icon>
+          {{ detail.demo ? 'Download DEMO .ics' : 'Download .ics' }}
+        </button>
+      }
+    }
+    <button mat-stroked-button type="button" (click)="close()">
+      <mat-icon aria-hidden="true">close</mat-icon>Close
+    </button>
+  </mat-dialog-actions>
+}
