@@ -1,0 +1,85 @@
+@if (showRail) {
+  <button
+    class="app-panel__rail"
+    matTooltipPosition="right"
+    type="button"
+    [attr.aria-expanded]="false"
+    [attr.aria-label]="'Expand ' + panelTitle"
+    [matTooltip]="'Expand ' + panelTitle"
+    (click)="expandFromRail()"
+  >
+    @if (icon) {
+      <mat-icon aria-hidden="true" class="app-panel__rail-icon">{{ icon }}</mat-icon>
+    }
+    @if (count !== null) {
+      <span class="app-panel__count">{{ count }}</span>
+    }
+    <span class="app-panel__rail-title">{{ panelTitle }}</span>
+  </button>
+}
+
+<!-- Kept in the page while collapsed, so what it holds keeps its state. -->
+<div class="app-panel__card" [class.app-panel__card--hidden]="showRail">
+  @if (showHeader) {
+    <div class="app-panel__header">
+      @if (icon) {
+        <mat-icon aria-hidden="true" class="app-panel__icon">{{ icon }}</mat-icon>
+      }
+      <h2 class="app-panel__title">
+        {{ panelTitle }}
+        <ng-content select="[panelSubtitle]"></ng-content>
+      </h2>
+      @if (count !== null) {
+        <span class="app-panel__count">{{ count }}</span>
+      }
+      <ng-content select="[panelActions]"></ng-content>
+      @if (fullscreenable && !stacked) {
+        <button
+          mat-icon-button
+          type="button"
+          [attr.aria-label]="isFullscreen ? 'Exit full screen' : 'Full screen ' + panelTitle"
+          [attr.aria-pressed]="isFullscreen"
+          [matTooltip]="isFullscreen ? 'Exit full screen (Esc)' : 'Full screen'"
+          (click)="toggleFullscreen()"
+        >
+          <mat-icon aria-hidden="true">{{
+            isFullscreen ? 'close_fullscreen' : 'open_in_full'
+          }}</mat-icon>
+        </button>
+      }
+      @if (canCollapse) {
+        <button
+          mat-icon-button
+          type="button"
+          [attr.aria-expanded]="true"
+          [attr.aria-label]="'Collapse ' + panelTitle"
+          [matTooltip]="'Collapse ' + panelTitle"
+          (click)="setCollapsed(true)"
+        >
+          <mat-icon aria-hidden="true">{{ collapseIcon }}</mat-icon>
+        </button>
+      }
+    </div>
+  }
+  <div class="app-panel__body" [class]="bodyClass">
+    <ng-content></ng-content>
+  </div>
+</div>
+
+@if (canResize) {
+  <div
+    aria-orientation="vertical"
+    class="app-panel__resizer"
+    role="separator"
+    tabindex="0"
+    [attr.aria-label]="'Resize ' + panelTitle"
+    [attr.aria-valuemax]="maxWidth"
+    [attr.aria-valuemin]="minWidth"
+    [attr.aria-valuenow]="width"
+    [class.app-panel__resizer--active]="resizing"
+    [class.app-panel__resizer--end]="resizeEdge === 'end'"
+    [class.app-panel__resizer--start]="resizeEdge === 'start'"
+    (keydown)="resizeWithKeyboard($event)"
+    (pointerdown)="startResize($event)"
+  ></div>
+}

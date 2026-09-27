@@ -1,0 +1,81 @@
+// The panels sit in an even 12px frame, the same as the gap between them.
+:host {
+  --app-panel-gap: 0.75rem;
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  gap: var(--app-panel-gap);
+  padding: var(--app-panel-gap);
+  // Panels keep their minimum widths. The layout rails side panels before that runs
+  // out, so this only scrolls when the user opens a rail on a page too narrow for it.
+  overflow-x: auto;
+}
+
+:host(.app-panel-layout--stacked) {
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-panel-layout__tabs {
+  display: flex;
+  flex: none;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-lg);
+  background: var(--ot-color-surface);
+  box-shadow: var(--ot-elevation-1);
+}
+
+.app-panel-layout__tab {
+  display: flex;
+  min-width: 0;
+  min-height: 40px;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: var(--ot-radius-md);
+  background: transparent;
+  color: var(--ot-color-text-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    font-size: 20px;
+  }
+
+  &:hover {
+    background: var(--ot-color-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: -2px;
+  }
+}
+
+.app-panel-layout__tab--active {
+  background: var(--ot-color-selected);
+  color: var(--ot-color-primary);
+}

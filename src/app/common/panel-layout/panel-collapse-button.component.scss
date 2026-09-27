@@ -1,0 +1,4 @@
+// The button sits in its neighbours' row as if it were written there directly.
+:host {
+  display: contents;
+}

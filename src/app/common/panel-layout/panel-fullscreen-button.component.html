@@ -1,0 +1,14 @@
+@if (visible) {
+  <button
+    #toggle
+    mat-icon-button
+    type="button"
+    [attr.aria-label]="label"
+    [attr.aria-pressed]="isFullscreen"
+    [class]="buttonClass"
+    [matTooltip]="label"
+    (click)="toggleFullscreen()"
+  >
+    <mat-icon aria-hidden="true">{{ isFullscreen ? 'close_fullscreen' : 'open_in_full' }}</mat-icon>
+  </button>
+}

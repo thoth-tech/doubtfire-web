@@ -1,0 +1,21 @@
+@if (stacked && showTabs && panels.length > 1) {
+  <div aria-label="Panels" class="app-panel-layout__tabs" role="tablist">
+    @for (panel of panels; track panel.panelId) {
+      <button
+        class="app-panel-layout__tab"
+        role="tab"
+        type="button"
+        [attr.aria-selected]="activePanel === panel.panelId"
+        [attr.data-panel-tab]="panel.panelId"
+        [class.app-panel-layout__tab--active]="activePanel === panel.panelId"
+        (click)="selectPanel(panel.panelId)"
+      >
+        @if (panel.icon) {
+          <mat-icon aria-hidden="true">{{ panel.icon }}</mat-icon>
+        }
+        <span>{{ panel.panelTitle }}</span>
+      </button>
+    }
+  </div>
+}
+<ng-content></ng-content>

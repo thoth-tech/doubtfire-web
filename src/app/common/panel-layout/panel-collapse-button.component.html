@@ -1,0 +1,13 @@
+@if (panel?.canCollapse) {
+  <button
+    mat-icon-button
+    type="button"
+    [attr.aria-expanded]="true"
+    [attr.aria-label]="'Collapse ' + panel.panelTitle"
+    [class]="buttonClass"
+    [matTooltip]="'Collapse ' + panel.panelTitle"
+    (click)="panel.setCollapsed(true)"
+  >
+    <mat-icon aria-hidden="true">{{ panel.collapseIcon }}</mat-icon>
+  </button>
+}
