@@ -32,6 +32,8 @@ export class FileDropComponent {
   @Output() uploadSuccess: EventEmitter<HttpResponse<object>> = new EventEmitter();
 
   protected uploadProgress: number;
+  protected uploading = false;
+  protected uploadStatus = '';
   protected uploadSub: Subscription;
   /**
    * Have a singe file that can be set
@@ -60,10 +62,16 @@ export class FileDropComponent {
 
     if (file) {
       this.file = file;
+      this.uploadStatus = `${file.name} selected. Activate Upload file to continue.`;
+      // Re-selecting the same file after cancellation/failure must emit change again.
+      event.target.value = '';
     }
   }
 
   public onFileDragOver(files: FileList) {
+    if (this.uploading) {
+      return;
+    }
     // iterate over FileList
     const droppedFiles = Array.from(files as ArrayLike<File>);
     for (const f of droppedFiles) {
@@ -76,20 +84,28 @@ export class FileDropComponent {
   }
 
   public upload() {
+    if (!this.file || this.uploading) {
+      return;
+    }
+
     if (this.mode == 'endpoint') {
       if (this.file) {
         const formData = new FormData();
 
         formData.append('file', this.file);
-        this.http
+        this.uploading = true;
+        this.uploadProgress = 0;
+        this.uploadStatus = `Uploading ${this.file.name}.`;
+        this.uploadSub = this.http
           .post(this.endpoint, formData, {reportProgress: true, observe: 'events'})
           .subscribe(
             (data) => {
-              if (data.type == HttpEventType.UploadProgress) {
+              if (data.type == HttpEventType.UploadProgress && data.total) {
                 this.uploadProgress = Math.round(100 * (data.loaded / data.total));
               }
               if (data.type == HttpEventType.Response) {
                 if (data.ok) {
+                  this.uploadStatus = 'File uploaded successfully.';
                   this.alert.success(`File uploaded successfully`);
                   this.uploadSuccess.emit(data as HttpResponse<object>);
                 }
@@ -100,6 +116,7 @@ export class FileDropComponent {
           );
       }
     } else {
+      this.uploadStatus = `${this.file.name} selected.`;
       this.filesDropped.emit([this.file]);
       this.reset();
     }
@@ -107,17 +124,20 @@ export class FileDropComponent {
 
   private handleError(error: HttpErrorResponse) {
     const errorMessage = `Error uploading file: ${error}`;
+    this.uploadStatus = 'Upload failed. Choose the file again to retry.';
     this.alert.error(errorMessage);
     this.reset();
     return throwError(() => new Error(errorMessage));
   }
 
   cancelUpload() {
-    this.uploadSub.unsubscribe();
+    this.uploadSub?.unsubscribe();
+    this.uploadStatus = 'Upload cancelled.';
     this.reset();
   }
 
   reset() {
+    this.uploading = false;
     this.file = null;
     this.uploadProgress = null;
     this.uploadSub = null;

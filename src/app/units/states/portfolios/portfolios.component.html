@@ -1,65 +1,232 @@
-<div class="mx-auto max-w-[90vw]">
+<f-page-container>
   @if (unit) {
-    <mat-tab-group
-      class="mx-auto mb-6 max-w-fit"
-      dynamicHeight
-      [selectedIndex]="currentIndex"
-      (selectedTabChange)="onTabChange($event)"
-    >
-      @for (tab of tabs; track tab.routeSegment) {
-        <mat-tab [disabled]="tab.requiresProject && !selectedProject" [label]="tab.label"></mat-tab>
-      }
-    </mat-tab-group>
+    @if (currentTab.routeSegment === 'select') {
+      <f-portfolios-list
+        [filters]="portfolioListFilters"
+        [loadError]="studentsLoadFailed"
+        [loading]="loadingStudents"
+        [unit]="unit"
+        (filtersChange)="portfolioListFiltersChange($event)"
+        (reload)="reloadStudents()"
+        (studentSelected)="studentSelected($event)"
+      ></f-portfolios-list>
+    } @else {
+      <div class="pt-2">
+        <a
+          class="-ml-3"
+          mat-button
+          [queryParams]="listQueryParams"
+          [replaceUrl]="true"
+          [routerLink]="listLink"
+        >
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>
+          All students
+        </a>
+      </div>
 
-    <div class="min-h-0 flex-1">
-      @switch (currentTab.routeSegment) {
-        @case ('select') {
-          <f-portfolios-list
-            [filters]="portfolioListFilters"
-            [loading]="loadingStudents"
-            [unit]="unit"
-            (filtersChange)="portfolioListFiltersChange($event)"
-            (studentSelected)="studentSelected($event)"
-          ></f-portfolios-list>
-        }
-        @case ('progress') {
+      <header class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 pt-1 pb-5">
+        <!-- Takes focus when the tutor arrives from the list, whose button went with it. -->
+        <div
+          #studentHeading
+          class="min-w-0 rounded-ot-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ot-focus"
+          tabindex="-1"
+        >
           @if (selectedProject) {
-            <f-portfolios-project-progress
-              [project]="selectedProject"
-              [project$]="selectedProject$"
-              [showSubmittedGrade]="true"
-              [taskSelectionUrlBase]="progressTaskSelectionUrlBase"
-              [unit]="unit"
-            ></f-portfolios-project-progress>
-          }
-        }
-        @case ('student-notes') {
-          @if (selectedProject) {
-            <div class="h-[calc(100vh-250px)] p-3">
-              <h2>Student Notes for {{ selectedProject.student.name }}</h2>
-              <p>
-                Use these notes for private staff discussions about the student. Students cannot
-                view them.
-              </p>
-
-              <f-staff-notes class="h-full" [project]="selectedProject"></f-staff-notes>
+            <h1
+              class="m-0 text-2xl leading-tight font-semibold tracking-tight break-words text-ot-text"
+            >
+              {{ selectedProject.student?.name }}
+            </h1>
+            <p class="m-0 mt-1.5 flex flex-wrap gap-x-2 gap-y-1 text-sm text-ot-muted">
+              <span class="tabular-nums">
+                {{ selectedProject.student?.studentId || selectedProject.student?.username }}
+              </span>
+              <span aria-hidden="true">·</span>
+              <span>Tutorial {{ selectedProject.shortTutorialDescription() }}</span>
+              @if (selectedProject.tutorNames()) {
+                <span aria-hidden="true">·</span>
+                <span>Tutor {{ selectedProject.tutorNames() }}</span>
+              }
+            </p>
+          } @else if (projectLoadFailed) {
+            <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">
+              Portfolios
+            </h1>
+          } @else {
+            <h1 class="sr-only">Loading student</h1>
+            <div aria-hidden="true" class="flex flex-col gap-2.5 py-1 motion-safe:animate-pulse">
+              <div class="h-6 w-56 max-w-full rounded-ot-pill bg-ot-divider"></div>
+              <div class="h-3.5 w-72 max-w-full rounded-ot-pill bg-ot-divider"></div>
             </div>
           }
+        </div>
+
+        @if (selectedProject) {
+          <dl class="m-0 grid grid-cols-2 gap-x-6 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-8">
+            <div class="min-w-0">
+              <dt class="text-xs text-ot-muted">Target grade</dt>
+              <dd class="m-0 text-sm font-medium text-ot-text">
+                {{ gradeLabel(selectedProject.targetGrade) ?? 'Not set' }}
+              </dd>
+            </div>
+            <div class="min-w-0">
+              <dt class="text-xs text-ot-muted">Applied for</dt>
+              <dd class="m-0 text-sm font-medium text-ot-text">
+                @if (hasSubmittedGrade) {
+                  {{ gradeLabel(selectedProject.submittedGrade) }}
+                } @else {
+                  Not chosen
+                }
+              </dd>
+            </div>
+            <div class="min-w-0">
+              <dt class="text-xs text-ot-muted">Portfolio</dt>
+              <dd class="m-0 text-sm font-medium text-ot-text">
+                @switch (portfolioStatus) {
+                  @case ('ready') {
+                    @if (selectedProject.portfolioSubmissionDate) {
+                      Submitted {{ selectedProject.portfolioSubmissionDate | date: 'd MMM y' }}
+                    } @else {
+                      Submitted
+                    }
+                  }
+                  @case ('building') {
+                    Being created
+                  }
+                  @default {
+                    Not submitted
+                  }
+                }
+              </dd>
+            </div>
+            <div class="min-w-0">
+              <dt class="text-xs text-ot-muted">Grade</dt>
+              <dd class="m-0 text-sm font-medium text-ot-text tabular-nums">
+                {{ studentGrade ?? 'Not graded' }}
+              </dd>
+            </div>
+          </dl>
         }
-        @case ('portfolio') {
-          @if (selectedProject) {
-            <f-portfolios-portfolio-view [project]="selectedProject"></f-portfolios-portfolio-view>
+      </header>
+
+      <nav
+        aria-label="Student sections"
+        class="portfolio-student-tabs"
+        mat-stretch-tabs="false"
+        mat-tab-nav-bar
+        [tabPanel]="studentPanel"
+      >
+        @for (tab of studentTabs; track tab.routeSegment) {
+          <a
+            mat-tab-link
+            [active]="currentTab.routeSegment === tab.routeSegment"
+            [queryParams]="listQueryParams"
+            [replaceUrl]="true"
+            [routerLink]="tabLinks[tab.routeSegment]"
+          >
+            {{ tab.label }}
+            @if (
+              tab.routeSegment === 'student-notes' && (selectedProject?.staffNoteCount ?? 0) > 0
+            ) {
+              <span
+                class="ml-2 rounded-ot-pill bg-ot-selected px-2 py-0.5 text-xs font-semibold text-(--ot-color-selected-text) tabular-nums"
+              >
+                {{ selectedProject.staffNoteCount }}<span class="sr-only"> notes</span>
+              </span>
+            }
+          </a>
+        }
+      </nav>
+
+      <mat-tab-nav-panel #studentPanel class="block pt-5 pb-8">
+        @if (selectedProject) {
+          @switch (currentTab.routeSegment) {
+            @case ('progress') {
+              <f-portfolios-project-progress
+                class="block"
+                [project]="selectedProject"
+                [project$]="selectedProject$"
+                [showSubmittedGrade]="true"
+                [taskSelectionUrlBase]="progressTaskSelectionUrlBase"
+                [unit]="unit"
+              ></f-portfolios-project-progress>
+            }
+            @case ('student-notes') {
+              <!-- Not clipped: replying to a long note grows the notes composer past its
+                   own footer, and clipping would hide the Submit button. -->
+              <section
+                aria-labelledby="portfolio-staff-notes-heading"
+                class="flex h-[70vh] min-h-[28rem] flex-col rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+              >
+                <div class="border-b border-ot-divider px-5 py-4 sm:px-6">
+                  <h2
+                    class="m-0 text-lg leading-snug font-semibold text-ot-text"
+                    id="portfolio-staff-notes-heading"
+                  >
+                    Staff notes
+                  </h2>
+                  <p class="m-0 mt-1 text-sm leading-relaxed text-ot-muted">
+                    Private notes about {{ selectedProject.student?.name }} for the teaching team.
+                    Students cannot see them.
+                  </p>
+                </div>
+                <f-staff-notes
+                  class="flex min-h-0 flex-1 flex-col"
+                  [project]="selectedProject"
+                ></f-staff-notes>
+              </section>
+            }
+            @case ('portfolio') {
+              <f-portfolios-portfolio-view
+                [project]="selectedProject"
+                (showProgress)="showProgress()"
+              ></f-portfolios-portfolio-view>
+            }
+            @case ('assessment') {
+              <f-portfolios-assessment
+                [project]="selectedProject"
+                [unit]="unit"
+              ></f-portfolios-assessment>
+            }
           }
+        } @else if (projectLoadFailed) {
+          <section
+            class="flex flex-col items-center rounded-ot-lg border border-ot-divider bg-ot-surface px-4 pb-10 shadow-(--ot-elevation-1)"
+          >
+            <f-empty-state
+              hint="They may no longer be enrolled in this unit, or the connection dropped."
+              icon="person_off"
+              message="This student could not be loaded"
+            ></f-empty-state>
+            <div class="flex flex-wrap justify-center gap-2">
+              <button mat-stroked-button type="button" (click)="retryProject()">
+                <mat-icon aria-hidden="true">refresh</mat-icon>
+                Try again
+              </button>
+              <a
+                mat-button
+                [queryParams]="listQueryParams"
+                [replaceUrl]="true"
+                [routerLink]="listLink"
+              >
+                Back to all students
+              </a>
+            </div>
+          </section>
+        } @else {
+          <div
+            class="h-80 rounded-ot-lg border border-ot-divider bg-ot-surface p-5 shadow-(--ot-elevation-1)"
+            role="status"
+          >
+            <span class="sr-only">Loading student</span>
+            <div aria-hidden="true" class="flex flex-col gap-4 motion-safe:animate-pulse">
+              <div class="h-5 w-40 rounded-ot-pill bg-ot-divider"></div>
+              <div class="h-24 w-full rounded-ot-md bg-ot-divider"></div>
+              <div class="h-24 w-full rounded-ot-md bg-ot-divider"></div>
+            </div>
+          </div>
         }
-        @case ('assessment') {
-          @if (selectedProject) {
-            <f-portfolios-assessment
-              [project]="selectedProject"
-              [unit]="unit"
-            ></f-portfolios-assessment>
-          }
-        }
-      }
-    </div>
+      </mat-tab-nav-panel>
+    }
   }
-</div>
+</f-page-container>

@@ -1,0 +1,18 @@
+:host {
+  display: block;
+  margin-top: 1rem;
+}
+.history-list {
+  padding-inline-start: 1.5rem;
+}
+.history-list li {
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--ot-color-border);
+  overflow-wrap: anywhere;
+}
+.history-list p {
+  margin-block: 0.5rem;
+}
+.history-list button {
+  max-width: 100%;
+}

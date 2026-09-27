@@ -1,39 +1,286 @@
+// Profile page, first-login form and the admin Users dialog. Cards stack with one
+// 16px rhythm and no rules between sections. Colours come only from --ot-* tokens.
+@use './profile-form' as profile;
+
+@include profile.theme;
+
 :host {
+  display: block;
   height: auto;
-  overflow-y: auto;
+  min-width: 0;
+  // the save bar's height, so a control focused from the keyboard scrolls clear of it
+  --profile-actions-height: 68px;
 }
 
-h1 {
-  color: black;
-  margin-top: 0;
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding-inline: clamp(16px, 4vw, 28px);
+  color: var(--ot-color-text);
 }
 
-a {
-  :hover {
-    text-decoration: none;
-    opacity: 0.6;
+.profile-form--modal {
+  padding: 24px 24px 0;
+
+  @media (max-width: 599px) {
+    padding: 16px 16px 0;
   }
 }
 
-p {
-  color: black;
+.profile-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding-block: 16px;
+
+  :is(input, textarea, button, a, mat-select, mat-checkbox, mat-slide-toggle) {
+    scroll-margin-block: 16px calc(var(--profile-actions-height) + 16px);
+  }
 }
 
-.form-field {
-  margin: 5px;
+.profile-card {
+  @include profile.card;
 }
 
-section {
-  padding: 8px;
+.profile-card__heading {
+  @include profile.card-heading;
 }
 
-/* checkbox */
-::ng-deep .mdc-form-field label {
-  font-weight: normal;
+.profile-fields {
+  @include profile.field-grid;
 }
 
-.mat-icon {
-  width: 50px;
-  height: 50px;
-  font-size: 50px;
+.profile-fields__wide {
+  grid-column: 1 / -1;
+}
+
+// ---- Header ----
+.profile-header {
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-header__avatar {
+  display: block;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--ot-radius-circle);
+  transition: opacity 160ms ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.profile-header__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  h1 {
+    margin: 0;
+    color: var(--ot-color-text);
+    font-size: 1.5rem;
+    font-weight: 650;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+    color: var(--ot-color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+}
+
+.profile-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+}
+
+// ---- Account facts ----
+.account-information {
+  dl {
+    display: grid;
+    gap: 16px 24px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    margin: 0;
+  }
+
+  dl > div {
+    min-width: 0;
+  }
+
+  dt {
+    margin: 0 0 4px;
+    color: var(--ot-color-text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--ot-color-text);
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.account-information__managed {
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.875rem;
+}
+
+// ---- Setting rows ----
+.profile-setting {
+  @include profile.setting-row;
+}
+
+.push-opt-in__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+
+  button {
+    max-width: 100%;
+    height: auto;
+    min-height: 44px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+.push-opt-in__hint {
+  display: block;
+  color: var(--ot-color-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.push-opt-in__instructions {
+  margin: 0;
+  padding-inline-start: 1.25rem;
+  color: var(--ot-color-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+// ---- Save bar ----
+// Only on screen when there is something to act on, so it arrives as an answer to
+// an edit rather than sitting there as chrome. Sticky at the foot of the content
+// column, in flow after the last card, so at the end of the page it covers nothing.
+.profile-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 12px;
+  box-sizing: border-box;
+  min-height: var(--profile-actions-height);
+  margin-block-start: 4px;
+  padding: 12px 16px max(12px, env(safe-area-inset-bottom, 0px));
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md);
+  // Raised, not a full-bleed band: it lines up with the cards above it rather
+  // than reading as a separate strip pinned to the window.
+  background: var(--ot-color-surface-raised);
+  box-shadow: var(--ot-elevation-1, 0 1px 2px rgb(0 0 0 / 12%));
+  animation: profile-actions-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+
+  @media (max-width: 599px) {
+    padding-inline: 16px;
+
+    > button {
+      flex: 1 1 100%;
+    }
+  }
+}
+
+.profile-actions__saved {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin: 0;
+  color: var(--ot-color-text-muted);
+  font-size: 0.875rem;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.profile-save-status {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+
+  p {
+    margin: 0;
+  }
+
+  &__success {
+    color: var(--ot-color-success);
+  }
+
+  &__pending {
+    color: var(--ot-color-text);
+    font-weight: 600;
+  }
+
+  &__validation,
+  &__error {
+    color: var(--ot-color-error);
+    font-weight: 600;
+  }
+}
+
+// Nothing left to do, just the confirmation on its way out.
+.profile-actions--settled {
+  justify-content: flex-start;
+
+  .profile-save-status__success {
+    color: var(--ot-color-success);
+    font-weight: 600;
+  }
+}
+
+@keyframes profile-actions-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-actions {
+    animation: none;
+  }
 }

@@ -1,57 +1,82 @@
-<div class="flex flex-col gap-3">
-  <div class="flex flex-grow flex-row items-center gap-3">
-    <mat-checkbox class="basis-1/2" matInput [(ngModel)]="taskDefinition.restrictStatusUpdates">
+<ul class="m-0 flex list-none flex-col divide-y divide-ot-divider p-0">
+  <li class="grid grid-cols-1 gap-x-6 gap-y-1 py-3 first:pt-0 sm:grid-cols-[15rem_minmax(0,1fr)]">
+    <mat-checkbox
+      aria-describedby="resubmission-extension-help"
+      [(ngModel)]="taskDefinition.resubmissionExtensionsEnabled"
+    >
+      Allow automatic post-feedback extensions
+    </mat-checkbox>
+    <p class="m-0 text-sm text-ot-muted sm:pt-2.5" id="resubmission-extension-help">
+      Apply the unit's resubmission extension setting when feedback requires more work near the due
+      date. Turning this off affects future feedback only; existing extensions are kept. The unit
+      must grant resubmission weeks and use fixed dates for this rule to apply.
+    </p>
+  </li>
+
+  <li class="grid grid-cols-1 gap-x-6 gap-y-1 py-3 sm:grid-cols-[15rem_minmax(0,1fr)]">
+    <mat-checkbox
+      aria-describedby="task-option-restrict"
+      [(ngModel)]="taskDefinition.restrictStatusUpdates"
+    >
       Restrict updates
     </mat-checkbox>
-    <span class="basis-1/2">
-      This task will be locked once it goes into a staff-allocated status. Students will not be able
-      to resubmit, even if placed on the fix status.
-    </span>
-  </div>
+    <p class="m-0 text-sm text-ot-muted sm:pt-2.5" id="task-option-restrict">
+      Once staff give the task a status, students cannot resubmit it, even when it is set to Fix and
+      resubmit.
+    </p>
+  </li>
 
-  <div class="flex flex-grow flex-row items-center gap-3">
+  <li class="grid grid-cols-1 gap-x-6 gap-y-1 py-3 sm:grid-cols-[15rem_minmax(0,1fr)]">
     <mat-checkbox
-      class="basis-1/2"
-      matInput
+      aria-describedby="task-option-portfolio"
       [(ngModel)]="taskDefinition.assessInPortfolioOnly"
       (change)="onToggleAssessInPortfolioOnly()"
-      >Assess in Portfolio Only</mat-checkbox
     >
-    <span class="basis-1/2">
-      This task cannot be signed off as complete and will only be assessed in the final portfolio.
-      Tutors can leave feedback and return it to the "Working on it" state. Students must then
-      update the status to "Assess in Portfolio" to ensure it's included in their portfolio.
-    </span>
-  </div>
-
-  <div class="flex flex-grow flex-row items-center gap-3">
-    <mat-checkbox class="basis-1/2" matInput [(ngModel)]="taskDefinition.requiresDiscussion">
-      Requires Discussion
+      Assess in portfolio only
     </mat-checkbox>
-    <span class="basis-1/2">
-      Tutors cannot mark this task as complete unless it has first been marked as discussed in
-      class.
-    </span>
-  </div>
+    <p class="m-0 text-sm text-ot-muted sm:pt-2.5" id="task-option-portfolio">
+      The task cannot be signed off as complete. It is marked in the final portfolio. Tutors can
+      give feedback and send it back to Working on it, and students then set it to Assess in
+      portfolio so it is included.
+    </p>
+  </li>
 
-  <div class="flex flex-grow flex-row items-center gap-3">
-    <mat-checkbox class="basis-1/2" matInput [(ngModel)]="taskDefinition.isGraded"
-      >Graded</mat-checkbox
+  <li class="grid grid-cols-1 gap-x-6 gap-y-1 py-3 sm:grid-cols-[15rem_minmax(0,1fr)]">
+    <mat-checkbox
+      aria-describedby="task-option-discussion"
+      [(ngModel)]="taskDefinition.requiresDiscussion"
     >
-    <span class="basis-1/2">
-      Provide a grade along with the complete or discuss status. We recommend avoiding this
-      practice.
-    </span>
-  </div>
+      Requires discussion
+    </mat-checkbox>
+    <p class="m-0 text-sm text-ot-muted sm:pt-2.5" id="task-option-discussion">
+      Tutors cannot mark the task complete until it has been discussed in class.
+    </p>
+  </li>
 
-  <div class="flex flex-grow flex-row items-center gap-3">
-    <mat-form-field appearance="outline" class="basis-1/2">
-      <mat-label>Quality Stars</mat-label>
-      <input matInput max="100" min="0" type="number" [(ngModel)]="taskDefinition.maxQualityPts" />
+  <li class="grid grid-cols-1 gap-x-6 gap-y-1 py-3 sm:grid-cols-[15rem_minmax(0,1fr)]">
+    <mat-checkbox aria-describedby="task-option-graded" [(ngModel)]="taskDefinition.isGraded">
+      Graded
+    </mat-checkbox>
+    <p class="m-0 text-sm text-ot-muted sm:pt-2.5" id="task-option-graded">
+      Tutors give a grade along with the Complete or Discuss status. We recommend you avoid this.
+    </p>
+  </li>
+
+  <li class="grid grid-cols-1 items-start gap-x-6 gap-y-1 pt-3 sm:grid-cols-[15rem_minmax(0,1fr)]">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Quality stars</mat-label>
+      <input
+        aria-describedby="task-option-stars"
+        matInput
+        max="100"
+        min="0"
+        type="number"
+        [(ngModel)]="taskDefinition.maxQualityPts"
+      />
     </mat-form-field>
-    <span class="mb-[22px] basis-1/2"
-      >Provide a number of stars alongside the task status. Make sure you have a clear reason for
-      each star within your task description.</span
-    >
-  </div>
-</div>
+    <p class="m-0 text-sm text-ot-muted sm:pt-2" id="task-option-stars">
+      Tutors give up to this many stars along with the status. Explain what earns each star in the
+      task description.
+    </p>
+  </li>
+</ul>

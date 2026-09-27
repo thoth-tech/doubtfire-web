@@ -40,6 +40,7 @@ export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
       'hasJplagReport',
       'assessInPortfolioOnly',
       'requiresDiscussion',
+      'resubmissionExtensionsEnabled',
       {
         keys: 'targetDate',
         toEntityFn: MappingFunctions.mapDateToEndOfDay,
@@ -114,10 +115,16 @@ export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
           }
         },
         toJsonFn: (taskDef: TaskDefinition, _key: string) => {
-          return taskDef.groupSet?.id;
+          // The api only clears a task's group set when it is sent a negative id, and
+          // leaves it alone when the field is missing. Sending nothing for individual
+          // work meant a task could never be switched back from group work.
+          // An unresolved cache entry is undefined and must leave the server's
+          // group unchanged. The individual-work control explicitly sets null.
+          return taskDef.groupSet === null ? -1 : taskDef.groupSet?.id;
         },
       },
       'hasTaskSheet',
+      'taskSheetFilename',
       'hasTaskResources',
       'hasTaskAssessmentResources',
       'hasTaskAssessmentScript',
@@ -169,10 +176,10 @@ export class TaskDefinitionService extends CachedEntityService<TaskDefinition> {
           return (data[key] ?? []).map((gradeDate) => ({
             targetGrade: gradeDate.target_grade,
             targetDueDate: gradeDate.target_due_date
-              ? MappingFunctions.mapDateToDay(gradeDate, 'target_due_date', null)
+              ? MappingFunctions.mapCivilDateToDay(gradeDate, 'target_due_date', null)
               : undefined,
             startDate: gradeDate.start_date
-              ? MappingFunctions.mapDateToDay(gradeDate, 'start_date', null)
+              ? MappingFunctions.mapCivilDateToDay(gradeDate, 'start_date', null)
               : undefined,
           }));
         },

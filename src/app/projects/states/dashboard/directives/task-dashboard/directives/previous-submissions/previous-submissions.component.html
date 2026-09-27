@@ -1,0 +1,66 @@
+<mat-card appearance="outlined">
+  <mat-card-header><mat-card-title>Previous submissions</mat-card-title></mat-card-header>
+  <mat-card-content [attr.aria-busy]="loading">
+    <p>Retained versions, newest first. Only files selected for submission history are included.</p>
+    <div aria-live="polite" role="status">
+      @if (loading) {
+        <p>Loading previous submissions…</p>
+      }
+      @if (processing) {
+        <p>A new archive is still processing. Refresh to check its availability.</p>
+      }
+      @if (!loading && !error && versions.length === 0) {
+        <p>No previous submissions have been retained for this task.</p>
+      }
+    </div>
+    @if (error) {
+      <p role="alert">{{ error }}</p>
+    }
+    <ol class="history-list">
+      @for (version of versions; track version.id) {
+        <li>
+          <div>
+            <strong>{{ version.current ? 'Current submission' : 'Previous submission' }}</strong>
+            @if (!version.current && version.versionOrder === 1) {
+              <span> — latest retained archive</span>
+            }
+            <p>Archive file: submission-{{ version.id }}.zip</p>
+            <p>
+              @if (version.timestamp) {
+                <time [attr.datetime]="version.timestamp.toISOString()">{{
+                  version.timestamp | date: 'medium'
+                }}</time>
+              } @else {
+                <span>Submission time unavailable for this legacy archive</span>
+              }
+            </p>
+            @if (!version.available) {
+              <p>
+                Files unavailable. This archive may have been removed, may be incomplete, or may use
+                an older format.
+              </p>
+            }
+          </div>
+          @if (version.available) {
+            <button
+              mat-stroked-button
+              [attr.aria-label]="
+                'Download archived submission ' +
+                (version.timestamp ? (version.timestamp | date: 'medium') : version.versionOrder)
+              "
+              [disabled]="downloadingId !== null"
+              (click)="download(version)"
+            >
+              {{ downloadingId === version.id ? 'Downloading…' : 'Download files' }}
+            </button>
+          }
+        </li>
+      }
+    </ol>
+  </mat-card-content>
+  <mat-card-actions
+    ><button mat-button [disabled]="loading" (click)="refresh()">
+      Refresh history
+    </button></mat-card-actions
+  >
+</mat-card>

@@ -1,0 +1,73 @@
+<div class="task-upload-requirements" [id]="elementId">
+  <mat-icon aria-hidden="true" class="requirements-callout-icon">info_outline</mat-icon>
+
+  <div class="requirements-body">
+    <h3 class="requirements-heading">What to upload</h3>
+
+    @if (hasRequirements) {
+      <ul class="requirements-list">
+        <li class="requirement-row requirements-summary">
+          <mat-icon aria-hidden="true">attach_file</mat-icon>
+          <span class="requirement-value">{{ requiredFileCountLabel }}</span>
+        </li>
+
+        @for (summary of summaries; track $index) {
+          <li class="requirement-row requirement">
+            <mat-icon aria-hidden="true">{{ summary.icon }}</mat-icon>
+            <div class="requirement-text">
+              <p class="requirement-category">
+                <span class="requirement-label">{{ summary.categoryLabel }}</span>
+                <span class="requirement-separator">&ngsp;&middot;&ngsp;</span>
+                <span class="requirement-formats">
+                  @if (summary.extensions.length) {
+                    @if (summary.hasMoreExtensions) {
+                      {{ summary.previewExtensions.join(', ') }}, and more
+                    } @else {
+                      {{ formatList(summary.previewExtensions) }}
+                    }
+                  } @else {
+                    Not specified for this task
+                  }
+                </span>
+              </p>
+
+              @if (summary.maxSizeLabel) {
+                <p class="requirement-max-size">Up to {{ summary.maxSizeLabel }}</p>
+              }
+
+              @if (showDescription(summary)) {
+                <p class="requirement-name">{{ summary.name }}</p>
+              }
+
+              @if (summary.hasMoreExtensions) {
+                <button
+                  class="extensions-toggle"
+                  type="button"
+                  [attr.aria-controls]="elementId + '-ext-' + $index"
+                  [attr.aria-expanded]="isExpanded(summary)"
+                  (click)="toggleExpanded(summary)"
+                >
+                  {{ isExpanded(summary) ? 'Hide' : 'View' }} all accepted extensions
+                </button>
+                <ul
+                  class="extensions-list"
+                  [hidden]="!isExpanded(summary)"
+                  [id]="elementId + '-ext-' + $index"
+                >
+                  @for (extension of summary.extensions; track extension) {
+                    <li>{{ extension }}</li>
+                  }
+                </ul>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="requirements-missing">
+        Upload requirements for this task are not currently available. Contact your teaching team if
+        this message persists.
+      </p>
+    }
+  </div>
+</div>

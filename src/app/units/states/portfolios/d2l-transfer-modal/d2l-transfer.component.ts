@@ -1,5 +1,5 @@
 //
-// Modal to show Doubtfire version info
+// Dialog that walks a convenor through sending the unit's portfolio grades to D2L
 //
 import {HttpClient} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, Inject, Injectable, OnInit} from '@angular/core';
@@ -20,6 +20,8 @@ import {DoubtfireConstants} from 'src/app/config/constants/doubtfire-constants';
 })
 export class D2lTransferComponent implements OnInit {
   public d2lDataMapping: D2lAssessmentMapping = new D2lAssessmentMapping(this.data);
+  public loadingMapping = true;
+  public startingTransfer = false;
   private apiEndpoint: string;
   private weightedUnit: boolean = false;
 
@@ -38,6 +40,7 @@ export class D2lTransferComponent implements OnInit {
     this.data.loadD2lMapping().subscribe({
       next: (d2lDataMapping) => {
         this.d2lDataMapping = d2lDataMapping;
+        this.loadingMapping = false;
 
         // If we have the org unit it, then we can check the grading standard
         if (this.d2lDataMapping.orgUnitId) {
@@ -47,6 +50,7 @@ export class D2lTransferComponent implements OnInit {
       error: (_err) => {
         // No mapping found, create a new one
         this.d2lDataMapping = new D2lAssessmentMapping(this.data);
+        this.loadingMapping = false;
       },
     });
 
@@ -55,7 +59,7 @@ export class D2lTransferComponent implements OnInit {
         this.apiEndpoint = response;
       },
       error: (err) => {
-        this.alertService.error(`Failed to get locaiton of D2L instance: ${err}`);
+        this.alertService.error(`Failed to get location of D2L instance: ${err}`);
       },
     });
   }
@@ -85,9 +89,18 @@ export class D2lTransferComponent implements OnInit {
     });
   }
 
+  // The grade item lives on the D2L site, whose address arrives from the api. Until it
+  // does, the link would start with "undefined", so the button waits for it.
+  public get canOpenWeightPage(): boolean {
+    return !!this.apiEndpoint;
+  }
+
   public openWeightPage(): void {
+    if (!this.canOpenWeightPage) {
+      return;
+    }
+
     const url = `${this.apiEndpoint}/d2l/lms/grades/admin/manage/item_props_newedit.d2l?objectId=${this.d2lDataMapping.gradeObjectId}&ou=${this.d2lDataMapping.orgUnitId}&scroll=weight`;
-    console.log(url);
     window.open(url, '_blank');
   }
 
@@ -99,13 +112,21 @@ export class D2lTransferComponent implements OnInit {
     return this.weightedUnit;
   }
 
+  // A second click while the first request is out would queue a second transfer.
   public startTransfer(): void {
+    if (this.startingTransfer) {
+      return;
+    }
+
+    this.startingTransfer = true;
     const url = `${this.doubtfireConstants.API_URL}/units/${this.data.id}/d2l/grades`;
     this.httpClient.post(url, {}).subscribe({
       next: () => {
+        this.startingTransfer = false;
         this.alertService.success('Transfer started');
       },
       error: (err) => {
+        this.startingTransfer = false;
         this.alertService.error(`Failed to start transfer: ${err}`);
       },
     });
@@ -137,15 +158,14 @@ export class D2lTransferComponent implements OnInit {
 }
 
 /**
- * The about doubtfire modal service - used to create and show the modal
+ * Opens the D2L grade transfer dialog for a unit
  */
-// eslint-disable-next-line max-classes-per-file
+
 @Injectable()
 export class D2lTransferModal {
   constructor(public dialog: MatDialog) {}
 
   public open(unit: Unit): void {
-    // Show dialog while the data above is being fetched
     this.dialog.open(D2lTransferComponent, {
       width: '600px',
       data: unit,

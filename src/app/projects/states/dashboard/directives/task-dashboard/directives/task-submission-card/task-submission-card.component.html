@@ -1,73 +1,97 @@
-<mat-card appearance="outlined" [hidden]="!(task?.hasPdf || task?.processingPdf)">
-  <mat-card-header>
-    <mat-card-title
-      >Submission <span [hidden]="!task?.processingPdf">Processing</span></mat-card-title
-    >
-  </mat-card-header>
-  <mat-card-content>
-    <p [hidden]="!task?.processingPdf">
-      Your submission is being processed and will be avaliable to view soon. You will also be able
-      to download your most recently submitted files.
-    </p>
-    <p [hidden]="!task?.hasPdf">
-      You can choose to download your <em [hidden]="!task?.processingPdf">previous</em>
-      submission or the files you uploaded below.
-    </p>
-    @if (task?.hasPdf && task.submissionDate) {
-      <p>
-        You uploaded this submission <strong>{{ task.submissionDate | date: 'dd/MM/yyyy' }}</strong
+<mat-card
+  appearance="outlined"
+  class="submission-state-card"
+  [hidden]="!task?.hasSubmissionHistory()"
+>
+  <!-- Compact, so on the submission tab the PDF under it keeps the space. -->
+  <div class="submission-summary">
+    <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+      <h2 class="m-0 text-base leading-snug font-semibold text-ot-text">Your submission</h2>
+      <span class="submission-state" [attr.data-state]="task?.submissionProcessingState">
+        {{ stateLabel }}
+      </span>
+    </div>
+
+    <p class="m-0 text-sm text-ot-muted">
+      {{ stateMessage }}
+      @if (task?.submissionDate) {
+        Uploaded
+        <strong class="font-semibold text-ot-text">{{
+          task.submissionDate | date: 'dd/MM/yyyy'
+        }}</strong
         >.
+      }
+    </p>
+
+    @if (task?.submissionProcessingActive) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p aria-live="polite" class="status-detail m-0 text-sm">
+        Status checks use bounded backoff and stop when you leave this task.
       </p>
     }
-    <p [hidden]="!canRegeneratePdf">
-      If you feel there has been an error in your submission, you can request to regenerate your
-      submission under the "Actions" dropdown menu.
-    </p>
-    <p [hidden]="!task?.inSubmittedState()">
-      If you would like to submit alternate evidence for use in your portfolio, you can upload
-      alternate files under the "Actions" dropdown menu.
-    </p></mat-card-content
-  >
-  <mat-card-actions
-    class="space-x-1"
-    [hidden]="!(task?.hasPdf || task?.inSubmittedState() || canRegeneratePdf)"
-  >
-    <button mat-stroked-button [hidden]="!task?.hasPdf" (click)="downloadSubmission()">
-      Download submission
-    </button>
-    <button
-      aria-label="More download options"
-      mat-icon-button
-      [hidden]="!task?.hasPdf"
-      [matMenuTriggerFor]="menu"
-    >
-      <mat-icon>more_vert</mat-icon>
-    </button>
-    <div fxFlex></div>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="downloadSubmissionFiles()">Download original files</button>
-    </mat-menu>
 
-    <button
-      mat-stroked-button
-      [hidden]="!task?.inSubmittedState() || !canRegeneratePdf"
-      [matMenuTriggerFor]="menu2"
-    >
-      Actions
-      <mat-icon
-        aria-hidden="false"
-        aria-label="dropdown icon"
-        style="width: 20px; height: 20px; font-size: 20px"
-        >arrow_drop_down</mat-icon
+    @if (pollingPaused) {
+      <div class="recovery-row" role="status">
+        <span class="text-sm">Automatic status checks paused.</span>
+        <button mat-stroked-button type="button" (click)="checkAgain()">Check again</button>
+      </div>
+    }
+
+    @if (refreshFailed) {
+      <p class="status-error m-0 text-sm" role="alert">
+        OnTrack could not refresh the processing status. Your submission was not discarded.
+      </p>
+    }
+
+    @if (!task?.submissionPdfReady) {
+      <p class="status-detail m-0 text-sm">
+        Submission PDF: unavailable until conversion succeeds.
+      </p>
+    }
+    @if (!task?.submissionFilesReady) {
+      <p class="status-detail m-0 text-sm">
+        Submitted files: unavailable until OnTrack secures the upload archive.
+      </p>
+    }
+  </div>
+
+  <div class="submission-actions">
+    @if (task?.submissionPdfReady) {
+      <button mat-stroked-button type="button" (click)="downloadSubmission()">
+        <mat-icon aria-hidden="true">download</mat-icon>
+        Download PDF
+      </button>
+    }
+    @if (task?.submissionFilesReady) {
+      <button mat-stroked-button type="button" (click)="downloadSubmissionFiles()">
+        <mat-icon aria-hidden="true">folder_zip</mat-icon>
+        Download files
+      </button>
+    }
+    @if (task?.submissionRetryable) {
+      <button
+        color="primary"
+        mat-flat-button
+        type="button"
+        [disabled]="retryPending"
+        (click)="retryProcessing()"
       >
-    </button>
-    <mat-menu #menu2="matMenu">
-      <button mat-menu-item [hidden]="!task?.inSubmittedState()" (click)="uploadAlternateFiles()">
-        Upload alternate files
+        {{ retryPending ? 'Retrying…' : 'Retry processing' }}
       </button>
-      <button mat-menu-item [hidden]="!canRegeneratePdf" (click)="regeneratePdf()">
-        Regenerate PDFs
+    }
+    @if (canRegeneratePdf) {
+      <button mat-stroked-button type="button" (click)="regeneratePdf()">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+        Regenerate PDF
       </button>
-    </mat-menu>
-  </mat-card-actions>
+    }
+    @if (task?.inSubmittedState()) {
+      <button mat-stroked-button type="button" (click)="uploadAlternateFiles()">
+        <mat-icon aria-hidden="true">upload</mat-icon>
+        Upload new files
+      </button>
+    }
+  </div>
 </mat-card>
+
+<f-previous-submissions [task]="task"></f-previous-submissions>

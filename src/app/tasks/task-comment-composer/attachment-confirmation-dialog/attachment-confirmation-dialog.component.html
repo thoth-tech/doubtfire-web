@@ -1,10 +1,11 @@
-<div (keydown.enter)="$event.preventDefault(); $event.stopPropagation()">
+<div tabindex="-1" (keydown.enter)="$event.stopPropagation()">
   <h2 mat-dialog-title>Post Attachment?</h2>
+
   <mat-dialog-content>
     <p>This attachment is ready to post as a task comment.</p>
 
     <div
-      class="mx-auto flex min-h-[180px] w-full max-w-[520px] items-center justify-center overflow-hidden rounded-xl bg-black/5"
+      class="mx-auto flex min-h-[180px] w-full max-w-[520px] items-center justify-center overflow-hidden rounded-xl bg-ot-raised"
     >
       @if (isImage) {
         <img
@@ -29,6 +30,7 @@
               <span>{{ file.type || 'Audio file' }}</span>
             </div>
           </div>
+
           <audio class="mt-2.5 w-full" controls [src]="previewUrl"></audio>
         </div>
       } @else {
@@ -36,18 +38,19 @@
           <mat-icon class="size-5 text-[2rem]">attach_file</mat-icon>
           <div class="flex flex-col gap-px break-all">
             <strong>{{ file.name }}</strong>
-            <span>{{ file.type || 'Attachment' }}</span>
+            <span>{{ data.category || 'Attachment' }} — download only</span>
           </div>
         </div>
       }
     </div>
 
-    <p class="mt-2 text-base break-all opacity-80">
-      {{ file.name }}
+    <div class="mt-2 flex flex-col gap-1 text-base break-all opacity-80">
+      <span><strong>File:</strong> {{ file.name }}</span>
+      <span><strong>Type:</strong> {{ data.category || file.type || 'Unknown' }}</span>
       @if (file.size) {
-        <span>({{ formatFileSize(file.size) }})</span>
+        <span><strong>Size:</strong> {{ formatFileSize(file.size) }}</span>
       }
-    </p>
+    </div>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">

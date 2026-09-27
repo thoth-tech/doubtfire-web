@@ -1,5 +1,5 @@
 <a
-  class="mr-2 flex w-full items-center text-inherit no-underline"
+  class="flex w-full items-center justify-between gap-2 text-inherit no-underline"
   [routerLink]="['/projects', project.id, 'portfolio']"
 >
   <div class="flex min-w-0 flex-1 items-center gap-3">
@@ -8,8 +8,8 @@
         <div class="truncate text-ellipsis">Create Portfolio</div>
 
         <div class="flex min-w-0 items-center gap-0.5">
-          <mat-icon class="size-6 flex-none scale-75 text-gray-600">person</mat-icon>
-          <div class="min-w-0 truncate text-[14px] text-gray-500">
+          <mat-icon class="size-6 flex-none scale-75 text-ot-muted">person</mat-icon>
+          <div class="min-w-0 truncate text-[14px] text-ot-muted">
             Create and submit your portfolio
           </div>
         </div>
@@ -17,5 +17,9 @@
     </div>
   </div>
 
-  <status-icon class="ml-[1.5ex] flex-none" [status]="status()"></status-icon>
+  <!-- The same right padding as the status column on the task rows in unit-task-list,
+       so this circle lines up with the ones above it. -->
+  <div class="flex shrink-0 items-center pr-3 pl-1">
+    <status-icon [status]="status()"></status-icon>
+  </div>
 </a>

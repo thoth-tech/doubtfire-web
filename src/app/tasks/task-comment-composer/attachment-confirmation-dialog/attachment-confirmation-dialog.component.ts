@@ -3,6 +3,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 export interface AttachmentConfirmationDialogData {
   file: File;
+  category?: string;
 }
 
 @Component({
@@ -22,7 +23,9 @@ export class AttachmentConfirmationDialogComponent implements OnInit, OnDestroy 
 
   ngOnInit() {
     this.file = this.data.file;
-    this.previewUrl = URL.createObjectURL(this.file);
+    if (this.isImage || this.isAudio) {
+      this.previewUrl = URL.createObjectURL(this.file);
+    }
   }
 
   ngOnDestroy() {

@@ -1,100 +1,88 @@
-<div class="project-portfolio-wizard w-full" id="portfolio-state">
-  <mat-card class="mx-auto max-w-7xl">
-    <!-- Main Header -->
-    <mat-card-header>
-      <mat-card-title class="grade-card-title">
-        <h3>Select Grade</h3>
-      </mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content>
-      <p class="m-2.5">
-        In preparing your portfolio, you need to undertake a self-assessment. Use the unit's
-        assessment criteria to determine the grade your portfolio should be awarded.
+<section
+  class="overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1)"
+>
+  <div class="flex flex-col gap-5 p-5 sm:p-6">
+    <div>
+      <h2 class="m-0 text-lg leading-snug font-semibold text-ot-text">Choose your grade</h2>
+      <p class="m-0 mt-1 text-sm leading-relaxed text-ot-muted">
+        Assess your own work against the unit's assessment criteria, then pick the grade your
+        portfolio should be awarded.
       </p>
+    </div>
 
-      <!-- Warning Card -->
-      <mat-card class="mx-1 mt-2.5">
-        <mat-card-header class="bg-red-500 text-white">
-          <mat-card-title class="flex flex-row items-center gap-1">
-            <mat-icon class="warning-icon">warning</mat-icon>
-            Read the assessment criteria
-          </mat-card-title>
-        </mat-card-header>
+    <div class="criteria-callout">
+      <mat-icon aria-hidden="true">fact_check</mat-icon>
+      <div class="flex min-w-0 flex-col gap-1.5">
+        <p class="m-0 font-semibold">Read the assessment criteria first</p>
+        <p class="m-0 text-sm leading-relaxed">
+          Each grade has its own list of criteria. Use it to check that your work meets the grade
+          you are applying for.
+        </p>
+        <mat-checkbox
+          class="criteria-callout__check"
+          color="primary"
+          [(ngModel)]="agreedToAssessmentCriteria"
+        >
+          I have read the assessment criteria for this unit
+        </mat-checkbox>
+      </div>
+    </div>
 
-        <mat-card-content class="bg-red-500 text-white">
-          <p class="m-2">
-            Make sure that you have reviewed the Assessment Criteria for the grade you are applying
-            for. Each grade will have a list of criteria that you can use to determine if you meet
-            the requirements to achieve that grade.
-          </p>
-        </mat-card-content>
-
-        <mat-card-actions>
-          <mat-checkbox [(ngModel)]="agreedToAssessmentCriteria">
-            I have read the Assessment Criteria for this unit
-          </mat-checkbox>
-        </mat-card-actions>
-      </mat-card>
-
-      <!-- Grade Selection -->
-
-      @if (agreedToAssessmentCriteria) {
-        <mat-card class="mx-1 mt-2.5">
-          <mat-card-header>
-            <mat-card-title class="flex flex-row items-center gap-1">
-              Grade Application
-            </mat-card-title>
-          </mat-card-header>
-
-          <mat-card-content>
-            <p class="m-2">
-              Select the <strong>grade</strong> you are applying for {{ unit.code }}
-              {{ unit.name }} below.
-            </p>
-          </mat-card-content>
-
-          <mat-card-content class="text-center">
-            <mat-button-toggle-group
-              hideSingleSelectionIndicator
-              [ngModel]="project.submittedGrade"
+    @if (agreedToAssessmentCriteria) {
+      <div class="flex flex-col gap-3">
+        <p class="m-0 font-semibold text-ot-text" id="portfolio-grade-question">
+          Which grade are you applying for in {{ unit.code }} {{ unit.name }}?
+        </p>
+        <mat-radio-group
+          aria-labelledby="portfolio-grade-question"
+          class="grid gap-3 sm:grid-cols-2"
+          color="primary"
+          [ngModel]="project.submittedGrade"
+          (change)="updateSubmittedGrade($event.value)"
+        >
+          @for (grade of gradeValues; track grade) {
+            <mat-radio-button
+              class="grade-option"
+              [class.grade-option--selected]="project.submittedGrade === grade"
+              [value]="grade"
             >
-              @for (grade of gradeValues; track grade) {
-                <mat-button-toggle
-                  class="p-1 py-2.5"
-                  [value]="grade"
-                  (click)="updateSubmittedGrade(grade)"
-                >
-                  <f-grade-icon [grade]="grade" [unit]="unit"></f-grade-icon>
-                </mat-button-toggle>
-              }
-            </mat-button-toggle-group>
+              <span class="flex items-center gap-3">
+                <f-grade-icon aria-hidden="true" [grade]="grade" [unit]="unit"></f-grade-icon>
+                <span class="font-medium text-ot-text">{{ gradeLabel(grade) }}</span>
+              </span>
+            </mat-radio-button>
+          }
+        </mat-radio-group>
+        @if (hasSubmittedGrade) {
+          <p class="m-0 text-sm leading-relaxed text-ot-muted">
+            Your learning summary report needs to show how your portfolio meets
+            <strong class="text-ot-text"
+              >all the unit learning outcomes at {{ targetGrade }} level</strong
+            >.
+          </p>
+        }
+      </div>
+    }
+  </div>
 
-            <p class="mt-2.5 text-gray-600">
-              Make sure your <strong>Learning Summary Report</strong> justifies how your portfolio
-              demonstrates you have
-              <strong>met all unit learning outcomes to a {{ targetGrade }} level</strong>
-            </p>
-          </mat-card-content>
-        </mat-card>
-      }
-    </mat-card-content>
-
-    <!-- Footer Buttons -->
-    <mat-card-actions class="flex justify-between">
-      <button color="primary" mat-raised-button (click)="goToPreviousStep()">Back</button>
-      <button
-        color="primary"
-        mat-raised-button
-        [disabled]="
-          !agreedToAssessmentCriteria ||
-          project.submittedGrade === null ||
-          project.submittedGrade === undefined
-        "
-        (click)="goToNextStep()"
+  <footer
+    class="portfolio-step-footer flex flex-wrap items-center gap-3 border-t border-ot-divider px-5 py-3 sm:px-6"
+  >
+    <button mat-stroked-button type="button" (click)="goToPreviousStep()">Back</button>
+    <span class="flex-1"></span>
+    @if (!canContinue) {
+      <span class="order-first w-full text-sm text-ot-muted sm:order-none sm:w-auto"
+        >Tick the box and choose a grade to continue.</span
       >
-        Next
-      </button>
-    </mat-card-actions>
-  </mat-card>
-</div>
+    }
+    <button
+      color="primary"
+      mat-flat-button
+      type="button"
+      [disabled]="!canContinue"
+      (click)="goToNextStep()"
+    >
+      Next
+    </button>
+  </footer>
+</section>

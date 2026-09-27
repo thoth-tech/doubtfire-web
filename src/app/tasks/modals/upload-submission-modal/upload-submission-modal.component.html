@@ -1,208 +1,372 @@
-<div class="flex items-center justify-between">
-  <h2 mat-dialog-title>Submit {{ task.definition.abbreviation }} {{ task.definition.name }}</h2>
-  <mat-form-field appearance="outline" class="my-2.5 mt-[22px] mr-[24px] w-full lg:max-w-sm">
-    <mat-label>Submission type</mat-label>
-    <mat-select
-      [disabled]="uploadStarted || isUploading"
-      [(ngModel)]="submissionType"
-      (ngModelChange)="onSubmissionTypeChange($event)"
-    >
-      @for (option of submissionTypeOptions; track option.id) {
-        <mat-option [value]="option.id">{{ option.label }}</mat-option>
+<!-- The header goes once the upload starts, so the dialog changes shape at the
+     moment of submitting rather than again when the confirmation arrives. -->
+@if (!uploadStarted) {
+  <header class="submission-dialog-header">
+    <h2 #dialogTitle class="submission-dialog-title" mat-dialog-title tabindex="-1">Submit task</h2>
+    <div class="submission-task-line">
+      <span class="submission-task-chip">{{ task.definition.abbreviation }}</span>
+      <span class="submission-task-name">{{ task.definition.name }}</span>
+      @if (dueDate) {
+        <span class="submission-task-due" [class.submission-task-due--past]="isPastDue">
+          <mat-icon aria-hidden="true">schedule</mat-icon>
+          Due {{ dueDate | date: 'EEE d MMM' }}
+        </span>
       }
-    </mat-select>
-  </mat-form-field>
-</div>
+    </div>
+  </header>
+}
 
-<mat-dialog-content>
-  <div class="flex flex-col gap-2.5">
-    @if (isGroupStage && !uploadStarted) {
-      <mat-card>
-        <mat-card-content class="flex flex-col gap-2 pt-3.5">
-          <div>
-            <h3 class="font-semibold">Team Contribution</h3>
-            <p class="text-gray-600">
-              Please rate each team member's effort on {{ task.definition.name }}.
-            </p>
-            <p class="text-gray-500">Click the same rating twice to record no contribution.</p>
-          </div>
+<mat-dialog-content class="submission-dialog-content">
+  <!-- the one live region for the upload, so the panel below stays quiet -->
+  <p aria-atomic="true" class="sr-only" role="status">
+    {{ uploadAnnouncement }}
+  </p>
+  <!-- One panel for the whole submission. The circle, the two lines of text and
+       the bar are the same elements from sending through to confirmed: only their
+       state changes, so the dialog never swaps one screen for another. -->
+  @if (showSubmitFlow) {
+    <div
+      class="submit-flow"
+      [class.submit-flow--celebrating]="celebration"
+      [class.submit-flow--done]="flowLanded"
+      [class.submit-flow--swapping]="flowSwapping"
+    >
+      <!-- The outer element reserves the confirmation's full height from the
+           start, so nothing below moves when the circle inside it grows. -->
+      <span aria-hidden="true" class="submit-flow__mark">
+        <span class="submit-flow__ring">
+          @if (celebration) {
+            @if (celebration.particles) {
+              <f-celebration-particles [count]="12" [delay]="1000" [spread]="72" />
+            }
+            <f-animated-check [delay]="160" [pace]="1.9" [size]="88" [tone]="celebration.tone" />
+          } @else {
+            <mat-icon class="submit-flow__glyph">{{
+              flowLanded ? 'check' : 'upload_file'
+            }}</mat-icon>
+          }
+        </span>
+      </span>
 
-          <f-group-member-contribution-assigner
-            [isTestSubmission]="data.isTestSubmission"
-            [project]="task.project"
-            [task]="task"
-            [(team)]="team"
-          >
-          </f-group-member-contribution-assigner>
-        </mat-card-content>
-      </mat-card>
+      <p class="submit-flow__title">{{ flowTitle }}</p>
+      <p class="submit-flow__detail">{{ flowDetail }}</p>
+
+      <div
+        aria-valuemax="100"
+        aria-valuemin="0"
+        class="submit-flow__track"
+        role="progressbar"
+        [attr.aria-valuenow]="flowProgress"
+        [style.--flow-progress.%]="flowProgress"
+      >
+        <span class="submit-flow__fill"></span>
+      </div>
+
+      <!-- One button throughout. Swapping it for another, or dropping it while
+           the confirmation was on its way, unmounted the only focusable thing in
+           the dialog: a keyboard user lost their place for over a second, in the
+           middle of the one moment the panel is asking them to look at. -->
+      <button
+        #flowAction
+        class="submit-flow__action"
+        mat-stroked-button
+        type="button"
+        (click)="flowLanded ? finishCelebration() : cancelUpload()"
+      >
+        {{ flowLanded ? 'Done' : 'Cancel upload' }}
+      </button>
+    </div>
+  }
+
+  <!-- Stays in the DOM while the panel above is up: unmounting it would
+       destroy the uploader and with it the request in flight. -->
+  <div class="submission-dialog-body" [hidden]="showSubmitFlow">
+    <!-- Disabled and irrelevant once the request is away. Dropping it keeps the
+           uploading panel and the confirmation at exactly the same height. -->
+    @if (!uploadStarted) {
+      <div class="submission-type-row">
+        <span class="submission-type-label" id="submission-type-label">Submit as</span>
+        <mat-select
+          aria-labelledby="submission-type-label"
+          class="submission-type-select"
+          panelClass="submission-type-panel"
+          placeholder="Choose a type"
+          [disabled]="uploadStarted || isUploading"
+          [(ngModel)]="submissionType"
+          (ngModelChange)="onSubmissionTypeChange($event)"
+        >
+          <mat-select-trigger>
+            <span class="submission-type-option">
+              @if (statusFor(submissionType); as status) {
+                <status-icon
+                  class="submission-type-option__icon"
+                  [showTooltip]="false"
+                  [status]="status"
+                ></status-icon>
+              } @else {
+                <mat-icon aria-hidden="true" class="submission-type-option__glyph">{{
+                  submissionType === 'test_submission' ? 'science' : 'upload_file'
+                }}</mat-icon>
+              }
+              <span class="truncate">{{ selectedSubmissionTypeLabel }}</span>
+            </span>
+          </mat-select-trigger>
+          @for (option of submissionTypeOptions; track option.id) {
+            <mat-option [value]="option.id">
+              <span class="submission-type-option">
+                @if (statusFor(option.id); as status) {
+                  <status-icon
+                    class="submission-type-option__icon"
+                    [showTooltip]="false"
+                    [status]="status"
+                  ></status-icon>
+                } @else {
+                  <mat-icon aria-hidden="true" class="submission-type-option__glyph">{{
+                    option.id === 'test_submission' ? 'science' : 'upload_file'
+                  }}</mat-icon>
+                }
+                <span>{{ option.label }}</span>
+              </span>
+            </mat-option>
+          }
+        </mat-select>
+      </div>
     }
 
-    <mat-card [class.hidden]="!isDetailsStage && !uploadStarted">
-      <mat-card-content class="flex flex-col gap-2 pt-3.5">
-        @if (!uploadStarted) {
-          <div>
-            <h3 class="font-semibold">
-              Select {{ submissionType === 'need_help' ? 'files' : 'evidence' }} to upload
-            </h3>
+    @if (steps.length > 1 && !uploadStarted) {
+      <ol aria-label="Submission steps" class="submission-steps">
+        @for (step of steps; track step.stage) {
+          <li
+            class="submission-step"
+            [attr.aria-current]="$index === currentStepIndex ? 'step' : null"
+            [class.submission-step--current]="$index === currentStepIndex"
+            [class.submission-step--done]="$index < currentStepIndex"
+          >
+            <span aria-hidden="true" class="submission-step__marker">
+              @if ($index < currentStepIndex) {
+                <mat-icon>check</mat-icon>
+              } @else {
+                {{ $index + 1 }}
+              }
+            </span>
+            <span class="submission-step__label">{{ step.label }}</span>
+            @if ($index < currentStepIndex) {
+              <span class="sr-only">(done)</span>
+            }
+          </li>
+        }
+      </ol>
+    }
+    @if (isGroupStage && !uploadStarted) {
+      <section class="submission-section">
+        <div>
+          <h3 #groupHeading class="submission-section__heading" tabindex="-1">Team contribution</h3>
+          <p class="submission-section__lead">
+            Please rate each team member's effort on {{ task.definition.name }}.
+          </p>
+          <p class="submission-section__lead">
+            Click the same rating twice to record no contribution.
+          </p>
+        </div>
 
-            @if (submissionType === 'need_help') {
-              <p class="text-gray-600">
-                Upload the required files so your tutor can help with this task, even if they are
-                not finished yet.
+        <f-group-member-contribution-assigner
+          [isTestSubmission]="data.isTestSubmission"
+          [project]="task.project"
+          [task]="task"
+          [(team)]="team"
+        >
+        </f-group-member-contribution-assigner>
+      </section>
+    }
+
+    <section class="submission-section" [class.hidden]="!isDetailsStage && !uploadStarted">
+      @if (!uploadStarted) {
+        <h3 #detailsHeading class="submission-section__heading" tabindex="-1">
+          Select {{ submissionType === 'need_help' ? 'files' : 'evidence' }} to upload
+        </h3>
+      }
+      @if (!uploadStarted && submissionType === 'need_help') {
+        <p class="submission-section__lead">
+          Upload the required files so your tutor can help with this task, even if they are not
+          finished yet.
+        </p>
+      }
+
+      <!-- The drop zones already name each file and its formats, so the callout only
+             appears when it carries something they do not. -->
+      <f-task-upload-requirements
+        #uploadRequirements
+        [hidden]="uploadStarted || isUploading || !showUploadRequirements"
+        [requirements]="task.definition.uploadRequirements"
+      ></f-task-upload-requirements>
+
+      <f-file-uploader
+        #fileUploader
+        [describedBy]="uploadStarted || isUploading ? null : uploadRequirements.elementId"
+        [files]="fileRequirements"
+        [onBeforeUpload]="onBeforeUpload"
+        [onCancelUpload]="onUploadCancelled"
+        [onClickFailureCancel]="cancel"
+        [onComplete]="onUploadComplete"
+        [onFailure]="onUploadFailure"
+        [onSuccess]="onUploadSuccess"
+        [payload]="payload"
+        [resetAfterUpload]="false"
+        [showProgressState]="false"
+        [showSuccessState]="false"
+        [showUploadButton]="false"
+        [singleDropZone]="true"
+        [url]="uploadUrl"
+        (isReadyChange)="onReadyChange($event)"
+        (uploadReady)="onUploaderReady($event)"
+      >
+      </f-file-uploader>
+    </section>
+
+    @if (!uploadStarted && isCommentsStage) {
+      <section class="submission-section">
+        <div>
+          @if (submissionType === 'need_help') {
+            <h3 #commentsHeading class="submission-section__heading" tabindex="-1">
+              What do you need help with?
+            </h3>
+            <p class="submission-section__lead">
+              Add a short comment so your tutor knows what help you need on this task.
+            </p>
+          } @else {
+            <h3 #commentsHeading class="submission-section__heading" tabindex="-1">
+              Final comments
+            </h3>
+            @if (task.definition.assessInPortfolioOnly) {
+              <p class="submission-section__lead">
+                Please specify which areas of your submission you would like feedback on.
               </p>
             } @else {
-              <p class="text-gray-600">
-                Upload files that show your evidence of work until each required file has been
-                selected.
+              <p class="submission-section__lead">
+                Add an optional note for your tutor to read while assessing this submission.
+              </p>
+            }
+          }
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+          <mat-label>Comment</mat-label>
+          <textarea
+            matInput
+            rows="4"
+            [errorStateMatcher]="commentErrorStateMatcher"
+            [placeholder]="commentPlaceholder"
+            [required]="requiresComment"
+            [(ngModel)]="comment"
+          ></textarea>
+          <mat-hint>
+            @if (requiresComment) {
+              Required: at least {{ minCommentLength }} characters, excluding leading and trailing
+              spaces.
+            } @else {
+              Optional comment.
+            }
+            Character count: {{ comment.trim().length }}.
+          </mat-hint>
+          <mat-error
+            >Enter at least {{ minCommentLength }} characters, excluding leading and trailing
+            spaces.</mat-error
+          >
+        </mat-form-field>
+      </section>
+
+      @if (privacyPolicy.privacy) {
+        <section class="submission-section submission-declaration">
+          <div>
+            <h3 class="submission-section__heading">Declaration</h3>
+            <p class="submission-section__lead">{{ privacyPolicy.privacy }}</p>
+          </div>
+
+          <div>
+            <!-- No color input: the app's outlined style reads the label as body
+                   text, where the primary palette leaves blue on a dark surface. -->
+            <button
+              mat-stroked-button
+              type="button"
+              [attr.aria-expanded]="showPlagiarism"
+              (click)="showPlagiarism = !showPlagiarism"
+            >
+              <mat-icon aria-hidden="true">{{
+                showPlagiarism ? 'expand_less' : 'expand_more'
+              }}</mat-icon>
+              Plagiarism and collusion
+            </button>
+
+            @if (showPlagiarism) {
+              <p class="submission-section__lead mt-2">
+                {{ privacyPolicy.plagiarism }}
               </p>
             }
           </div>
-        }
-
-        <f-file-uploader
-          #fileUploader
-          [files]="fileRequirements"
-          [onBeforeUpload]="onBeforeUpload"
-          [onClickFailureCancel]="cancel"
-          [onComplete]="onUploadComplete"
-          [onSuccess]="onUploadSuccess"
-          [payload]="payload"
-          [resetAfterUpload]="false"
-          [showUploadButton]="false"
-          [singleDropZone]="true"
-          [url]="uploadUrl"
-          (isReadyChange)="onReadyChange($event)"
-          (uploadReady)="onUploaderReady($event)"
-        >
-        </f-file-uploader>
-      </mat-card-content>
-    </mat-card>
-
-    @if (!uploadStarted && isCommentsStage) {
-      <div class="flex flex-col gap-2.5">
-        <mat-card>
-          <mat-card-content class="flex flex-col gap-2.5 pt-3.5">
-            <div>
-              @if (submissionType === 'need_help') {
-                <h3 class="font-semibold">What do you need help with?</h3>
-                <p class="text-gray-600">
-                  Add a short comment so your tutor knows what help you need on this task.
-                </p>
-              } @else {
-                <h3 class="font-semibold">Final comments</h3>
-                @if (task.definition.assessInPortfolioOnly) {
-                  <p class="text-gray-600">
-                    Please specify which areas of your submission you would like feedback on.
-                  </p>
-                } @else {
-                  <p class="text-gray-600">
-                    Add an optional note for your tutor to read while assessing this submission.
-                  </p>
-                }
-              }
-            </div>
-
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Comment</mat-label>
-              <textarea
-                matInput
-                rows="4"
-                [placeholder]="commentPlaceholder"
-                [(ngModel)]="comment"
-              ></textarea>
-            </mat-form-field>
-
-            <div class="text-right text-gray-500">
-              Character count: {{ comment.length }}
-              @if (requiresComment) {
-                <span>(Min. {{ minCommentLength }})</span>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        @if (privacyPolicy.privacy) {
-          <mat-card>
-            <mat-card-content class="flex flex-col gap-2 pt-3.5">
-              <div>
-                <h3 class="font-semibold">Declaration</h3>
-                <p class="text-[14px] text-gray-600">{{ privacyPolicy.privacy }}</p>
-              </div>
-
-              <div>
-                <button
-                  color="primary"
-                  mat-stroked-button
-                  type="button"
-                  (click)="showPlagiarism = !showPlagiarism"
-                >
-                  Plagiarism and collusion
-                </button>
-
-                @if (showPlagiarism) {
-                  <div class="mt-1 text-[13px] text-gray-600">
-                    {{ privacyPolicy.plagiarism }}
-                  </div>
-                }
-              </div>
-            </mat-card-content>
-          </mat-card>
-        }
-      </div>
+        </section>
+      }
     }
   </div>
 </mat-dialog-content>
 
-@if (!uploadStarted) {
-  <mat-dialog-actions align="end">
-    <button class="mr-auto" color="warn" mat-button type="button" (click)="cancel()">
-      Cancel Submission
+@if (!uploadStarted && !celebration) {
+  <mat-dialog-actions class="submission-dialog-actions">
+    <button class="cancel-action" mat-stroked-button type="button" (click)="cancel()">
+      Cancel
     </button>
 
-    @if (isGroupStage) {
-      <button
-        color="primary"
-        mat-raised-button
-        type="button"
-        [disabled]="shouldDisableNext()"
-        (click)="goToDetailsStage()"
-      >
-        Next
-      </button>
-    }
+    <div class="submission-dialog-actions__forward">
+      @if (continueHint; as hint) {
+        <span class="submission-continue-hint" id="submission-continue-hint">{{ hint }}</span>
+      }
 
-    @if (isDetailsStage && showCommentsSection) {
-      <button
-        color="primary"
-        mat-raised-button
-        type="button"
-        [disabled]="shouldDisableNext()"
-        (click)="goToCommentsStage()"
-      >
-        Next
-      </button>
-    }
+      @if (isDetailsStage && showGroupSection) {
+        <button mat-stroked-button type="button" (click)="goToGroupStage()">Back</button>
+      }
 
-    @if (isDetailsStage && showGroupSection) {
-      <button mat-button type="button" (click)="goToGroupStage()">Back</button>
-    }
+      @if (isCommentsStage) {
+        <button mat-stroked-button type="button" (click)="goToDetailsStage()">Back</button>
+      }
 
-    @if (isCommentsStage) {
-      <button mat-button type="button" (click)="goToDetailsStage()">Back</button>
-    }
+      @if (isGroupStage) {
+        <button
+          color="primary"
+          mat-flat-button
+          type="button"
+          [attr.aria-describedby]="continueHint ? 'submission-continue-hint' : null"
+          [disabled]="shouldDisableNext()"
+          (click)="goToDetailsStage()"
+        >
+          Next
+        </button>
+      }
 
-    @if ((!showCommentsSection && isDetailsStage) || isCommentsStage) {
-      <button
-        color="primary"
-        mat-flat-button
-        type="button"
-        [disabled]="shouldDisableSubmit()"
-        [matTooltip]="submitTooltip"
-        (click)="uploadButtonClicked()"
-      >
-        Upload Submission
-      </button>
-    }
+      @if (isDetailsStage && showCommentsSection) {
+        <button
+          color="primary"
+          mat-flat-button
+          type="button"
+          [attr.aria-describedby]="continueHint ? 'submission-continue-hint' : null"
+          [disabled]="shouldDisableNext()"
+          (click)="goToCommentsStage()"
+        >
+          Next
+        </button>
+      }
+
+      @if ((!showCommentsSection && isDetailsStage) || isCommentsStage) {
+        <button
+          color="primary"
+          mat-flat-button
+          type="button"
+          [attr.aria-describedby]="continueHint ? 'submission-continue-hint' : null"
+          [disabled]="shouldDisableSubmit()"
+          [matTooltip]="submitTooltip"
+          (click)="uploadButtonClicked()"
+        >
+          Submit
+        </button>
+      }
+    </div>
   </mat-dialog-actions>
 }

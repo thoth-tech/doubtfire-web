@@ -5,7 +5,7 @@
     padding: 0;
     position: relative;
     overflow: inherit !important;
-    background-color: #d1d1d1;
+    background-color: var(--ot-color-surface);
     min-height: 75vh;
     @include doubtfire-scroll-panel;
   }

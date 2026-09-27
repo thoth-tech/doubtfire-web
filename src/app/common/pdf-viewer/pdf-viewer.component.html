@@ -1,71 +1,217 @@
-<div id="pdfContainer">
-  <div id="actionBar">
-    <div id="pdfViewActions" [hidden]="!pdfBlobUrl">
-      <button aria-label="Switch viewer" mat-icon-button (click)="toggleNativePdfViewer()">
-        @if (useNativePdfViewer) {
-          <mat-icon>toggle_on</mat-icon>
-        } @else {
-          <mat-icon>toggle_off</mat-icon>
+<section
+  #pdfContainer
+  class="pdf-viewer"
+  id="pdfContainer"
+  [attr.aria-label]="'PDF viewer for ' + displayFilename"
+>
+  <!-- Theme toolbar: the file name, then icon buttons with tooltips, as on every other
+       panel. Search and zoom sit on their own row while the OnTrack viewer is showing. -->
+  <header aria-label="PDF viewer controls" class="pdf-viewer__toolbar">
+    <div class="pdf-viewer__title-row">
+      <div class="pdf-viewer__file-heading">
+        <mat-icon aria-hidden="true">picture_as_pdf</mat-icon>
+        <span [title]="displayFilename">{{ displayFilename }}</span>
+      </div>
+
+      <div class="pdf-viewer__actions">
+        <button
+          class="pdf-viewer__icon-button"
+          mat-icon-button
+          type="button"
+          [attr.aria-label]="previewEnabled ? 'Hide PDF preview' : 'Show PDF preview'"
+          [attr.aria-pressed]="previewEnabled"
+          [matTooltip]="previewEnabled ? 'Hide preview' : 'Show preview'"
+          (click)="togglePreview()"
+        >
+          <mat-icon aria-hidden="true">{{
+            previewEnabled ? 'visibility' : 'visibility_off'
+          }}</mat-icon>
+        </button>
+
+        <button
+          class="pdf-viewer__icon-button"
+          mat-icon-button
+          type="button"
+          [attr.aria-label]="
+            viewerMode === 'ontrack'
+              ? 'Viewer mode: OnTrack. Switch to browser viewer'
+              : 'Viewer mode: Browser. Switch to OnTrack viewer'
+          "
+          [disabled]="!previewEnabled || !pdfBlobUrl"
+          [matTooltip]="
+            viewerMode === 'ontrack' ? 'Use the browser viewer' : 'Use the OnTrack viewer'
+          "
+          (click)="toggleViewerMode()"
+        >
+          <mat-icon aria-hidden="true">{{
+            viewerMode === 'ontrack' ? 'open_in_browser' : 'article'
+          }}</mat-icon>
+        </button>
+
+        <button
+          class="pdf-viewer__icon-button"
+          mat-icon-button
+          matTooltip="Download PDF"
+          type="button"
+          [attr.aria-label]="'Download PDF: ' + displayFilename"
+          [disabled]="!hasDownloadSource"
+          (click)="downloadPdf()"
+        >
+          <mat-icon aria-hidden="true">download</mat-icon>
+        </button>
+
+        @if (canFullscreen) {
+          <button
+            aria-label="Full screen"
+            class="pdf-viewer__icon-button"
+            mat-icon-button
+            type="button"
+            [attr.aria-pressed]="isFullscreen"
+            [matTooltip]="isFullscreen ? 'Exit full screen' : 'Full screen'"
+            (click)="toggleFullscreen()"
+          >
+            <mat-icon aria-hidden="true">{{
+              isFullscreen ? 'fullscreen_exit' : 'fullscreen'
+            }}</mat-icon>
+          </button>
         }
-      </button>
-      <button aria-label="Download pdf" mat-icon-button (click)="downloadPdf()">
-        <mat-icon>download</mat-icon>
-      </button>
+      </div>
     </div>
-    <div id="pdfActions" [hidden]="!loaded || useNativePdfViewer">
-      <form #loginForm="ngForm">
-        <mat-form-field appearance="outline" class="pdf-form-field" floatLabel="auto" ngSubmit>
-          <mat-icon matPrefix>search</mat-icon>
+
+    @if (previewEnabled && viewerMode === 'ontrack') {
+      <div class="pdf-viewer__document-actions">
+        <label class="pdf-viewer__search">
+          <mat-icon aria-hidden="true">search</mat-icon>
+          <span class="sr-only">Search this PDF</span>
           <input
-            matInput
+            aria-label="Search this PDF"
+            autocomplete="off"
             name="pdfSearchString"
-            placeholder="Search PDF"
-            type="text"
+            placeholder="Search this PDF"
+            type="search"
+            [disabled]="loadState !== 'ready'"
             [(ngModel)]="pdfSearchString"
             (ngModelChange)="searchPdf(pdfSearchString)"
           />
+        </label>
 
+        <div aria-label="PDF zoom controls" class="pdf-viewer__zoom" role="group">
           <button
-            aria-label="Zoom in PDF button"
+            aria-label="Zoom out PDF"
+            class="pdf-viewer__icon-button"
             mat-icon-button
-            matSuffix
+            matTooltip="Zoom out"
             type="button"
+            [disabled]="!canZoomOut"
             (click)="zoomOut()"
           >
-            <mat-icon>zoom_out</mat-icon>
+            <mat-icon aria-hidden="true">zoom_out</mat-icon>
           </button>
+          <output aria-label="Current PDF zoom" aria-live="polite">{{ zoomPercent }}</output>
           <button
-            aria-label="Zoom in PDF button"
+            aria-label="Zoom in PDF"
+            class="pdf-viewer__icon-button"
             mat-icon-button
-            matSuffix
+            matTooltip="Zoom in"
             type="button"
+            [disabled]="!canZoomIn"
             (click)="zoomIn()"
           >
-            <mat-icon>zoom_in</mat-icon>
+            <mat-icon aria-hidden="true">zoom_in</mat-icon>
           </button>
-        </mat-form-field>
-      </form>
-    </div>
-  </div>
-
-  @if (pdfBlobUrl) {
-    @if (useNativePdfViewer) {
-      @if (pdfBlobUrl) {
-        <object type="application/pdf" [data]="pdfBlobUrl | safe">PDF Preview</object>
-      }
-    } @else {
-      <pdf-viewer
-        [original-size]="false"
-        [render-text]="true"
-        [show-all]="true"
-        [src]="pdfBlobUrl"
-        [zoom]="zoomValue"
-        [(page)]="pageNumber"
-        (after-load-complete)="onLoaded($event)"
-        (text-layer-rendered)="onTextLayerRendered()"
-      ></pdf-viewer>
+        </div>
+      </div>
     }
-  } @else {
-    <mat-spinner color="accent" diameter="100" strokeWidth="2"></mat-spinner>
-  }
-</div>
+  </header>
+
+  <div class="pdf-viewer__content">
+    @if (!previewEnabled) {
+      <div class="pdf-viewer__state" role="status">
+        <mat-icon aria-hidden="true">visibility_off</mat-icon>
+        <h3>Preview is off</h3>
+        <p>{{ displayFilename }} is still available to download.</p>
+        <div class="pdf-viewer__state-actions">
+          <button color="primary" mat-flat-button type="button" (click)="togglePreview()">
+            Show preview
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="!hasDownloadSource"
+            (click)="downloadPdf()"
+          >
+            Download PDF
+          </button>
+        </div>
+      </div>
+    } @else if (loadState === 'empty') {
+      <div class="pdf-viewer__state" role="status">
+        <mat-icon aria-hidden="true">draft</mat-icon>
+        <h3>No PDF to preview</h3>
+        <p>This attachment has no pages or no PDF source was supplied.</p>
+      </div>
+    } @else {
+      @if (pdfBlobUrl && viewerMode === 'browser') {
+        <object
+          class="pdf-viewer__native-document"
+          title="Submission PDF"
+          type="application/pdf"
+          [data]="pdfBlobUrl | safe"
+        >
+          <p>
+            Your browser cannot show this PDF preview.
+            <button mat-stroked-button type="button" (click)="downloadPdf()">
+              Download {{ displayFilename }}
+            </button>
+          </p>
+        </object>
+      } @else if (pdfBlobUrl) {
+        <pdf-viewer
+          class="pdf-viewer__document"
+          [class.pdf-viewer__document--loading]="loadState === 'loading'"
+          [original-size]="false"
+          [render-text]="true"
+          [show-all]="true"
+          [src]="pdfBlobUrl"
+          [zoom]="zoomValue"
+          [(page)]="pageNumber"
+          (after-load-complete)="onLoaded($event)"
+          (error)="onPdfError($event)"
+          (text-layer-rendered)="onTextLayerRendered()"
+        ></pdf-viewer>
+      }
+
+      @if (loadState === 'loading') {
+        <div aria-live="polite" class="pdf-viewer__state pdf-viewer__state--overlay" role="status">
+          <mat-spinner
+            aria-label="Loading PDF"
+            color="accent"
+            diameter="48"
+            strokeWidth="3"
+          ></mat-spinner>
+          <h3>Loading PDF preview</h3>
+          <p>{{ displayFilename }}</p>
+        </div>
+      } @else if (loadState === 'error') {
+        <div class="pdf-viewer__state pdf-viewer__state--overlay" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <h3>PDF preview unavailable</h3>
+          <p>{{ errorMessage }}</p>
+          <div class="pdf-viewer__state-actions">
+            <button color="primary" mat-flat-button type="button" (click)="retry()">
+              Try preview again
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="!hasDownloadSource"
+              (click)="downloadPdf()"
+            >
+              Download PDF
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</section>

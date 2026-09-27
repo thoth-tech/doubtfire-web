@@ -22,7 +22,16 @@ export class TaskComment extends Entity {
   recipientReadTime: string;
   commentType: string = 'text';
   isNew: boolean;
+  /**
+   * True when OnTrack wrote this comment rather than a person. It is stored
+   * against the tutor for the task, because a comment needs an author, so
+   * without this it reads as something that tutor said.
+   */
+  automated = false;
   replyToId: number;
+  attachmentFileName?: string;
+  attachmentMimeType?: string;
+  attachmentByteSize?: number;
 
   // Data calculated from the above
   initials: string;
@@ -32,7 +41,6 @@ export class TaskComment extends Entity {
   shouldShowAvatar: boolean = false;
   firstInSeries: boolean = false;
   lastRead: boolean = false;
-  hover?: boolean;
 
   /**
    * Create a new TaskComment
@@ -56,7 +64,9 @@ export class TaskComment extends Entity {
   }
 
   public get isBubbleComment(): boolean {
-    return ['text', 'discussion', 'audio', 'image', 'pdf'].includes(this.commentType);
+    return ['text', 'discussion', 'audio', 'image', 'pdf', 'document', 'spreadsheet'].includes(
+      this.commentType,
+    );
   }
 
   public get isStaffAuthored(): boolean {

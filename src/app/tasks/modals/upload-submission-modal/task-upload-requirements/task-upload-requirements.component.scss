@@ -1,0 +1,122 @@
+@use '../../../../unit-hub/hub-card' as hub;
+
+@include hub.card-theme;
+
+// A quiet callout: info icon, then a heading and one icon row per fact.
+.task-upload-requirements {
+  @include hub.callout(raised);
+  min-width: 0;
+}
+
+.requirements-callout-icon {
+  flex-shrink: 0;
+}
+
+.requirements-body {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.requirements-heading {
+  margin: 0;
+  color: var(--ot-color-text);
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.requirements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.requirement-row {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--ot-color-text);
+  overflow-wrap: anywhere;
+
+  > mat-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    color: var(--ot-color-text-muted);
+    font-size: 18px;
+  }
+}
+
+.requirement-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.requirement-label {
+  font-weight: 600;
+}
+
+.requirement-separator {
+  color: var(--ot-color-text-muted);
+}
+
+.requirement-name,
+.requirement-max-size {
+  color: var(--ot-color-text-muted);
+}
+
+.requirements-missing {
+  margin: 0;
+  color: var(--ot-color-text-muted);
+}
+
+.extensions-toggle {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 0;
+  border: none;
+  border-radius: var(--ot-radius-xs);
+  background: none;
+  color: var(--ot-color-link);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+}
+
+.extensions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 1px 8px;
+    border: 1px solid color-mix(in srgb, var(--ot-color-border) 45%, transparent);
+    border-radius: var(--ot-radius-pill);
+    color: var(--ot-color-text-muted);
+    font-size: 0.78rem;
+  }
+}

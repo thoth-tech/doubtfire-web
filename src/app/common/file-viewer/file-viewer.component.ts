@@ -48,9 +48,21 @@ export class FileViewerComponent implements OnDestroy, OnChanges {
   public loaded = false;
 
   protected pdfLoadingProgressPercentage = 0;
+  protected pdfLoadingTotalKnown = false;
 
   protected onProgress(progress: PDFProgressData) {
-    this.pdfLoadingProgressPercentage = Math.round(progress.loaded / progress.total);
+    if (progress.total > 0) {
+      this.pdfLoadingTotalKnown = true;
+      this.pdfLoadingProgressPercentage = Math.min(
+        100,
+        Math.round((progress.loaded / progress.total) * 100),
+      );
+    } else {
+      // Some progress events arrive before the total size is known; show an
+      // indeterminate bar rather than a bar stuck at zero.
+      this.pdfLoadingTotalKnown = false;
+      this.pdfLoadingProgressPercentage = 0;
+    }
   }
 
   /**

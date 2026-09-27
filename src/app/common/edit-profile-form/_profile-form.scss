@@ -1,0 +1,194 @@
+// Shared look for the profile page and the settings cards it hosts (additional
+// notification email, notification settings). Cards follow the Unit Hub card, fields
+// run at 48px like the other redesigned forms, and every colour is an --ot-* token.
+@use '../../unit-hub/hub-card' as hub;
+
+// Include once at the top level of a component stylesheet.
+@mixin theme {
+  @include hub.card-theme;
+
+  :host {
+    // fields: 48px (Material density -2), as in the groups and units toolbars
+    --mat-form-field-container-height: 48px;
+    --mat-form-field-container-vertical-padding: 12px;
+    --mat-form-field-subscript-text-size: 0.78rem;
+    --mat-form-field-subscript-text-line-height: 1.4;
+    --mat-form-field-error-text-color: var(--ot-color-error);
+    --mat-form-field-outlined-input-text-color: var(--ot-color-text);
+    --mat-form-field-outlined-label-text-color: var(--ot-color-text-muted);
+    --mat-form-field-outlined-hover-label-text-color: var(--ot-color-text-muted);
+    // the focused outline is owned by the global rule in styles.scss; this restated it as
+    // primary, which is 2.40:1 on a dark card where the focus token the global rule uses is 3.32:1
+    --mat-form-field-outlined-focus-label-text-color: var(--ot-color-link);
+    --mat-form-field-outlined-hover-outline-color: var(--ot-color-text-muted);
+    --mat-form-field-outlined-container-shape: var(--ot-radius-sm);
+
+    // buttons: the app's filled or outlined style, at a 44px touch height
+    --mat-button-filled-container-height: 44px;
+    --mat-button-outlined-container-height: 44px;
+  }
+
+  // Selection controls take the primary token. Set on the controls themselves so a
+  // colour class from the theme cannot re-point them.
+  :host ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox {
+    --mat-checkbox-selected-icon-color: var(--ot-color-primary);
+    --mat-checkbox-selected-hover-icon-color: var(--ot-color-primary);
+    --mat-checkbox-selected-focus-icon-color: var(--ot-color-primary);
+    --mat-checkbox-selected-pressed-icon-color: var(--ot-color-primary);
+    --mat-checkbox-selected-checkmark-color: var(--ot-color-on-primary);
+    --mat-checkbox-selected-hover-state-layer-color: var(--ot-color-primary);
+    --mat-checkbox-selected-focus-state-layer-color: var(--ot-color-primary);
+    --mat-checkbox-selected-pressed-state-layer-color: var(--ot-color-primary);
+    --mat-checkbox-label-text-color: var(--ot-color-text);
+  }
+
+  :host ::ng-deep .mat-mdc-slide-toggle.mat-mdc-slide-toggle {
+    --mat-slide-toggle-selected-handle-color: var(--ot-color-primary);
+    --mat-slide-toggle-selected-hover-handle-color: var(--ot-color-primary);
+    --mat-slide-toggle-selected-focus-handle-color: var(--ot-color-primary);
+    --mat-slide-toggle-selected-pressed-handle-color: var(--ot-color-primary);
+    --mat-slide-toggle-selected-track-color: color-mix(
+      in srgb,
+      var(--ot-color-primary) 45%,
+      var(--ot-color-surface)
+    );
+    --mat-slide-toggle-selected-hover-track-color: color-mix(
+      in srgb,
+      var(--ot-color-primary) 45%,
+      var(--ot-color-surface)
+    );
+    --mat-slide-toggle-selected-focus-track-color: color-mix(
+      in srgb,
+      var(--ot-color-primary) 45%,
+      var(--ot-color-surface)
+    );
+    --mat-slide-toggle-selected-pressed-track-color: color-mix(
+      in srgb,
+      var(--ot-color-primary) 45%,
+      var(--ot-color-surface)
+    );
+    --mat-slide-toggle-selected-icon-color: var(--ot-color-on-primary);
+    --mat-slide-toggle-label-text-color: var(--ot-color-text);
+  }
+
+  :host ::ng-deep .mat-mdc-form-field-hint {
+    color: var(--ot-color-text-muted);
+  }
+
+  :host ::ng-deep .mat-mdc-form-field-error {
+    color: var(--ot-color-error);
+  }
+}
+
+// One card: surface token, soft token edge, 20px padding (16px on phones).
+@mixin card {
+  @include hub.card(page);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 20px;
+  color: var(--ot-color-text);
+  overflow-wrap: anywhere;
+
+  @media (max-width: 599px) {
+    padding: 16px;
+  }
+}
+
+// Card heading: a small link-coloured icon, the title, and a muted description.
+@mixin card-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  h2 {
+    @include hub.icon-heading;
+    color: var(--ot-color-text);
+  }
+
+  p {
+    margin: 0;
+    max-width: 42rem;
+    color: var(--ot-color-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+
+// Two field columns on wide screens, one on phones.
+@mixin field-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  min-width: 0;
+
+  &:empty {
+    display: none;
+  }
+
+  mat-form-field {
+    width: 100%;
+    min-width: 0;
+  }
+
+  @media (max-width: 599px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// A setting row: label and description on the left, the control on the right. The
+// control is a checkbox or toggle with labelPosition="before", stretched to the row.
+@mixin setting-row {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+
+  > :is(mat-checkbox, mat-slide-toggle) {
+    display: block;
+    width: 100%;
+  }
+
+  // the checkbox box carries 11px of touch padding; let it overhang so its edge lines
+  // up with a toggle's
+  > mat-checkbox {
+    width: calc(100% + 11px);
+    margin-inline-end: -11px;
+  }
+
+  > :is(mat-checkbox, mat-slide-toggle) ::ng-deep .mdc-form-field {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+  }
+
+  > :is(mat-checkbox, mat-slide-toggle) ::ng-deep label {
+    // Material pushes a "before" label against the control with an auto margin;
+    // let it fill the row instead so the control sits at the far edge
+    flex: 1 1 auto;
+    margin: 0;
+    padding-inline: 0;
+    text-align: start;
+    color: var(--ot-color-text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  > small {
+    display: block;
+    // the control's 40px touch target sets the row height; pull the text up to the label
+    margin-top: -6px;
+    // clear the control on the right
+    padding-inline-end: 56px;
+    color: var(--ot-color-text-muted);
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+}
