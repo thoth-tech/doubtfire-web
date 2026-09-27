@@ -25,12 +25,12 @@
   <mat-card-content>
     <div aria-label="Engagement stamp legend" class="mb-4 flex flex-wrap gap-x-5 gap-y-2">
       @for (item of legend; track item.type) {
-        <div class="flex items-center gap-1.5 text-sm text-gray-600">
+        <div class="flex items-center gap-1.5 text-sm text-ot-muted">
           <span
             class="inline-flex size-6 shrink-0 items-center justify-center rounded-full border"
             [ngClass]="item.classes"
           >
-            <mat-icon aria-hidden="true" class="!size-[15px] !text-[15px]">
+            <mat-icon aria-hidden="true" class="!size-[15px] !text-[15px] !leading-none">
               {{ item.icon }}
             </mat-icon>
           </span>
@@ -40,19 +40,29 @@
     </div>
 
     @if (loading) {
-      <div class="flex min-h-[210px] items-center justify-center">
+      <div class="flex min-h-[210px] items-center justify-center" role="status">
         <mat-spinner diameter="36"></mat-spinner>
+        <span class="sr-only">Loading engagement stamps…</span>
+      </div>
+    } @else if (loadFailed) {
+      <div class="rounded-lg border border-ot-border bg-ot-raised p-4 text-sm text-ot-error">
+        Unable to load engagement stamps. Refresh the page to try again.
+      </div>
+    } @else if (!hasStamps) {
+      <div class="rounded-lg border border-ot-divider bg-ot-raised p-4 text-sm text-ot-muted">
+        No engagement stamps recorded yet. Your engagement across the semester will appear here.
       </div>
     } @else {
-      <div class="overflow-x-auto pb-1">
+      <div class="relative overflow-x-auto pb-1">
         <div
           aria-label="Engagement stamps across the semester"
-          class="flex min-w-[812px] border-b border-gray-300"
+          class="flex min-w-[812px] border-b border-ot-border"
         >
           @for (week of weeks; track week.week) {
             <div
-              class="flex flex-1 flex-col border-r border-gray-200 first:border-l"
-              [class.bg-blue-50]="week.week === currentWeek"
+              class="flex flex-1 flex-col border-r border-ot-divider first:border-l"
+              [attr.aria-current]="week.week === currentWeek ? 'date' : null"
+              [class.bg-ot-selected]="week.week === currentWeek"
               [style.min-width.px]="weekWidth(week.stamps)"
             >
               <div class="flex min-h-[210px] flex-1 items-end justify-center gap-[5px] px-2 py-2.5">
@@ -67,7 +77,10 @@
                         [ngClass]="stamp.classes"
                         (click)="openEngagement(stamp.engagement)"
                       >
-                        <mat-icon aria-hidden="true" class="!size-[18px] !text-[18px]">
+                        <mat-icon
+                          aria-hidden="true"
+                          class="!size-[18px] !text-[18px] !leading-none"
+                        >
                           {{ stamp.icon }}
                         </mat-icon>
                       </button>
@@ -77,8 +90,9 @@
               </div>
 
               <div
-                class="flex flex-col items-center border-t border-gray-300 px-0.5 py-[7px] text-[11px] leading-[1.15] text-gray-500"
-                [class.!text-blue-700]="week.week === currentWeek"
+                class="flex flex-col items-center border-t border-ot-border px-0.5 py-[7px] text-[11px] leading-[1.15] text-ot-muted"
+                [class.!text-ot-link]="week.week === currentWeek"
+                [class.font-semibold]="week.week === currentWeek"
               >
                 <span>Week</span>
                 <strong class="mt-0.5 text-sm text-current">{{ week.week }}</strong>
@@ -89,12 +103,10 @@
       </div>
     }
 
-    @if (loadFailed) {
-      <p class="mt-3 text-sm text-red-600">Unable to load engagement stamps.</p>
+    @if (hasStamps) {
+      <p class="mt-3 text-sm font-light text-ot-muted">
+        Each stamp records a moment of engagement. Select a stamp to see its details.
+      </p>
     }
-
-    <p class="mt-3 text-sm font-light text-gray-500">
-      Each stamp records a moment of engagement. Hover over or focus a stamp for more detail.
-    </p>
   </mat-card-content>
 </mat-card>

@@ -1,0 +1,43 @@
+<!-- Indented to the title column: row padding, the 44px status circle and the 12px gap. -->
+<div class="flex flex-col gap-3 pr-4 pb-4 pl-[4.5rem] sm:pr-5 sm:pl-[4.75rem]">
+  @if (task.description) {
+    <p class="m-0 max-w-[65ch] text-sm leading-relaxed text-ot-muted">{{ task.description }}</p>
+  }
+  <p class="m-0 flex items-center gap-1.5 text-sm text-ot-text">
+    <mat-icon aria-hidden="true" class="!size-4 !text-base !leading-none text-ot-muted">
+      event
+    </mat-icon>
+    Complete by
+    <span class="font-semibold">{{ task.dueDate | date: 'EEEE d MMMM' }}</span>
+  </p>
+  <div class="flex flex-row flex-wrap gap-2">
+    <button
+      class="truncate"
+      mat-stroked-button
+      [hidden]="!task?.taskDef?.hasTaskSheet"
+      (click)="downloadTaskSheet()"
+    >
+      <mat-icon aria-hidden="true">description</mat-icon>
+      Task sheet
+    </button>
+    <button
+      class="truncate"
+      mat-stroked-button
+      [hidden]="!task?.taskDef?.hasTaskResources"
+      (click)="downloadResources()"
+    >
+      <mat-icon aria-hidden="true">download</mat-icon>
+      Resources
+    </button>
+    <a
+      mat-stroked-button
+      matBadgeColor="warn"
+      matBadgePosition="after"
+      [matBadge]="task.comments > 0 ? task.comments : null"
+      [routerLink]="['/projects', task.projectId, 'dashboard', task.abbreviation]"
+    >
+      <mat-icon aria-hidden="true">open_in_new</mat-icon>
+      Open task
+    </a>
+  </div>
+</div>

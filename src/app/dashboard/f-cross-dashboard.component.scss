@@ -1,0 +1,101 @@
+// Toolbar fields run at 48px (Material density -2) so the selects, search and date
+// fields line up with the 40px buttons beside them instead of towering over them.
+.dashboard-toolbar .mat-mdc-form-field {
+  --mat-form-field-container-height: 48px;
+  --mat-form-field-container-vertical-padding: 12px;
+}
+
+// Each unit card sets --unit-accent to one of the --ot-unit-* tokens. The band
+// carries --ot-unit-on text, which clears 4.5:1 on every accent in both themes.
+.unit-band {
+  background-color: var(--unit-accent, var(--ot-unit-1));
+}
+
+.dashboard-global-advanced-filters {
+  display: none !important;
+}
+
+.dashboard-global-advanced-filters.is-mobile-open {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.dashboard-project-controls,
+.dashboard-project-content {
+  display: none !important;
+}
+
+.dashboard-project-controls.is-mobile-open,
+.dashboard-project-content.is-mobile-open {
+  display: flex !important;
+}
+
+.dashboard-project-controls {
+  width: 100%;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+// The task list scrolls inside the card, so give it a quiet scrollbar from the
+// theme ramp rather than the platform default.
+.unit-card-scroll,
+.dashboard-units-layout {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ot-color-border) transparent;
+}
+
+@media (min-width: 640px) {
+  .dashboard-global-advanced-filters,
+  .dashboard-global-advanced-filters.is-mobile-open {
+    display: contents !important;
+  }
+
+  .dashboard-project-controls,
+  .dashboard-project-content {
+    display: flex !important;
+  }
+
+  .dashboard-project-controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .dashboard-project-content {
+    flex: 1 1 auto;
+  }
+
+  // When there are more units than fit, the strip scrolls sideways and settles on
+  // a card edge instead of stopping halfway through a column.
+  .dashboard-units-layout {
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 4rem;
+  }
+
+  .unit-card {
+    scroll-snap-align: start;
+  }
+}
+.dashboard-units-layout {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
+  align-items: start;
+}
+
+.dashboard-panel-state {
+  min-height: 7rem;
+}
+
+.dashboard-compact .dashboard-card-header {
+  padding: 0.75rem;
+}
+
+.dashboard-compact .dashboard-project-content {
+  --dashboard-row-spacing: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.dashboard-project-card {
+  overflow-wrap: anywhere;
+}

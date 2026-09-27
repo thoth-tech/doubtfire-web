@@ -1,22 +1,40 @@
 import moment from 'moment';
 
 export class MappingFunctions {
+  private static mapDateValueToDay(value: unknown, preserveDatePrefix: boolean = false): Date {
+    if (typeof value === 'string') {
+      const dateOnlyPattern = preserveDatePrefix
+        ? /^(\d{4})-(\d{2})-(\d{2})(?:$|[T\s])/
+        : /^(\d{4})-(\d{2})-(\d{2})$/;
+      const dateOnlyParts = dateOnlyPattern.exec(value);
+      if (dateOnlyParts) {
+        // Date parses bare ISO dates as UTC. Some API fields also encode known civil dates as
+        // midnight timestamps. Construct those values from their calendar components so they
+        // do not shift west of UTC; ordinary timestamp mappings remain instant-based.
+        return new Date(
+          Number(dateOnlyParts[1]),
+          Number(dateOnlyParts[2]) - 1,
+          Number(dateOnlyParts[3]),
+        );
+      }
+    }
+
+    const jsonDate = value instanceof Date ? value : new Date(value as string | number);
+    return new Date(jsonDate.getFullYear(), jsonDate.getMonth(), jsonDate.getDate());
+  }
+
   public static mapDateToEndOfDay(data, key, _entity, _params?) {
-    const jsonDate = new Date(data[key]);
-    return new Date(
-      jsonDate.getFullYear(),
-      jsonDate.getMonth(),
-      jsonDate.getDate(),
-      23, // all dates map to end of day
-      59,
-      59,
-      999,
-    );
+    const result = MappingFunctions.mapDateValueToDay(data[key]);
+    result.setHours(23, 59, 59, 999); // all dates map to end of day
+    return result;
   }
 
   public static mapDateToDay(data, key: string, _entity, _params?) {
-    const jsonDate = new Date(data[key]);
-    return new Date(jsonDate.getFullYear(), jsonDate.getMonth(), jsonDate.getDate());
+    return MappingFunctions.mapDateValueToDay(data[key]);
+  }
+
+  public static mapCivilDateToDay(data, key: string, _entity, _params?) {
+    return MappingFunctions.mapDateValueToDay(data[key], true);
   }
 
   public static mapDate(data, key: string, _entity, _params?) {

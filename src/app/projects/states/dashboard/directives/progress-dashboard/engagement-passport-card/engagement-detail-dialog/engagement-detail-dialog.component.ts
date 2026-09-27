@@ -34,7 +34,6 @@ export class EngagementDetailDialogComponent implements OnInit, OnDestroy {
   loadFailed = false;
   submitting = false;
   replyingToComment?: EngagementComment;
-  hoveredCommentId?: number;
   editingComment?: EngagementComment;
   editingCommentText = '';
   evidenceBlobUrl?: string;

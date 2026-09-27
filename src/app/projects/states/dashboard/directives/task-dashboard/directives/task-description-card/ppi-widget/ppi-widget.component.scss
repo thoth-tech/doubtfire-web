@@ -1,0 +1,618 @@
+:host {
+  container-type: inline-size;
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+}
+
+$ppi-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+// A flat card like the other task cards: surface, hairline border, the shared
+// radius and elevation. Sections are separated by spacing, not rules.
+.ppi-card {
+  background: var(--ot-color-surface-raised);
+  border: 1px solid var(--ot-color-divider);
+  border-radius: var(--ot-radius-md);
+  box-shadow: var(--ot-elevation-1);
+  box-sizing: border-box;
+  color: var(--ot-color-text);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 100%;
+  min-width: 0;
+  overflow: clip;
+  padding: 1rem 1.25rem;
+
+  &.is-error {
+    border-color: var(--ot-color-error);
+  }
+
+  &.is-warning {
+    border-color: var(--ot-color-warning);
+  }
+}
+
+// ---------------------------------------------------------------- Header
+
+.ppi-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.ppi-identity {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ppi-heading-text {
+  min-width: 0;
+}
+
+.ppi-avatar {
+  align-items: center;
+  background: var(--ot-color-selected);
+  border-radius: 50%;
+  // The link blue, not primary: dark primary is a fill colour and sits near 2:1 as a
+  // glyph on the selected wash. In light the two are the same colour.
+  color: var(--ot-color-link);
+  display: inline-flex;
+  flex: 0 0 2.25rem;
+  height: 2.25rem;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+}
+
+.ppi-title,
+.ppi-subtitle {
+  display: block;
+}
+
+.ppi-title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25rem;
+}
+
+.ppi-subtitle {
+  color: var(--ot-color-text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+}
+
+// A compact labelled switch. Its visual box is one title line tall so it sits on
+// the title row, and a pseudo-element keeps a 44px touch target around it.
+.ppi-toggle {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: var(--ot-color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  gap: 8px;
+  height: 1.25rem;
+  padding: 0;
+  position: relative;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    inset: -12px -8px;
+    position: absolute;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 4px;
+  }
+
+  &[aria-checked='true'] {
+    color: var(--ot-color-text);
+  }
+}
+
+.ppi-toggle-track {
+  background: var(--ot-color-control-border);
+  border-radius: 999px;
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 0 0 2rem;
+  height: 1.125rem;
+  padding: 2px;
+  transition: background-color 160ms ease;
+}
+
+.ppi-toggle-thumb {
+  background: var(--ot-color-surface-raised);
+  border-radius: 50%;
+  box-shadow: 0 1px 2px var(--ot-scrim);
+  height: 0.875rem;
+  transform: translateX(0);
+  transition: transform 160ms $ppi-ease-out;
+  width: 0.875rem;
+}
+
+.ppi-toggle[aria-checked='true'] .ppi-toggle-track {
+  background: var(--ot-color-primary);
+}
+
+.ppi-toggle[aria-checked='true'] .ppi-toggle-thumb {
+  transform: translateX(0.875rem);
+}
+
+// ---------------------------------------------------------------- Summary
+
+.ppi-summary {
+  display: grid;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.ppi-value {
+  align-items: baseline;
+  column-gap: 0.625rem;
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+  row-gap: 2px;
+
+  strong {
+    color: var(--ot-color-text);
+    font-size: 2.25rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  span {
+    color: var(--ot-color-text);
+    font-size: 0.875rem;
+    line-height: 1.3;
+    min-width: 0;
+  }
+}
+
+.ppi-track {
+  background: var(--ot-meter-track);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.ppi-fill {
+  background: var(--ot-status-complete-graphic, var(--ot-color-success));
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transform-origin: left center;
+  transition: width 200ms ease;
+}
+
+.ppi-track.is-submitted .ppi-fill {
+  background: var(--ot-status-ready-for-feedback-graphic, var(--ot-color-info));
+}
+
+.ppi-secondary {
+  align-items: center;
+  color: var(--ot-color-text-muted);
+  display: flex;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  gap: 6px;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.ppi-dot {
+  border-radius: 50%;
+  flex: 0 0 8px;
+  height: 8px;
+  width: 8px;
+
+  &.is-submitted {
+    background: var(--ot-status-ready-for-feedback-graphic, var(--ot-color-info));
+  }
+}
+
+// ---------------------------------------------------------------- Breakdown
+
+.ppi-advanced {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding-top: 0.25rem;
+}
+
+.ppi-heading {
+  display: grid;
+  gap: 2px;
+
+  strong {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  small {
+    color: var(--ot-color-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+}
+
+.ppi-breakdown {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ppi-distribution-wrap {
+  position: relative;
+}
+
+// One flat track. The 2px gaps are transparent, so the card surface shows
+// through and neighbouring segments stay separable in both themes.
+.ppi-distribution {
+  border-radius: 999px;
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.ppi-segment {
+  flex-basis: 0;
+  min-width: 2px;
+  transform-origin: left center;
+  transition:
+    flex-grow 200ms ease,
+    opacity 150ms ease;
+}
+
+// Hidden until emphasis is styled; see the focus and hover rules below.
+.ppi-tooltip {
+  background: var(--ot-color-inverse-surface);
+  border-radius: 6px;
+  bottom: calc(100% + 6px);
+  box-shadow: var(--ot-elevation-1);
+  color: var(--ot-color-inverse-text);
+  display: none;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  left: clamp(4.5rem, var(--ppi-tooltip-left, 50%), calc(100% - 4.5rem));
+  line-height: 1.2;
+  max-width: 9rem;
+  overflow: hidden;
+  padding: 4px 8px;
+  pointer-events: none;
+  position: absolute;
+  text-overflow: ellipsis;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.ppi-legend,
+.ppi-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ppi-legend {
+  display: grid;
+  gap: 0 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  li {
+    align-items: center;
+    border-radius: 6px;
+    display: grid;
+    font-size: 0.8125rem;
+    gap: 8px;
+    grid-template-columns: 8px minmax(0, 1fr) auto;
+    line-height: 1.3;
+    margin-inline: -6px;
+    min-height: 1.75rem;
+    min-width: 0;
+    padding: 2px 6px;
+    transition: background-color 150ms ease;
+
+    &:focus-visible {
+      outline: 2px solid var(--ot-color-focus);
+      outline-offset: -2px;
+    }
+
+    strong {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      text-align: right;
+    }
+  }
+}
+
+.ppi-swatch {
+  border-radius: 50%;
+  height: 8px;
+  width: 8px;
+}
+
+.ppi-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Emphasis: keyboard focus always shows it; pointer hover only where hover is real.
+.ppi-breakdown.is-focus-highlighting {
+  .ppi-segment:not(.is-active) {
+    opacity: 0.4;
+  }
+
+  .ppi-legend li.is-active {
+    background: var(--ot-color-hover);
+  }
+}
+
+.ppi-breakdown.is-focus-highlighting .ppi-tooltip {
+  display: block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ppi-breakdown.is-hover-highlighting {
+    .ppi-segment:not(.is-active) {
+      opacity: 0.4;
+    }
+
+    .ppi-legend li.is-active {
+      background: var(--ot-color-hover);
+    }
+
+    .ppi-tooltip {
+      display: block;
+    }
+  }
+}
+
+// ---------------------------------------------------------------- Independent scale
+
+.ppi-independent {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ppi-rounding {
+  color: var(--ot-color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.ppi-list {
+  display: grid;
+  gap: 0.5rem;
+
+  li {
+    align-items: center;
+    display: grid;
+    font-size: 0.8125rem;
+    gap: 10px;
+    grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) 2.75rem;
+    min-width: 0;
+  }
+
+  strong {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    text-align: right;
+  }
+}
+
+.ppi-status {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+
+  .ppi-swatch {
+    flex: 0 0 8px;
+  }
+}
+
+.ppi-independent__track {
+  background: var(--ot-meter-track);
+  border-radius: 999px;
+  display: block;
+  height: 8px;
+  overflow: hidden;
+}
+
+.ppi-independent__fill {
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transition: width 200ms ease;
+}
+
+.ppi-notice {
+  align-items: flex-start;
+  background: var(--ot-color-surface);
+  border-radius: var(--ot-radius-sm);
+  color: var(--ot-color-text-muted);
+  display: flex;
+  font-size: 0.8125rem;
+  gap: 10px;
+  line-height: 1.45;
+  padding: 0.625rem 0.75rem;
+
+  > mat-icon {
+    color: var(--ot-color-text-muted);
+    flex: 0 0 auto;
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+
+  strong {
+    color: var(--ot-color-text);
+    display: block;
+    font-weight: 600;
+    margin-bottom: 1px;
+  }
+}
+
+// ---------------------------------------------------------------- Footer
+
+.ppi-footer {
+  margin-top: -0.25rem;
+}
+
+.ppi-updated {
+  color: var(--ot-color-text-muted);
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+// ---------------------------------------------------------------- Non-result states
+
+.ppi-state {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-height: 2.5rem;
+  min-width: 0;
+
+  > mat-icon {
+    color: var(--ot-color-text-muted);
+    flex: 0 0 auto;
+  }
+
+  > span:not(.ppi-badge) {
+    color: var(--ot-color-text-muted);
+    flex: 1 1 12rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    min-width: 0;
+
+    strong {
+      color: var(--ot-color-text);
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1px;
+    }
+  }
+}
+
+.is-error .ppi-state > mat-icon {
+  color: var(--ot-color-error);
+}
+
+.is-warning .ppi-state > mat-icon {
+  color: var(--ot-color-warning);
+}
+
+.ppi-badge {
+  background: var(--ot-color-surface);
+  border-radius: 999px;
+  color: var(--ot-color-warning);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+// ---------------------------------------------------------------- Entrance motion
+
+@keyframes ppi-grow {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.ppi-summary.is-entering .ppi-fill {
+  animation: ppi-grow 400ms $ppi-ease-out both;
+}
+
+.ppi-advanced.is-entering .ppi-segment {
+  animation: ppi-grow 400ms $ppi-ease-out both;
+  animation-delay: calc(var(--ppi-index, 0) * 30ms);
+}
+
+// ---------------------------------------------------------------- Widths
+
+@container (width >= 420px) {
+  .ppi-legend {
+    grid-auto-flow: column;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(var(--ppi-legend-rows, 1), auto);
+  }
+}
+
+@container (width < 380px) {
+  .ppi-card {
+    padding: 1rem;
+  }
+
+  .ppi-value strong {
+    font-size: 2rem;
+  }
+
+  .ppi-list li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .ppi-independent__track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@container (width < 300px) {
+  .ppi-head {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ppi-fill,
+  .ppi-segment,
+  .ppi-independent__fill,
+  .ppi-legend li,
+  .ppi-toggle-track,
+  .ppi-toggle-thumb {
+    transition: none;
+  }
+
+  .ppi-summary.is-entering .ppi-fill,
+  .ppi-advanced.is-entering .ppi-segment {
+    animation: none;
+  }
+}

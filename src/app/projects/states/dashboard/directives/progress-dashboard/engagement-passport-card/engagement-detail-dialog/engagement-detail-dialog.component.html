@@ -3,8 +3,8 @@
     <div class="flex w-full items-start justify-between gap-4">
       <div>
         <div>{{ engagement.engagementType }} Engagement</div>
-        <p class="mt-1 text-sm font-normal text-gray-500">
-          Added by {{ engagement.user?.firstName }} {{ engagement.user?.lastName }}
+        <p class="mt-1 text-sm font-normal text-ot-muted">
+          Added by {{ engagement.user?.displayName }}
           <span class="mx-1">·</span>
           <span matTooltipPosition="above" [matTooltip]="engagement.occurredAt | localizedDateTime">
             {{ engagement.occurredAt | humanizedDate }}
@@ -24,17 +24,17 @@
         <mat-spinner diameter="36"></mat-spinner>
       </div>
     } @else if (loadFailed) {
-      <p class="p-6 text-sm text-red-600">Unable to load this engagement.</p>
+      <p class="p-6 text-sm text-ot-error">Unable to load this engagement.</p>
     } @else {
       <div
-        class="p-2.5 font-['Inter','open-sans','Roboto'] text-[15px] leading-6 font-normal tracking-normal text-[rgba(0,0,0,0.87)]"
+        class="p-2.5 font-['Inter','open-sans','Roboto'] text-[15px] leading-6 font-normal tracking-normal text-ot-text"
       >
         <mat-card class="mb-2.5 p-3">
           <div class="flex justify-between gap-3">
             <mat-card-title class="flex min-w-0 items-center">
               <user-icon class="mr-2" [size]="25" [user]="engagement.user"></user-icon>
               <span class="truncate">
-                {{ engagement.user?.firstName }} {{ engagement.user?.lastName }}
+                {{ engagement.user?.displayName }}
               </span>
             </mat-card-title>
             <div class="flex shrink-0 items-center">
@@ -52,12 +52,12 @@
             <div class="whitespace-pre-wrap">{{ engagement.note }}</div>
 
             @if (engagement.evidenceUrl || engagement.hasAttachment) {
-              <div class="mt-3 border-t border-gray-200 pt-3">
-                <p class="mb-2 text-sm font-medium text-gray-600">Evidence</p>
+              <div class="mt-3 border-t border-ot-divider pt-3">
+                <p class="mb-2 text-sm font-medium text-ot-muted">Evidence</p>
 
                 @if (engagement.evidenceUrl) {
                   <a
-                    class="inline-flex items-center gap-2 text-sm text-blue-700 hover:underline"
+                    class="inline-flex items-center gap-2 text-sm text-ot-link hover:underline"
                     rel="noopener noreferrer"
                     target="_blank"
                     [href]="engagement.evidenceUrl"
@@ -69,13 +69,13 @@
 
                 @if (engagement.hasAttachment && engagement.contentType === 'image') {
                   @if (evidenceLoading) {
-                    <div class="flex min-h-32 items-center justify-center rounded-md bg-gray-50">
+                    <div class="flex min-h-32 items-center justify-center rounded-md bg-ot-raised">
                       <mat-spinner diameter="28"></mat-spinner>
                     </div>
                   } @else if (evidenceBlobUrl) {
                     <button class="block" type="button" (click)="openAttachment()">
                       <img
-                        class="max-h-64 max-w-full rounded-md border border-gray-200 object-contain"
+                        class="max-h-64 max-w-full rounded-md border border-ot-divider object-contain"
                         [alt]="engagement.attachmentFileName || 'Engagement evidence'"
                         [src]="evidenceBlobUrl | safe"
                         (load)="scrollToBottom()"
@@ -84,7 +84,7 @@
                   }
                 } @else if (engagement.hasAttachment) {
                   <button
-                    class="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-wait disabled:opacity-60"
+                    class="inline-flex items-center gap-2 rounded-md border border-ot-border px-3 py-2 text-sm text-ot-muted hover:bg-ot-raised disabled:cursor-wait disabled:opacity-60"
                     type="button"
                     [disabled]="evidenceLoading || !evidenceBlobUrl"
                     (click)="openAttachment()"
@@ -99,7 +99,7 @@
                 }
 
                 @if (evidenceLoadFailed) {
-                  <p class="text-sm text-red-600">Unable to load the attached evidence.</p>
+                  <p class="text-sm text-ot-error">Unable to load the attached evidence.</p>
                 }
               </div>
             }
@@ -109,11 +109,13 @@
         @for (comment of comments; track comment.id) {
           @if (comment.replyToId) {
             <div
-              class="flex items-center justify-between rounded-t-md border border-gray-300 p-1 text-sm select-none"
+              class="flex items-center justify-between rounded-t-md border border-ot-border p-1 text-sm select-none"
             >
-              <div
-                class="flex items-center"
-                [ngClass]="comment.replyTo && 'cursor-pointer hover:text-blue-500 hover:underline'"
+              <button
+                class="flex items-center text-left"
+                type="button"
+                [disabled]="!comment.replyTo"
+                [ngClass]="comment.replyTo && 'cursor-pointer hover:text-ot-link hover:underline'"
                 (click)="scrollToComment(comment.replyTo)"
               >
                 <mat-icon class="mr-2">reply</mat-icon>
@@ -123,12 +125,12 @@
                       Replying to {{ comment.replyTo.user?.preferredName }}
                       {{ comment.replyTo.user?.lastName }}
                     </span>
-                    <span class="text-xs text-gray-600">{{ comment.replyTo.comment }}</span>
+                    <span class="text-xs text-ot-muted">{{ comment.replyTo.comment }}</span>
                   } @else {
-                    <span class="text-xs text-gray-400 italic">Replying to: Deleted comment</span>
+                    <span class="text-xs text-ot-muted italic">Replying to: Deleted comment</span>
                   }
                 </div>
-              </div>
+              </button>
             </div>
           }
 
@@ -136,44 +138,45 @@
             class="mb-2.5 p-3"
             [class.!rounded-t-none]="comment.replyToId"
             [id]="'engagement-comment-' + comment.id"
-            (mouseout)="hoveredCommentId = undefined"
-            (mouseover)="hoveredCommentId = comment.id"
           >
             <div class="action absolute right-3 bottom-3 z-10 flex items-center">
               @if (comment.currentUserCanEdit) {
-                <mat-icon
+                <button
                   aria-label="Edit comment"
+                  mat-icon-button
                   matTooltip="Edit"
                   type="button"
                   (click)="editComment(comment)"
                 >
-                  edit
-                </mat-icon>
+                  <mat-icon aria-hidden="true">edit</mat-icon>
+                </button>
               }
-              <mat-icon
+              <button
                 aria-label="Reply to comment"
+                mat-icon-button
                 matTooltip="Reply"
                 type="button"
                 (click)="replyToComment(comment)"
               >
-                reply
-              </mat-icon>
+                <mat-icon aria-hidden="true">reply</mat-icon>
+              </button>
               @if (comment.currentUserCanDelete) {
-                <mat-icon
+                <button
                   aria-label="Delete comment"
+                  mat-icon-button
                   matTooltip="Delete"
                   type="button"
                   (click)="deleteComment(comment)"
                 >
-                  delete
-                </mat-icon>
+                  <mat-icon aria-hidden="true">delete</mat-icon>
+                </button>
               }
             </div>
 
             <div class="flex justify-between">
               <mat-card-title class="flex items-center">
                 <user-icon style="margin-right: 8px" [size]="25" [user]="comment.user"></user-icon>
-                {{ comment.user?.firstName }} {{ comment.user?.lastName }}
+                {{ comment.user?.displayName }}
               </mat-card-title>
               <div class="flex items-center">
                 <mat-card-subtitle
@@ -219,7 +222,11 @@
         }
 
         @if (comments.length === 0) {
-          <p class="py-2 text-center text-sm text-gray-400">No comments yet.</p>
+          <f-empty-state
+            heading="No comments yet"
+            icon="chat_bubble_outline"
+            message="Use the comment field below to start a conversation about this engagement."
+          ></f-empty-state>
         }
 
         <span #commentsEnd aria-hidden="true"></span>
@@ -229,13 +236,13 @@
 
   @if (!loading && !loadFailed) {
     <div
-      class="shrink-0 overflow-hidden border-t border-gray-300 p-2.5"
+      class="shrink-0 overflow-hidden border-t border-ot-border p-2.5"
       [ngClass]="replyingToComment ? 'h-[205px]' : 'h-[150px]'"
     >
       @if (replyingToComment) {
         <div class="h-[55px]">
           <div
-            class="flex h-full items-center justify-between rounded-t-md border border-b-0 border-gray-300 p-1 text-sm select-none"
+            class="flex h-full items-center justify-between rounded-t-md border border-b-0 border-ot-border p-1 text-sm select-none"
           >
             <div class="flex min-w-0 items-center">
               <mat-icon class="mr-2 shrink-0">reply</mat-icon>
@@ -244,7 +251,7 @@
                   Replying to {{ replyingToComment.user?.preferredName }}
                   {{ replyingToComment.user?.lastName }}
                 </span>
-                <span class="block truncate text-xs text-gray-600">
+                <span class="block truncate text-xs text-ot-muted">
                   {{ replyingToComment.comment }}
                 </span>
               </div>

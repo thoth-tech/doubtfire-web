@@ -1,7 +1,20 @@
-<ngx-charts-number-card
-  [customColors]="colors"
-  [results]="data"
-  [textColor]="textColor"
-  (select)="onSelect($event)"
->
-</ngx-charts-number-card>
+<div aria-label="Task status summary" class="task-status-grid" role="list">
+  @for (status of data; track status.status) {
+    <a
+      class="task-status-card"
+      role="listitem"
+      [attr.aria-label]="
+        'Show ' + status.value + ' ' + status.name + ' task' + (status.value === 1 ? '' : 's')
+      "
+      [attr.data-status]="status.status"
+      [queryParams]="{taskStatus: status.status, taskView: 'tasks'}"
+      [routerLink]="['/projects', project.id, 'dashboard']"
+      [style.background-color]="status.color"
+      [style.color]="status.textColor"
+    >
+      <span class="task-status-value">{{ status.value }}</span>
+      <span class="task-status-label">{{ status.name }}</span>
+      <span class="task-status-action">View tasks</span>
+    </a>
+  }
+</div>

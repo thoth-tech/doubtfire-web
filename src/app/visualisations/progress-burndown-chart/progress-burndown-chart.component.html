@@ -1,23 +1,186 @@
-<div class="chart-container flex h-full min-h-[320px] pb-6">
-  <ngx-charts-line-chart
-    class="progress-burndown-chart h-full flex-1"
-    [legend]="legend"
-    [legendPosition]="legendPosition"
-    [legendTitle]="''"
-    [results]="data"
-    [scheme]="colorScheme"
-    [showXAxisLabel]="showXAxisLabel"
-    [showYAxisLabel]="showYAxisLabel"
-    [tooltipDisabled]="true"
-    [view]="undefined"
-    [xAxis]="xAxis"
-    [xAxisLabel]="xAxisLabel"
-    [yAxis]="yAxis"
-    [yAxisLabel]="yAxisLabel"
-    [yAxisTickFormatting]="formatPerc"
-    [yScaleMax]="yScaleMax"
-    [yScaleMin]="yScaleMin"
-    (select)="onSelect($event)"
+<div #root class="progress-burndown">
+  <div
+    #plot
+    class="progress-burndown__chart"
+    role="application"
+    tabindex="0"
+    [attr.aria-label]="plotAriaLabel"
+    (blur)="onPlotBlur()"
+    (keydown)="onPlotKeydown($event)"
   >
-  </ngx-charts-line-chart>
+    <ngx-charts-line-chart
+      class="progress-burndown-chart"
+      [activeEntries]="activeEntries"
+      [animations]="animations"
+      [legend]="legend"
+      [results]="data"
+      [scheme]="colorScheme"
+      [showXAxisLabel]="showXAxisLabel"
+      [showYAxisLabel]="showYAxisLabel"
+      [tooltipDisabled]="true"
+      [view]="undefined"
+      [xAxis]="xAxis"
+      [xAxisLabel]="xAxisLabel"
+      [yAxis]="yAxis"
+      [yAxisLabel]="yAxisLabel"
+      [yAxisTickFormatting]="formatPerc"
+      [yScaleMax]="yScaleMax"
+      [yScaleMin]="yScaleMin"
+      (deactivate)="onChartDeactivate()"
+      (select)="onSelect($event)"
+    >
+    </ngx-charts-line-chart>
+
+    <div
+      aria-hidden="true"
+      class="progress-burndown__crosshair"
+      [class.is-visible]="crosshairVisible"
+      [style.height.px]="crosshairHeight"
+      [style.transform]="crosshairTransform"
+    ></div>
+
+    @for (dot of dots; track dot.name) {
+      <div
+        aria-hidden="true"
+        class="progress-burndown__dot-anchor"
+        [style.transform]="dot.transform"
+      >
+        <span
+          class="progress-burndown__dot"
+          [class.is-dimmed]="isDimmed(dot.name)"
+          [class.is-visible]="crosshairVisible && dot.visible"
+          [style.background-color]="dot.color"
+        ></span>
+      </div>
+    }
+
+    <div
+      aria-hidden="true"
+      class="progress-burndown__tooltip-anchor"
+      [class.is-flipped]="tooltipFlipped"
+      [style.transform]="tooltipTransform"
+    >
+      <div
+        #tooltipPanel
+        class="progress-burndown__tooltip"
+        [class.is-visible]="crosshairVisible && !!tooltip"
+      >
+        @if (tooltip) {
+          <p class="progress-burndown__tooltip-date">{{ tooltip.date }}</p>
+          <dl class="progress-burndown__tooltip-rows">
+            @for (row of tooltip.rows; track row.name) {
+              <div class="progress-burndown__tooltip-row">
+                <dt>
+                  <span
+                    class="progress-burndown__legend-swatch"
+                    [style.background-color]="row.color"
+                  ></span>
+                  {{ row.name }}
+                </dt>
+                <dd>
+                  <span class="progress-burndown__tooltip-value">{{ row.valueLabel }}</span>
+                  @if (row.gap) {
+                    <span class="progress-burndown__tooltip-gap">{{ row.gap.label }}</span>
+                  }
+                </dd>
+              </div>
+            }
+          </dl>
+        }
+      </div>
+    </div>
+
+    <p aria-live="polite" class="progress-burndown__live">{{ liveText }}</p>
+  </div>
+
+  @if (summaries.length > 0) {
+    <dl aria-label="Current burndown summary" class="progress-burndown__summary">
+      @for (summary of summaries; track summary.name) {
+        <div class="progress-burndown__summary-tile" [attr.data-series]="summary.name">
+          <dt>
+            <span
+              aria-hidden="true"
+              class="progress-burndown__legend-swatch"
+              [style.background-color]="summary.color"
+            ></span>
+            {{ summary.name }}
+          </dt>
+          <dd>{{ summary.remaining }}% remaining</dd>
+        </div>
+      }
+    </dl>
+  }
+
+  @if (temp.length > 0) {
+    <div
+      aria-label="Burndown chart series visibility"
+      class="progress-burndown__legend"
+      role="group"
+    >
+      @for (series of temp; track series.name; let index = $index) {
+        <button
+          class="progress-burndown__legend-item"
+          type="button"
+          [attr.aria-pressed]="isDataShown(series.name)"
+          [attr.data-series]="series.name"
+          [attr.title]="'Show or hide ' + series.name"
+          [class.progress-burndown__legend-item--hidden]="!isDataShown(series.name)"
+          (click)="onSelect(series.name)"
+        >
+          <span
+            aria-hidden="true"
+            class="progress-burndown__legend-swatch"
+            [style.background-color]="seriesColor(index)"
+          ></span>
+
+          <span class="progress-burndown__legend-label">
+            {{ series.name }}
+          </span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (demoMode.enabled) {
+    @if (peerMedianState === 'ready') {
+      <div class="progress-burndown__message" role="note">
+        <mat-icon aria-hidden="true">science</mat-icon>
+
+        <span>
+          Synthetic demo-only peer median through today. No individual peer data is shown.
+        </span>
+      </div>
+    } @else {
+      <div aria-live="polite" class="progress-burndown__message" role="status">
+        @switch (peerMedianState) {
+          @case ('loading') {
+            <mat-spinner color="accent" diameter="16"></mat-spinner>
+            <span>Loading peer comparison…</span>
+          }
+
+          @case ('suppressed') {
+            <mat-icon aria-hidden="true">group_off</mat-icon>
+            <span>
+              Peer comparison is hidden because the anonymous cohort threshold was not met.
+            </span>
+          }
+
+          @case ('unavailable') {
+            <mat-icon aria-hidden="true">cloud_off</mat-icon>
+            <span>Peer median is unavailable right now.</span>
+          }
+
+          @case ('disabled') {
+            <mat-icon aria-hidden="true">visibility_off</mat-icon>
+            <span>Peer comparison is disabled for this unit.</span>
+          }
+
+          @case ('error') {
+            <mat-icon aria-hidden="true">error_outline</mat-icon>
+            <span> Peer median could not be loaded. Please try again later. </span>
+          }
+        }
+      </div>
+    }
+  }
 </div>

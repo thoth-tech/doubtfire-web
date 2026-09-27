@@ -3,16 +3,20 @@ import {
   Component,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 import {MatTabChangeEvent} from '@angular/material/tabs';
 import {ActivatedRoute} from '@angular/router';
+import {Subject, takeUntil} from 'rxjs';
 import {UnitRole} from 'src/app/api/models/doubtfire-model';
 import {Task} from 'src/app/api/models/task';
 import {TaskService} from 'src/app/api/services/task.service';
 import {UserService} from 'src/app/api/services/user.service';
 import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
+import {PanelComponent} from 'src/app/common/panel-layout/panel.component';
 import {SelectedTaskService} from '../../selected-task.service';
 import {DashboardViews} from '../../selected-task.service';
 
@@ -23,7 +27,7 @@ import {DashboardViews} from '../../selected-task.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class TaskDashboardComponent implements OnInit, OnChanges {
+export class TaskDashboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() task: Task;
   @Input() pdfUrl: string;
   public DashboardViews = DashboardViews;
@@ -54,6 +58,14 @@ export class TaskDashboardComponent implements OnInit, OnChanges {
     DashboardViews.staff_notes,
     DashboardViews.tutor_notes,
   ];
+  private readonly destroy$: Subject<void> = new Subject<void>();
+  /** The layout panel this dashboard sits in, when it sits in one. */
+  private readonly panel = inject(PanelComponent, {optional: true});
+
+  /** Full screen, the reading tabs keep a comfortable line length in the middle. */
+  public get readingMeasure(): boolean {
+    return !!this.panel?.isFullscreen;
+  }
 
   onTabChange(event: MatTabChangeEvent) {
     const view = this.tabViews[event.index];
@@ -73,9 +85,20 @@ export class TaskDashboardComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.tutor = this.currentUnitRole !== undefined;
     this.setSelectedDashboardView(DashboardViews.details);
-    this.selectedTaskService.currentView$.subscribe((view) => {
+    this.selectedTaskService.currentView$.pipe(takeUntil(this.destroy$)).subscribe((view) => {
       this.currentView = this.canAccessDashboardView(view) ? view : DashboardViews.details;
       this.currentIndex = this.tabIndexForView(this.currentView);
+    });
+    this.taskService.taskSubmissionCompleted$.pipe(takeUntil(this.destroy$)).subscribe((task) => {
+      // A status-only transition on a task that takes no uploads also reports a
+      // completed submission, but there is nothing to show on Your Submission.
+      if (
+        task?.project?.id === this.task?.project?.id &&
+        task?.definition?.id === this.task?.definition?.id &&
+        task?.hasSubmissionHistory()
+      ) {
+        this.setSelectedDashboardView(DashboardViews.submission);
+      }
     });
 
     this.taskStatusData = {
@@ -87,6 +110,11 @@ export class TaskDashboardComponent implements OnInit, OnChanges {
       labels: this.taskService.statusLabels,
       class: this.taskService.statusClass,
     };
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -157,6 +185,26 @@ export class TaskDashboardComponent implements OnInit, OnChanges {
       this.currentUnitRole.role === 'Admin' ||
       (tutor.mentor && tutor.mentor.id === this.currentUnitRole.id)
     );
+  }
+
+  public get canViewPeerProgress(): boolean {
+    const currentUser = this.userService.currentUser;
+    const currentUserId = this.validUserId(currentUser?.id);
+    const hydratedStudentId = this.validUserId(this.task?.project?.student?.id);
+    const rawStudentId = this.validUserId(this.task?.project?.originalJson?.['user_id']);
+    const projectStudentId = hydratedStudentId ?? rawStudentId;
+
+    return (
+      currentUserId !== undefined &&
+      currentUserId === projectStudentId &&
+      currentUser.displayPeerProgress !== false
+    );
+  }
+
+  private validUserId(value: unknown): number | undefined {
+    return typeof value === 'number' && Number.isSafeInteger(value) && value > 0
+      ? value
+      : undefined;
   }
 
   downloadSubmission() {

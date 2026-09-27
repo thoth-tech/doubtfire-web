@@ -90,20 +90,20 @@
     }
 
     @if (form.controls.evidenceMode.value === 'attachment') {
-      <div class="mb-4 rounded-md border border-gray-300 p-4">
-        <label class="mb-2 block text-sm font-medium text-gray-700" for="engagement-evidence">
+      <div class="mb-4 rounded-md border border-ot-border p-4">
+        <label class="mb-2 block text-sm font-medium text-ot-muted" for="engagement-evidence">
           Image or PDF
         </label>
         <input
           accept="image/*,.pdf,application/pdf"
-          class="block w-full text-sm text-gray-600 file:mr-3 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:font-medium file:text-gray-700 hover:file:bg-gray-200"
+          class="block w-full text-sm text-ot-muted file:mr-3 file:rounded-md file:border-0 file:bg-ot-raised file:px-3 file:py-2 file:font-medium file:text-ot-muted hover:file:bg-ot-divider"
           id="engagement-evidence"
           type="file"
           (change)="fileSelected($event)"
         />
-        <p class="mt-2 text-xs text-gray-500">Maximum file size: 30 MB.</p>
+        <p class="mt-2 text-xs text-ot-muted">Maximum file size: 30 MB.</p>
         @if (attachmentError) {
-          <p class="mt-2 text-sm text-red-600">{{ attachmentError }}</p>
+          <p class="mt-2 text-sm text-ot-error">{{ attachmentError }}</p>
         }
       </div>
     }

@@ -1,0 +1,43 @@
+:host {
+  display: block;
+  color: var(--ot-color-text);
+}
+
+.peer-progress-muted {
+  color: var(--ot-color-text-muted);
+}
+
+.peer-progress-border {
+  border-color: var(--ot-color-divider);
+}
+
+.peer-summary {
+  background: var(--ot-color-surface);
+  border-color: var(--ot-color-border);
+  border-radius: 0.75rem;
+  box-shadow: var(--ot-elevation-1);
+}
+
+.peer-summary__metric {
+  background: var(--ot-color-surface-raised);
+  border: 1px solid var(--ot-color-border);
+  border-radius: 0.5rem;
+  min-width: 0;
+  padding: 1rem;
+
+  h5 {
+    color: var(--ot-color-text-muted);
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0 0 0.5rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.peer-summary__value {
+  color: var(--ot-color-link);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0 0 0.75rem;
+}

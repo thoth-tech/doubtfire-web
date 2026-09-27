@@ -1,0 +1,103 @@
+<!-- relative: the visually hidden labels below are absolutely positioned, and
+     without a containing block here they escape the sideways-scrolling unit strip
+     and stretch the whole page. -->
+<!-- The cross-unit dashboard's compact density sets --dashboard-row-spacing. -->
+<div
+  class="relative flex items-center gap-3 px-4 transition-colors duration-150 hover:bg-ot-hover motion-reduce:transition-none sm:px-5"
+  style="padding-block: var(--dashboard-row-spacing, 0.75rem)"
+  [class.bg-ot-hover]="isExpanded"
+>
+  <!-- The same status circle as the unit task list, so a status looks the same everywhere. -->
+  <status-icon class="shrink-0" size="large" [status]="task.status"></status-icon>
+
+  <div class="min-w-0 grow">
+    <h4 class="m-0 min-w-0 text-[0.9375rem] leading-snug font-semibold">
+      <a
+        class="block rounded-ot-xs break-words no-underline underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        [class.text-ot-muted]="isFinal"
+        [class.text-ot-text]="!isFinal"
+        [routerLink]="['/projects', task.projectId, 'dashboard', task.abbreviation]"
+      >
+        {{ task.title }}
+      </a>
+    </h4>
+    <div class="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-ot-muted">
+      <span class="font-medium text-ot-text tabular-nums">{{ task.abbreviation }}</span>
+      <span aria-hidden="true">·</span>
+      <span>{{ task.targetGradeLabel }}</span>
+      <span aria-hidden="true">·</span>
+      <span><span class="sr-only">Status: </span>{{ task.statusLabel }}</span>
+    </div>
+    <!-- The deadline and the staff-feedback marker share their own line, so every
+         flagged row has the same rhythm instead of chips wrapping only when the code is long. -->
+    @if (dueDateWarning || task.hasFeedback !== false) {
+      <div class="mt-1.5 flex flex-wrap gap-1.5">
+        @if (dueDateWarning; as warning) {
+          <span
+            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap"
+            [ngClass]="{
+              'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300':
+                warning.state === 'overdue',
+              'bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-300':
+                warning.state === 'within24Hours',
+              'bg-yellow-100 text-yellow-900 dark:bg-yellow-500/20 dark:text-yellow-200':
+                warning.state === 'within3Days',
+              'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300':
+                warning.state === 'within7Days',
+            }"
+          >
+            <mat-icon aria-hidden="true" class="!size-3.5 !text-sm !leading-none">
+              {{ warning.icon }}
+            </mat-icon>
+            <span>{{ warning.label }}</span>
+          </span>
+        }
+        @if (task.hasFeedback === true) {
+          <a
+            class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium whitespace-nowrap text-green-800 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:bg-green-500/20 dark:text-green-300"
+            [attr.aria-label]="'Open staff feedback for ' + task.title"
+            [routerLink]="['/projects', task.projectId, 'dashboard', task.abbreviation, 'feedback']"
+          >
+            <mat-icon aria-hidden="true" class="!size-3.5 !text-sm !leading-none">
+              feedback
+            </mat-icon>
+            <span>Staff feedback</span>
+          </a>
+        } @else if (task.hasFeedback === null) {
+          <span class="text-xs text-ot-muted">Feedback unavailable</span>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="flex shrink-0 items-center gap-1">
+    @if (!isExpanded && task.comments > 0) {
+      <span
+        class="inline-flex h-6 min-w-6 items-center justify-center gap-1 rounded-ot-pill bg-ot-primary px-2 text-xs font-semibold text-ot-on-primary tabular-nums"
+        role="status"
+        [attr.aria-label]="task.comments + ' unread comments on ' + task.title"
+      >
+        <mat-icon aria-hidden="true" class="!size-3.5 !text-sm !leading-none">chat_bubble</mat-icon>
+        <span aria-hidden="true">{{ task.comments }}</span>
+      </span>
+    }
+    <button
+      class="text-ot-muted"
+      mat-icon-button
+      type="button"
+      [attr.aria-expanded]="isExpanded"
+      [attr.aria-label]="(isExpanded ? 'Collapse ' : 'Expand ') + task.title + ' details'"
+      (click)="isExpanded = !isExpanded"
+    >
+      <mat-icon
+        class="transition-transform duration-150 motion-reduce:transition-none"
+        [class.rotate-180]="isExpanded"
+      >
+        expand_more
+      </mat-icon>
+    </button>
+  </div>
+</div>
+@if (isExpanded) {
+  <f-expanded-list-item class="block bg-ot-hover" [task]="task"></f-expanded-list-item>
+}

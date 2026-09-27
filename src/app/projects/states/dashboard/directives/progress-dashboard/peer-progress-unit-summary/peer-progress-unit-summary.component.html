@@ -1,0 +1,77 @@
+<mat-card appearance="outlined" class="peer-summary h-full">
+  <mat-card-header>
+    <mat-card-title>Peer Progress Summary</mat-card-title>
+    <mat-card-subtitle class="mb-2.5">
+      Your overall unit completion and the selected anonymous task checkpoint are separate metrics.
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    @switch (view.state) {
+      @case ('loading') {
+        <div aria-live="polite" class="flex items-center gap-2 py-4" role="status">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Loading peer progress...</span>
+        </div>
+      }
+
+      @case ('error') {
+        <div class="flex items-center gap-2 py-4" role="alert">
+          <mat-icon aria-hidden="true">error</mat-icon>
+          <span>{{ view.message || 'Could not load peer progress.' }}</span>
+        </div>
+      }
+
+      @case ('disabled') {
+        <div class="flex items-center gap-2 py-4" role="status">
+          <mat-icon aria-hidden="true">block</mat-icon>
+          <span>{{ view.message || 'Peer progress is disabled for this unit.' }}</span>
+        </div>
+      }
+
+      @default {
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <section aria-label="Your unit completion" class="peer-summary__metric">
+            <h5>Your unit completion</h5>
+
+            @if (studentPercentage !== null) {
+              <p class="peer-summary__value">{{ studentPercentage }}%</p>
+
+              <mat-progress-bar
+                mode="determinate"
+                [attr.aria-label]="'Your unit completion: ' + studentPercentage + ' percent'"
+                [value]="studentPercentage"
+              ></mat-progress-bar>
+            } @else {
+              <p class="text-ot-muted">Your progress is unavailable.</p>
+            }
+          </section>
+
+          <section class="peer-summary__metric" [attr.aria-label]="cohortLabel">
+            <h5>{{ cohortLabel }}</h5>
+
+            @if (canShowCohortPercentage) {
+              <p class="peer-summary__value">{{ cohortPercentage }}%</p>
+
+              <mat-progress-bar
+                mode="determinate"
+                [attr.aria-label]="cohortLabel + ': ' + cohortPercentage + ' percent'"
+                [value]="cohortPercentage ?? 0"
+              ></mat-progress-bar>
+            } @else {
+              <div aria-live="polite" class="flex items-center gap-2 text-ot-muted" role="status">
+                <mat-icon aria-hidden="true">
+                  {{ cohortStateIcon }}
+                </mat-icon>
+
+                <span>
+                  {{ view.message || 'Anonymous cohort progress is unavailable.' }}
+                </span>
+              </div>
+            }
+          </section>
+        </div>
+      }
+    }
+  </mat-card-content>
+</mat-card>

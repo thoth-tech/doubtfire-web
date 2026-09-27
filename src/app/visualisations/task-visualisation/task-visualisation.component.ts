@@ -6,7 +6,25 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import {Project, TaskStatus} from 'src/app/api/models/doubtfire-model';
+import {Project, TaskStatus, TaskStatusEnum} from 'src/app/api/models/doubtfire-model';
+
+interface TaskStatusSummary {
+  status: TaskStatusEnum;
+  name: string;
+  value: number;
+  color: string;
+  textColor: string;
+}
+
+// The four statuses every student moves through always show, so the card keeps its
+// shape. The rest show only while a task is in them: fifteen tiles, most of them 0,
+// made the card a wall of colour.
+const ALWAYS_SHOWN: TaskStatusEnum[] = [
+  'not_started',
+  'working_on_it',
+  'ready_for_feedback',
+  'complete',
+];
 
 @Component({
   selector: 'f-task-visualisation',
@@ -19,19 +37,17 @@ export class TaskVisualisationComponent implements OnChanges, OnInit {
   @Input() project: Project;
   @Input() grade: number;
 
-  data: {name: string; value: number}[] = [];
-  colors: {name: string; value: string}[];
-  view: number[] = [700, 400];
-
-  // options
-  textColor: string = '#F5F5F5';
+  data: TaskStatusSummary[] = [];
 
   ngOnInit(): void {
     this.updateData();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ('grade' in changes && changes.grade.currentValue !== undefined) {
+    const projectChanged = 'project' in changes && !changes.project.firstChange;
+    const gradeChanged = 'grade' in changes && changes.grade.currentValue !== undefined;
+
+    if (projectChanged || gradeChanged) {
       this.updateData();
     }
   }
@@ -46,42 +62,20 @@ export class TaskVisualisationComponent implements OnChanges, OnInit {
         }
       });
 
-      const sortOrder = [
-        'Complete',
-        'Discuss',
-        'Awaiting Feedback',
-        'Working On It',
-        'Not Started',
-      ];
-
-      this.data = Array.from(taskCounts)
-        .map(([status, count]) => {
-          return {
-            name: TaskStatus.STATUS_LABELS.get(status),
-            value: count,
-          };
-        })
-        .filter((task) => task.value > 0 || sortOrder.includes(task.name))
-        .sort((a, b) => {
-          let aIndex = sortOrder.indexOf(a.name);
-          let bIndex = sortOrder.indexOf(b.name);
-
-          aIndex = aIndex === -1 ? sortOrder.length : aIndex;
-          bIndex = bIndex === -1 ? sortOrder.length : bIndex;
-
-          return aIndex - bIndex;
-        });
-
-      this.colors = Array.from(TaskStatus.STATUS_COLORS).map(([status, color]) => {
-        return {name: TaskStatus.STATUS_LABELS.get(status), value: color};
-      });
-
-      // console.log('Data:', this.data);
-      // console.log('Colors:', this.colors);
+      this.data = TaskStatus.PEER_PROGRESS_DISPLAY_ORDER.map((status) => {
+        const count = taskCounts.get(status) ?? 0;
+        const key = status.replace(/_/g, '-');
+        return {
+          status,
+          name: TaskStatus.STATUS_LABELS.get(status) ?? status,
+          value: count,
+          color: `var(--ot-status-${key})`,
+          textColor: `var(--ot-status-${key}-on)`,
+        };
+      }).filter(
+        ({status, value}) =>
+          TaskStatus.isStatus(status) && (value > 0 || ALWAYS_SHOWN.includes(status)),
+      );
     }
-  }
-
-  onSelect(event) {
-    console.log(event);
   }
 }

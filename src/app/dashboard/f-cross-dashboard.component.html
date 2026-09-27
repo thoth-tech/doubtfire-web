@@ -1,0 +1,648 @@
+<div
+  class="cross-dashboard panel-full-screen flex h-full min-w-0 flex-col overflow-y-auto sm:overflow-hidden"
+  [class.dashboard-compact]="density === 'compact'"
+>
+  @let pageSummary = summary;
+  <header class="shrink-0 px-4 pt-1 sm:px-16">
+    <h1 class="m-0 text-2xl leading-tight font-semibold tracking-tight text-ot-text">My units</h1>
+    <p class="mt-1 mb-0 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ot-muted">
+      <span>{{ pageSummary.unitLabel }}</span>
+      @if (pageSummary.overdue > 0) {
+        <span aria-hidden="true">·</span>
+        <span class="inline-flex items-center gap-1 font-medium text-ot-text">
+          <mat-icon aria-hidden="true" class="!size-4 !text-base !leading-none text-ot-error">
+            error
+          </mat-icon>
+          {{ pageSummary.overdue }} overdue
+        </span>
+      }
+      @if (pageSummary.dueSoon > 0) {
+        <span aria-hidden="true">·</span>
+        <span>{{ pageSummary.dueSoon }} due within 7 days</span>
+      }
+      @if (unitScope !== 'previous' && pageSummary.overdue === 0 && pageSummary.dueSoon === 0) {
+        <span aria-hidden="true">·</span>
+        <span>Nothing due within 7 days</span>
+      }
+    </p>
+  </header>
+
+  <div
+    aria-label="Global dashboard filters"
+    class="dashboard-toolbar grid shrink-0 grid-cols-1 items-center gap-3 px-4 py-5 sm:flex sm:flex-wrap sm:px-16"
+    role="search"
+  >
+    <mat-form-field appearance="outline" class="w-full sm:w-44" subscriptSizing="dynamic">
+      <mat-label>Unit scope</mat-label>
+      <mat-select [value]="unitScope" (selectionChange)="setUnitScope($event.value)">
+        <mat-option value="active">Active units</mat-option>
+        <mat-option value="previous">Previous units</mat-option>
+        <mat-option value="all">All units</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field
+      appearance="outline"
+      class="w-full min-w-0 sm:max-w-96 sm:min-w-64 sm:flex-1"
+      subscriptSizing="dynamic"
+    >
+      <mat-label>Search all units and tasks</mat-label>
+      <mat-icon aria-hidden="true" class="text-ot-muted" matPrefix>search</mat-icon>
+      <input
+        aria-label="Global search"
+        autocomplete="off"
+        matInput
+        type="search"
+        [value]="globalSearchTerm"
+        (input)="setGlobalSearch($any($event.target).value)"
+      />
+    </mat-form-field>
+
+    <button
+      aria-controls="dashboard-secondary-filters"
+      class="flex min-h-12 w-full items-center justify-between rounded-ot-sm border border-ot-border bg-ot-surface px-4 font-medium text-ot-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ot-focus sm:hidden"
+      data-mobile-global-filter-toggle
+      type="button"
+      [attr.aria-expanded]="mobileGlobalFiltersExpanded"
+      (click)="toggleMobileGlobalFilters()"
+    >
+      <span>More filters</span>
+      <span class="flex items-center gap-2">
+        @if (mobileSecondaryFilterCount > 0) {
+          <span
+            class="rounded-ot-pill bg-ot-primary px-2 py-0.5 text-sm text-ot-on-primary tabular-nums"
+          >
+            {{ mobileSecondaryFilterCount }} active
+          </span>
+        }
+        <mat-icon aria-hidden="true">
+          {{ mobileGlobalFiltersExpanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+        </mat-icon>
+      </span>
+    </button>
+
+    <mat-form-field appearance="outline" class="w-full sm:w-40" subscriptSizing="dynamic">
+      <mat-label>Card density</mat-label>
+      <mat-select [value]="density" (selectionChange)="density = $event.value">
+        <mat-option value="comfortable">Comfortable</mat-option>
+        <mat-option value="compact">Compact</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div
+      class="dashboard-global-advanced-filters min-w-0"
+      id="dashboard-secondary-filters"
+      [class.is-mobile-open]="mobileGlobalFiltersExpanded"
+    >
+      <mat-form-field appearance="outline" class="w-full sm:w-40" subscriptSizing="dynamic">
+        <mat-label>Task statuses</mat-label>
+        <mat-select
+          aria-label="Task statuses"
+          multiple
+          [value]="selectedStatuses"
+          (selectionChange)="setStatuses($event.value)"
+        >
+          @for (option of statusOptions; track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full sm:w-40" subscriptSizing="dynamic">
+        <mat-label>Target grades</mat-label>
+        <mat-select
+          aria-label="Target grades"
+          multiple
+          [value]="selectedGrades"
+          (selectionChange)="setGrades($event.value)"
+        >
+          @for (option of gradeOptions; track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full sm:w-52" subscriptSizing="dynamic">
+        <mat-label>Staff feedback</mat-label>
+        <mat-select
+          aria-label="Staff feedback"
+          [value]="feedbackFilter"
+          (selectionChange)="setFeedbackFilter($event.value)"
+        >
+          <mat-option value="all">All feedback states</mat-option>
+          <mat-option value="available">Feedback available</mat-option>
+          <mat-option value="none">No staff feedback</mat-option>
+          <mat-option value="unavailable">Feedback unavailable</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- One field for the whole range: type both dates, or open the calendar and pick
+           a start and an end. The picker keeps the end on or after the start. -->
+      <!-- 20rem leaves room for both dates and both suffix buttons on one line. -->
+      <mat-form-field appearance="outline" class="w-full sm:w-80" subscriptSizing="dynamic">
+        <mat-label>Due between</mat-label>
+        <mat-date-range-input [formGroup]="dateRange" [rangePicker]="dueRangePicker">
+          <input
+            aria-label="Start date"
+            formControlName="start"
+            id="dashboard-start-date"
+            matStartDate
+            placeholder="Start"
+            (dateInput)="revalidateDateRange()"
+          />
+          <input
+            aria-label="End date"
+            formControlName="end"
+            id="dashboard-end-date"
+            matEndDate
+            placeholder="End"
+            (dateInput)="revalidateDateRange()"
+          />
+        </mat-date-range-input>
+        @if (hasDateText) {
+          <button
+            aria-label="Clear dates"
+            class="text-ot-muted"
+            mat-icon-button
+            matIconSuffix
+            matTooltip="Clear dates"
+            type="button"
+            (click)="clearDateRange()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+        <mat-datepicker-toggle matIconSuffix [for]="dueRangePicker">
+          <mat-icon matDatepickerToggleIcon>calendar_month</mat-icon>
+        </mat-datepicker-toggle>
+        <mat-date-range-picker #dueRangePicker></mat-date-range-picker>
+        <!-- Inside the field, so Material ties it to the inputs with aria-describedby
+             and marks them aria-invalid once the typed range is wrong. -->
+        @if (dateRangeError; as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Always rendered, so setting the first filter does not shift the toolbar. -->
+      <button
+        class="justify-self-start"
+        mat-button
+        type="button"
+        [disabled]="!hasGlobalToolbarChanges"
+        (click)="clearGlobalFilters()"
+      >
+        Clear all
+      </button>
+    </div>
+  </div>
+
+  <div class="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-4 sm:px-16">
+    <p
+      aria-atomic="true"
+      aria-live="polite"
+      class="m-0 mr-auto text-sm text-ot-muted"
+      role="status"
+    >
+      {{ resultCountLabel }}
+    </p>
+    <button
+      mat-stroked-button
+      type="button"
+      [attr.aria-disabled]="loadingActiveUnits"
+      (click)="retryActiveUnits()"
+    >
+      {{ loadingActiveUnits ? 'Refreshing active units…' : 'Refresh active units' }}
+    </button>
+    @if (unitScope !== 'active') {
+      <button
+        mat-stroked-button
+        type="button"
+        [attr.aria-disabled]="loadingPreviousUnits"
+        (click)="loadPreviousUnits()"
+      >
+        {{ loadingPreviousUnits ? 'Refreshing previous units…' : 'Refresh previous units' }}
+      </button>
+    }
+    <button
+      mat-stroked-button
+      type="button"
+      [attr.aria-disabled]="loadingRecommendations"
+      (click)="retryRecommendations()"
+    >
+      {{ loadingRecommendations ? 'Refreshing recommended order…' : 'Refresh recommended order' }}
+    </button>
+  </div>
+  <div class="shrink-0 px-4 sm:px-16">
+    @if (loadingActiveUnits || activeUnitsLoadError) {
+      <ng-container
+        *ngTemplateOutlet="
+          panelState;
+          context: {
+            title: 'Active units',
+            busy: loadingActiveUnits,
+            message: loadingActiveUnits
+              ? 'Loading active units…'
+              : activeUnits.length
+                ? 'Active units could not be refreshed. Showing previously loaded tasks. Use Refresh active units to try again.'
+                : 'Active units could not be loaded. Use Refresh active units to try again.',
+          }
+        "
+      />
+    }
+    @if (loadingRecommendations || recommendationsLoadError) {
+      <ng-container
+        *ngTemplateOutlet="
+          panelState;
+          context: {
+            title: 'Recommended order',
+            busy: loadingRecommendations,
+            message: loadingRecommendations
+              ? 'Loading recommended order…'
+              : 'Recommended order could not be refreshed. Tasks remain available in their last known order. Use Refresh recommended order to try again.',
+          }
+        "
+      />
+    }
+  </div>
+
+  <div
+    class="dashboard-units-layout flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden px-4 pt-1 pb-6 sm:flex-row sm:gap-6 sm:overflow-x-auto sm:overflow-y-hidden sm:px-16 sm:pt-0"
+  >
+    @for (unit of displayedUnits; track unit.projectId) {
+      <section
+        class="unit-card dashboard-project-card relative flex h-auto w-full min-w-0 shrink-0 flex-col overflow-hidden rounded-ot-lg border border-ot-divider bg-ot-surface shadow-(--ot-elevation-1) sm:h-full sm:w-auto sm:max-w-xl sm:flex-[1_0_26rem]"
+        [attr.aria-label]="unit.code + ' project tasks'"
+        [style.--unit-accent]="unit.accent"
+      >
+        <div
+          class="dashboard-project-header flex w-full shrink-0 flex-col border-b border-ot-divider"
+        >
+          <!-- The unit's own colour band: identity only, so the task marks below keep
+               the status colours to themselves. -->
+          <div class="unit-band dashboard-card-header p-4 text-(--ot-unit-on) sm:px-5">
+            <h2 class="m-0 sm:hidden">
+              <button
+                class="flex min-h-12 w-full min-w-0 items-center gap-3 rounded-ot-sm text-left text-(--ot-unit-on) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ot-unit-on)"
+                data-mobile-unit-toggle
+                type="button"
+                [attr.aria-controls]="
+                  'dashboard-unit-controls-' +
+                  unit.projectId +
+                  ' dashboard-unit-content-' +
+                  unit.projectId
+                "
+                [attr.aria-expanded]="isMobileProjectExpanded(unit.projectId)"
+                (click)="toggleMobileProject(unit.projectId)"
+              >
+                <span class="min-w-0 grow">
+                  <span class="block text-lg leading-tight font-semibold break-words">
+                    {{ unit.code }}
+                  </span>
+                  <span class="mt-1 block text-sm leading-tight font-normal break-words">
+                    {{ unit.name }} · {{ unit.isPrevious ? 'Previous' : 'Active' }}
+                  </span>
+                  <span class="mt-2 flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-sm font-normal">
+                    <span>{{ unit.progressLabel }}</span>
+                    <span>{{ unit.mobileSummary.taskCountLabel }}</span>
+                    <span
+                      class="min-w-0 break-words"
+                      [class.font-semibold]="unit.mobileSummary.hasDeadlineWarning"
+                    >
+                      {{ unit.mobileSummary.deadlineLabel }}
+                    </span>
+                  </span>
+                </span>
+                <mat-icon aria-hidden="true" class="shrink-0">
+                  {{
+                    isMobileProjectExpanded(unit.projectId)
+                      ? 'keyboard_arrow_up'
+                      : 'keyboard_arrow_down'
+                  }}
+                </mat-icon>
+              </button>
+            </h2>
+
+            <div class="hidden min-w-0 sm:block">
+              <div class="flex min-w-0 items-center gap-2">
+                <h2 class="m-0 min-w-0 text-lg leading-tight font-semibold">
+                  <a
+                    class="unit-code-link block rounded-ot-xs break-words text-(--ot-unit-on) no-underline underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ot-unit-on)"
+                    [routerLink]="['/projects', unit.projectId, 'dashboard']"
+                  >
+                    {{ unit.code }}
+                  </a>
+                </h2>
+                <span
+                  class="inline-flex shrink-0 items-center gap-1 rounded-ot-pill border border-(--ot-unit-on)/60 px-2 py-0.5 text-xs font-medium"
+                >
+                  @if (unit.isPrevious) {
+                    <mat-icon aria-hidden="true" class="!size-3.5 !text-sm !leading-none">
+                      history
+                    </mat-icon>
+                    Previous
+                  } @else {
+                    <span aria-hidden="true" class="size-1.5 rounded-full bg-(--ot-unit-on)"></span>
+                    Active
+                  }
+                </span>
+              </div>
+              <p class="m-0 mt-0.5 text-sm break-words">
+                {{ unit.name }}
+              </p>
+              <p
+                class="m-0 mt-1 text-sm break-words"
+                [class.font-semibold]="unit.mobileSummary.hasDeadlineWarning"
+              >
+                {{ unit.mobileSummary.deadlineLabel }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-3 px-4 pt-3.5 pb-4 sm:px-5">
+            <div class="unit-progress">
+              <div class="flex items-baseline justify-between gap-3 text-sm">
+                @if (unit.progress.total > 0) {
+                  <span class="font-medium text-ot-text">
+                    {{ unit.progress.completed }} of {{ unit.progress.total }} complete
+                  </span>
+                  <span class="text-ot-muted tabular-nums">{{ unit.progress.percentage }}%</span>
+                } @else {
+                  <span class="text-ot-muted">No tasks yet</span>
+                }
+              </div>
+              <div
+                class="mt-2 flex h-2 gap-0.5 overflow-hidden rounded-ot-pill bg-ot-divider"
+                role="img"
+                [attr.aria-label]="unit.progress.ariaLabel"
+              >
+                @for (segment of unit.progress.segments; track segment.status) {
+                  <span
+                    class="h-full min-w-1"
+                    [matTooltip]="segment.label + ': ' + segment.count"
+                    [style.background-color]="segment.color"
+                    [style.flex-grow]="segment.count"
+                  ></span>
+                }
+              </div>
+            </div>
+
+            <!-- Outside the collapsible controls, so the unit dashboard is one tap away on a
+                 phone without opening the card first. -->
+            <a
+              class="self-start rounded-ot-xs py-1 text-sm font-semibold text-ot-link underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ot-focus sm:hidden"
+              [routerLink]="['/projects', unit.projectId, 'dashboard']"
+            >
+              Open {{ unit.code }} dashboard
+            </a>
+
+            <div
+              class="dashboard-project-controls min-w-0"
+              [class.is-mobile-open]="isMobileProjectExpanded(unit.projectId)"
+              [id]="'dashboard-unit-controls-' + unit.projectId"
+            >
+              <div class="relative min-w-0 grow">
+                <mat-icon
+                  aria-hidden="true"
+                  class="pointer-events-none absolute top-1/2 left-2.5 !size-5 -translate-y-1/2 !text-xl !leading-none text-ot-muted"
+                >
+                  search
+                </mat-icon>
+                <input
+                  autocomplete="off"
+                  class="h-10 w-full min-w-0 rounded-ot-sm border border-ot-border bg-ot-surface pr-3 pl-9 text-sm text-ot-text placeholder:text-ot-muted placeholder:opacity-100 focus-visible:border-ot-focus focus-visible:outline-1 focus-visible:outline-ot-focus"
+                  placeholder="Search tasks"
+                  type="search"
+                  [attr.aria-label]="'Search tasks in ' + unit.code"
+                  [value]="getSearchTerm(unit.projectId)"
+                  (input)="setSearch(unit.projectId, $any($event.target).value)"
+                />
+              </div>
+
+              <div class="flex shrink-0 items-center gap-1">
+                <button
+                  class="unit-sort-button text-ot-muted"
+                  mat-button
+                  type="button"
+                  [attr.aria-label]="
+                    'Sort tasks in ' + unit.code + ', sorted by ' + getSort(unit.projectId)
+                  "
+                  [matMenuTriggerFor]="sortmenu"
+                >
+                  <mat-icon aria-hidden="true">sort</mat-icon>
+                  {{ getSort(unit.projectId) }}
+                </button>
+                <mat-menu #sortmenu="matMenu">
+                  @for (mode of sortOptions; track mode) {
+                    <button
+                      mat-menu-item
+                      role="menuitemradio"
+                      type="button"
+                      [attr.aria-checked]="getSort(unit.projectId) === mode"
+                      (click)="setSort(unit.projectId, mode)"
+                    >
+                      <mat-icon
+                        aria-hidden="true"
+                        [class.invisible]="getSort(unit.projectId) !== mode"
+                      >
+                        check
+                      </mat-icon>
+                      {{ mode }}
+                    </button>
+                  }
+                </mat-menu>
+
+                <button
+                  class="relative text-ot-muted"
+                  mat-icon-button
+                  type="button"
+                  [attr.aria-label]="
+                    'Filter tasks in ' +
+                    unit.code +
+                    (activeFilterCount(unit.projectId) > 0 ? ', filters on' : '')
+                  "
+                  [matMenuTriggerFor]="filtermenu"
+                >
+                  <mat-icon>filter_list</mat-icon>
+                  @if (activeFilterCount(unit.projectId) > 0) {
+                    <span
+                      aria-hidden="true"
+                      class="absolute top-2 right-2 size-2 rounded-full bg-ot-link ring-2 ring-ot-surface"
+                    ></span>
+                  }
+                </button>
+                <mat-menu #filtermenu="matMenu">
+                  @for (mode of filterOptions; track mode) {
+                    <button
+                      mat-menu-item
+                      role="menuitemcheckbox"
+                      type="button"
+                      [attr.aria-checked]="isFilterEnabled(unit.projectId, mode)"
+                      (click)="$event.stopPropagation(); toggleFilter(unit.projectId, mode)"
+                    >
+                      <mat-icon aria-hidden="true">{{
+                        isFilterEnabled(unit.projectId, mode)
+                          ? 'check_box'
+                          : 'check_box_outline_blank'
+                      }}</mat-icon>
+                      {{ mode }}
+                    </button>
+                  }
+                </mat-menu>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="dashboard-project-content min-h-0 flex-col"
+          [class.is-mobile-open]="isMobileProjectExpanded(unit.projectId)"
+          [id]="'dashboard-unit-content-' + unit.projectId"
+        >
+          @if (unit.gradeSummaries.length > 0) {
+            <div
+              class="border-b border-ot-divider px-4 py-3 text-ot-text sm:px-5"
+              [attr.aria-label]="'Grade task completion for ' + unit.code"
+            >
+              <p class="m-0 text-xs font-semibold text-ot-muted">Grade task completion</p>
+              <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm tabular-nums">
+                @for (summary of unit.gradeSummaries; track summary.targetGrade) {
+                  <span>
+                    @if (summary.total === 0) {
+                      {{ summary.label }}: 0 tasks
+                    } @else {
+                      {{ summary.label }}: {{ summary.completed }} of {{ summary.total }} complete
+                      ({{ summary.percentage }}%)
+                    }
+                  </span>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="unit-card-scroll flex min-h-0 flex-col overflow-visible sm:overflow-y-auto">
+            @if (unit.tasks.length > 0) {
+              <ul class="m-0 list-none p-0">
+                @for (task of unit.tasks; track task.abbreviation) {
+                  <li class="min-w-0 border-b border-ot-divider last:border-b-0">
+                    <f-dashboard-list-item [task]="task"></f-dashboard-list-item>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div
+                class="flex flex-col items-center gap-2 px-6 py-10 text-center text-ot-muted"
+                role="status"
+              >
+                <mat-icon aria-hidden="true" class="!size-8 !text-[2rem] !leading-none">
+                  {{ hasActiveTaskCriteria(unit.projectId) ? 'search_off' : 'inbox' }}
+                </mat-icon>
+                @if (hasActiveTaskCriteria(unit.projectId)) {
+                  <p class="m-0 text-sm">No tasks match the current search and filters.</p>
+                } @else {
+                  <p class="m-0 text-sm">No tasks are available.</p>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (
+      unitScope === 'active' &&
+      !loadingActiveUnits &&
+      !activeUnitsLoadError &&
+      activeUnits.length === 0 &&
+      !hasGlobalTaskCriteria
+    ) {
+      <section
+        aria-label="Active units"
+        class="flex w-full shrink-0 flex-col items-start gap-2 self-start rounded-ot-lg border border-ot-divider bg-ot-surface p-6 shadow-(--ot-elevation-1) sm:w-96"
+      >
+        <mat-icon aria-hidden="true" class="text-ot-muted">school</mat-icon>
+        <h3 class="m-0 text-base font-semibold">Active units</h3>
+        <p class="m-0 text-ot-muted" role="status">No active units are available.</p>
+      </section>
+    }
+
+    @if (
+      hasGlobalTaskCriteria &&
+      displayedUnits.length === 0 &&
+      !loadingPreviousUnits &&
+      !previousUnitsLoadError
+    ) {
+      <div
+        class="flex w-full max-w-md shrink-0 flex-col items-start gap-3 self-start rounded-ot-lg border border-ot-divider bg-ot-surface p-6 text-ot-text shadow-(--ot-elevation-1)"
+        role="status"
+      >
+        <mat-icon aria-hidden="true" class="text-ot-muted">search_off</mat-icon>
+        <p class="m-0">No tasks match the current global search and filters.</p>
+        <button mat-stroked-button type="button" (click)="clearGlobalFilters()">
+          Clear filters
+        </button>
+      </div>
+    }
+
+    @if (unitScope !== 'active' && loadingPreviousUnits) {
+      <div
+        aria-busy="true"
+        class="flex w-full shrink-0 flex-col gap-4 self-start rounded-ot-lg border border-ot-divider bg-ot-surface p-5 shadow-(--ot-elevation-1) sm:w-[26rem]"
+        role="status"
+      >
+        <span class="sr-only">Loading previous units...</span>
+        <div aria-hidden="true" class="flex flex-col gap-3 motion-safe:animate-pulse">
+          <div class="h-5 w-24 rounded-ot-xs bg-ot-divider"></div>
+          <div class="h-2 w-full rounded-ot-pill bg-ot-divider"></div>
+          <div class="h-10 w-full rounded-ot-sm bg-ot-divider"></div>
+          <div class="h-12 w-full rounded-ot-sm bg-ot-divider"></div>
+          <div class="h-12 w-full rounded-ot-sm bg-ot-divider"></div>
+        </div>
+      </div>
+    }
+
+    @if (unitScope !== 'active' && previousUnitsLoadError) {
+      <div
+        class="flex w-full shrink-0 flex-col items-start gap-2 self-start rounded-ot-lg border border-ot-divider bg-ot-surface p-6 shadow-(--ot-elevation-1) sm:w-96"
+      >
+        <h3 class="m-0 text-base font-semibold">Previous units</h3>
+        <p class="m-0 text-ot-muted" role="status">
+          {{
+            previousUnits.length
+              ? 'Previous units could not be refreshed. Showing previously loaded tasks. Use Refresh previous units to try again.'
+              : 'Previous units could not be loaded. Use Refresh previous units to try again.'
+          }}
+        </p>
+        <button class="mt-1" mat-stroked-button type="button" (click)="retryPreviousUnits()">
+          Try again
+        </button>
+      </div>
+    }
+
+    @if (
+      unitScope !== 'active' &&
+      previousUnitsLoaded &&
+      !loadingPreviousUnits &&
+      previousUnits.length === 0 &&
+      !hasGlobalTaskCriteria
+    ) {
+      <div
+        class="flex w-full shrink-0 flex-col items-start gap-2 self-start rounded-ot-lg border border-ot-divider bg-ot-surface p-6 shadow-(--ot-elevation-1) sm:w-96"
+      >
+        <mat-icon aria-hidden="true" class="text-ot-muted">history</mat-icon>
+        <h3 class="m-0 text-base font-semibold">Previous units</h3>
+        <p class="m-0 text-ot-muted">No previous units are available.</p>
+      </div>
+    }
+  </div>
+</div>
+
+<ng-template #panelState let-busy="busy" let-message="message" let-title="title">
+  <section
+    class="dashboard-panel-state mb-3 flex min-w-0 flex-col gap-1 rounded-ot-lg border border-ot-divider bg-ot-surface p-4 text-ot-text shadow-(--ot-elevation-1)"
+    [attr.aria-busy]="!!busy"
+    [attr.aria-label]="title"
+  >
+    <h3 class="m-0 text-base font-semibold">{{ title }}</h3>
+    <p class="m-0 text-ot-muted" role="status">{{ message }}</p>
+  </section>
+</ng-template>

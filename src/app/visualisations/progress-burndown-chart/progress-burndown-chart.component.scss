@@ -1,0 +1,416 @@
+:host {
+  display: block;
+  color: var(--ot-color-text);
+  width: 100%;
+  min-width: 0;
+}
+
+.progress-burndown {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+}
+
+.progress-burndown__chart {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: clamp(20rem, 30vw, 26rem);
+  border-radius: var(--ot-radius-sm);
+  // Horizontal drags move the crosshair on touch; vertical drags still scroll the page.
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: 2px;
+  }
+}
+
+.progress-burndown-chart {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+
+  // Axis, tick, gridline and legend colours come from styles/_theme-special-surfaces.scss.
+}
+
+// Series emphasis is a pointer affordance, so touch keeps the lines as drawn.
+// ngx-charts marks the bound activeEntries as .active and the rest as .inactive; these
+// replace its 0.2 opacity snap with a softer fade and a heavier stroke on the emphasised
+// line. The paths live inside the library's view, hence ::ng-deep, scoped under this
+// component's chart class.
+@media (hover: hover) and (pointer: fine) {
+  .progress-burndown-chart ::ng-deep {
+    .line-series {
+      transition: opacity 200ms ease;
+    }
+
+    .line-series .line {
+      transition: stroke-width 200ms ease;
+    }
+
+    .line-series.inactive {
+      opacity: 0.3;
+    }
+
+    .line-series.active .line {
+      stroke-width: 3px;
+    }
+
+    // The library also fills the area under an active line. Emphasis is the stroke only.
+    .line-highlight.active {
+      display: none;
+    }
+  }
+
+  .progress-burndown__dot.is-visible.is-dimmed {
+    opacity: 0.3;
+  }
+}
+
+// Overlay: crosshair, dots and tooltip. Positioned with transform from the chart's own
+// scales, never hit-tested, and animated on opacity and transform only.
+.progress-burndown__crosshair,
+.progress-burndown__dot-anchor,
+.progress-burndown__tooltip-anchor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.progress-burndown__crosshair {
+  width: 1px;
+  margin-left: -0.5px;
+  background: var(--ot-chart-axis);
+  opacity: 0;
+  transition: opacity 100ms ease;
+
+  &.is-visible {
+    opacity: 0.6;
+    transition-duration: 120ms;
+  }
+}
+
+.progress-burndown__dot {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--ot-color-surface);
+  border-radius: var(--ot-radius-circle);
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    opacity 120ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  &.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.progress-burndown__tooltip-anchor {
+  z-index: 1;
+}
+
+.progress-burndown__tooltip {
+  box-sizing: border-box;
+  min-width: 10rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--ot-color-border);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-color-surface-raised);
+  box-shadow: var(--ot-elevation-1);
+  color: var(--ot-color-text);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 100ms ease-in,
+    transform 100ms ease-in;
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 150ms cubic-bezier(0.23, 1, 0.32, 1),
+      transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+}
+
+.progress-burndown__tooltip-date {
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+}
+
+.progress-burndown__tooltip-rows {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 0.75rem;
+  row-gap: 0.2rem;
+  margin: 0;
+}
+
+.progress-burndown__tooltip-row {
+  display: contents;
+
+  dt {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    color: var(--ot-color-text-muted);
+  }
+
+  dd {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    margin: 0;
+  }
+
+  .progress-burndown__legend-swatch {
+    width: 0.6rem;
+    height: 0.6rem;
+    flex-basis: 0.6rem;
+  }
+}
+
+.progress-burndown__tooltip-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-burndown__tooltip-gap {
+  color: var(--ot-color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-burndown__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-burndown__crosshair,
+  .progress-burndown__dot,
+  .progress-burndown__tooltip,
+  .progress-burndown__tooltip.is-visible,
+  .progress-burndown-chart ::ng-deep .line-series,
+  .progress-burndown-chart ::ng-deep .line-series .line {
+    transition: none;
+  }
+
+  .progress-burndown__dot,
+  .progress-burndown__tooltip {
+    transform: none;
+  }
+}
+
+.progress-burndown__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.progress-burndown__summary {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+
+  > div {
+    background: var(--ot-color-page);
+    border: 1px solid var(--ot-color-divider);
+    border-radius: 0.5rem;
+    min-width: 0;
+    padding: 0.65rem 0.75rem;
+  }
+
+  dt {
+    align-items: center;
+    color: var(--ot-color-text-muted);
+    display: flex;
+    font-size: 0.75rem;
+    font-weight: 600;
+    gap: 0.4rem;
+    margin: 0;
+  }
+
+  dd {
+    color: var(--ot-color-text);
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0.25rem 0 0;
+  }
+}
+
+.progress-burndown__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--ot-color-border);
+  border-radius: 0.4rem;
+  background: var(--ot-color-surface);
+  color: inherit;
+  font: inherit;
+  line-height: 1.25;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+// Hover only where a pointer can hover. A phone keeps :hover after a tap, which would
+// cover the hidden state of the series just switched off.
+@media (hover: hover) and (pointer: fine) {
+  .progress-burndown__legend-item:hover {
+    background: var(--ot-color-hover);
+  }
+}
+
+// A hidden series is still the control the user presses to bring it back, so its label is
+// live text at 4.5:1. The disabled pair measured 2.31:1 light and 3.10:1 dark; muted text on
+// the same inert fill is the next step up and measures 5.34:1 light, 5.00:1 dark. The fill
+// step, the struck label and the hollow swatch carry "off" so contrast is not doing it alone.
+.progress-burndown__legend-item--hidden {
+  background: var(--ot-color-disabled-surface);
+  color: var(--ot-color-text-muted);
+
+  .progress-burndown__legend-label {
+    text-decoration: line-through;
+  }
+
+  // the series colour empties out to a ring, so the marker says "off" without colour
+  .progress-burndown__legend-swatch {
+    box-shadow: inset 0 0 0 3px var(--ot-color-disabled-surface);
+  }
+}
+
+.progress-burndown__legend-swatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  flex: 0 0 0.8rem;
+  border-radius: 0.2rem;
+}
+
+.progress-burndown__legend-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.progress-burndown__message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.45rem;
+  background: var(--ot-color-surface-raised);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+
+  > span {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  mat-icon,
+  mat-spinner {
+    flex: 0 0 auto;
+    margin-top: 0.05rem;
+  }
+
+  mat-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 1.25rem;
+    line-height: 1.25rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .progress-burndown {
+    gap: 0.65rem;
+  }
+
+  .progress-burndown__chart {
+    height: 20rem;
+  }
+
+  .progress-burndown__legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .progress-burndown__summary {
+    grid-template-columns: 1fr;
+  }
+
+  .progress-burndown__legend-item {
+    width: 100%;
+
+    &:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+@media (max-width: 379px) {
+  .progress-burndown__legend {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .progress-burndown__legend-item:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
+
+// ngx-charts renders its SVG in child components, beyond Angular's scoped selectors.
+:host ::ng-deep .progress-burndown-chart {
+  text {
+    fill: var(--ot-color-text);
+  }
+
+  .gridline-path {
+    stroke: var(--ot-color-divider);
+  }
+}
