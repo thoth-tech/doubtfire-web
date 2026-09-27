@@ -1,0 +1,70 @@
+@use '../edit-profile-form/profile-form' as profile;
+
+@include profile.theme;
+
+:host {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.notification-settings {
+  @include profile.card;
+  gap: 20px;
+}
+
+.notification-settings__heading {
+  @include profile.card-heading;
+
+  a {
+    color: var(--ot-color-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+// label and description on the left, the checkbox on the right; one gap between
+// rows instead of a box around each
+.notification-setting {
+  @include profile.setting-row;
+}
+
+.notification-setting__channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+  margin-block: 4px 2px;
+  // line the boxes up with the text above, past the checkbox's touch padding
+  margin-inline-start: -11px;
+}
+
+.notification-setting__channels mat-checkbox {
+  width: auto;
+}
+
+// A choice rather than an on/off, so the control sits on the same line as its
+// label the way the checkboxes do, with the help text underneath.
+.notification-setting--choice {
+  display: grid;
+  align-items: center;
+  gap: 4px 12px;
+  grid-template-areas:
+    'label control'
+    'help help';
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.notification-setting__label {
+  grid-area: label;
+  color: var(--ot-color-text);
+  font-size: 0.95rem;
+}
+
+.notification-setting__select {
+  grid-area: control;
+  width: 10rem;
+}
+
+.notification-setting--choice .notification-setting__help {
+  grid-area: help;
+}

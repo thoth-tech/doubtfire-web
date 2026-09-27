@@ -1,0 +1,226 @@
+.notification-list {
+  border-top: 1px solid var(--ot-color-divider);
+}
+
+// The row and its delete button, side by side. The separator and the hover both
+// live out here rather than on the button, so they run the full width of the
+// list instead of stopping short of the delete column.
+.notification-item {
+  border-bottom: 1px solid var(--ot-color-divider);
+  padding-right: 4px;
+
+  &:hover {
+    background: var(--ot-color-hover);
+  }
+}
+
+// A plain button carrying the shared row shape. Material lays out neither this
+// nor the header dropdown's rows, which is the only way the two match.
+.notification-row {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  display: block;
+  font: inherit;
+  // No right padding. The delete button beside it brings its own, and doubling
+  // up would push the unread dot away from the edge it marks.
+  padding: 14px 0 14px 12px;
+  // Without this the row keeps its content width inside the flex line, and a
+  // list of short messages leaves the delete buttons in a different place on
+  // every row.
+  min-width: 0;
+
+  &:focus-visible {
+    outline: 2px solid var(--ot-color-focus);
+    outline-offset: -2px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shared row shape. The header's notification-bell carries a copy of this
+// block, deliberately: the two components are on sibling branches so neither
+// can import from the other yet, and a row has to look the same in both places.
+// Both copies belong in one stylesheet once they have merged. Keep them equal.
+// ---------------------------------------------------------------------------
+.notification-line {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.notification-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+
+.notification-meta {
+  align-items: baseline;
+  color: var(--ot-color-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  gap: 4px;
+  line-height: 1.3;
+}
+
+.notification-kind {
+  font-weight: 600;
+}
+
+.notification-glyph {
+  align-items: center;
+  border-radius: 50%;
+  display: inline-flex;
+  flex: 0 0 36px;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+
+  // mat-icon ships as a 24px inline-block with a 24px line box. Left alone the
+  // glyph is nearly as wide as the circle and sits low in it, because an inline
+  // box aligns on its baseline. A block with a line-height equal to its own
+  // height and no margin takes that out, and the flex centring above then does
+  // what it looks like it does.
+  .mat-icon {
+    // Explicitly, not by inheritance. Material colours icons inside a menu item
+    // with .mat-mdc-menu-item .mat-icon { color: ... }, so a tone set on the
+    // circle around it is simply overridden and the glyph comes out black in
+    // the dropdown while the same glyph is coloured on the page.
+    color: inherit;
+    display: block;
+    font-size: 20px;
+    height: 20px;
+    line-height: 20px;
+    margin: 0;
+    overflow: visible;
+    width: 20px;
+  }
+
+  // The link blue, not primary. Dark primary is a fill colour and falls to about
+  // 2:1 as a glyph on its own wash. In light the two are the same colour.
+  &.tone-feedback {
+    background: color-mix(in srgb, var(--ot-color-link) 12%, transparent);
+    color: var(--ot-color-link);
+  }
+
+  &.tone-task {
+    background: color-mix(in srgb, var(--ot-color-warning) 12%, transparent);
+    color: var(--ot-color-warning);
+  }
+
+  &.tone-portfolio {
+    background: color-mix(in srgb, var(--ot-color-info) 12%, transparent);
+    color: var(--ot-color-info);
+  }
+
+  &.tone-extension {
+    background: color-mix(in srgb, var(--ot-color-success) 12%, transparent);
+    color: var(--ot-color-success);
+  }
+
+  &.tone-general {
+    background: var(--ot-color-hover);
+    color: var(--ot-color-text-muted);
+  }
+
+  // Info is already portfolio, so the Unit Hub takes the selected pair, which
+  // the theme keeps readable against each other in light and dark.
+  &.tone-unit-hub {
+    background: var(--ot-color-selected);
+    color: var(--ot-color-selected-text);
+  }
+}
+
+.notification-message {
+  color: var(--ot-color-text);
+  font-size: 14px;
+  line-height: 1.35;
+  white-space: normal;
+
+  &.unread {
+    font-weight: 600;
+  }
+}
+
+.notification-unread-dot {
+  background: var(--ot-color-primary);
+  border-radius: 50%;
+  flex: 0 0 7px;
+  height: 7px;
+  width: 7px;
+
+  &.is-read {
+    visibility: hidden;
+  }
+}
+
+.notification-time {
+  color: var(--ot-color-text-muted);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.notifications-placeholder {
+  color: var(--ot-color-text-muted);
+}
+
+// The delete button competes with the message for attention on a list nobody
+// opened to delete things from, so it is drawn down to match the dropdown's.
+.notification-delete {
+  color: var(--ot-color-text-muted);
+  flex: none;
+
+  .mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+  }
+}
+
+// Keep both destructive and non-destructive bulk actions visibly labelled.
+// They move below the heading on phones instead of collapsing to ambiguous
+// icon-only controls.
+.notification-actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+
+  button {
+    min-height: 44px;
+  }
+
+  .mat-icon {
+    margin-right: 6px;
+  }
+}
+
+.notifications-placeholder:focus-visible {
+  outline: 2px solid var(--ot-color-focus);
+  outline-offset: 4px;
+}
+
+@media (max-width: 599px) {
+  .notifications-page {
+    margin-top: 1rem;
+  }
+
+  .notifications-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .notification-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    button {
+      min-width: 0;
+      padding-inline: 10px;
+    }
+  }
+}

@@ -1,44 +1,73 @@
-import {ApplicationRef, Injectable} from '@angular/core';
+import {DOCUMENT} from '@angular/common';
+import {ApplicationRef, Inject, Injectable, OnDestroy} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {SwUpdate} from '@angular/service-worker';
+import {Subject, concat, delay, filter, from, interval, of, switchMap, take, takeUntil} from 'rxjs';
+
+const APP_STABILITY_DELAY_MS = 10 * 1000;
+const UPDATE_CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000;
 
 @Injectable()
-export class CheckForUpdateService {
+export class CheckForUpdateService implements OnDestroy {
+  private readonly destroy$: Subject<void> = new Subject();
+
   constructor(
     appRef: ApplicationRef,
     private updates: SwUpdate,
-    private _snackBar: MatSnackBar,
+    private snackBar: MatSnackBar,
+    @Inject(DOCUMENT) private document: Document,
   ) {
-    // Allow the app to stabilize first, before starting polling for updates with `interval()`.
-    // const appIsStable$ = appRef.isStable.pipe(delay(10000));
+    appRef.isStable
+      .pipe(
+        filter((isStable) => isStable),
+        take(1),
+        delay(APP_STABILITY_DELAY_MS),
+        switchMap(() => concat(of(0), interval(UPDATE_CHECK_INTERVAL_MS))),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.checkForUpdate());
 
-    // Checks every 4 hours
-    // const updateInterval$ = interval(4 * 60 * 60 * 1000);
-    // const updateIntervalOnceAppIsStable$ = concat(appIsStable$, updateInterval$);
-
-    // updateIntervalOnceAppIsStable$.subscribe((() => {
-    //   this.checkForUpdate();
-    // }).bind(this));
-    this.updates.versionUpdates.subscribe((updateEvent) => {
-      if (updateEvent.type === 'VERSION_READY') {
-        const snackBarRef = _snackBar.open(
-          'An update to the app has been found, would you like to refresh now?',
-          'refresh',
-        );
-        snackBarRef.onAction().subscribe((_result) => {
-          updates.activateUpdate().then(() => document.location.reload());
-        });
+    this.updates.versionUpdates.pipe(takeUntil(this.destroy$)).subscribe((updateEvent) => {
+      if (updateEvent.type !== 'VERSION_READY') {
+        return;
       }
+
+      const snackBarRef = this.snackBar.open(
+        'A new version of OnTrack is ready. Reload to update now.',
+        'Reload',
+      );
+      snackBarRef
+        .onAction()
+        .pipe(
+          take(1),
+          switchMap(() => from(this.updates.activateUpdate())),
+          takeUntil(this.destroy$),
+        )
+        .subscribe(() => this.document.location.reload());
     });
 
-    this.updates.unrecoverable.subscribe((_event) => {
-      _snackBar.open('An error occurred during update, please refresh the page');
+    this.updates.unrecoverable.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const snackBarRef = this.snackBar.open(
+        'This version of OnTrack can no longer run safely. Reload to recover.',
+        'Reload',
+      );
+      snackBarRef
+        .onAction()
+        .pipe(take(1), takeUntil(this.destroy$))
+        .subscribe(() => this.document.location.reload());
     });
   }
 
-  public checkForUpdate() {
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  public checkForUpdate(): void {
     if (this.updates.isEnabled) {
-      this.updates.checkForUpdate();
+      // Installed apps can stay open while offline. A failed background check
+      // must not surface as an unhandled rejection or stop future polling.
+      void this.updates.checkForUpdate().catch(() => undefined);
     }
   }
 }

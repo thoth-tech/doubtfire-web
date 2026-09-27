@@ -1,8 +1,8 @@
 import {CachedEntityService, RequestOptions} from 'ngx-entity-service';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpEventType} from '@angular/common/http';
 import {EventEmitter, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {tap} from 'rxjs/operators';
+import {filter, map, tap} from 'rxjs/operators';
 import {
   ScormComment,
   Task,
@@ -13,10 +13,18 @@ import {
 import {FileDownloaderService} from 'src/app/common/file-downloader/file-downloader.service';
 import {EmojiService} from 'src/app/common/services/emoji.service';
 import API_URL from 'src/app/config/constants/apiUrl';
+import {AttachmentPolicy} from '../models/task-comment/attachment-policy';
 import {DiscussionComment} from '../models/task-comment/discussion-comment';
 import {ExtensionComment} from '../models/task-comment/extension-comment';
 import {ScormExtensionComment} from '../models/task-comment/scorm-extension-comment';
+import {AuthenticationService} from './authentication.service';
 import {MappingFunctions} from './mapping-fn';
+import {NotificationService} from './notification.service';
+
+export interface AttachmentUploadState {
+  state: 'progress' | 'complete';
+  progress: number;
+}
 
 @Injectable()
 export class TaskCommentService extends CachedEntityService<TaskComment> {
@@ -47,6 +55,8 @@ export class TaskCommentService extends CachedEntityService<TaskComment> {
     private userService: UserService,
     private downloader: FileDownloaderService,
     private testAttemptService: TestAttemptService,
+    private authService: AuthenticationService,
+    private notificationService: NotificationService,
   ) {
     super(apiHttpClient, API_URL);
 
@@ -70,6 +80,10 @@ export class TaskCommentService extends CachedEntityService<TaskComment> {
       'recipientReadTime',
       'replyToId',
       'isNew',
+      'automated',
+      'attachmentFileName',
+      'attachmentMimeType',
+      'attachmentByteSize',
       {
         keys: ['text', 'comment'],
         toEntityFn: (data, _key, _entity) => {
@@ -165,7 +179,23 @@ export class TaskCommentService extends CachedEntityService<TaskComment> {
         // Access the task and set the number of new comments to 0 - they are now read on the server
         const task = other as Task;
         task.numNewComments = 0;
+        if (this.authService.isAuthenticated()) {
+          // Comment reads also mark their notifications read on the server.
+          // A failed badge refresh must not prevent the comments from loading.
+          this.notificationService.refreshUnreadCount().subscribe({error: () => undefined});
+        }
       }),
+    );
+  }
+
+  public attachmentPolicy(): Observable<AttachmentPolicy> {
+    return this.apiHttpClient.get<AttachmentPolicy>(`${API_URL}/task_comments/upload_policy`);
+  }
+
+  public downloadAttachment(comment: TaskComment): void {
+    this.downloader.downloadFile(
+      comment.attachmentUrl.replace('as_attachment=false', 'as_attachment=true'),
+      comment.attachmentFileName || `comment-${comment.id}`,
     );
   }
 
@@ -175,6 +205,7 @@ export class TaskCommentService extends CachedEntityService<TaskComment> {
     commentType: string,
     originalComment?: TaskComment,
     prompts?: Blob[],
+    clientRequestId?: string,
   ): Observable<TaskComment> {
     const pathId = {
       projectId: task.project.id,
@@ -184,6 +215,9 @@ export class TaskCommentService extends CachedEntityService<TaskComment> {
     const body: FormData = new FormData();
     if (originalComment) {
       body.append('reply_to_id', originalComment?.id.toString());
+    }
+    if (clientRequestId) {
+      body.append('client_request_id', clientRequestId);
     }
 
     const opts: RequestOptions<TaskComment> = {endpointFormat: this.commentEndpointFormat};
@@ -210,6 +244,53 @@ export class TaskCommentService extends CachedEntityService<TaskComment> {
         this.commentAdded$.emit(tc);
       }),
     );
+  }
+
+  /**
+   * Upload one staged attachment and its optional caption as a single comment.
+   * clientRequestId is stable for the life of the staged item, so retrying after
+   * a lost response cannot create a second server comment.
+   */
+  public uploadStagedAttachment(
+    task: Task,
+    attachment: File | Blob,
+    fileName: string,
+    caption: string,
+    originalComment: TaskComment | null,
+    clientRequestId: string,
+  ): Observable<AttachmentUploadState> {
+    const body = new FormData();
+    body.append('attachment', attachment, fileName);
+    if (caption.replace(/\s+/g, '').length > 0) {
+      body.append('comment', caption);
+    }
+    if (originalComment) {
+      body.append('reply_to_id', originalComment.id.toString());
+    }
+    body.append('client_request_id', clientRequestId);
+
+    const url = `${API_URL}/projects/${task.project.id}/task_def_id/${task.definition.id}/comments`;
+    return this.apiHttpClient
+      .post<object>(url, body, {observe: 'events', reportProgress: true})
+      .pipe(
+        map((event): AttachmentUploadState | null => {
+          if (event.type === HttpEventType.UploadProgress) {
+            const total = event.total ?? attachment.size;
+            const progress = total > 0 ? Math.round((100 * event.loaded) / total) : 0;
+            return {state: 'progress', progress};
+          }
+          if (event.type === HttpEventType.Response) {
+            return {state: 'complete', progress: 100};
+          }
+          return null;
+        }),
+        filter((state): state is AttachmentUploadState => state !== null),
+        tap((state) => {
+          if (state.state === 'complete') {
+            task.refreshCommentData();
+          }
+        }),
+      );
   }
 
   public assessExtension(extension: ExtensionComment): Observable<TaskComment> {
@@ -318,6 +399,14 @@ export class TaskCommentService extends CachedEntityService<TaskComment> {
     return this.apiHttpClient.post<void>(
       `${API_URL}/projects/${comment.project.id}/task_def_id/${comment.task.definition.id}/comments/${comment.id}/discussion_comment/reply`,
       form,
+    );
+  }
+
+  public downloadCommentAttachment(comment: TaskComment): void {
+    this.downloader.downloadFileWithFeedback(
+      comment.attachmentUrl.replace('as_attachment=false', 'as_attachment=true'),
+      comment.attachmentFileName || `comment-${comment.id}`,
+      {requestKey: `task-comment-attachment-${comment.id}`},
     );
   }
 

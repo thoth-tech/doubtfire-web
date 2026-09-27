@@ -35,10 +35,7 @@
       "installMode": "lazy",
       "updateMode": "prefetch",
       "resources": {
-        "files": [
-          "/assets/**",
-          "/*.(eot|svg|cur|jpg|png|png?default=blank&size=25webp|gif|otf|ttf|woff|woff2|ani)"
-        ]
+        "files": ["/assets/**", "/*.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"]
       }
     },
     {
@@ -60,6 +57,8 @@
     "!/beta/**",
     "!/beta",
     "!/legacy",
-    "!/legacy/**"
+    "!/legacy/**",
+    "!/api",
+    "!/api/**"
   ]
 }

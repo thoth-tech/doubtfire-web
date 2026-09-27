@@ -1,0 +1,153 @@
+<section
+  aria-describedby="notification-settings-intro"
+  aria-labelledby="notification-settings-title"
+  class="notification-settings"
+  role="group"
+>
+  <div class="notification-settings__heading">
+    <h2 id="notification-settings-title">
+      <mat-icon aria-hidden="true">notifications</mat-icon>Notifications
+    </h2>
+
+    <p class="notification-settings__intro" id="notification-settings-intro">
+      Choose which notification categories you want to receive.
+    </p>
+
+    @if (showNotificationsLink) {
+      <p>
+        You can view the notifications controlled by these preferences on the
+        <a routerLink="/notifications">Notifications page</a>.
+      </p>
+    }
+  </div>
+
+  <div class="notification-setting">
+    <mat-checkbox
+      aria-describedby="task-notification-description"
+      color="primary"
+      labelPosition="before"
+      [ngModelOptions]="{standalone: true}"
+      [(ngModel)]="user.receiveTaskNotifications"
+      (ngModelChange)="preferencesChange.emit()"
+    >
+      Task notifications
+    </mat-checkbox>
+    <small class="notification-setting__help" id="task-notification-description">
+      Due dates, changed dates and task status updates. For staff, also submissions, help requests
+      and extension requests.
+    </small>
+  </div>
+
+  <div class="notification-setting">
+    <mat-checkbox
+      aria-describedby="feedback-notification-description"
+      color="primary"
+      labelPosition="before"
+      [ngModelOptions]="{standalone: true}"
+      [(ngModel)]="user.receiveFeedbackNotifications"
+      (ngModelChange)="preferencesChange.emit()"
+    >
+      Feedback notifications
+    </mat-checkbox>
+    <small class="notification-setting__help" id="feedback-notification-description">
+      New comments, feedback, and review outcomes.
+    </small>
+  </div>
+
+  <!-- One email per unit summarising where the student is up to. Its own
+       control, because it used to ride on feedback notifications and could not
+       be turned off without losing those too. -->
+  <div class="notification-setting notification-setting--choice">
+    <!-- Named by id, not by label[for]: Material puts role="combobox" on the
+         select's own element, which a label cannot be associated with. -->
+    <span class="notification-setting__label" id="digest-frequency-label">Summary email</span>
+    <mat-form-field
+      appearance="outline"
+      class="notification-setting__select"
+      subscriptSizing="dynamic"
+    >
+      <mat-select
+        aria-describedby="digest-frequency-description"
+        aria-labelledby="digest-frequency-label"
+        id="digest-frequency"
+        [ngModelOptions]="{standalone: true}"
+        [(ngModel)]="user.digestFrequency"
+        (ngModelChange)="preferencesChange.emit()"
+      >
+        @for (option of digestOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <small class="notification-setting__help" id="digest-frequency-description">
+      {{ digestHelp }}
+    </small>
+  </div>
+
+  <div class="notification-setting">
+    <mat-checkbox
+      aria-describedby="portfolio-notification-description"
+      color="primary"
+      labelPosition="before"
+      [ngModelOptions]="{standalone: true}"
+      [(ngModel)]="user.receivePortfolioNotifications"
+      (ngModelChange)="preferencesChange.emit()"
+    >
+      Portfolio notifications
+    </mat-checkbox>
+    <small class="notification-setting__help" id="portfolio-notification-description">
+      Portfolio processing and assessment updates.
+    </small>
+  </div>
+
+  <div class="notification-setting">
+    <mat-checkbox
+      aria-describedby="unit-hub-notification-description"
+      color="primary"
+      labelPosition="before"
+      [ngModelOptions]="{standalone: true}"
+      [(ngModel)]="user.receiveUnitHubNotifications"
+    >
+      Unit Hub updates
+    </mat-checkbox>
+    <small class="notification-setting__help" id="unit-hub-notification-description">
+      New and changed announcements, and sessions that move or are cancelled. Shown here in OnTrack.
+      Choose below if you also want them sent to you.
+    </small>
+
+    <div
+      aria-label="Also send Unit Hub updates by"
+      class="notification-setting__channels"
+      role="group"
+    >
+      <mat-checkbox
+        color="primary"
+        [disabled]="!user.receiveUnitHubNotifications"
+        [ngModelOptions]="{standalone: true}"
+        [(ngModel)]="user.receiveUnitHubEmailNotifications"
+      >
+        Email
+      </mat-checkbox>
+      <mat-checkbox
+        color="primary"
+        [disabled]="!user.receiveUnitHubNotifications"
+        [ngModelOptions]="{standalone: true}"
+        [(ngModel)]="user.receiveUnitHubPushNotifications"
+      >
+        Push
+      </mat-checkbox>
+      <mat-checkbox
+        color="primary"
+        [disabled]="!user.receiveUnitHubNotifications"
+        [ngModelOptions]="{standalone: true}"
+        [(ngModel)]="user.receiveUnitHubSessionReminders"
+      >
+        Session reminders
+      </mat-checkbox>
+    </div>
+    <small class="notification-setting__help">
+      Push only reaches browsers where push notifications are turned on. Session reminders arrive 30
+      minutes before a session starts.
+    </small>
+  </div>
+</section>
