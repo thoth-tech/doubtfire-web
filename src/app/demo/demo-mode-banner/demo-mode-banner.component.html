@@ -1,0 +1,14 @@
+@if (demoMode.enabled$ | async) {
+  <aside
+    #banner
+    aria-label="Demo walkthrough is active"
+    class="demo-mode-banner"
+    data-testid="demo-mode-banner"
+    role="region"
+  >
+    <mat-icon aria-hidden="true">science</mat-icon>
+    <span><strong>Demo walkthrough on.</strong> You are viewing synthetic local data.</span>
+    <a data-testid="demo-controls-link" mat-button routerLink="/demo-controls">Open walkthrough</a>
+    <button mat-stroked-button type="button" (click)="exitDemo()">Exit demo</button>
+  </aside>
+}

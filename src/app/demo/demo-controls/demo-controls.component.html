@@ -1,0 +1,224 @@
+<section aria-labelledby="demo-controls-title" class="demo-controls">
+  @if (scenario$ | async; as scenario) {
+    <mat-card appearance="outlined" data-testid="demo-controls">
+      <mat-card-header>
+        <mat-icon aria-hidden="true" mat-card-avatar>science</mat-icon>
+        <mat-card-title id="demo-controls-title">Demo walkthrough</mat-card-title>
+        <mat-card-subtitle>Synthetic records in an isolated local runtime</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p>
+          This walkthrough uses deterministic synthetic records. It never changes live student data,
+          and turning it off returns every normal API response unchanged.
+        </p>
+
+        <section aria-labelledby="demo-switch-title" class="demo-switch">
+          <div>
+            <h2 id="demo-switch-title">Walkthrough presentation</h2>
+            <p id="demo-mode-description">
+              {{
+                demoMode.enabled
+                  ? 'OnTrack may highlight the fixture hooks listed below.'
+                  : 'OnTrack shows this account’s normal server data without demo overrides.'
+              }}
+            </p>
+          </div>
+          <mat-slide-toggle
+            aria-describedby="demo-mode-description"
+            color="primary"
+            data-testid="demo-walkthrough-toggle"
+            [checked]="demoMode.enabled"
+            (change)="setDemoMode($event)"
+          >
+            Demo {{ demoMode.enabled ? 'on' : 'off' }}
+          </mat-slide-toggle>
+        </section>
+
+        <nav aria-label="Demo walkthrough destinations" class="walkthrough-links">
+          @for (link of scenario.walkthrough_links; track link.key) {
+            <a
+              mat-stroked-button
+              [attr.data-testid]="'demo-link-' + link.key"
+              [queryParams]="
+                link.route.includes('?') ? {walkthrough: link.route.split('=')[1]} : null
+              "
+              [routerLink]="link.route.split('?')[0]"
+            >
+              {{ link.label }}
+            </a>
+          }
+        </nav>
+
+        <section aria-labelledby="hub-demo-title" class="fixture-section hub-demo">
+          <h2 id="hub-demo-title">Unit Hub: announcements, HelpHubs and classes</h2>
+          <p>
+            Turn demo mode on above, then open Unit Hub to preview a student enrolled only in
+            SIT111. The sample includes announcements, two HelpHubs and a lecture. SIT102 content
+            stays hidden.
+          </p>
+          <p>
+            Demo dates and content are fictional. Subscriptions and editing are turned off. You can
+            export a calendar copy labelled DEMO. With demo mode off, Unit Hub reads real content
+            for your account.
+          </p>
+          <a class="hub-demo__open" mat-stroked-button routerLink="/unit-hub"
+            ><mat-icon aria-hidden="true">campaign</mat-icon>Open Unit Hub</a
+          >
+
+          <form
+            class="hub-meeting-links"
+            [formGroup]="meetingLinksForm"
+            (ngSubmit)="saveMeetingLinks()"
+          >
+            <h3>Use your own HelpHub links</h3>
+            <p id="hosted-links-note">
+              Optional: add Teams joining links you host. They stay in this browser tab and are
+              cleared on sign out. Demo Join buttons and calendar copies will use these real links
+              with fictional dates. Opening a calendar draft shares its details with your chosen
+              calendar provider.
+            </p>
+            <label for="demo-helphub-link">HelpHub meeting link</label>
+            <input
+              aria-describedby="hosted-links-note"
+              autocomplete="off"
+              formControlName="helpHub"
+              id="demo-helphub-link"
+              maxlength="4096"
+              spellcheck="false"
+              type="url"
+            />
+            <label for="demo-extra-helphub-link">Extra HelpHub meeting link</label>
+            <input
+              aria-describedby="hosted-links-note"
+              autocomplete="off"
+              formControlName="extraHelpHub"
+              id="demo-extra-helphub-link"
+              maxlength="4096"
+              spellcheck="false"
+              type="url"
+            />
+            @if (meetingLinksError) {
+              <p class="hub-meeting-links__error" role="alert">{{ meetingLinksError }}</p>
+            }
+            @if (meetingLinksStatus) {
+              <p role="status">{{ meetingLinksStatus }}</p>
+            }
+            <div class="hub-meeting-links__actions">
+              <button mat-stroked-button type="submit">Save demo links</button>
+              <button mat-button type="button" (click)="clearMeetingLinks()">
+                Clear demo links
+              </button>
+            </div>
+          </form>
+
+          <details class="hub-demo__draft">
+            <summary>Try the Teams meeting draft</summary>
+            <p>
+              This example opens a real Teams invitation draft with fictional details. OnTrack sends
+              nothing. In the normal version, assigned teaching staff prepare meetings from the
+              session editor using their own title, dates and description.
+            </p>
+            <f-teams-meeting-composer unitCode="SIT111" [draft]="demoMeetingDraft" />
+          </details>
+        </section>
+
+        <section aria-labelledby="lifecycle-title" class="fixture-section">
+          <div class="fixture-section__heading">
+            <div>
+              <h2 id="lifecycle-title">Task lifecycle fixture</h2>
+              <p>
+                {{ scenario.task_lifecycle.total_tasks }} tasks in
+                {{ scenario.primary_unit_key }}
+              </p>
+            </div>
+            <dl class="fixture-metrics">
+              <div>
+                <dt>Submitted</dt>
+                <dd>{{ scenario.task_lifecycle.submitted_percentage }}%</dd>
+              </div>
+              <div>
+                <dt>Complete</dt>
+                <dd>{{ scenario.task_lifecycle.completed_percentage }}%</dd>
+              </div>
+            </dl>
+          </div>
+          <ul class="status-grid">
+            @for (status of scenario.task_lifecycle.statuses; track status.status) {
+              <li [attr.data-status]="status.status">
+                <strong>{{ status.percentage }}%</strong>
+                <span>{{ statusLabel(status.status) }}</span>
+                <small>{{ status.task_abbreviations.join(', ') }}</small>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section aria-labelledby="ppi-hooks-title" class="fixture-section">
+          <h2 id="ppi-hooks-title">Peer progress hooks</h2>
+          <ul class="hook-list">
+            @for (unit of scenario.units; track unit.key) {
+              <li [attr.data-state]="unit.ppi.state">
+                <span
+                  ><strong>{{ unit.code }}</strong> {{ unit.name }}</span
+                >
+                @if (unit.ppi.state === 'available') {
+                  <span>
+                    {{ unit.ppi.submitted_percentage }}% submitted ·
+                    {{ unit.ppi.completed_percentage }}% complete
+                  </span>
+                } @else {
+                  <span>Unavailable — insufficient cohort</span>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+
+        <f-ppi-preview></f-ppi-preview>
+
+        <section aria-labelledby="push-preview-title" class="push-preview">
+          <div class="push-preview__heading">
+            <mat-icon aria-hidden="true">notifications_active</mat-icon>
+            <div>
+              <h2 id="push-preview-title">Push notification visual preview</h2>
+              <p>Preview only — no browser permission or push subscription is changed.</p>
+            </div>
+          </div>
+
+          <div aria-label="Example push notification" class="push-preview__notification" role="img">
+            <strong>{{ pushPreview.appName }}</strong>
+            <span>{{ pushPreview.title }}</span>
+            <span>{{ pushPreview.message }}</span>
+            <small>Would open: {{ pushPreview.destination }}</small>
+          </div>
+
+          <p class="push-preview__safety" role="note">
+            This preview never calls Notification permission APIs, Angular SwPush, or
+            <code>/push_subscriptions</code>.
+          </p>
+
+          <a mat-stroked-button routerLink="/edit_profile">
+            <mat-icon aria-hidden="true">manage_accounts</mat-icon>
+            Open My Profile for real notifications
+          </a>
+        </section>
+
+        <section aria-labelledby="adapter-hooks-title" class="fixture-section">
+          <h2 id="adapter-hooks-title">Reusable fixture adapters</h2>
+          <p>
+            {{ scenario.notification_hooks.length }} varied notification events and group
+            {{ scenario.group_hook.name }} ({{ scenario.group_hook.member_count }}/{{
+              scenario.group_hook.capacity
+            }}) are ready for their feature walkthroughs.
+          </p>
+        </section>
+
+        <p class="contract-note">
+          Contract {{ scenario.scenario_id }} · schema {{ scenario.schema_version }}. Runtime IDs
+          stay in memory and are never copied into normal entity caches.
+        </p>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

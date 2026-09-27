@@ -1,0 +1,264 @@
+:host {
+  display: block;
+  color: var(--ot-color-text);
+}
+
+.demo-controls {
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-width: 64rem;
+  padding: 1.5rem 1rem 4rem;
+}
+
+.hub-demo__open {
+  justify-self: start;
+}
+
+.hub-meeting-links {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ot-color-divider);
+
+  h3 {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    // Muted text, not the border token: that is 1.6:1 in dark, too faint for a field edge.
+    border: 1px solid var(--ot-color-text-muted);
+    border-radius: var(--ot-radius-sm);
+    padding: 0.75rem;
+    background: var(--ot-color-surface);
+    color: var(--ot-color-text);
+  }
+}
+
+.fixture-section .hub-meeting-links__error {
+  color: var(--ot-color-error);
+}
+
+.hub-meeting-links__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.hub-demo__draft summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+mat-card-content {
+  display: grid;
+  gap: 1.25rem;
+  padding-top: 1.25rem;
+}
+
+h2,
+p,
+ul,
+dl,
+dd {
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.05rem;
+}
+
+.demo-switch,
+.fixture-section {
+  border: 1px solid var(--ot-color-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.demo-switch,
+.fixture-section__heading {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.demo-switch p,
+.fixture-section p,
+.contract-note {
+  color: var(--ot-color-text-muted);
+  line-height: 1.45;
+}
+
+.walkthrough-links {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.walkthrough-links a {
+  min-height: 44px;
+  white-space: normal;
+}
+
+.fixture-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.fixture-metrics {
+  display: flex;
+  gap: 1rem;
+  text-align: right;
+}
+
+.fixture-metrics dt {
+  color: var(--ot-color-text-muted);
+  font-size: 0.75rem;
+}
+
+.fixture-metrics dd {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.status-grid,
+.hook-list {
+  list-style: none;
+  padding: 0;
+}
+
+.status-grid {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.status-grid li {
+  background: var(--ot-color-surface-raised);
+  border-radius: 0.5rem;
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.65rem;
+}
+
+.status-grid span,
+.status-grid small {
+  overflow-wrap: anywhere;
+}
+
+.status-grid small {
+  color: var(--ot-color-text-muted);
+}
+
+.hook-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.hook-list li {
+  align-items: center;
+  background: var(--ot-color-surface-raised);
+  border-radius: 0.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 0.75rem;
+}
+
+.hook-list li[data-state='unavailable'] {
+  background: var(--ot-color-surface-raised);
+}
+
+.contract-note {
+  font-size: 0.8rem;
+}
+
+@media (max-width: 760px) {
+  .demo-controls {
+    padding: 0.75rem 0.5rem 3rem;
+  }
+
+  .demo-switch,
+  .fixture-section__heading,
+  .hook-list li {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .demo-switch mat-slide-toggle {
+    min-height: 44px;
+  }
+
+  .walkthrough-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fixture-metrics {
+    text-align: left;
+  }
+
+  .status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hook-list li {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .walkthrough-links,
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.push-preview {
+  border-top: 1px solid var(--ot-color-border);
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 1.5rem;
+}
+
+.push-preview__heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.push-preview__notification {
+  color: var(--ot-color-text);
+  background: var(--ot-color-surface);
+  border: 1px solid var(--ot-color-border);
+  border-radius: 0.75rem;
+  box-shadow: var(--ot-elevation-1);
+  display: grid;
+  gap: 0.25rem;
+  max-width: 30rem;
+  padding: 1rem;
+}
+
+.push-preview__notification small,
+.push-preview__safety {
+  color: var(--ot-color-text-muted);
+}
+
+.hook-list li[data-state='unavailable'] {
+  border-left: 3px solid var(--ot-color-warning);
+}
